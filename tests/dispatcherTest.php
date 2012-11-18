@@ -1,0 +1,112 @@
+<?php
+
+/*
+ * This file is part of the ICanBoogie package.
+ *
+ * (c) Olivier Laviale <olivier.laviale@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace ICanBoogie\Tests\HTTP\Dispatcher;
+
+use ICanBoogie\Events;
+use ICanBoogie\HTTP\Dispatcher;
+use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\Response;
+
+class DispatcherTest extends \PHPUnit_Framework_TestCase
+{
+	public function testCollectEvent()
+	{
+		$done = null;
+
+		$he = Events::attach('ICanBoogie\HTTP\Dispatcher::collect', function(Dispatcher\CollectEvent $event, Dispatcher $target) use(&$done) {
+
+			$done = true;
+
+		});
+
+		new Dispatcher();
+
+		$this->assertTrue($done);
+
+		$he->detach();
+	}
+
+	/**
+	 * The event hooks for the `ICanBoogie\HTTP\Dispatcher::dispatch:before` and
+	 * `ICanBoogie\HTTP\Dispatcher::dispatch` events must be called and a response must be
+	 * provided with the body 'Ok'.
+	 */
+	public function testDispatchEvent()
+	{
+		$before_done = null;
+		$done = null;
+
+		$beh = Events::attach('ICanBoogie\HTTP\Dispatcher::dispatch:before', function(Dispatcher\BeforeDispatchEvent $event, Dispatcher $target) use(&$before_done) {
+
+			$before_done = true;
+
+		});
+
+		$eh = Events::attach('ICanBoogie\HTTP\Dispatcher::dispatch', function(Dispatcher\DispatchEvent $event, Dispatcher $target) use(&$done) {
+
+			$done = true;
+
+			$event->response = new Response('Ok');
+
+		});
+
+		$dispatcher = new Dispatcher();
+		$response = $dispatcher(Request::from($_SERVER));
+
+		$this->assertTrue($before_done);
+		$this->assertTrue($done);
+		$this->assertEquals('Ok', $response->body);
+
+		$beh->detach();
+		$eh->detach();
+	}
+
+	/**
+	 * The exception thrown by the _collect event hook_ must be rescued by the _rescue event hook_.
+	 */
+	public function testDispatcherRescueEvent()
+	{
+		$collect_eh = Events::attach('ICanBoogie\HTTP\Dispatcher::collect', function(Dispatcher\CollectEvent $event, Dispatcher $target) {
+
+			$event->dispatchers['exception'] = function() {
+
+				throw new \Exception('Damned!');
+
+			};
+
+		});
+
+		$rescue_eh = Events::attach('Exception::rescue', function(\ICanBoogie\Exception\RescueEvent $event, \Exception $target) {
+
+			$event->response = new Response("Rescued: " . $event->exception->getMessage());
+
+		});
+
+		$dispatcher = new Dispatcher();
+		$response = $dispatcher(Request::from($_SERVER));
+
+		$this->assertInstanceOf('ICanBoogie\HTTP\Response', $response);
+		$this->assertEquals('Rescued: Damned!', $response->body);
+
+		$collect_eh->detach();
+		$rescue_eh->detach();
+	}
+
+	/**
+	 * @expectedException ICanBoogie\HTTP\NotFound
+	 */
+	public function testNotFound()
+	{
+		$dispatcher = new Dispatcher();
+		$dispatcher(Request::from($_SERVER));
+	}
+}
