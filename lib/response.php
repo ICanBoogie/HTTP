@@ -219,7 +219,7 @@ class Response extends \ICanBoogie\Object
 			$body = (string) $body;
 		}
 
-		return "HTTP/{$this->version} {$this->status} {$this->status_message}"
+		return "HTTP/{$this->version} {$this->status} {$this->status_message}\r\n"
 		. $this->headers
 		. "\r\n"
 		. $body;
@@ -238,10 +238,33 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * - If the {@link $is_ok} property is falsy **the method returns**.
 	 *
-	 * Note: If the body is a `callable`, the provided callable MUST echo the response body.
+	 * Note: If the body is a string, or an object implementing the `__toString()` method, the
+	 * `Content-Length` header is automatically defined to the lenght of the body string.
+	 *
+	 * Note: If the body is an instance of {@link Closure} it MUST echo the response's body.
 	 */
 	public function __invoke()
 	{
+		#
+		# If the body is a string we add the `Content-Length`
+		#
+
+		$body = $this->body;
+
+		if (is_callable(array($body, '__toString')))
+		{
+			$body = (string) $body;
+		}
+
+		if (is_numeric($body) || is_string($body))
+		{
+			$this->headers['Content-Length'] = strlen($body);
+		}
+
+		#
+		# send headers
+		#
+
 		if (headers_sent($file, $line))
 		{
 			trigger_error(\ICanBoogie\format
@@ -261,8 +284,6 @@ class Response extends \ICanBoogie\Object
 
 			$this->headers();
 		}
-
-		$body = $this->body;
 
 		if ($body === null)
 		{
@@ -386,6 +407,11 @@ class Response extends \ICanBoogie\Object
 					'value' => $body
 				)
 			));
+		}
+
+		if ($body === null)
+		{
+			$this->headers['Content-Length'] = null;
 		}
 
 		$this->body = $body;
