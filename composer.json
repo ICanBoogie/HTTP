@@ -2,7 +2,7 @@
     "name": "icanboogie/http",
     "type": "library",
     "description": "Provides an API to handle HTTP requests.",
-    "keywords": ["toolkit"],
+    "keywords": ["library"],
     "homepage": "http://icanboogie.org/",
     "license": "BSD-3-Clause",
     "authors": [
