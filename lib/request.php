@@ -61,7 +61,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	const METHOD_PATCH = 'PATCH';
 	const METHOD_TRACE = 'TRACE';
 
-	static protected $methods = array
+	static public $methods = array
 	(
 		self::METHOD_CONNECT,
 		self::METHOD_DELETE,
