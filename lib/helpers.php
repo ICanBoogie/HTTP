@@ -24,7 +24,8 @@ class Helpers
 	static private $jumptable = array
 	(
 		'dispatch' => array(__CLASS__, 'dispatch'),
-		'get_dispatcher' => array(__CLASS__, 'get_dispatcher')
+		'get_dispatcher' => array(__CLASS__, 'get_dispatcher'),
+		'get_initial_request' => array(__CLASS__, 'get_initial_request')
 	);
 
 	/**
