@@ -395,7 +395,7 @@ class ContentDisposition
 		{
 			list($disposition_type, $filename_param) = $content_disposition;
 
-			$value = $disposition_type . '; ' . self::format_param('filename', $filename_param);
+			$value = $disposition_type . '; ' . \ICanBoogie\HTTP\Headers::format_param('filename', $filename_param);
 		}
 		else
 		{
