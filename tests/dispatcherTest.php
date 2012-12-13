@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\Tests\HTTP\Dispatcher;
 
-use ICanBoogie\Events;
+use ICanBoogie\Event;
 use ICanBoogie\HTTP\Dispatcher;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
@@ -22,7 +22,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 	{
 		$done = null;
 
-		$he = Events::attach('ICanBoogie\HTTP\Dispatcher::collect', function(Dispatcher\CollectEvent $event, Dispatcher $target) use(&$done) {
+		$he = Event\attach('ICanBoogie\HTTP\Dispatcher::collect', function(Dispatcher\CollectEvent $event, Dispatcher $target) use(&$done) {
 
 			$done = true;
 
@@ -45,13 +45,13 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 		$before_done = null;
 		$done = null;
 
-		$beh = Events::attach('ICanBoogie\HTTP\Dispatcher::dispatch:before', function(Dispatcher\BeforeDispatchEvent $event, Dispatcher $target) use(&$before_done) {
+		$beh = Event\attach('ICanBoogie\HTTP\Dispatcher::dispatch:before', function(Dispatcher\BeforeDispatchEvent $event, Dispatcher $target) use(&$before_done) {
 
 			$before_done = true;
 
 		});
 
-		$eh = Events::attach('ICanBoogie\HTTP\Dispatcher::dispatch', function(Dispatcher\DispatchEvent $event, Dispatcher $target) use(&$done) {
+		$eh = Event\attach('ICanBoogie\HTTP\Dispatcher::dispatch', function(Dispatcher\DispatchEvent $event, Dispatcher $target) use(&$done) {
 
 			$done = true;
 
@@ -75,7 +75,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testDispatcherRescueEvent()
 	{
-		$collect_eh = Events::attach('ICanBoogie\HTTP\Dispatcher::collect', function(Dispatcher\CollectEvent $event, Dispatcher $target) {
+		$collect_eh = Event\attach('ICanBoogie\HTTP\Dispatcher::collect', function(Dispatcher\CollectEvent $event, Dispatcher $target) {
 
 			$event->dispatchers['exception'] = function() {
 
@@ -85,7 +85,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
 		});
 
-		$rescue_eh = Events::attach('Exception::rescue', function(\ICanBoogie\Exception\RescueEvent $event, \Exception $target) {
+		$rescue_eh = Event\attach('Exception::rescue', function(\ICanBoogie\Exception\RescueEvent $event, \Exception $target) {
 
 			$event->response = new Response("Rescued: " . $event->exception->getMessage());
 
