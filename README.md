@@ -324,12 +324,12 @@ Third parties may use this event to register dispatchers or alter initial dispat
 ```php
 <?php
 
-use ICanBoogie\Events;
+use ICanBoogie\Event;
 use ICanBoogie\HTTP\Dispatcher;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
 
-Events::attach('ICanBoogie\HTTP\Dispatcher::collect', function(Dispatcher\CollectEvent $event) {
+Event\attach(function(Dispatcher\CollectEvent $event, Dispatcher $target) {
 
 	$event->dispatchers['hello'] = function(Request $request) {
 	
@@ -358,11 +358,11 @@ to redirect requests or provide cached responses.
 ```php
 <?php
 
-use ICanBoogie\Events;
+use ICanBoogie\Event;
 use ICanBoogie\HTTP\Dispatcher;
 use ICanBoogie\HTTP\RedirectResponse;
 
-Events::attach('ICanBoogie\HTTP\Dispatcher::dispatch:before', function(Dispatcher\BeforeDispatchEvent $event) {
+Event\attach(function(Dispatcher\BeforeDispatchEvent $event, Dispatcher $dispatcher) {
 
 	$path = $event->request->path;
 	$normalized_path = ICanBoogie\normalize_url_path($path);
@@ -394,10 +394,10 @@ provide a default response if no response was provided, or cache the response.
 ```php
 <?php
 
-use ICanBoogie\Events;
+use ICanBoogie\Event;
 use ICanBoogie\HTTP\Dispatcher;
 
-Events::attach('ICanBoogie\HTTP\Dispatcher::dispatch', function(Dispatcher\DispatchEvent $event) use($cache) {
+Event\attach(function(Dispatcher\DispatchEvent $event, Dispatcher $target) use($cache) {
 
 	$response = $event->response;
 	
@@ -428,15 +428,16 @@ The following example demonstrates how a _login form_ can be returned as respons
 ```php
 <?php
 
-use ICanBoogie\Events;
+use ICanBoogie\Event;
 use ICanBoogie\HTTP\Response;
 
-Events::attach('ICanBoogie\AuthenticationRequired::rescue', function(ICanBoogie\Exception\RescueEvent $event, ICanBoogie\AuthenticationRequired $target)
-{
+Event\attach(function(ICanBoogie\Exception\RescueEvent $event, ICanBoogie\AuthenticationRequired $target) {
+
 	ICanBoogie\log_error($target->getMessage());
 
 	$event->response = new Response($target->getCode(), array(), new LoginForm());
 	$event->stop();
+
 });
 ```
 
