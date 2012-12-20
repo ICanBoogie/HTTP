@@ -148,12 +148,15 @@ class Dispatcher
 	 * The response provided by one of the event hooks is returned. If there is no response the
 	 * exception is thrown again.
 	 *
+	 * If a response is finaly obtained, the `X-ICanBoogie-Rescued-Exception` header is added to
+	 * indicate where the exception was thrown from.
+	 *
 	 * @param \Exception $exception The exception to rescue.
 	 * @param Request $request The current request.
 	 *
 	 * @return Response
 	 *
-	 * @throws \Exception when the exception cannot be rescued.
+	 * @throws \Exception The exception is rethrown if it could not be rescued.
 	 */
 	protected function rescue(\Exception $exception, Request $request)
 	{
@@ -173,6 +176,8 @@ class Dispatcher
 		{
 			throw $exception;
 		}
+
+		$response->headers['X-ICanBoogie-Rescued-Exception'] = \ICanBoogie\strip_root($exception->getFile()) . '@' . $exception->getLine();
 
 		return $response;
 	}
