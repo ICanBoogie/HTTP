@@ -177,7 +177,15 @@ class Dispatcher
 			throw $exception;
 		}
 
-		$response->headers['X-ICanBoogie-Rescued-Exception'] = \ICanBoogie\strip_root($exception->getFile()) . '@' . $exception->getLine();
+		$pathname = $exception->getFile();
+		$root = $_SERVER['DOCUMENT_ROOT'];
+
+		if (strpos($pathname, $root) === 0)
+		{
+			$pathname = substr($pathname, strlen($root));
+		}
+
+		$response->headers['X-ICanBoogie-Rescued-Exception'] = $pathname . '@' . $exception->getLine();
 
 		return $response;
 	}
