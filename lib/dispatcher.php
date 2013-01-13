@@ -108,9 +108,9 @@ class Dispatcher implements IDispatcher
 				# is used to instantiate a dispatcher.
 				#
 
-				if (!is_callable($dispatcher))
+				if (!($dispatcher instanceof CallableDispatcher))
 				{
-					$dispatcher = new $dispatcher;
+					$dispatcher = is_callable($dispatcher) ? new CallableDispatcher($dispatcher) : new $dispatcher;
 				}
 
 				try
@@ -211,6 +211,29 @@ interface IDispatcher
 	 * @throws \Exception when the request exception cannot be rescued.
 	 */
 	public function rescue(\Exception $exception, Request $request);
+}
+
+/**
+ * Wrapper for callable dispatchers.
+ */
+class CallableDispatcher implements IDispatcher
+{
+	private $callable;
+
+	public function __construct($callable)
+	{
+		$this->callable = $callable;
+	}
+
+	public function __invoke(Request $request)
+	{
+		return call_user_func($this->callable, $request);
+	}
+
+	public function rescue(\Exception $exception, Request $request)
+	{
+		throw $exception;
+	}
 }
 
 /*
