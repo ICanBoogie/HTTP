@@ -181,12 +181,24 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 
 		switch ($field)
 		{
+			# http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.25
+			case 'If-Modified-Since':
+				#
+				# Removes the ";length=xxx" string added by Internet Explorer.
+				# http://stackoverflow.com/questions/12626699/if-modified-since-http-header-passed-by-ie9-includes-length
+				#
+
+				$pos = strpos($value, ';');
+
+				if ($pos)
+				{
+					$value = substr($value, 0, $pos);
+				}
+
 			# http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.18
 			case 'Date':
 			# http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.21
 			case 'Expires':
-			# http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.25
-			case 'If-Modified-Since':
 			# http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.28
 			case 'If-Unmodified-Since':
 			# http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.29
