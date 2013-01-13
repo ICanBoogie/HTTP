@@ -24,7 +24,7 @@ namespace ICanBoogie\HTTP;
  * - `ICanBoogie\HTTP\Dispatcher::dispatch`: {@link Dispatcher\DispatchEvent}.
  * - `ICanBoogie\HTTP\Dispatcher::rescue`: {@link ICanBoogie\Exception\RescueEvent}.
  */
-class Dispatcher
+class Dispatcher implements IDispatcher
 {
 	/**
 	 * The dispatchers called during the dispatching of the request.
@@ -158,7 +158,7 @@ class Dispatcher
 	 *
 	 * @throws \Exception The exception is rethrown if it could not be rescued.
 	 */
-	protected function rescue(\Exception $exception, Request $request)
+	public function rescue(\Exception $exception, Request $request)
 	{
 		$response = null;
 
@@ -206,7 +206,7 @@ interface IDispatcher
 	 *
 	 * @throws \Exception when the request exception cannot be rescued.
 	 */
-	public function rescue(\Exception $exception);
+	public function rescue(\Exception $exception, Request $request);
 }
 
 /*
