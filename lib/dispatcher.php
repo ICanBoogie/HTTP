@@ -43,7 +43,7 @@ class Dispatcher
 	 */
 	public function __construct(array $dispatchers=array())
 	{
-		new Dispatcher\CollectEvent($this, array('dispatchers' => &$dispatchers));
+		new Dispatcher\CollectEvent($this, $dispatchers);
 
 		$this->dispatchers = $dispatchers;
 	}
@@ -97,7 +97,7 @@ class Dispatcher
 	{
 		$response = null;
 
-		new Dispatcher\BeforeDispatchEvent($this, array('request' => $request, 'response' => &$response));
+		new Dispatcher\BeforeDispatchEvent($this, $request, $response);
 
 		if (!$response)
 		{
@@ -131,7 +131,7 @@ class Dispatcher
 			}
 		}
 
-		new Dispatcher\DispatchEvent($this, array('request' => $request, 'response' => &$response));
+		new Dispatcher\DispatchEvent($this, $request, $response);
 
 		if (!$response)
 		{
@@ -162,15 +162,7 @@ class Dispatcher
 	{
 		$response = null;
 
-		new \ICanBoogie\Exception\RescueEvent
-		(
-			$exception, array
-			(
-				'response' => &$response,
-				'exception' => &$exception,
-				'request' => $request
-			)
-		);
+		new \ICanBoogie\Exception\RescueEvent($exception, $request, $response);
 
 		if (!$response)
 		{
@@ -224,6 +216,8 @@ interface IDispatcher
 namespace ICanBoogie\HTTP\Dispatcher;
 
 use ICanBoogie\HTTP\Dispatcher;
+use ICanBoogie\HTTP\Response;
+use ICanBoogie\HTTP\Request;
 
 /**
  * Event class for the `ICanBoogie\HTTP\Dispatcher::collect` event.
@@ -245,9 +239,11 @@ class CollectEvent extends \ICanBoogie\Event
 	 * @param Dispatcher $target
 	 * @param array $payload
 	 */
-	public function __construct(Dispatcher $target, array $payload)
+	public function __construct(Dispatcher $target, array &$dispatchers)
 	{
-		parent::__construct($target, 'collect', $payload);
+		$this->dispatchers = &$dispatchers;
+
+		parent::__construct($target, 'collect');
 	}
 }
 
@@ -280,9 +276,17 @@ class BeforeDispatchEvent extends \ICanBoogie\Event
 	 * @param Dispatcher $target
 	 * @param array $payload
 	 */
-	public function __construct(Dispatcher $target, array $payload)
+	public function __construct(Dispatcher $target, Request $request, &$response)
 	{
-		parent::__construct($target, 'dispatch:before', $payload);
+		if ($response !== null && !($response instanceof Response))
+		{
+			throw new \InvalidArgumentException('$response must be an instance of ICanBoogie\HTTP\Response. Given: ' . get_class($response) . '.');
+		}
+
+		$this->request = $request;
+		$this->response = &$response;
+
+		parent::__construct($target, 'dispatch:before');
 	}
 }
 
@@ -313,13 +317,19 @@ class DispatchEvent extends \ICanBoogie\Event
 	 * @param Dispatcher $target
 	 * @param array $payload
 	 */
-	public function __construct(Dispatcher $target, array $payload)
+	public function __construct(Dispatcher $target, Request $request, Response &$response)
 	{
-		parent::__construct($target, 'dispatch', $payload);
+		$this->request = $request;
+		$this->response = &$response;
+
+		parent::__construct($target, 'dispatch');
 	}
 }
 
 namespace ICanBoogie\Exception;
+
+use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\Response;
 
 /**
  * Event class for the `Exception:rescue` event type.
@@ -355,8 +365,17 @@ class RescueEvent extends \ICanBoogie\Event
 	 * @param \Exception $target
 	 * @param array $payload
 	 */
-	public function __construct(\Exception $target, array $payload)
+	public function __construct(\Exception &$target, Request $request, &$response)
 	{
-		parent::__construct($target, 'rescue', $payload);
+		if ($response !== null && !($response instanceof Response))
+		{
+			throw new \InvalidArgumentException('$response must be an instance of ICanBoogie\HTTP\Response. Given: ' . get_class($response) . '.');
+		}
+
+		$this->response = &$response;
+		$this->exception = &$target;
+		$this->request = $request;
+
+		parent::__construct($target, 'rescue');
 	}
 }
