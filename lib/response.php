@@ -204,20 +204,11 @@ class Response extends \ICanBoogie\Object
 	 */
 	public function __toString()
 	{
-		$body = $this->body;
+		ob_start();
 
-		if ($body instanceof \Closure)
-		{
-			ob_start();
+		$this->echo_body($this->body);
 
-			$body($this);
-
-			$body = ob_get_clean();
-		}
-		else
-		{
-			$body = (string) $body;
-		}
+		$body = ob_get_clean();
 
 		return "HTTP/{$this->version} {$this->status} {$this->status_message}\r\n"
 		. $this->headers
@@ -297,14 +288,7 @@ class Response extends \ICanBoogie\Object
 			}
 		}
 
-		if ($body instanceof \Closure)
-		{
-			$body($this);
-		}
-		else
-		{
-			echo $body;
-		}
+		$this->echo_body($body);
 
 		exit;
 	}
@@ -427,6 +411,23 @@ class Response extends \ICanBoogie\Object
 	protected function volatile_get_body()
 	{
 		return $this->body;
+	}
+
+	/**
+	 * Echo the body.
+	 *
+	 * @param mixed $body
+	 */
+	protected function echo_body($body)
+	{
+		if ($body instanceof \Closure)
+		{
+			$body($this);
+		}
+		else
+		{
+			echo $body;
+		}
 	}
 
 	/**
