@@ -16,7 +16,7 @@ use ICanBoogie\PropertyNotWritable;
 /**
  * An HTTP request.
  *
- * @property-read \ICanBoogie\HTTP\Request\Context the request's context.
+ * @property-read \ICanBoogie\HTTP\Request\Context $context the request's context.
  * @property-read Request $previous Previous request.
  *
  * @property-read boolean $authorization Authorization of the request.
@@ -772,6 +772,7 @@ use ICanBoogie\PropertyNotWritable;
  * request.
  *
  * @property-read \ICanBoogie\HTTP\Request $request The request associated with the context.
+ * @property-read \ICanBoogie\HTTP\IDispatcher $dispatcher The dispatcher currently dispatching the request.
  */
 class Context extends \ICanBoogie\Object
 {
@@ -784,6 +785,13 @@ class Context extends \ICanBoogie\Object
 	 * @var \ICanBoogie\HTTP\Request
 	 */
 	private $request;
+
+	/**
+	 * The dispatcher currently dispatching the request.
+	 *
+	 * @var \ICanBoogie\HTTP\IDispatcher|null
+	 */
+	private $dispatcher;
 
 	/**
 	 * Constructor.
@@ -811,5 +819,32 @@ class Context extends \ICanBoogie\Object
 	protected function volatile_get_request()
 	{
 		return $this->request;
+	}
+
+	/**
+	 * Sets the dispatcher currently dispatching the request.
+	 *
+	 * @param \ICanBoogie\HTTP\IDispatcher|null $dispatcher
+	 *
+	 * @throws \InvalidArgumentException if the value is not null and does not implements \ICanBoogie\HTTP\IDispatcher.
+	 */
+	protected function volatile_set_dispatcher($dispatcher)
+	{
+		if ($dispatcher !== null && !($dispatcher instanceof \ICanBoogie\HTTP\IDispatcher))
+		{
+			throw new \InvalidArgumentException('$dispatcher must be an instance of ICanBoogie\HTTP\IDispatcher. Given: ' . get_class($dispatcher) . '.');
+		}
+
+		$this->dispatcher = $dispatcher;
+	}
+
+	/**
+	 * Returns the {@link $dispatcher} property.
+	 *
+	 * @return \ICanBoogie\HTTP\IDispatcher
+	 */
+	protected function volatile_get_dispatcher()
+	{
+		return $this->dispatcher;
 	}
 }

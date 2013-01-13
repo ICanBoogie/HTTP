@@ -115,6 +115,8 @@ class Dispatcher implements IDispatcher
 
 				try
 				{
+					$request->context->dispatcher = $dispatcher;
+
 					$response = call_user_func($dispatcher, $request);
 				}
 				catch (\Exception $e)
@@ -124,10 +126,12 @@ class Dispatcher implements IDispatcher
 						throw $e;
 					}
 
-					$response = $dispatcher->rescue($e);
+					$response = $dispatcher->rescue($e, $request);
 				}
 
 				if ($response) break;
+
+				$request->context->dispatcher = null;
 			}
 		}
 
