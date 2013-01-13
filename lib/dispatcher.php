@@ -176,7 +176,7 @@ class Dispatcher implements IDispatcher
 		$pathname = $exception->getFile();
 		$root = $_SERVER['DOCUMENT_ROOT'];
 
-		if (strpos($pathname, $root) === 0)
+		if ($root && strpos($pathname, $root) === 0)
 		{
 			$pathname = substr($pathname, strlen($root));
 		}
@@ -344,7 +344,7 @@ class DispatchEvent extends \ICanBoogie\Event
 	 * @param Dispatcher $target
 	 * @param array $payload
 	 */
-	public function __construct(Dispatcher $target, Request $request, Response &$response)
+	public function __construct(Dispatcher $target, Request $request, &$response)
 	{
 		$this->request = $request;
 		$this->response = &$response;
