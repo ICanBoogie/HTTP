@@ -16,6 +16,16 @@ use ICanBoogie\PropertyNotWritable;
 /**
  * An HTTP request.
  *
+ * @method Response connect() connect(array $params)
+ * @method Response delete() delete(array $params)
+ * @method Response get() get(array $params)
+ * @method Response head() head(array $params)
+ * @method Response options() options(array $params)
+ * @method Response post() post(array $params)
+ * @method Response put() put(array $params)
+ * @method Response patch() patch(array $params)
+ * @method Response trace() trace(array $params)
+ *
  * @property-read \ICanBoogie\HTTP\Request\Context $context the request's context.
  * @property-read Request $previous Previous request.
  *
@@ -258,26 +268,14 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	/**
 	 * Handles read-only properties.
 	 *
-	 * @throws PropertyNotWritable in attempt to write one of the following properties:
-	 * {@link $is_delete}, {@link $is_get}, {@link $is_head}, {@link $is_options},
-	 * {@link $is_patch}, {@link $is_post}, {@link $is_put}, {@link $is_trace}, {@link $is_xhr},
-	 * {@link $is_local}, {@link $ip}, {@link $authorization}, {@link $path},
+	 * @throws PropertyNotWritable in attempt to write boolean properties `is_*`or one of the
+	 * following properties: {@link $ip}, {@link $authorization}, {@link $path},
 	 * {@link $normalized_path}, {@link $extension}.
 	 */
 	public function __set($property, $value)
 	{
 		static $readonly = array
 		(
-			'is_delete',
-			'is_get',
-			'is_head',
-			'is_options',
-			'is_patch',
-			'is_post',
-			'is_put',
-			'is_trace',
-			'is_xhr',
-			'is_local',
 			'ip',
 			'authorization',
 			'path',
@@ -285,7 +283,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 			'extension'
 		);
 
-		if (in_array($property, $readonly))
+		if (strpos($property, 'is_') === 0 || in_array($property, $readonly))
 		{
 			throw new PropertyNotWritable(array($property, $this));
 		}
