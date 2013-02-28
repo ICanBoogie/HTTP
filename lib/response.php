@@ -138,11 +138,20 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @param mixed $body The body of the response.
 	 * @param int $status The status code of the response.
-	 * @param array $headers The initial header fields of the response.
+	 * @param Headers|array $headers The initial header fields of the response.
 	 */
-	public function __construct($body=null, $status=200, array $headers=array())
+	public function __construct($body=null, $status=200, $headers=array())
 	{
-		$this->headers = new Headers($headers);
+		if (is_array($headers))
+		{
+			$headers = new Headers($headers);
+		}
+		else if (!($headers instanceof Headers))
+		{
+			throw new \InvalidArgumentException("$headers must be an array or a ICanBoogie\HTTP\Headers instance. Given: " . gettype($headers));
+		}
+
+		$this->headers = $headers;
 
 		if (!$this->headers['Date'])
 		{

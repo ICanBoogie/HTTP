@@ -43,7 +43,7 @@ use ICanBoogie\PropertyNotWritable;
  * @property-read boolean $is_trace Is this a `TRACE` request?
  * @property-read boolean $is_local Is this a local request?
  * @property-read boolean $is_xhr Is this an Ajax request?
- * @property-read string $method Method of the request.
+ * @property string $method Method of the request.
  * @property-read string $normalized_path Path of the request normalized using the {@link \ICanBoogie\normalize_url_path()} function.
  * @property-read string $path Path info of the request.
  * @property int $port Port of the request.
@@ -421,9 +421,12 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	}
 
 	/**
-	 * Returns the request's method.
+	 * Returns the request method.
 	 *
 	 * This is the getter for the `method` magic property.
+	 *
+	 * The method is retrieved from {@link $env}, if the key `REQUEST_METHOD` is not defined,
+	 * the method defaults to {@link METHOD_GET}.
 	 *
 	 * @throws MethodNotSupported when the request method is not supported.
 	 *
@@ -431,7 +434,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 */
 	protected function get_method()
 	{
-		$method = $this->env['REQUEST_METHOD'];
+		$method = isset($this->env['REQUEST_METHOD']) ? $this->env['REQUEST_METHOD'] : self::METHOD_GET;
 
 		if ($method == self::METHOD_POST && !empty($this->request_params['_method']))
 		{

@@ -55,6 +55,19 @@ class Dispatcher implements IDispatcher
 	 * during the dispatch the {@link rescue()} method is used to rescue the exception and
 	 * retrieve a {@link Response}.
 	 *
+	 * ## HEAD requests
+	 *
+	 * If a {@link NotFound} exception is caught during the dispatching of a request with a
+	 * {@link Request::METHOD_HEAD} method the following happens:
+	 *
+	 * 1. The request is cloned and the method of the cloned request is changed to
+	 * {@link Request::METHOD_GET}.
+	 * 2. The cloned method is dispatched.
+	 * 3. If the result is *not* a {@link Response} instance, the result is returned.
+	 * 4. Otherwise, a new {@link Response} instance is created with a `null` body, but the status
+	 * code and headers of the original response.
+	 * 5. The new response is returned.
+	 *
 	 * @param Request $request
 	 *
 	 * @return Response
@@ -67,6 +80,21 @@ class Dispatcher implements IDispatcher
 		}
 		catch (\Exception $e)
 		{
+			if ($request->method === Request::METHOD_HEAD && $e instanceof NotFound)
+			{
+				$get_request = clone $request;
+				$get_request->method = Request::METHOD_GET;
+
+				$response = $this($get_request);
+
+				if (!($response instanceof Response))
+				{
+					return $response;
+				}
+
+				return new Response(null, $response->status, $response->headers);
+			}
+
 			return $this->rescue($e, $request);
 		}
 	}
