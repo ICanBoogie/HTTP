@@ -314,38 +314,6 @@ method; or the main dispatcher level, by listening to the `Exception::rescue` ev
 
 ## Events
 
-### A dispatcher is instantiated – [API](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.CollectEvent.html)
-
-The `ICanBoogie\HTTP\Dispatcher::collect` event of class
-`ICanBoogie\HTTP\Dispatcher\CollectEvent` is fired when the dispatcher is instantiated.
-
-Third parties may use this event to register dispatchers or alter initial dispatchers.
-
-```php
-<?php
-
-use ICanBoogie\Event;
-use ICanBoogie\HTTP\Dispatcher;
-use ICanBoogie\HTTP\Request;
-use ICanBoogie\HTTP\Response;
-
-Event\attach(function(Dispatcher\CollectEvent $event, Dispatcher $target) {
-
-	$event->dispatchers['hello'] = function(Request $request) {
-	
-		if ($request->path === 'hello')
-		{
-			return new Response(200, array(), 'Hello world!');
-		}
-	}
-
-});
-```
-
-
-
-
-
 ### Before a request is dispatched – [API](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.BeforeDispatchEvent.html)
 
 The `ICanBoogie\HTTP\Dispatcher::dispatch:before` event of class
@@ -465,7 +433,7 @@ The following exceptions are defined by the HTTP package:
 The following helpers are available:
 
 * `dispatch`: Dispatches a request.
-* `get_dispatcher`: Returns shared request dispatcher.
+* `get_dispatcher`: Returns the main request dispatcher.
 * `get_initial_request`: Returns the initial request.
 
 
@@ -487,19 +455,52 @@ ICanBoogie\HTTP\Helpers::patch('get_dispatcher', function() {
 
 	if (!$dispatcher)
 	{
-		$dispatcher = new HTTP\Dispatcher
+		$dispatchers = array
 		(
-			array
-			(
-				'operation' => 'ICanBoogie\OperationDispatcher',
-				'route' => 'ICanBoogie\RouteDispatcher'
-			)
+			'operation' => 'ICanBoogie\Operation\Dispatcher',
+			'route' => 'ICanBoogie\Routing\Dispatcher'
 		);
+
+		new Dispatcher\CollectEvent(new Dispatcher(), $dispatchers);
+
+		$dispatcher = new Dispatcher($dispatchers);
 	}
 
 	return $dispatcher;
 
 });
+
+namespace ICanBoogie\HTTP\Dispatcher;
+
+use ICanBoogie\HTTP\Dispatcher;
+
+/**
+ * Event class for the `ICanBoogie\HTTP\Dispatcher::collect` event.
+ *
+ * Third parties may use this event to register additionnal dispatchers.
+ */
+class CollectEvent extends \ICanBoogie\Event
+{
+	/**
+	 * Reference to the dispatchers array.
+	 *
+	 * @var array[string]callable
+	 */
+	public $dispatchers;
+
+	/**
+	 * The event is constructed with the type `collect`.
+	 *
+	 * @param Dispatcher $target
+	 * @param array $payload
+	 */
+	public function __construct(Dispatcher $target, array &$dispatchers)
+	{
+		$this->dispatchers = &$dispatchers;
+
+		parent::__construct($target, 'collect');
+	}
+}
 ```
 
 

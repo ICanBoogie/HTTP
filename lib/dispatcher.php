@@ -14,12 +14,8 @@ namespace ICanBoogie\HTTP;
 /**
  * Dispatches requests.
  *
- * Requests are dispatched using dispatchers which can be altered during the
- * {@link Dispatcher\CollectEvent} event.
- *
  * Events:
  *
- * - `ICanBoogie\HTTP\Dispatcher::collect`: {@link Dispatcher\CollectEvent}.
  * - `ICanBoogie\HTTP\Dispatcher::dispatch:before`: {@link Dispatcher\BeforeDispatchEvent}.
  * - `ICanBoogie\HTTP\Dispatcher::dispatch`: {@link Dispatcher\DispatchEvent}.
  * - `ICanBoogie\HTTP\Dispatcher::rescue`: {@link ICanBoogie\Exception\RescueEvent}.
@@ -36,15 +32,11 @@ class Dispatcher implements IDispatcher
 	/**
 	 * Initialiazes the {@link $dispatchers} property.
 	 *
-	 * Fires {@link Dispatcher\CollectEvent}.
-	 *
 	 * Dispatchers can be defined as callable or class name. If a dispatcher definition is not a
 	 * callable it is used as class name to instantiate a dispatcher.
 	 */
 	public function __construct(array $dispatchers=array())
 	{
-		new Dispatcher\CollectEvent($this, $dispatchers);
-
 		$this->dispatchers = $dispatchers;
 	}
 
@@ -275,34 +267,6 @@ use ICanBoogie\HTTP\Response;
 use ICanBoogie\HTTP\Request;
 
 /**
- * Event class for the `ICanBoogie\HTTP\Dispatcher::collect` event.
- *
- * Third parties may use this event to register additionnal dispatchers.
- */
-class CollectEvent extends \ICanBoogie\Event
-{
-	/**
-	 * Reference to the dispatchers array.
-	 *
-	 * @var array[string]callable
-	 */
-	public $dispatchers;
-
-	/**
-	 * The event is constructed with the type `collect`.
-	 *
-	 * @param Dispatcher $target
-	 * @param array $payload
-	 */
-	public function __construct(Dispatcher $target, array &$dispatchers)
-	{
-		$this->dispatchers = &$dispatchers;
-
-		parent::__construct($target, 'collect');
-	}
-}
-
-/**
  * Event class for the `ICanBoogie\HTTP\Dispatcher::dispatch:before` event.
  *
  * Third parties may use this event to provide a response to the request before the dispatchers
@@ -314,14 +278,14 @@ class BeforeDispatchEvent extends \ICanBoogie\Event
 	/**
 	 * The HTTP request.
 	 *
-	 * @var \ICanBoogie\HTTP\Request
+	 * @var Request
 	 */
 	public $request;
 
 	/**
 	 * Reference to the HTTP response.
 	 *
-	 * @var \ICanBoogie\HTTP\Response
+	 * @var Response
 	 */
 	public $response;
 
@@ -355,14 +319,14 @@ class DispatchEvent extends \ICanBoogie\Event
 	/**
 	 * The request.
 	 *
-	 * @var \ICanBoogie\HTTP\Request
+	 * @var Request
 	 */
 	public $request;
 
 	/**
 	 * Reference to the response.
 	 *
-	 * @var \ICanBoogie\HTTP\Response
+	 * @var Response
 	 */
 	public $response;
 
@@ -396,7 +360,7 @@ class RescueEvent extends \ICanBoogie\Event
 	/**
 	 * Reference to the response.
 	 *
-	 * @var \ICanBoogie\HTTP\Response
+	 * @var Response
 	 */
 	public $response;
 
@@ -410,7 +374,7 @@ class RescueEvent extends \ICanBoogie\Event
 	/**
 	 * The request.
 	 *
-	 * @var \ICanBoogie\HTTP\Request
+	 * @var Request
 	 */
 	public $request;
 
@@ -424,7 +388,7 @@ class RescueEvent extends \ICanBoogie\Event
 	{
 		if ($response !== null && !($response instanceof Response))
 		{
-			throw new \InvalidArgumentException('$response must be an instance of ICanBoogie\HTTP\Response. Given: ' . get_class($response) . '.');
+			throw new \InvalidArgumentException('$response must be an instance of ICanBoogie\HTTP\Response. Given: ' . (is_object($response) ? get_class($response) : gettype($response)) . '.');
 		}
 
 		$this->response = &$response;

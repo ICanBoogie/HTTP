@@ -18,23 +18,6 @@ use ICanBoogie\HTTP\Response;
 
 class DispatcherTest extends \PHPUnit_Framework_TestCase
 {
-	public function testCollectEvent()
-	{
-		$done = null;
-
-		$he = Event\attach(function(Dispatcher\CollectEvent $event, Dispatcher $target) use(&$done) {
-
-			$done = true;
-
-		});
-
-		new Dispatcher();
-
-		$this->assertTrue($done);
-
-		$he->detach();
-	}
-
 	/**
 	 * The event hooks for the `ICanBoogie\HTTP\Dispatcher::dispatch:before` and
 	 * `ICanBoogie\HTTP\Dispatcher::dispatch` events must be called and a response must be
@@ -71,34 +54,34 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * The exception thrown by the _collect event hook_ must be rescued by the _rescue event hook_.
+	 * The exception thrown by the _exception_ dispatcher must be rescued by the _rescue event hook_.
 	 */
 	public function testDispatcherRescueEvent()
 	{
-		$collect_eh = Event\attach(function(Dispatcher\CollectEvent $event, Dispatcher $target) {
-
-			$event->dispatchers['exception'] = function() {
-
-				throw new \Exception('Damned!');
-
-			};
-
-		});
-
-		$rescue_eh = Event\attach(function(\ICanBoogie\Exception\RescueEvent $event, \Exception $target) {
+		$eh = Event\attach(function(\ICanBoogie\Exception\RescueEvent $event, \Exception $target) {
 
 			$event->response = new Response("Rescued: " . $event->exception->getMessage());
 
 		});
 
-		$dispatcher = new Dispatcher();
+		$dispatcher = new Dispatcher
+		(
+			array
+			(
+				'exception' => function() {
+
+					throw new \Exception('Damned!');
+
+				}
+			)
+		);
+
 		$response = $dispatcher(Request::from($_SERVER));
 
 		$this->assertInstanceOf('ICanBoogie\HTTP\Response', $response);
 		$this->assertEquals('Rescued: Damned!', $response->body);
 
-		$collect_eh->detach();
-		$rescue_eh->detach();
+		$eh->detach();
 	}
 
 	/**
