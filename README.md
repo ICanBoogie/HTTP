@@ -385,13 +385,13 @@ Event\attach(function(Dispatcher\DispatchEvent $event, Dispatcher $target) use($
 
 ### An exception was thrown during dispatching – [API](http://icanboogie.org/docs/class-ICanBoogie.Exception.RescueEvent.html)
 
-The `Exception:rescue` event of class `ICanBoogie\Exception\RescueEvent` is fired when an
+The `Exception:rescue` event of class [ICanBoogie\Exception\RescueEvent](http://icanboogie.org/docs/class-ICanBoogie.Exception.RescueEvent.html) is fired when an
 exception is caught during a request dispatching.
 
 Third parties may use this event to provide a response for the exception.
 
 The following example demonstrates how a _login form_ can be returned as response when a
-`ICanBoogie\AuthenticationRequired` exception is thrown.
+[ICanBoogie\AuthenticationRequired](http://icanboogie.org/docs/class-ICanBoogie.AuthenticationRequired.html) exception is thrown.
 
 ```php
 <?php
@@ -417,12 +417,12 @@ Event\attach(function(ICanBoogie\Exception\RescueEvent $event, ICanBoogie\Authen
 
 The following exceptions are defined by the HTTP package:
 
-* `HTTPError`: Base class for HTTP exceptions.
-* `NotFound`: Exception thrown when a resource is not found.
-* `ServiceUnavailable`: Exception thrown when the server is currently unavailable
+* [HTTPError](http://icanboogie.org/docs/class-ICanBoogie.HTTP.HTTPError.html): Base class for HTTP exceptions.
+* [NotFound](http://icanboogie.org/docs/class-ICanBoogie.HTTP.NotFound.html): Exception thrown when a resource is not found.
+* [ServiceUnavailable](http://icanboogie.org/docs/class-ICanBoogie.HTTP.ServiceUnavailable.html): Exception thrown when the server is currently unavailable
 (because it is overloaded or down for maintenance).
-* `MethodNotSupported`: Exception thrown when the HTTP method is not supported.
-* `StatusCodeNotValid`: Exception thrown when the HTTP status code is not valid.
+* [MethodNotSupported](http://icanboogie.org/docs/class-ICanBoogie.HTTP.MethodNotSupported.html): Exception thrown when the HTTP method is not supported.
+* [StatusCodeNotValid](http://icanboogie.org/docs/class-ICanBoogie.HTTP.StatusCodeNotValid.html): Exception thrown when the HTTP status code is not valid.
 
 
 
