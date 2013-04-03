@@ -251,7 +251,7 @@ class Response extends \ICanBoogie\Object
 
 		$body = $this->body;
 
-		if (is_callable(array($body, '__toString')))
+		if (is_object($body) && method_exists($body, '__toString'))
 		{
 			$body = (string) $body;
 		}
@@ -390,7 +390,7 @@ class Response extends \ICanBoogie\Object
 		&& !($body instanceof \Closure)
 		&& !is_numeric($body)
 		&& !is_string($body)
-		&& !is_callable(array($body, '__toString')))
+		&& !(is_object($body) && method_exists($body, '__toString')))
 		{
 			throw new \UnexpectedValueException(\ICanBoogie\format
 			(
