@@ -465,7 +465,7 @@ class ContentType
 {
 	static public function parse($content_type)
 	{
-		preg_match('#^([^;]+)(;\s+charset=([^\s]+))?$#', $content_type, $matches);
+		preg_match('#^([^;]+)(;\s*charset=([^\s]+))?$#', $content_type, $matches);
 
 		return array(isset($matches[1]) ? $matches[1] : null, isset($matches[3]) ? $matches[3] : null);
 	}
