@@ -190,6 +190,11 @@ class Dispatcher implements IDispatcher
 
 		if (!$response)
 		{
+			if ($exception instanceof ForceRedirect)
+			{
+				return new RedirectResponse($exception->location, $exception->getCode());
+			}
+
 			throw $exception;
 		}
 

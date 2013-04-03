@@ -11,6 +11,8 @@
 
 namespace ICanBoogie\HTTP;
 
+use ICanBoogie\PropertyNotDefined;
+
 /**
  * Base class for HTTP exceptions.
  */
@@ -61,5 +63,32 @@ class StatusCodeNotValid extends \InvalidArgumentException
 	public function __construct($status_code, $code=500, \Exception $previous=null)
 	{
 		parent::__construct("Status code not valid: {$status_code}.", $code, $previous);
+	}
+}
+
+/**
+ * Exception thrown to force the redirect of the response.
+ *
+ * @property-read string $location The location of the redirect.
+ */
+class ForceRedirect extends HTTPError
+{
+	private $location;
+
+	public function __construct($location, $code=302, \Exception $previous=null)
+	{
+		$this->location = $location;
+
+		parent::__construct("Location: $location", $code, $previous);
+	}
+
+	public function __get($property)
+	{
+		if ($property == 'location')
+		{
+			return $this->location;
+		}
+
+		throw new PropertyNotDefined(array($property, $this));
 	}
 }
