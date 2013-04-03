@@ -17,6 +17,7 @@
 		"issues": "https://github.com/ICanBoogie/HTTP/issues",
 		"source": "https://github.com/ICanBoogie/HTTP"
 	},
+	"minimum-stability": "dev",
 	"require": {
 		"php": ">=5.3.0",
 		"icanboogie/prototype": "*",
