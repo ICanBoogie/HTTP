@@ -20,7 +20,7 @@ namespace ICanBoogie\HTTP;
  * - `ICanBoogie\HTTP\Dispatcher::dispatch`: {@link Dispatcher\DispatchEvent}.
  * - `ICanBoogie\HTTP\Dispatcher::rescue`: {@link ICanBoogie\Exception\RescueEvent}.
  */
-class Dispatcher implements IDispatcher
+class Dispatcher implements \ArrayAccess, \IteratorAggregate, IDispatcher
 {
 	/**
 	 * The dispatchers called during the dispatching of the request.
@@ -30,6 +30,15 @@ class Dispatcher implements IDispatcher
 	protected $dispatchers = array();
 
 	/**
+	 * The weights of the dispatchers.
+	 *
+	 * @var array[string]mixed
+	 */
+	protected $dispatchers_weight = array();
+
+	protected $dispatchers_order;
+
+	/**
 	 * Initialiazes the {@link $dispatchers} property.
 	 *
 	 * Dispatchers can be defined as callable or class name. If a dispatcher definition is not a
@@ -37,7 +46,10 @@ class Dispatcher implements IDispatcher
 	 */
 	public function __construct(array $dispatchers=array())
 	{
-		$this->dispatchers = $dispatchers;
+		foreach ($dispatchers as $dispatcher_id => $dispatcher)
+		{
+			$this[$dispatcher_id] = $dispatcher;
+		}
 	}
 
 	/**
@@ -92,6 +104,108 @@ class Dispatcher implements IDispatcher
 	}
 
 	/**
+	 * Checks if the dispatcher is defined.
+	 *
+	 * @param string $dispatcher_id The identifier of the dispatcher.
+	 *
+	 * @return `true` if the dispatcher is defined, `false` otherwise.
+	 */
+	public function offsetExists($dispatcher_id)
+	{
+		return isset($this->dispatchers[$dispatcher_id]);
+	}
+
+	/**
+	 * Returns a dispatcher.
+	 *
+	 * @param string $dispatcher_id The identifier of the dispatcher.
+	 */
+	public function offsetGet($dispatcher_id)
+	{
+		if (!$this->offsetExists($dispatcher_id))
+		{
+			throw new DispatcherNotDefined($dispatcher_id);
+		}
+
+		return $this->dispatchers[$dispatcher_id];
+	}
+
+	/**
+	 * Defines a dispatcher.
+	 *
+	 * @param string $dispatcher_id The identifier of the dispatcher.
+	 * @param mixed $dispatcher The dispatcher class or callback.
+	 */
+	public function offsetSet($dispatcher_id, $dispatcher)
+	{
+		$weight = 0;
+
+		if ($dispatcher instanceof WeightedDispatcher)
+		{
+			$weight = $dispatcher->weight;
+			$dispatcher = $dispatcher->dispatcher;
+		}
+
+		$this->dispatchers[$dispatcher_id] = $dispatcher;
+		$this->dispatchers_weight[$dispatcher_id] = $weight;
+		$this->dispatchers_order = null;
+	}
+
+	/**
+	 * Removes a dispatcher.
+	 *
+	 * @param string $dispatcher_id The identifier of the dispatcher.
+	 */
+	public function offsetUnset($dispatcher_id)
+	{
+		unset($this->dispatchers[$dispatcher_id]);
+	}
+
+	public function getIterator()
+	{
+		if (!$this->dispatchers_order)
+		{
+			$order = $this->dispatchers_weight;
+			$top = -100;
+			$bottom = 100;
+
+			foreach ($order as $id => &$weight)
+			{
+				if ($weight === 'top')
+				{
+					$weight = --$top;
+				}
+				else if ($weight === 'bottom')
+				{
+					$weight = ++$bottom;
+				}
+			}
+
+			unset($weight);
+
+			foreach ($order as $id => $weight)
+			{
+				if (strpos($weight, 'before:') === 0)
+				{
+					$target = substr($weight, 7);
+					$order = \ICanBoogie\array_insert($order, $target, $order[$target], $id);
+				}
+				else if (strpos($weight, 'after:') === 0)
+				{
+					$target = substr($weight, 6);
+					$order = \ICanBoogie\array_insert($order, $target, $order[$target], $id, true);
+				}
+			}
+
+			\ICanBoogie\stable_sort($order);
+
+			$this->dispatchers_order = $order;
+		}
+
+		return new \ArrayIterator(array_merge($this->dispatchers_order, $this->dispatchers));
+	}
+
+	/**
 	 * Dispatches a request using the defined dispatchers.
 	 *
 	 * The method iterates over the defined dispatchers until one of them returns a
@@ -121,7 +235,7 @@ class Dispatcher implements IDispatcher
 
 		if (!$response)
 		{
-			foreach ($this->dispatchers as &$dispatcher)
+			foreach ($this as &$dispatcher) // MOVE some to AGGREGATE
 			{
 				#
 				# If the dispatcher is not a callable then it is considered as a class name, which
@@ -258,6 +372,28 @@ class CallableDispatcher implements IDispatcher
 	public function rescue(\Exception $exception, Request $request)
 	{
 		throw $exception;
+	}
+}
+
+/**
+ * Used to defined a dispatcher and its weight.
+ *
+ * <pre>
+ * <?php
+ *
+ * $dispatcher['my'] = new WeightedDispatcher('callback', 'before:that_other_dispatcher');
+ * </pre>
+ */
+class WeightedDispatcher
+{
+	public $dispatcher;
+
+	public $weight;
+
+	public function __construct($dispatcher, $weight)
+	{
+		$this->dispatcher = $dispatcher;
+		$this->weight = $weight;
 	}
 }
 

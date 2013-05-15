@@ -239,6 +239,59 @@ $response = new Response
 Request are dispatched using a [Dispatcher](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.html)
 instance. The dispatcher uses user defined dispatchers to try to get a response for a request.
 
+```php
+<?php
+
+use ICanBoogie\HTTP\Dispatcher;
+
+$dispatcher = new Dispatcher
+(
+	array
+	(
+		'operation' => 'ICanBoogie\Operation\Dispatcher',
+		'route' => 'ICanBoogie\Routing\Dispatcher'
+	)
+);
+```
+
+
+
+
+### Weighted dispatchers
+
+Some dispatchers might need to run before others, in this case they need to be defined using a
+`WeightedDispatcher` instance. The weight can be defined as an integer, the special values `top`
+or `bottom`, or a position relative to a target. Consider the following example:
+
+```php
+<?php
+
+$dispatcher = new Dispatcher(array(
+
+	'two' => 'dummy',
+	'three' => 'dummy'
+
+));
+
+$dispatcher['bottom'] = new WeightedDispatcher('dummy', 'bottom');
+$dispatcher['megabottom'] = new WeightedDispatcher('dummy', 'bottom');
+$dispatcher['hyperbottom'] = new WeightedDispatcher('dummy', 'bottom');
+$dispatcher['one'] = new WeightedDispatcher('dummy', 'before:two');
+$dispatcher['four'] = new WeightedDispatcher('dummy', 'after:three');
+$dispatcher['top'] = new WeightedDispatcher('dummy', 'top');
+$dispatcher['megatop'] = new WeightedDispatcher('dummy', 'top');
+$dispatcher['hypertop'] = new WeightedDispatcher('dummy', 'top');
+
+$order = '';
+
+foreach ($dispatcher as $dispatcher_id => $dummy)
+{
+	$order .= ' ' . $dispatcher_id;
+}
+
+echo $order; //  hypertop megatop top one two three four bottom megabottom hyperbottom
+```
+
 
 
 
