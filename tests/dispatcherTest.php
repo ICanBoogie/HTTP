@@ -11,13 +11,22 @@
 
 namespace ICanBoogie\Tests\HTTP\Dispatcher;
 
-use ICanBoogie\Event;
+use ICanBoogie\Events;
 use ICanBoogie\HTTP\Dispatcher;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
 
 class DispatcherTest extends \PHPUnit_Framework_TestCase
 {
+	static private $events;
+
+	static public function setUpBeforeClass()
+	{
+		self::$events = $events = new Events;
+
+		Events::patch('get', function() use($events) { return $events; });
+	}
+
 	/**
 	 * The event hooks for the `ICanBoogie\HTTP\Dispatcher::dispatch:before` and
 	 * `ICanBoogie\HTTP\Dispatcher::dispatch` events must be called and a response must be
@@ -28,13 +37,13 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 		$before_done = null;
 		$done = null;
 
-		$beh = Event\attach(function(Dispatcher\BeforeDispatchEvent $event, Dispatcher $target) use(&$before_done) {
+		$beh = self::$events->attach(function(Dispatcher\BeforeDispatchEvent $event, Dispatcher $target) use(&$before_done) {
 
 			$before_done = true;
 
 		});
 
-		$eh = Event\attach(function(Dispatcher\DispatchEvent $event, Dispatcher $target) use(&$done) {
+		$eh = self::$events->attach(function(Dispatcher\DispatchEvent $event, Dispatcher $target) use(&$done) {
 
 			$done = true;
 
@@ -58,7 +67,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testDispatcherRescueEvent()
 	{
-		$eh = Event\attach(function(\ICanBoogie\Exception\RescueEvent $event, \Exception $target) {
+		$eh = self::$events->attach(function(\ICanBoogie\Exception\RescueEvent $event, \Exception $target) {
 
 			$event->response = new Response("Rescued: " . $event->exception->getMessage());
 

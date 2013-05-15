@@ -6,71 +6,11 @@ The HTTP package provides an API to handle HTTP requests.
 
 
 
-## Requirements
+## Request
 
-The package requires PHP 5.3 or later. The following packages are required:
-[icanboogie/prototype](https://packagist.org/packages/icanboogie/prototype) and
-[icanboogie/event](https://packagist.org/packages/icanboogie/event).
-
-
-
-
-
-## Installation
-
-The recommended way to install this package is through [composer](http://getcomposer.org/).
-Create a `composer.json` file and run `php composer.phar install` command to install it:
-
-```json
-{
-    "minimum-stability": "dev",
-    "require": {
-		"icanboogie/http": "1.0.*"
-    }
-}
-```
-
-
-
-
-
-### Cloning the repository
-
-The package is [available on GitHub](https://github.com/ICanBoogie/HTTP), its repository can be
-cloned with the following command line:
-
-	$ git clone git://github.com/ICanBoogie/HTTP.git
-
-
-
-
-
-## Documentation
-
-The package is documented as part of the [ICanBoogie](http://icanboogie.org/) framework
-[documentation](http://icanboogie.org/docs/). You can generate the documentation for the package
-and its dependencies with the `make doc` command. The documentation is generated in the `docs`
-directory. [ApiGen](http://apigen.org/) is required. You can later clean the directory with
-the `make clean` command.
-
-
-
-
-
-## Testing
-
-The test suite is ran with the `make test` command. [Composer](http://getcomposer.org/) is
-automatically installed as well as all dependencies required to run the suite. You can later
-clean the directory with the `make clean` command.
-
-
-
-
-
-## Request – [API](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Request.html)
-
-A request is represented by a `ICanBoogie\HTTP\Request` instance. The initial request is usually
-created from the `$_SERVER` array, while sub requests can be created from array of properties.
+A request is represented by a [Request](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Request.html) instance.
+The initial request is usually created from the `$_SERVER` array, while sub requests can be created
+from array of properties.
 
 ```php
 <?php
@@ -84,7 +24,7 @@ $initial_request = Request::from($_SERVER);
 $request = Request::from(array('path' => 'path/to/file.html'));
 ```
 
-Request are dispatched by a dispatcher, which should return a `ICanBoogie\HTTP\Response` object.
+Requests are dispatched by a dispatcher, which should return a [Response](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Response.html) object.
 Requests are usually dispatched simply by invoking them, or by using one of the HTTP methods
 available:
 
@@ -160,9 +100,9 @@ foreach ($request as $parameter => $value)
 
 
 
-## Response – [API](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Response.html)
+## Response
 
-The response to a request is represented by a `ICanBoogie\HTTP\Response` instance.
+The response to a request is represented by a [Response](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Response.html) instance.
 
 ```php
 <?php
@@ -191,18 +131,20 @@ $response();
 
 
 
-## Headers – [API](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Headers.html)
+## Headers
 
-HTTP headers are represented by a `ICanBoogie\HTTP\Headers` instance. There are used by requests
-and responses, but can also be used to create the headers string of the `mail()` command.
-
-
-
+HTTP headers are represented by a [Headers](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Headers.html)
+instance. There are used by requests and responses, but can also be used to create the headers
+string of the `mail()` command.
 
 
-### Content-Type header – [API](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Headers.ContentType.html)
 
-The `Content-Type` header is easily manipulate.
+
+
+### Content-Type header
+
+The `Content-Type` header is represented by a [ContentType](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Headers.ContentType.html)
+instance making it easily manipulate.
 
 ```php
 <?php
@@ -221,9 +163,10 @@ echo $response->headers['Content-Type']; // application/xml; charset=utf-8
 
 
 
-### Content-Disposition header – [API](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Headers.ContentDisposition.html)
+### Content-Disposition header
 
-The `Content-Disposition` header is easily manipulate, and accentuated filenames are supported. 
+The `Content-Disposition` header represented by a [ContentDisposition](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Headers.ContentDisposition.html)
+instance making it easily manipulate. Accentuated filenames are supported. 
 
 ```php
 <?php
@@ -240,10 +183,11 @@ echo $response->headers['Content-Disposition']; // attachment; filename="ete.jpg
 
 
 
-### Cache-Control header – [API](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Headers.CacheControl.html)
+### Cache-Control header
 
-The `Cache-Control` header is easily manipulable. Directives can be set at once using a plain string,
-or individually using the properties of the `CacheControl` instance.
+The `Cache-Control` header is represented by a [CacheControl](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Headers.CacheControl.html)
+instance making it easily manipulable. Directives can be set at once using a plain string,
+or individually using the properties of the [CacheControl](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Headers.CacheControl.html) instance.
 Directives of the [rfc2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html) are supported.
 
 ```php
@@ -292,8 +236,8 @@ $response = new Response
 
 ## Dispatching requests
 
-Request are dispatched using a `ICanBoogie\HTTP\Dispatcher` instance. The dispatcher uses user
-defined dispatchers to try to get a response for a request.
+Request are dispatched using a [Dispatcher](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.html)
+instance. The dispatcher uses user defined dispatchers to try to get a response for a request.
 
 
 
@@ -303,7 +247,8 @@ defined dispatchers to try to get a response for a request.
 
 Most likely your application is going to throw exceptions, whether they are caused by software
 bugs or logic, you might want to handle them. For example, to present a login form when the
-`AuthenticationRequired` exception is thrown instead of the default exception message.
+[AuthenticationRequired](http://icanboogie.org/docs/class-ICanBoogie.AuthenticationRequired.html)
+exception is thrown instead of the default exception message.
 
 The exception can be rescued at two levels: the user dispatcher level, using its `rescue()`
 method; or the main dispatcher level, by listening to the `Exception::rescue` event.
@@ -314,10 +259,11 @@ method; or the main dispatcher level, by listening to the `Exception::rescue` ev
 
 ## Events
 
-### Before a request is dispatched – [API](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.BeforeDispatchEvent.html)
+### Before a request is dispatched
 
 The `ICanBoogie\HTTP\Dispatcher::dispatch:before` event of class
-`ICanBoogie\HTTP\Dispatcher\BeforeDispatchEvent` is fired before a request is dispatched. 
+[BeforeDispatchEvent](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.BeforeDispatchEvent.html)
+is fired before a request is dispatched. 
 
 Third parties may use this event to provide a response to the request before the dispatchers
 are invoked. If a response is provided the dispatchers are skipped. The event is usually used
@@ -330,7 +276,7 @@ use ICanBoogie\Event;
 use ICanBoogie\HTTP\Dispatcher;
 use ICanBoogie\HTTP\RedirectResponse;
 
-Event\attach(function(Dispatcher\BeforeDispatchEvent $event, Dispatcher $dispatcher) {
+$events->attach(function(Dispatcher\BeforeDispatchEvent $event, Dispatcher $dispatcher) {
 
 	$path = $event->request->path;
 	$normalized_path = ICanBoogie\normalize_url_path($path);
@@ -350,11 +296,12 @@ Event\attach(function(Dispatcher\BeforeDispatchEvent $event, Dispatcher $dispatc
 
 
 
-### After a request was dispatched – [API](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.DispatchEvent.html)
+### After a request was dispatched
 
 The `ICanBoogie\HTTP\Dispatcher::dispatch` event of class
-`ICanBoogie\HTTP\Dispatcher\DispatchEvent` is fired after a request was dispatched. The event
-is fired even if no response was provided by dispatchers.
+[DispatchEvent](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.DispatchEvent.html)
+is fired after a request was dispatched. The event is fired even if no response was provided
+by dispatchers.
 
 Third parties may use this event to alter the response before it is returned by the dispatcher,
 provide a default response if no response was provided, or cache the response.
@@ -365,7 +312,7 @@ provide a default response if no response was provided, or cache the response.
 use ICanBoogie\Event;
 use ICanBoogie\HTTP\Dispatcher;
 
-Event\attach(function(Dispatcher\DispatchEvent $event, Dispatcher $target) use($cache) {
+$events->attach(function(Dispatcher\DispatchEvent $event, Dispatcher $target) use($cache) {
 
 	$response = $event->response;
 	
@@ -383,15 +330,15 @@ Event\attach(function(Dispatcher\DispatchEvent $event, Dispatcher $target) use($
 
 
 
-### An exception was thrown during dispatching – [API](http://icanboogie.org/docs/class-ICanBoogie.Exception.RescueEvent.html)
+### An exception was thrown during dispatching
 
-The `Exception:rescue` event of class [ICanBoogie\Exception\RescueEvent](http://icanboogie.org/docs/class-ICanBoogie.Exception.RescueEvent.html) is fired when an
-exception is caught during a request dispatching.
+The `Exception:rescue` event of class [RescueEvent](http://icanboogie.org/docs/class-ICanBoogie.Exception.RescueEvent.html)
+is fired when an exception is caught during a request dispatching.
 
 Third parties may use this event to provide a response for the exception.
 
 The following example demonstrates how a _login form_ can be returned as response when a
-[ICanBoogie\AuthenticationRequired](http://icanboogie.org/docs/class-ICanBoogie.AuthenticationRequired.html) exception is thrown.
+[AuthenticationRequired](http://icanboogie.org/docs/class-ICanBoogie.AuthenticationRequired.html) exception is thrown.
 
 ```php
 <?php
@@ -399,7 +346,7 @@ The following example demonstrates how a _login form_ can be returned as respons
 use ICanBoogie\Event;
 use ICanBoogie\HTTP\Response;
 
-Event\attach(function(ICanBoogie\Exception\RescueEvent $event, ICanBoogie\AuthenticationRequired $target) {
+$events->attach(function(ICanBoogie\Exception\RescueEvent $event, ICanBoogie\AuthenticationRequired $target) {
 
 	ICanBoogie\log_error($target->getMessage());
 
@@ -432,9 +379,9 @@ The following exceptions are defined by the HTTP package:
 
 The following helpers are available:
 
-* `dispatch`: Dispatches a request.
-* `get_dispatcher`: Returns the main request dispatcher.
-* `get_initial_request`: Returns the initial request.
+* [dispatch](http://icanboogie.org/docs/function-ICanBoogie.HTTP.dispatch.html): Dispatches a request using the main request dispatcher.
+* [get_dispatcher](http://icanboogie.org/docs/function-ICanBoogie.HTTP.get_dispatcher.html): Returns the main request dispatcher.
+* [get_initial_request](http://icanboogie.org/docs/function-ICanBoogie.HTTP.get_initial_request.html): Returns the initial request.
 
 
 
@@ -443,8 +390,8 @@ The following helpers are available:
 ### Patching helpers
 
 Helpers can be patched using the `Helpers::patch()` method. This is how [ICanBoogie](http://icanboogie.org)
-patches the `get_dispatcher()` helper to use a unique request dispatcher, which is initialized
-with some dispatchers:
+patches the `get_dispatcher()` helper to provide its own request dispatcher, which is initialized
+with some user dispatchers:
 
 ```php
 <?php
@@ -455,15 +402,16 @@ ICanBoogie\HTTP\Helpers::patch('get_dispatcher', function() {
 
 	if (!$dispatcher)
 	{
-		$dispatchers = array
+		$dispatcher = new Dispatcher
 		(
-			'operation' => 'ICanBoogie\Operation\Dispatcher',
-			'route' => 'ICanBoogie\Routing\Dispatcher'
+			array
+			(
+				'operation' => 'ICanBoogie\Operation\Dispatcher',
+				'route' => 'ICanBoogie\Routing\Dispatcher'
+			)
 		);
-
-		new Dispatcher\CollectEvent(new Dispatcher(), $dispatchers);
-
-		$dispatcher = new Dispatcher($dispatchers);
+		
+		new Dispatcher\Alter($dispatchers);
 	}
 
 	return $dispatcher;
@@ -475,33 +423,86 @@ namespace ICanBoogie\HTTP\Dispatcher;
 use ICanBoogie\HTTP\Dispatcher;
 
 /**
- * Event class for the `ICanBoogie\HTTP\Dispatcher::collect` event.
+ * Event class for the `ICanBoogie\HTTP\Dispatcher::alter` event.
  *
  * Third parties may use this event to register additionnal dispatchers.
  */
-class CollectEvent extends \ICanBoogie\Event
+class AlterEvent extends \ICanBoogie\Event
 {
 	/**
-	 * Reference to the dispatchers array.
-	 *
-	 * @var array[string]callable
-	 */
-	public $dispatchers;
-
-	/**
-	 * The event is constructed with the type `collect`.
+	 * The event is constructed with the type `alter`.
 	 *
 	 * @param Dispatcher $target
-	 * @param array $payload
 	 */
-	public function __construct(Dispatcher $target, array &$dispatchers)
+	public function __construct(Dispatcher $target)
 	{
-		$this->dispatchers = &$dispatchers;
-
-		parent::__construct($target, 'collect');
+		parent::__construct($target, 'alter');
 	}
 }
 ```
+
+
+
+
+
+## Requirements
+
+The package requires PHP 5.3 or later.
+
+
+
+
+
+## Installation
+
+The recommended way to install this package is through [Composer](http://getcomposer.org/).
+Create a `composer.json` file and run `php composer.phar install` command to install it:
+
+```json
+{
+    "minimum-stability": "dev",
+    "require": {
+		"icanboogie/http": "*"
+    }
+}
+```
+
+
+
+
+
+### Cloning the repository
+
+The package is [available on GitHub](https://github.com/ICanBoogie/HTTP), its repository can be
+cloned with the following command line:
+
+	$ git clone git://github.com/ICanBoogie/HTTP.git
+
+
+
+
+
+## Documentation
+
+The package is documented as part of the [ICanBoogie](http://icanboogie.org/) framework
+[documentation](http://icanboogie.org/docs/). You can generate the documentation for the package
+and its dependencies with the `make doc` command. The documentation is generated in the `docs`
+directory. [ApiGen](http://apigen.org/) is required. You can later clean the directory with
+the `make clean` command.
+
+
+
+
+
+## Testing
+
+The test suite is ran with the `make test` command. [Composer](http://getcomposer.org/) is
+automatically installed as well as all dependencies required to run the suite. You can later
+clean the directory with the `make clean` command.
+
+The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
+
+[![Build Status](https://travis-ci.org/ICanBoogie/HTTP.png?branch=master)](https://travis-ci.org/ICanBoogie/HTTP)
 
 
 
