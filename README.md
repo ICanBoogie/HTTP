@@ -464,7 +464,7 @@ ICanBoogie\HTTP\Helpers::patch('get_dispatcher', function() {
 			)
 		);
 		
-		new Dispatcher\Alter($dispatchers);
+		new Dispatcher\AlterEvent($dispatcher);
 	}
 
 	return $dispatcher;
