@@ -188,12 +188,28 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, IDispatcher
 				if (strpos($weight, 'before:') === 0)
 				{
 					$target = substr($weight, 7);
-					$order = \ICanBoogie\array_insert($order, $target, $order[$target], $id);
+
+					if (isset($order[$target]))
+					{
+						$order = \ICanBoogie\array_insert($order, $target, $order[$target], $id);
+					}
+					else
+					{
+						$weight = 0;
+					}
 				}
 				else if (strpos($weight, 'after:') === 0)
 				{
 					$target = substr($weight, 6);
-					$order = \ICanBoogie\array_insert($order, $target, $order[$target], $id, true);
+
+					if (isset($order[$target]))
+					{
+						$order = \ICanBoogie\array_insert($order, $target, $order[$target], $id, true);
+					}
+					else
+					{
+						$weight = 0;
+					}
 				}
 			}
 
