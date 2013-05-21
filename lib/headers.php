@@ -58,6 +58,12 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 		{
 			foreach ($fields as $field => $value)
 			{
+				if (strpos($field, 'HTTP_') === 0)
+				{
+					$field = strtr(substr($field, 5), '_', '-');
+					$field = mb_convert_case($field, MB_CASE_TITLE);
+				}
+
 				$this[$field] = $value;
 			}
 		}

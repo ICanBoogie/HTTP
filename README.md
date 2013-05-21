@@ -19,9 +19,19 @@ use ICanBoogie\HTTP\Request;
 
 $initial_request = Request::from($_SERVER);
 
-# or
+# a fake request in the same environment
 
-$request = Request::from(array('path' => 'path/to/file.html'));
+$request = Request::from('path/to/file.html', $_SERVER);
+
+# or create a request from scratch
+
+$request = Request::from
+(
+	'path' => 'path/to/file.html',
+	'is_local' => true,            // or 'ip' => '::1'
+	'is_post' => true,             // or 'method' => Request::METHOD_POST
+	'content_length' => 123
+);
 ```
 
 Requests are dispatched by a dispatcher, which should return a [Response](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Response.html) object.

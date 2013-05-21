@@ -43,15 +43,15 @@ use ICanBoogie\PropertyNotWritable;
  * @property-read boolean $is_trace Is this a `TRACE` request?
  * @property-read boolean $is_local Is this a local request?
  * @property-read boolean $is_xhr Is this an Ajax request?
- * @property string $method Method of the request.
+ * @property-read string $method Method of the request.
  * @property-read string $normalized_path Path of the request normalized using the {@link \ICanBoogie\normalize_url_path()} function.
  * @property-read string $path Path info of the request.
- * @property int $port Port of the request.
+ * @property-read int $port Port of the request.
  * @property-read string $query_string Query string of the request.
  * @property-read string $script_name Name of the entered script.
  * @property-read string $referer Referer of the request.
  * @property-read string $user_agent User agent of the request.
- * @property string $uri URI of the request.
+ * @property-read string $uri URI of the request.
  *
  * @see http://en.wikipedia.org/wiki/Uniform_resource_locator
  */
@@ -166,22 +166,23 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 * - {@link $query_params}: a reference to the `$_GET` super global array.
 	 * - {@link $request_params}: a reference to the `$_POST` super global array.
 	 *
+	 * A request can also be created from an array of properties, in which case most of them are
+	 * mapped to the `$env` constructor param. For instance, `is_xhr` set the
+	 * `HTTP_X_REQUESTED_WITH` enviroment property to 'XMLHttpRequest'. In fact, only the
+	 * `path_params`, `query_params` and `request_params` are preserved.
+	 *
 	 * @param array $properties
 	 * @param array $construct_args
 	 * @param string $class_name
+	 *
+	 * @throws \InvalidArgumentException in attempt to use a property that is not mapped to an
+	 * environment property.
 	 *
 	 * @return Request
 	 */
 	static public function from($properties=null, array $construct_args=array(), $class_name=null)
 	{
-		if (is_string($properties))
-		{
-			$properties = array
-			(
-				'path' => $properties
-			);
-		}
-		else if ($properties == $_SERVER)
+		if ($properties === $_SERVER)
 		{
 			return parent::from
 			(
@@ -196,8 +197,90 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 				array($_SERVER)
 			);
 		}
+		else
+		{
+			if (is_string($properties))
+			{
+				$properties = array
+				(
+					'path' => $properties
+				);
+			}
+
+			if ($properties)
+			{
+				$env = array();
+
+				if (isset($construct_args[0]))
+				{
+					$env = $construct_args[0];
+				}
+
+				$mappers = self::get_properties_mappers();
+
+				foreach ($properties as $property => $value)
+				{
+					if (empty($mappers[$property]))
+					{
+						throw new \InvalidArgumentException("Unsupported property: <q>$property</q>.");
+					}
+
+					#
+					# The mapper returns `true` if the property is to be preserved.
+					#
+
+					if (!$mappers[$property]($value, $env))
+					{
+						unset($properties[$property]);
+					}
+				}
+
+				$construct_args[0] = $env;
+			}
+		}
 
 		return parent::from($properties, $construct_args, $class_name);
+	}
+
+	/**
+	 * Returns properties to env mappers.
+	 *
+	 * @return array
+	 */
+	static public function get_properties_mappers()
+	{
+		static $mappers;
+
+		if (!$mappers)
+		{
+			$mappers = array
+			(
+				'path_params' => function() { return true; },
+				'query_params' => function() { return true; },
+				'request_params' => function() { return true; },
+
+				'cache_control' => function($value, array &$env) { $env['HTTP_CACHE_CONTROL'] = $value; },
+				'content_length' => function($value, array &$env) { $env['CONTENT_LENGTH'] = $value; },
+				'ip' => function($value, array &$env) { if ($value) $env['REMOTE_ADDR'] = $value; },
+				'is_local' => function($value, array &$env) { if ($value) $env['REMOTE_ADDR'] = '::1'; },
+				'is_delete' => function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_DELETE; },
+				'is_connect' => function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_CONNECT; },
+				'is_get' => function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_GET; },
+				'is_head' => function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_HEAD; },
+				'is_options' => function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_OPTIONS; },
+				'is_patch' => function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_PATCH; },
+				'is_post' => function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_POST; },
+				'is_put' => function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_PUT; },
+				'is_trace' => function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_TRACE; },
+				'is_xhr' => function($value, array &$env) { if ($value) $env['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'; },
+				'path' => function($value, array &$env) { $env['REQUEST_URI'] = $value; }, // TODO-20130521: handle query string
+				'referer' => function($value, array &$env) { $env['HTTP_REFERER'] = $value; },
+				'uri' => function($value, array &$env) { $env['REQUEST_URI'] = $value; },
+				'user_agent' => function($value, array &$env) { $env['HTTP_USER_AGENT'] = $value; }
+			);
+		}
+
+		return $mappers;
 	}
 
 	/**
@@ -263,32 +346,6 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 		self::$current_request = $this->previous;
 
 		return $response;
-	}
-
-	/**
-	 * Handles read-only properties.
-	 *
-	 * @throws PropertyNotWritable in attempt to write boolean properties `is_*`or one of the
-	 * following properties: {@link $ip}, {@link $authorization}, {@link $path},
-	 * {@link $normalized_path}, {@link $extension}.
-	 */
-	public function __set($property, $value)
-	{
-		static $readonly = array
-		(
-			'ip',
-			'authorization',
-			'path',
-			'normalized_path',
-			'extension'
-		);
-
-		if (strpos($property, 'is_') === 0 || in_array($property, $readonly))
-		{
-			throw new PropertyNotWritable(array($property, $this));
-		}
-
-		parent::__set($property, $value);
 	}
 
 	/**
@@ -387,16 +444,6 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	}
 
 	/**
-	 * Sets the directives of the `Cache-Control` header.
-	 *
-	 * @param string $cache_directives
-	 */
-	protected function volatile_set_cache_control($cache_directives)
-	{
-		$this->headers['Cache-Control'] = $cache_directives;
-	}
-
-	/**
 	 * Returns the script name.
 	 *
 	 * The setter is volatile, the value is returned from the ENV key `SCRIPT_NAME`.
@@ -406,18 +453,6 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	protected function volatile_get_script_name()
 	{
 		return $this->env['SCRIPT_NAME'];
-	}
-
-	/**
-	 * Sets the script name.
-	 *
-	 * The setter is volatile, the value is set to the ENV key `SCRIPT_NAME`.
-	 *
-	 * @param string $value
-	 */
-	protected function volatile_set_script_name($value)
-	{
-		$this->env['SCRIPT_NAME'] = $value;
 	}
 
 	/**
@@ -447,16 +482,6 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 		}
 
 		return $method;
-	}
-
-	/**
-	 * Sets the `QUERY_STRING` value of the {@link $env} array.
-	 *
-	 * @param string $query_string
-	 */
-	protected function volatile_set_query_string($query_string)
-	{
-		$this->env['QUERY_STRING'] = $query_string;
 	}
 
 	/**
@@ -491,7 +516,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 */
 	protected function volatile_get_is_delete()
 	{
-		return $this->method == 'delete';
+		return $this->method == self::METHOD_DELETE;
 	}
 
 	/**
@@ -625,7 +650,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 			return $addr;
 		}
 
-		return $this->env['REMOTE_ADDR'] ?: '::1';
+		return (isset($this->env['REMOTE_ADDR']) ? $this->env['REMOTE_ADDR'] : null) ?: '::1';
 	}
 
 	protected function volatile_get_authorization()
@@ -649,22 +674,6 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	}
 
 	/**
-	 * Sets the `REQUEST_URI` environment key.
-	 *
-	 * The {@link $path} and {@link $query_string} property are unset so that they are updated on
-	 * there next access.
-	 *
-	 * @param string $uri
-	 */
-	protected function volatile_set_uri($uri)
-	{
-		unset($this->path);
-		unset($this->query_string);
-
-		$this->env['REQUEST_URI'] = $uri;
-	}
-
-	/**
 	 * Returns the `REQUEST_URI` environment key.
 	 *
 	 * @return string
@@ -672,16 +681,6 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	protected function volatile_get_uri()
 	{
 		return isset($this->env['REQUEST_URI']) ? $this->env['REQUEST_URI'] : $_SERVER['REQUEST_URI'];
-	}
-
-	/**
-	 * Sets the port of the request.
-	 *
-	 * @param int $port
-	 */
-	protected function volatile_set_port($port)
-	{
-		$this->env['REQUEST_PORT'] = $port;
 	}
 
 	/**
