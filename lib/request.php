@@ -322,11 +322,9 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 */
 	public function __invoke($method=null, $params=null)
 	{
-		global $core;
-
 		if ($method !== null)
 		{
-			$this->method = $method;
+			$this->env['REQUEST_METHOD'] = $method;
 		}
 
 		if ($params !== null)
@@ -354,7 +352,9 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 * Example:
 	 *
 	 * <pre>
-	 * Request::from(array('path' => '/api/core/aloha'))->get();
+	 * <?php
+	 *
+	 * Request::from('/api/core/aloha')->get();
 	 * </pre>
 	 */
 	public function __call($method, $arguments)
@@ -467,7 +467,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return string
 	 */
-	protected function get_method()
+	protected function volatile_get_method()
 	{
 		$method = isset($this->env['REQUEST_METHOD']) ? $this->env['REQUEST_METHOD'] : self::METHOD_GET;
 
@@ -485,25 +485,48 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	}
 
 	/**
-	 * Returns the `QUERY_STRING` value of the {@link $env} array.
+	 * Returns the query string of the request.
 	 *
-	 * @param string $query_string The method returns `null` if the key is not defined.
+	 * The value is obtained from the `QUERY_STRING` key of the {@link $env} array.
+	 *
+	 * @param string|null
 	 */
 	protected function volatile_get_query_string()
 	{
 		return isset($this->env['QUERY_STRING']) ? $this->env['QUERY_STRING'] : null;
 	}
 
+	/**
+	 * Returns the content lenght of the request.
+	 *
+	 * The value is obtained from the `CONTENT_LENGTH` key of the {@link $env} array.
+	 *
+	 * @return int|null
+	 */
 	protected function volatile_get_content_length()
 	{
 		return isset($this->env['CONTENT_LENGTH']) ? $this->env['CONTENT_LENGTH'] : null;
 	}
 
+	/**
+	 * Returns the referer of the request.
+	 *
+	 * The value is obtained from the `HTTP_REFERER` key of the {@link $env} array.
+	 *
+	 * @return string|null
+	 */
 	protected function volatile_get_referer()
 	{
 		return isset($this->env['HTTP_REFERER']) ? $this->env['HTTP_REFERER'] : null;
 	}
 
+	/**
+	 * Returns the user agent of the request.
+	 *
+	 * The value is obtained from the `HTTP_USER_AGENT` key of the {@link $env} array.
+	 *
+	 * @return string|null
+	 */
 	protected function volatile_get_user_agent()
 	{
 		return isset($this->env['HTTP_USER_AGENT']) ? $this->env['HTTP_USER_AGENT'] : null;
@@ -749,16 +772,6 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	{
 		return $this->path_params + $this->request_params + $this->query_params;
 	}
-
-	/**
-	 * @throws PropertyNotWritable in attempt to write an unsupported property.
-	 */
-	/*
-	protected function last_chance_set($property, $value, &$success)
-	{
-		throw new PropertyNotWritable(array($property, $this));
-	}
-	*/
 }
 
 namespace ICanBoogie\HTTP\Request;
