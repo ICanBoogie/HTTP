@@ -319,6 +319,21 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * @expectedException ICanBoogie\PropertyNotWritable
 	 */
+	public function test_set_method()
+	{
+		self::$request->method = true;
+	}
+
+	public function test_from_with_method()
+	{
+		$r = Request::from(array('method' => Request::METHOD_OPTIONS));
+		$this->assertObjectNotHasAttribute('method', $r);
+		$this->assertEquals(Request::METHOD_OPTIONS, $r->method);
+	}
+
+	/**
+	 * @expectedException ICanBoogie\PropertyNotWritable
+	 */
 	public function test_set_path()
 	{
 		self::$request->path = true;

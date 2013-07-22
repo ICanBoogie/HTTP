@@ -255,28 +255,29 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 		{
 			$mappers = array
 			(
-				'path_params' => function() { return true; },
-				'query_params' => function() { return true; },
+				'path_params' =>    function() { return true; },
+				'query_params' =>   function() { return true; },
 				'request_params' => function() { return true; },
 
-				'cache_control' => function($value, array &$env) { $env['HTTP_CACHE_CONTROL'] = $value; },
+				'cache_control' =>  function($value, array &$env) { $env['HTTP_CACHE_CONTROL'] = $value; },
 				'content_length' => function($value, array &$env) { $env['CONTENT_LENGTH'] = $value; },
-				'ip' => function($value, array &$env) { if ($value) $env['REMOTE_ADDR'] = $value; },
-				'is_local' => function($value, array &$env) { if ($value) $env['REMOTE_ADDR'] = '::1'; },
-				'is_delete' => function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_DELETE; },
-				'is_connect' => function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_CONNECT; },
-				'is_get' => function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_GET; },
-				'is_head' => function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_HEAD; },
-				'is_options' => function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_OPTIONS; },
-				'is_patch' => function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_PATCH; },
-				'is_post' => function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_POST; },
-				'is_put' => function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_PUT; },
-				'is_trace' => function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_TRACE; },
-				'is_xhr' => function($value, array &$env) { if ($value) $env['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'; },
-				'path' => function($value, array &$env) { $env['REQUEST_URI'] = $value; }, // TODO-20130521: handle query string
-				'referer' => function($value, array &$env) { $env['HTTP_REFERER'] = $value; },
-				'uri' => function($value, array &$env) { $env['REQUEST_URI'] = $value; },
-				'user_agent' => function($value, array &$env) { $env['HTTP_USER_AGENT'] = $value; }
+				'ip' =>             function($value, array &$env) { if ($value) $env['REMOTE_ADDR'] = $value; },
+				'is_local' =>       function($value, array &$env) { if ($value) $env['REMOTE_ADDR'] = '::1'; },
+				'is_delete' =>      function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_DELETE; },
+				'is_connect' =>     function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_CONNECT; },
+				'is_get' =>         function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_GET; },
+				'is_head' =>        function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_HEAD; },
+				'is_options' =>     function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_OPTIONS; },
+				'is_patch' =>       function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_PATCH; },
+				'is_post' =>        function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_POST; },
+				'is_put' =>         function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_PUT; },
+				'is_trace' =>       function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_TRACE; },
+				'is_xhr' =>         function($value, array &$env) { if ($value) $env['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'; },
+				'method' =>         function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = $value; },
+				'path' =>           function($value, array &$env) { $env['REQUEST_URI'] = $value; }, // TODO-20130521: handle query string
+				'referer' =>        function($value, array &$env) { $env['HTTP_REFERER'] = $value; },
+				'uri' =>            function($value, array &$env) { $env['REQUEST_URI'] = $value; },
+				'user_agent' =>     function($value, array &$env) { $env['HTTP_USER_AGENT'] = $value; }
 			);
 		}
 
