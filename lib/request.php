@@ -16,6 +16,28 @@ use ICanBoogie\PropertyNotWritable;
 /**
  * An HTTP request.
  *
+ * <pre>
+ * <?php
+ *
+ * use ICanBoogie\HTTP\Request;
+ *
+ * # Creating the main request
+ *
+ * $request = Request::from($_SERVER);
+ *
+ * # Creating a request from scratch, with the current environment.
+ *
+ * $request = Request::from(array(
+ *
+ *     'uri' => '/path/to/my/page.html?page=2',
+ *     'user_agent' => 'Mozilla'
+ *     'is_get' => true,
+ *     'is_xhr' => true,
+ *     'is_local' => true
+ *
+ * ), array($_SERVER));
+ * </pre>
+ *
  * @method Response connect() connect(array $params)
  * @method Response delete() delete(array $params)
  * @method Response get() get(array $params)
@@ -51,7 +73,8 @@ use ICanBoogie\PropertyNotWritable;
  * @property-read string $script_name Name of the entered script.
  * @property-read string $referer Referer of the request.
  * @property-read string $user_agent User agent of the request.
- * @property-read string $uri URI of the request.
+ * @property-read string $uri URI of the request. The `QUERY_STRING` value of the environment
+ * is overwritten when the instance is created with the {@link $uri} property.
  *
  * @see http://en.wikipedia.org/wiki/Uniform_resource_locator
  */
@@ -199,23 +222,20 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 		}
 		else
 		{
+			$env = isset($construct_args[0]) ? $construct_args[0] : array();
+
 			if (is_string($properties))
 			{
 				$properties = array
 				(
-					'path' => $properties
+					'uri' => $properties
 				);
+
+				$env['QUERY_STRING'] = '';
 			}
 
 			if ($properties)
 			{
-				$env = array();
-
-				if (isset($construct_args[0]))
-				{
-					$env = $construct_args[0];
-				}
-
 				$mappers = self::get_properties_mappers();
 
 				foreach ($properties as $property => $value)
@@ -276,7 +296,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 				'method' =>         function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = $value; },
 				'path' =>           function($value, array &$env) { $env['REQUEST_URI'] = $value; }, // TODO-20130521: handle query string
 				'referer' =>        function($value, array &$env) { $env['HTTP_REFERER'] = $value; },
-				'uri' =>            function($value, array &$env) { $env['REQUEST_URI'] = $value; },
+				'uri' =>            function($value, array &$env) { $env['REQUEST_URI'] = $value; $qs = strpos($value, '?'); $env['QUERY_STRING'] = $qs === false ? '' : substr($value, $qs + 1); },
 				'user_agent' =>     function($value, array &$env) { $env['HTTP_USER_AGENT'] = $value; }
 			);
 		}
@@ -327,6 +347,8 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 		{
 			$this->env['REQUEST_METHOD'] = $method;
 		}
+
+		// FIXME-20130814: if the method is not the same, the instance should be cloned, or the method restored.
 
 		if ($params !== null)
 		{
@@ -700,11 +722,14 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	/**
 	 * Returns the `REQUEST_URI` environment key.
 	 *
+	 * If the `REQUEST_URI` key is not defined by the environment, the value is fetched from
+	 * the `$_SERVER` array. If the key is not defined in the `$_SERVER` array `null` is returned.
+	 *
 	 * @return string
 	 */
 	protected function volatile_get_uri()
 	{
-		return isset($this->env['REQUEST_URI']) ? $this->env['REQUEST_URI'] : $_SERVER['REQUEST_URI'];
+		return isset($this->env['REQUEST_URI']) ? $this->env['REQUEST_URI'] : (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null);
 	}
 
 	/**
@@ -724,15 +749,10 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 */
 	protected function volatile_get_path()
 	{
-		$path = $this->env['REQUEST_URI'];
-		$qs = $this->query_string;
+		$uri = $this->uri;
+		$qs_pos = strpos($uri, '?');
 
-		if ($qs)
-		{
-			$path = substr($path, 0, -(strlen($qs) + 1));
-		}
-
-		return $path;
+		return ($qs_pos === false) ? $uri : substr($uri, 0, $qs_pos);
 	}
 
 	/**

@@ -452,4 +452,27 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$this->assertObjectNotHasAttribute('user_agent', $r);
 		$this->assertEquals('Madonna', $r->user_agent);
 	}
+
+	public function test_query_string_from_uri()
+	{
+		$p = '/api/users/login';
+		$q = 'redirect_to=haven';
+		$r = Request::from($p, array(array('QUERY_STRING' => $q)));
+		$this->assertEmpty($r->query_string);
+		$this->assertEquals($p, $r->uri);
+		$this->assertEquals($p, $r->path);
+
+		$r = Request::from($p . '?' . $q);
+		$this->assertEquals($q, $r->query_string);
+		$this->assertEquals($p . '?' . $q, $r->uri);
+		$this->assertEquals($p, $r->path);
+	}
+
+	public function test_path_when_uri_is_missing_query_string()
+	{
+		$r = Request::from(array(), array(array('QUERY_STRING' => 'redirect_to=haven', 'REQUEST_URI' => '/api/users/login')));
+		$this->assertEquals('redirect_to=haven', $r->query_string);
+		$this->assertEquals('/api/users/login', $r->uri);
+		$this->assertEquals('/api/users/login', $r->path);
+	}
 }

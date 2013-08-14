@@ -251,7 +251,7 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, IDispatcher
 
 		if (!$response)
 		{
-			foreach ($this as &$dispatcher) // MOVE some to AGGREGATE
+			foreach ($this as $id => &$dispatcher) // MOVE some to AGGREGATE
 			{
 				#
 				# If the dispatcher is not a callable then it is considered as a class name, which
