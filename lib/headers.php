@@ -210,7 +210,7 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 			# http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.29
 			case 'Last-Modified':
 			{
-				$value = new Headers\DateTime($value);
+				$value = Headers\DateTime::from($value);
 			}
 			break;
 
@@ -228,7 +228,7 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 			# http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.37
 			case 'Retry-After':
 			{
-				$value = is_numeric($value) ? $value : new Headers\DateTime($value);
+				$value = is_numeric($value) ? $value : Headers\DateTime::from($value);
 			}
 			break;
 		}
@@ -286,31 +286,17 @@ use ICanBoogie\PropertyNotWritable;
  *
  * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3.1
  */
-class DateTime extends \DateTime
+class DateTime extends \ICanBoogie\DateTime
 {
-	private static $utc_time_zone;
-
-	static private function get_utc_time_zone()
-	{
-		$utc_time_zone = self::$utc_time_zone;
-
-		if (!$utc_time_zone)
-		{
-			self::$utc_time_zone = $utc_time_zone = new \DateTimeZone('UTC');
-		}
-
-		return $utc_time_zone;
-	}
-
 	/**
 	 * Returns a new {@link DateTime} object.
 	 *
 	 * @param string|int|\DateTime $time If time is provided as a numeric value it is used as
 	 * "@{$time}" and the time zone is set to UTC.
-	 * @param \DateTimeZone $timezone A {@link \DateTimeZone} object representing the desired
-	 * time zone.
+	 * @param \DateTimeZone|string $timezone A {@link \DateTimeZone} object representing the desired
+	 * time zone. If the time zone is empty `utc` is used instead.
 	 */
-	public function __construct($time='now', \DateTimeZone $timezone=null)
+	public function __construct($time='now', $timezone=null)
 	{
 		if ($time instanceof \DateTime)
 		{
@@ -320,48 +306,18 @@ class DateTime extends \DateTime
 		if (is_numeric($time))
 		{
 			$time = '@' . $time;
-			$timezone = self::get_utc_time_zone();
+			$timezone = null;
 		}
 
-		if (!$timezone)
-		{
-			$timezone = self::get_utc_time_zone();
-		}
-
-		parent::__construct($time, $timezone);
-
-		$this->setTimezone(self::get_utc_time_zone());
+		parent::__construct($time, $timezone ?: 'utc');
 	}
 
-	public function __get($property)
-	{
-		switch ($property)
-		{
-			case 'last_errors': return $this->getLastErrors();
-			case 'offset': return $this->getOffset();
-			case 'timestamp': return $this->getTimestamp();
-			case 'timezone': return $this->getTimezone();
-		}
-
-		throw new PropertyNotReadable(array($property, $this));
-	}
-
-	public function __set($property, $value)
-	{
-		switch ($property)
-		{
-			case 'date': call_user_func_array(array($this, 'setDate'), $value);
-			case 'iso_date': call_user_func_array(array($this, 'setISODate'), $value);
-			case 'time': call_user_func_array(array($this, 'setTime'), $value);
-			case 'timestamp': $this->setTimestamp($value);
-			case 'timezone': $this->setTimezone($value);
-			default: throw new PropertyNotWritable(array($property, $this));
-		}
-	}
-
+	/**
+	 * Formats the instance according to the RFC 1123.
+	 */
 	public function __toString()
 	{
-		return $this->format('D, d M Y H:i:s') . ' GMT';
+		return $this->utc->as_rfc1123;
 	}
 }
 

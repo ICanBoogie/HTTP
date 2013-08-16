@@ -12,6 +12,7 @@
 namespace ICanBoogie\Tests\HTTP\Response;
 
 use ICanBoogie\HTTP\Response;
+use ICanBoogie\DateTime;
 
 class ResponseTest extends \PHPUnit_Framework_TestCase
 {
@@ -130,5 +131,14 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	{
 		$r = new Response();
 		$r->is_fresh = true;
+	}
+
+	public function testDate()
+	{
+		$r = new Response();
+		$r->date = 'now';
+		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\DateTime', $r->date);
+		$this->assertEquals('UTC', $r->date->zone->name);
+		$this->assertTrue(DateTime::now() == $r->date);
 	}
 }

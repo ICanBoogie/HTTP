@@ -21,7 +21,8 @@
 	"require": {
 		"php": ">=5.3.0",
 		"icanboogie/prototype": "*",
-		"icanboogie/event": "*"
+		"icanboogie/event": "*",
+		"icanboogie/datetime": "*"
 	},
 	"autoload": {
 		"classmap": [ "lib/" ],

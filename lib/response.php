@@ -520,16 +520,10 @@ class Response extends \ICanBoogie\Object
 	/**
 	 * Sets the value of the `Date` header field.
 	 *
-	 * @param mixed $time If 'now' is passed a {@link \Datetime} object is created with the UTC
-	 * time zone.
+	 * @param mixed $time
 	 */
 	protected function volatile_set_date($time)
 	{
-		if ($time == 'now')
-		{
-			$time = new \DateTime(null, new \DateTimeZone('UTC'));
-		}
-
 		$this->headers['Date'] = $time;
 	}
 
