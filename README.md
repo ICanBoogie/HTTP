@@ -21,7 +21,7 @@ $initial_request = Request::from($_SERVER);
 
 # a fake request in the same environment
 
-$request = Request::from('path/to/file.html', $_SERVER);
+$request = Request::from('path/to/file.html', array($_SERVER));
 
 # or create a request from scratch
 
@@ -131,7 +131,7 @@ $response = new Response
 
 The response is returned simply by invoking it:
 
-```
+```php
 <?php
 
 $response();
@@ -452,8 +452,10 @@ The following helpers are available:
 
 ### Patching helpers
 
-Helpers can be patched using the `Helpers::patch()` method. This is how [ICanBoogie](http://icanboogie.org)
-patches the `get_dispatcher()` helper to provide its own request dispatcher, which is initialized
+Helpers can be patched using the `Helpers::patch()` method.
+
+The following code illustrates how [ICanBoogie](http://icanboogie.org) patches the
+`get_dispatcher()` helper to provide its own request dispatcher, which is initialized
 with some user dispatchers:
 
 ```php
