@@ -60,7 +60,7 @@ use ICanBoogie\PropertyNotWritable;
  * @property-read boolean $is_valid {@link volatile_get_is_valid()}
  * @property-read boolean $is_validateable {@link volatile_get_is_validateable()}
  *
- * @see http://www.w3.org/Protocols/rfc2616/rfc2616.html
+ * @see http://tools.ietf.org/html/rfc2616
  */
 class Response extends \ICanBoogie\Object
 {
