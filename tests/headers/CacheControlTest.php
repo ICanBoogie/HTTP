@@ -9,16 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP\Headers;
+namespace ICanBoogie\HTTP;
 
-class CacheControlTest extends \PHPUnit_Framework_TestCase
+class CacheControlHeaderTest extends \PHPUnit_Framework_TestCase
 {
 	/**
 	 * @dataProvider provide_properties
 	 */
 	public function test_properties($expect, $properties)
 	{
-		$f = new CacheControl;
+		$f = new CacheControlHeader;
 
 		foreach ($properties as $property => $value)
 		{
@@ -33,7 +33,7 @@ class CacheControlTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_from($from, $properties)
 	{
-		$f = CacheControl::from($from);
+		$f = CacheControlHeader::from($from);
 
 		foreach ($properties as $property => $value)
 		{
@@ -98,7 +98,7 @@ class CacheControlTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_set_invalid_cacheable()
 	{
-		$f = new CacheControl;
+		$f = new CacheControlHeader;
 		$f->cacheable = 'madonna';
 	}
 }

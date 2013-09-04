@@ -137,7 +137,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	{
 		$r = new Response();
 		$r->date = 'now';
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\DateTime', $r->date);
+		$this->assertInstanceOf('ICanBoogie\HTTP\DateHeader', $r->date);
 		$this->assertEquals('UTC', $r->date->zone->name);
 		$this->assertTrue(DateTime::now() == $r->date);
 	}

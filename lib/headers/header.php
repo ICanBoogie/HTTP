@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP\Headers;
+namespace ICanBoogie\HTTP;
 
 use ICanBoogie\OffsetNotDefined;
 use ICanBoogie\PropertyNotDefined;
@@ -26,7 +26,7 @@ use ICanBoogie\PropertyNotDefined;
  * {
  *     public function __construct($value=null, array $attributes=array())
  *     {
- *         $this->parameters['filename'] = new Parameter('filename');
+ *         $this->parameters['filename'] = new HeaderParameter('filename');
  *
  *         parent::__construct($value, $attributes);
  *     }
@@ -81,7 +81,7 @@ abstract class Header implements \ArrayAccess
 	/**
 	 * The parameters supported by the header.
 	 *
-	 * @var array[string]Parameter
+	 * @var array[string]HeaderParameter
 	 */
 	protected $parameters = array();
 
@@ -155,7 +155,7 @@ abstract class Header implements \ArrayAccess
 
 				foreach ($a as $attribute)
 				{
-					$parameter = Parameter::from($attribute);
+					$parameter = HeaderParameter::from($attribute);
 					$parameters[$parameter->attribute] = $parameter;
 				}
 			}
@@ -187,7 +187,7 @@ abstract class Header implements \ArrayAccess
 	/**
 	 * Sets the value of a parameter.
 	 *
-	 * If the value is an instance of {@link Parameter} then the parameter is replaced,
+	 * If the value is an instance of {@link HeaderParameter} then the parameter is replaced,
 	 * otherwise the value of the current parameter is updated and its language is set to `null`.
 	 *
 	 * @throws OffsetNotDefined in attempt to access a parameter that is not defined.
@@ -199,7 +199,7 @@ abstract class Header implements \ArrayAccess
 			throw new OffsetNotDefined(array($attribute, $this));
 		}
 
-		if ($value instanceof Parameter)
+		if ($value instanceof HeaderParameter)
 		{
 			$this->parameters[$attribute] = $value;
 		}
@@ -211,9 +211,9 @@ abstract class Header implements \ArrayAccess
 	}
 
 	/**
-	 * Returns a {@link Parameter} instance.
+	 * Returns a {@link HeaderParameter} instance.
 	 *
-	 * @return Parameter
+	 * @return HeaderParameter
 	 *
 	 * @throws OffsetNotDefined in attempt to access a parameter that is not defined.
 	 */

@@ -25,19 +25,19 @@ use ICanBoogie\PropertyNotWritable;
  *
  * @property int $age Shortcut to the `Age` header field definition.
  * See: {@link volatile_set_age()} {@link volatile_get_age()}
- * @property \ICanBoogie\HTTP\Headers\CacheControl $cache_control Shortcut to the `Cache-Control` header field definition.
+ * @property \ICanBoogie\HTTP\CacheControlHeader $cache_control Shortcut to the `Cache-Control` header field definition.
  * See: {@link volatile_set_cache_control()} {@link volatile_get_cache_control()}
  * @property int $content_length Shortcut to the `Content-Length` header field definition.
  * See: {@link volatile_set_content_length()} {@link volatile_get_content_length()}
- * @property \ICanBoogie\HTTP\Headers\ContentType $content_type Shortcut to the `Content-Type` header field definition.
+ * @property \ICanBoogie\HTTP\ContentTypeHeader $content_type Shortcut to the `Content-Type` header field definition.
  * See: {@link volatile_set_content_type()} {@link volatile_get_content_type()}
- * @property \ICanBoogie\HTTP\Headers\DateTime $date Shortcut to the `Date` header field definition.
+ * @property \ICanBoogie\HTTP\DateHeader $date Shortcut to the `Date` header field definition.
  * See: {@link volatile_set_date()} {@link volatile_get_date()}
  * @property string $etag Shortcut to the `Etag` header field definition.
  * See: {@link volatile_set_etag()} {@link volatile_get_etag()}
- * @property \ICanBoogie\HTTP\Headers\DateTime $expires Shortcut to the `Expires` header field definition.
+ * @property \ICanBoogie\HTTP\DateHeader $expires Shortcut to the `Expires` header field definition.
  * See: {@link volatile_set_expires()} {@link volatile_get_expires()}
- * @property \ICanBoogie\HTTP\Headers\DateTime $last_modified Shortcut to the `Last-Modified` header field definition.
+ * @property \ICanBoogie\HTTP\DateHeader $last_modified Shortcut to the `Last-Modified` header field definition.
  * See: {@link volatile_set_last_modified()} {@link volatile_get_last_modified()}
  * @property string $location Shortcut to the `Location` header field definition.
  * See: {@link volatile_set_location()} {@link volatile_get_location()}
@@ -530,7 +530,7 @@ class Response extends \ICanBoogie\Object
 	/**
 	 * Returns the value of the `Date` header field.
 	 *
-	 * @return Headers\DateTime
+	 * @return Headers\DateHeader
 	 */
 	protected function volatile_get_date()
 	{
@@ -577,7 +577,7 @@ class Response extends \ICanBoogie\Object
 	/**
 	 * Returns the value of the `Last-Modified` header field.
 	 *
-	 * @return Headers\DateTime
+	 * @return Headers\DateHeader
 	 */
 	protected function volatile_get_last_modified()
 	{
@@ -601,7 +601,7 @@ class Response extends \ICanBoogie\Object
 	/**
 	 * Returns the value of the `Expires` header field.
 	 *
-	 * @return Headers\DateTime
+	 * @return Headers\DateHeader
 	 */
 	protected function volatile_get_expires()
 	{
@@ -641,7 +641,7 @@ class Response extends \ICanBoogie\Object
 	/**
 	 * Returns the `Cache-Control` header field.
 	 *
-	 * @return \ICanBoogie\HTTP\Headers\CacheControl
+	 * @return \ICanBoogie\HTTP\CacheControlHeader
 	 */
 	protected function volatile_get_cache_control()
 	{

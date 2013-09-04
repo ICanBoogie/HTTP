@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP\Headers;
+namespace ICanBoogie\HTTP;
 
 class ContentDispositionTest extends \PHPUnit_Framework_TestCase
 {
@@ -18,9 +18,9 @@ class ContentDispositionTest extends \PHPUnit_Framework_TestCase
      */
 	public function test_from($source, $values)
 	{
-		$h = ContentDisposition::from($source);
+		$h = ContentDispositionHeader::from($source);
 
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\ContentDisposition', $h);
+		$this->assertInstanceOf('ICanBoogie\HTTP\ContentDispositionHeader', $h);
 		$this->assertEquals($values[0], $h->value);
 		$this->assertEquals($values[1], (string) $h->filename);
 		$this->assertEquals($values[1], $h->filename);
@@ -82,7 +82,7 @@ class ContentDispositionTest extends \PHPUnit_Framework_TestCase
 
 	public function test_value()
 	{
-		$cd = new ContentDisposition;
+		$cd = new ContentDispositionHeader;
 		$this->assertNull($cd->value);
 		$this->assertEquals('', (string) $cd);
 
@@ -92,7 +92,7 @@ class ContentDispositionTest extends \PHPUnit_Framework_TestCase
 
 	public function test_value_alias()
 	{
-		$cd = new ContentDisposition;
+		$cd = new ContentDispositionHeader;
 
 		$this->assertNull($cd->type);
 		$this->assertNull($cd->value);
@@ -108,8 +108,8 @@ class ContentDispositionTest extends \PHPUnit_Framework_TestCase
 
 	public function test_attributes()
 	{
-		$cd = new ContentDisposition;
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\Parameter', $cd['filename']);
+		$cd = new ContentDispositionHeader;
+		$this->assertInstanceOf('ICanBoogie\HTTP\HeaderParameter', $cd['filename']);
 		$this->assertNull($cd->filename);
 
 		$cd->type = 'inline';
@@ -118,13 +118,13 @@ class ContentDispositionTest extends \PHPUnit_Framework_TestCase
 		$cd->filename = 'madonna.mp3';
 		$this->assertEquals('inline; filename=madonna.mp3', (string) $cd);
 		unset($cd['filename']);
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\Parameter', $cd['filename']);
+		$this->assertInstanceOf('ICanBoogie\HTTP\HeaderParameter', $cd['filename']);
 		$this->assertEquals('inline', (string) $cd);
 
 		$cd->filename = 'madonna.mp3';
 		$this->assertEquals('inline; filename=madonna.mp3', (string) $cd);
 		unset($cd->filename);
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\Parameter', $cd['filename']);
+		$this->assertInstanceOf('ICanBoogie\HTTP\HeaderParameter', $cd['filename']);
 		$this->assertEquals('inline', (string) $cd);
 	}
 }

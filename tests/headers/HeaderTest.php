@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP\Headers;
+namespace ICanBoogie\HTTP;
 
-use ICanBoogie\HTTP\Headers\HeaderTest\A;
+use ICanBoogie\HTTP\HeaderTest\A;
 
 class HeaderTest extends \PHPUnit_Framework_TestCase
 {
@@ -44,8 +44,8 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
 	public function test_attributes()
 	{
 		$a = new A;
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\Parameter', $a['p']);
-		$this->assertNotInstanceOf('ICanBoogie\HTTP\Headers\Parameter', $a->p);
+		$this->assertInstanceOf('ICanBoogie\HTTP\HeaderParameter', $a['p']);
+		$this->assertNotInstanceOf('ICanBoogie\HTTP\HeaderParameter', $a->p);
 
 		$a->type = 'inline';
 		$this->assertEquals('inline', (string) $a);
@@ -54,16 +54,16 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals('inline; p=madonna.mp3', (string) $a);
 		unset($a['p']);
 		$this->assertNull($a->p);
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\Parameter', $a['p']);
-		$this->assertNotInstanceOf('ICanBoogie\HTTP\Headers\Parameter', $a->p);
+		$this->assertInstanceOf('ICanBoogie\HTTP\HeaderParameter', $a['p']);
+		$this->assertNotInstanceOf('ICanBoogie\HTTP\HeaderParameter', $a->p);
 		$this->assertEquals('inline', (string) $a);
 
 		$a->p = 'madonna.mp3';
 		$this->assertEquals('inline; p=madonna.mp3', (string) $a);
 		unset($a->p);
 		$this->assertNull($a->p);
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\Parameter', $a['p']);
-		$this->assertNotInstanceOf('ICanBoogie\HTTP\Headers\Parameter', $a->p);
+		$this->assertInstanceOf('ICanBoogie\HTTP\HeaderParameter', $a['p']);
+		$this->assertNotInstanceOf('ICanBoogie\HTTP\HeaderParameter', $a->p);
 		$this->assertEquals('inline', (string) $a);
 	}
 
@@ -113,17 +113,17 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
 	}
 }
 
-namespace ICanBoogie\HTTP\Headers\HeaderTest;
+namespace ICanBoogie\HTTP\HeaderTest;
 
-use ICanBoogie\HTTP\Headers\Parameter;
+use ICanBoogie\HTTP\HeaderParameter;
 
-class A extends \ICanBoogie\HTTP\Headers\Header
+class A extends \ICanBoogie\HTTP\Header
 {
 	const VALUE_ALIAS = 'type';
 
 	public function __construct($value=null, array $parameters=array())
 	{
-		$this->parameters['p'] = new Parameter('p');
+		$this->parameters['p'] = new HeaderParameter('p');
 
 		parent::__construct($value, $parameters);
 	}

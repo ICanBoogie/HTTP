@@ -53,7 +53,7 @@ use ICanBoogie\PropertyNotWritable;
  *
  * @property-read boolean $authorization Authorization of the request.
  * @property-read int $content_length Length of the request content.
- * @property-read int $cache_control A {@link \ICanBoogie\HTTP\Headers\CacheControl} object.
+ * @property-read int $cache_control A {@link \ICanBoogie\HTTP\CacheControlHeader} object.
  * @property-read string $ip Remote IP of the request.
  * @property-read boolean $is_delete Is this a `DELETE` request?
  * @property-read boolean $is_get Is this a `GET` request?
@@ -459,7 +459,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	/**
 	 * Returns the `Cache-Control` header.
 	 *
-	 * @return \ICanBoogie\HTTP\Headers\CacheControl
+	 * @return \ICanBoogie\HTTP\CacheControlHeader
 	 */
 	protected function volatile_get_cache_control()
 	{

@@ -25,14 +25,14 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 {
 	static private $mapping = array
 	(
-		'Cache-Control'       => 'ICanBoogie\HTTP\Headers\CacheControl',
-		'Content-Disposition' => 'ICanBoogie\HTTP\Headers\ContentDisposition',
-		'Content-Type'        => 'ICanBoogie\HTTP\Headers\ContentType',
-		'Date'                => 'ICanBoogie\HTTP\Headers\DateTime',
-		'Expires'             => 'ICanBoogie\HTTP\Headers\DateTime',
-		'If-Modified-Since'   => 'ICanBoogie\HTTP\Headers\DateTime',
-		'If-Unmodified-Since' => 'ICanBoogie\HTTP\Headers\DateTime',
-		'Last-Modified'       => 'ICanBoogie\HTTP\Headers\DateTime'
+		'Cache-Control'       => 'ICanBoogie\HTTP\CacheControlHeader',
+		'Content-Disposition' => 'ICanBoogie\HTTP\ContentDispositionHeader',
+		'Content-Type'        => 'ICanBoogie\HTTP\ContentTypeHeader',
+		'Date'                => 'ICanBoogie\HTTP\DateHeader',
+		'Expires'             => 'ICanBoogie\HTTP\DateHeader',
+		'If-Modified-Since'   => 'ICanBoogie\HTTP\DateHeader',
+		'If-Unmodified-Since' => 'ICanBoogie\HTTP\DateHeader',
+		'Last-Modified'       => 'ICanBoogie\HTTP\DateHeader'
 	);
 
 	/**
@@ -212,7 +212,7 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 			# http://tools.ietf.org/html/rfc2616#section-14.37
 			case 'Retry-After':
 			{
-				$value = is_numeric($value) ? $value : Headers\DateTime::from($value);
+				$value = is_numeric($value) ? $value : Headers\DateHeader::from($value);
 			}
 			break;
 		}

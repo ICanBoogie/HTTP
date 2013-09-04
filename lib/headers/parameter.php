@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP\Headers;
+namespace ICanBoogie\HTTP;
 
 use ICanBoogie\PropertyNotDefined;
 
@@ -23,7 +23,7 @@ use ICanBoogie\PropertyNotDefined;
  * @see http://tools.ietf.org/html/rfc5987
  * @see http://greenbytes.de/tech/tc2231/#attwithfn2231utf8
  */
-class Parameter
+class HeaderParameter
 {
 	/**
 	 * Token of the parameter.

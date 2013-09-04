@@ -9,17 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP\Headers;
+namespace ICanBoogie\HTTP;
 
 /**
  * A date time object that renders into a string formatted for HTTP header fields.
  *
  * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3.1
  */
-class DateTime extends \ICanBoogie\DateTime
+class DateHeader extends \ICanBoogie\DateTime
 {
 	/**
-	 * Returns a new {@link DateTime} object.
+	 * Returns a new {@link DateHeader} object.
 	 *
 	 * @param string|int|\DateTime $time If time is provided as a numeric value it is used as
 	 * "@{$time}" and the time zone is set to UTC.

@@ -23,7 +23,7 @@ $initial_request = Request::from($_SERVER);
 
 $request = Request::from('path/to/file.html', array($_SERVER));
 
-# or create a request from scratch
+# a request created from scratch
 
 $request = Request::from
 (
@@ -153,7 +153,7 @@ string of the `mail()` command.
 
 ### Content-Type header
 
-The `Content-Type` header is represented by a [ContentType](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Headers.ContentType.html)
+The `Content-Type` header is represented by a [ContentTypeHeader](http://icanboogie.org/docs/class-ICanBoogie.HTTP.ContentTypeHeader.html)
 instance making it easily manipulate.
 
 ```php
@@ -175,7 +175,7 @@ echo $response->headers['Content-Type']; // application/xml; charset=utf-8
 
 ### Content-Disposition header
 
-The `Content-Disposition` header represented by a [ContentDisposition](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Headers.ContentDisposition.html)
+The `Content-Disposition` header is represented by a [ContentDispositionHeader](http://icanboogie.org/docs/class-ICanBoogie.HTTP.ContentDispositionHeader.html)
 instance making it easily manipulate. Accentuated filenames are supported. 
 
 ```php
@@ -195,9 +195,9 @@ echo $response->headers['Content-Disposition']; // attachment; filename="ete.jpg
 
 ### Cache-Control header
 
-The `Cache-Control` header is represented by a [CacheControl](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Headers.CacheControl.html)
+The `Cache-Control` header is represented by a [CacheControlHeader](http://icanboogie.org/docs/class-ICanBoogie.HTTP.CacheControlHeader.html)
 instance making it easily manipulable. Directives can be set at once using a plain string,
-or individually using the properties of the [CacheControl](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Headers.CacheControl.html) instance.
+or individually using the properties of the [CacheControlHeader](http://icanboogie.org/docs/class-ICanBoogie.HTTP.CacheControlHeader.html) instance.
 Directives of the [rfc2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html) are supported.
 
 ```php
