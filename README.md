@@ -9,8 +9,8 @@ The HTTP package provides an API to handle HTTP requests.
 ## Request
 
 A request is represented by a [Request](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Request.html) instance.
-The initial request is usually created from the `$_SERVER` array, while sub requests can be created
-from array of properties.
+The initial request is usually created from the `$_SERVER` array, while sub requests are created
+from arrays of properties.
 
 ```php
 <?php
@@ -25,16 +25,17 @@ $request = Request::from('path/to/file.html', array($_SERVER));
 
 # a request created from scratch
 
-$request = Request::from
+$request = Request::from(array
 (
 	'path' => 'path/to/file.html',
 	'is_local' => true,            // or 'ip' => '::1'
 	'is_post' => true,             // or 'method' => Request::METHOD_POST
 	'content_length' => 123
-);
+));
 ```
 
-Requests are dispatched by a dispatcher, which should return a [Response](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Response.html) object.
+Requests are handled by a dispatcher, which returns a [Response][]
+instance, or throws a `NotFound` exception if the request cannot be satisfied.
 Requests are usually dispatched simply by invoking them, or by using one of the HTTP methods
 available:
 
@@ -243,35 +244,58 @@ $response = new Response
 
 
 
+## Dispatcher
 
-## Dispatching requests
+Requests are handled using a [Dispatcher][] instance, but dispite the many features of the
+dispatcher, it is incapable of resolving the request into a response by itself, instead it
+relies on dispatcher plugins and events.
 
-Request are dispatched using a [Dispatcher](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.html)
-instance. The dispatcher uses user defined dispatchers to try to get a response for a request.
+
+
+
+
+### Dispatcher plugins
+
+Wrapped in the comfort of the dispatcher, dispatcher plugins are the ones who really handle the
+requests. They may be instances of classes implementing the [IDispatcher][] interface or
+callables, and they usually handle a very specific type of request.
+
+As an example, the following dispatcher plugins are used by the CMS Icybee:
+
+- `operation`: Defined by the `icanboogie/operation` package, it handles operations.
+- `routes`: Defined by the `icanboogie/routing` package, it handles routes defined using
+the `routes` configuration.
+- `pages`: Defined by the `icybee/pages` package, it handles managed pages.
+
+The following code demonstrates how a [Dispatcher][] instance can be created with these dispatcher
+plugins.
 
 ```php
 <?php
 
 use ICanBoogie\HTTP\Dispatcher;
 
-$dispatcher = new Dispatcher
+$dispatcher = new Dispatcher(array
 (
-	array
-	(
-		'operation' => 'ICanBoogie\Operation\Dispatcher',
-		'route' => 'ICanBoogie\Routing\Dispatcher'
-	)
-);
+	'operation' => 'ICanBoogie\Operation\Dispatcher',
+	'route' => 'ICanBoogie\Routing\Dispatcher',
+	'page' => 'Icybee\Modules\Pages\PageController'
+));
 ```
 
 
 
 
-### Weighted dispatchers
 
-Some dispatchers might need to run before others, in this case they need to be defined using a
-`WeightedDispatcher` instance. The weight can be defined as an integer, the special values `top`
-or `bottom`, or a position relative to a target. Consider the following example:
+### Weighted dispatcher plugins
+
+The order in which the dispatcher plugins are defined is important because each one of them is
+invoked in turn until one returns a response or throws an exception. Some dispatcher plugins
+might need to run before others, in that case they need to be defined using a
+`WeightedDispatcher` instance.
+
+The weight is defined as an integer; the special values `top` or `bottom`; or a position relative
+to a target. Consider the following example:
 
 ```php
 <?php
@@ -283,14 +307,14 @@ $dispatcher = new Dispatcher(array(
 
 ));
 
-$dispatcher['bottom'] = new WeightedDispatcher('dummy', 'bottom');
-$dispatcher['megabottom'] = new WeightedDispatcher('dummy', 'bottom');
+$dispatcher['bottom']      = new WeightedDispatcher('dummy', 'bottom');
+$dispatcher['megabottom']  = new WeightedDispatcher('dummy', 'bottom');
 $dispatcher['hyperbottom'] = new WeightedDispatcher('dummy', 'bottom');
-$dispatcher['one'] = new WeightedDispatcher('dummy', 'before:two');
-$dispatcher['four'] = new WeightedDispatcher('dummy', 'after:three');
-$dispatcher['top'] = new WeightedDispatcher('dummy', 'top');
-$dispatcher['megatop'] = new WeightedDispatcher('dummy', 'top');
-$dispatcher['hypertop'] = new WeightedDispatcher('dummy', 'top');
+$dispatcher['one']         = new WeightedDispatcher('dummy', 'before:two');
+$dispatcher['four']        = new WeightedDispatcher('dummy', 'after:three');
+$dispatcher['top']         = new WeightedDispatcher('dummy', 'top');
+$dispatcher['megatop']     = new WeightedDispatcher('dummy', 'top');
+$dispatcher['hypertop']    = new WeightedDispatcher('dummy', 'top');
 
 $order = '';
 
@@ -302,35 +326,53 @@ foreach ($dispatcher as $dispatcher_id => $dummy)
 echo $order; //  hypertop megatop top one two three four bottom megabottom hyperbottom
 ```
 
-
-
-
-
-### Rescue
-
-Most likely your application is going to throw exceptions, whether they are caused by software
-bugs or logic, you might want to handle them. For example, to present a login form when the
-[AuthenticationRequired](http://icanboogie.org/docs/class-ICanBoogie.AuthenticationRequired.html)
-exception is thrown instead of the default exception message.
-
-The exception can be rescued at two levels: the user dispatcher level, using its `rescue()`
-method; or the main dispatcher level, by listening to the `Exception::rescue` event.
+Notice how the `before:` and `after:` prefixes are used to indicate how the dispatcher plugins
+should be ordered relatively to the specified targets.
 
 
 
 
 
-## Events
+## Dispatching requests
+
+When a dispatcher is asked to handle a request, it invokes each of its dispatcher plugins in turn
+until one returns a [Response][] instance or throws an exception. If an exception is thrown during
+the dispatch, the dispatcher tries to _rescue_ it using either the dispatcher plugin's `rescue()`
+method or the event system. Around that, events are fired to allow third parties to alter the
+request and alter or replace the response. Finally, if the request could not be resolved into a
+response a [NotFound][] exception is thrown, otherwise the response is returned.
+
+```php
+<?php
+
+$request = Request::from('/api/core/ping');
+
+try
+{
+	$response = $dispatcher($request);
+	$response();
+}
+catch (NotFound $e)
+{
+	echo $e->getMessage();
+}
+```
+
+
+
+
 
 ### Before a request is dispatched
 
-The `ICanBoogie\HTTP\Dispatcher::dispatch:before` event of class
-[BeforeDispatchEvent](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.BeforeDispatchEvent.html)
-is fired before a request is dispatched. 
+The `ICanBoogie\HTTP\Dispatcher::dispatch:before` event of class [BeforeDispatchEvent][]
+is fired before a request is dispatched.
 
-Third parties may use this event to provide a response to the request before the dispatchers
-are invoked. If a response is provided the dispatchers are skipped. The event is usually used
-to redirect requests or provide cached responses.
+Third parties may use this event to provide a response to the request before the dispatcher plugins
+are invoked. If a response is provided the dispatcher plugins are skipped.
+
+The event is usually used to redirect requests or provide cached responses. The following code
+demonstrates how a request could be redirected if its path is not normalized. For instance a
+request for "/index.html" would be redirected to "/".
 
 ```php
 <?php
@@ -342,7 +384,7 @@ use ICanBoogie\HTTP\RedirectResponse;
 $events->attach(function(Dispatcher\BeforeDispatchEvent $event, Dispatcher $dispatcher) {
 
 	$path = $event->request->path;
-	$normalized_path = ICanBoogie\normalize_url_path($path);
+	$normalized_path = $event->request->normalized_path;
 
 	if ($path === $normalized_path)
 	{
@@ -355,19 +397,21 @@ $events->attach(function(Dispatcher\BeforeDispatchEvent $event, Dispatcher $disp
 });
 ```
 
+Notice how the `stop()` method of the event is invoked to stop the event propagation and
+prevent other event hooks from altering the response.
+
 
 
 
 
 ### After a request was dispatched
 
-The `ICanBoogie\HTTP\Dispatcher::dispatch` event of class
-[DispatchEvent](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.DispatchEvent.html)
-is fired after a request was dispatched. The event is fired even if no response was provided
-by dispatchers.
+The `ICanBoogie\HTTP\Dispatcher::dispatch` event of class [DispatchEvent][] is fired after a
+request was dispatched, even if no response was provided by dispatcher plugins.
 
-Third parties may use this event to alter the response before it is returned by the dispatcher,
-provide a default response if no response was provided, or cache the response.
+Third parties may use this event to alter or replace the response before it is returned by the
+dispatcher. The following code demonstrates how a cache could be updated after a response with
+the content type "text/html" was found for a request.
 
 ```php
 <?php
@@ -378,7 +422,7 @@ use ICanBoogie\HTTP\Dispatcher;
 $events->attach(function(Dispatcher\DispatchEvent $event, Dispatcher $target) use($cache) {
 
 	$response = $event->response;
-	
+
 	if ($response->content_type->type !== 'text/html')
 	{
 		return;
@@ -393,15 +437,18 @@ $events->attach(function(Dispatcher\DispatchEvent $event, Dispatcher $target) us
 
 
 
-### An exception was thrown during dispatching
+### Rescuing exceptions
 
-The `Exception:rescue` event of class [RescueEvent](http://icanboogie.org/docs/class-ICanBoogie.Exception.RescueEvent.html)
-is fired when an exception is caught during a request dispatching.
+Most likely your application is going to throw exceptions, whether they are caused by software
+bugs or logic, you might want to handle them. For example, you might want to present a login form
+instead of the default exception message when a [AuthenticationRequired][] exception is thrown.
 
-Third parties may use this event to provide a response for the exception.
+Exceptions can be rescued at two levels: the dispatcher plugin level, using its `rescue()`
+method; or the main dispatcher level, by listening to the `Exception::rescue` event.
 
-The following example demonstrates how a _login form_ can be returned as response when a
-[AuthenticationRequired](http://icanboogie.org/docs/class-ICanBoogie.AuthenticationRequired.html) exception is thrown.
+Third parties may use the `Exception::rescue` event of class [RescueEvent][] to provide a response
+for an exception. The following example demonstrates how a login form can be returned as response
+when a [AuthenticationRequired][] exception is thrown.
 
 ```php
 <?php
@@ -413,11 +460,45 @@ $events->attach(function(ICanBoogie\Exception\RescueEvent $event, ICanBoogie\Aut
 
 	ICanBoogie\log_error($target->getMessage());
 
-	$event->response = new Response($target->getCode(), array(), new LoginForm());
+	$event->response = new Response(new DocumentDecorator(new LoginForm), $target->getCode());
 	$event->stop();
 
 });
 ```
+
+
+
+
+
+#### The `X-ICanBoogie-Rescued-Exception` header field
+
+The `X-ICanBoogie-Rescued-Exception` header field is added to the response obtained while rescuing
+an exception, it indicates the origin of the exception, this might help you while tracking bugs.
+
+Note that the origin path of the exception is relative to the `DOCUMENT_ROOT`.
+
+
+
+
+
+#### Force redirect
+
+If they are not rescued during the `Exception::rescue` event, [ForceRedirect][] exceptions are
+resolved into [RedirectResponse][] instances.
+
+
+
+
+
+### A second chance for `HEAD` operations
+
+When a request with a `HEAD` method fails to get a response (a [NotFound][] exception was
+thrown) the dispatcher tries the same request with a `GET` method instead. If a response is
+provided a new response is returned with only its status and headers but with an empty body,
+otherwise the dispatcher tries to rescue the exception.
+
+Leveragin this feature, you won't have to implement a controller for the `HEAD` method if the
+controller for the `GET` method is good enough.
 
 
 
@@ -428,11 +509,13 @@ $events->attach(function(ICanBoogie\Exception\RescueEvent $event, ICanBoogie\Aut
 The following exceptions are defined by the HTTP package:
 
 * [HTTPError](http://icanboogie.org/docs/class-ICanBoogie.HTTP.HTTPError.html): Base class for HTTP exceptions.
-* [NotFound](http://icanboogie.org/docs/class-ICanBoogie.HTTP.NotFound.html): Exception thrown when a resource is not found.
+* [NotFound][]: Exception thrown when a resource is not found. For instance, this exception is
+thrown by the dispatcher when it fails to resolve a request into a response.
+* [ForceRedirect][]: Exception thrown when a redirect is absolutely required.
 * [ServiceUnavailable](http://icanboogie.org/docs/class-ICanBoogie.HTTP.ServiceUnavailable.html): Exception thrown when the server is currently unavailable
 (because it is overloaded or down for maintenance).
-* [MethodNotSupported](http://icanboogie.org/docs/class-ICanBoogie.HTTP.MethodNotSupported.html): Exception thrown when the HTTP method is not supported.
-* [StatusCodeNotValid](http://icanboogie.org/docs/class-ICanBoogie.HTTP.StatusCodeNotValid.html): Exception thrown when the HTTP status code is not valid.
+* [MethodNotSupported](http://icanboogie.org/docs/class-ICanBoogie.HTTP.MethodNotSupported.html): Exception thrown when a HTTP method is not supported.
+* [StatusCodeNotValid](http://icanboogie.org/docs/class-ICanBoogie.HTTP.StatusCodeNotValid.html): Exception thrown when a HTTP status code is not valid.
 
 
 
@@ -442,8 +525,8 @@ The following exceptions are defined by the HTTP package:
 
 The following helpers are available:
 
-* [dispatch](http://icanboogie.org/docs/function-ICanBoogie.HTTP.dispatch.html): Dispatches a request using the main request dispatcher.
-* [get_dispatcher](http://icanboogie.org/docs/function-ICanBoogie.HTTP.get_dispatcher.html): Returns the main request dispatcher.
+* [dispatch](http://icanboogie.org/docs/function-ICanBoogie.HTTP.dispatch.html): Dispatches a request using the dispatcher returned by `get_dispatcher()`.
+* [get_dispatcher](http://icanboogie.org/docs/function-ICanBoogie.HTTP.get_dispatcher.html): Returns the main dispatcher.
 * [get_initial_request](http://icanboogie.org/docs/function-ICanBoogie.HTTP.get_initial_request.html): Returns the initial request.
 
 
@@ -454,12 +537,16 @@ The following helpers are available:
 
 Helpers can be patched using the `Helpers::patch()` method.
 
-The following code illustrates how [ICanBoogie](http://icanboogie.org) patches the
-`get_dispatcher()` helper to provide its own request dispatcher, which is initialized
-with some user dispatchers:
+The following code demonstrates how [ICanBoogie](http://icanboogie.org) patches the
+`get_dispatcher()` helper to provide its own dispatcher, which is initialized with some
+dispatcher plugins:
 
 ```php
 <?php
+
+namespace ICanBoogie;
+
+use ICanBoogie\HTTP\Dispatcher;
 
 ICanBoogie\HTTP\Helpers::patch('get_dispatcher', function() {
 
@@ -467,15 +554,12 @@ ICanBoogie\HTTP\Helpers::patch('get_dispatcher', function() {
 
 	if (!$dispatcher)
 	{
-		$dispatcher = new Dispatcher
+		$dispatcher = new Dispatcher(array
 		(
-			array
-			(
-				'operation' => 'ICanBoogie\Operation\Dispatcher',
-				'route' => 'ICanBoogie\Routing\Dispatcher'
-			)
-		);
-		
+			'operation' => 'ICanBoogie\Operation\Dispatcher',
+			'route' => 'ICanBoogie\Routing\Dispatcher'
+		));
+
 		new Dispatcher\AlterEvent($dispatcher);
 	}
 
@@ -525,12 +609,18 @@ Create a `composer.json` file and run `php composer.phar install` command to ins
 
 ```json
 {
-    "minimum-stability": "dev",
-    "require": {
+	"minimum-stability": "dev",
+	"require": {
 		"icanboogie/http": "*"
-    }
+	}
 }
 ```
+
+The following packages are required, you might want to check them out:
+
+- [icanboogie/prototype](https://github.com/ICanBoogie/Prototype)
+- [icanboogie/event](https://github.com/ICanBoogie/Event)
+- [icanboogie/datetime](https://github.com/ICanBoogie/DateTime)
 
 
 
@@ -576,3 +666,18 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 ## License
 
 ICanBoogie/HTTP is licensed under the New BSD License - See the LICENSE file for details.
+
+
+
+
+
+[BeforeDispatchEvent]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.BeforeDispatchEvent.html
+[DispatchEvent]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.DispatchEvent.html
+[Dispatcher]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.html
+[IDispatcher]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.IDispatcher.html
+[Response]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Response.html
+[RedirectResponse]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.RedirectResponse.html
+[NotFound]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.NotFound.html
+[ForceRedirect]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.ForceRedirect.html
+[RescueEvent]: http://icanboogie.org/docs/class-ICanBoogie.Exception.RescueEvent.html
+[AuthenticationRequired]: http://icanboogie.org/docs/class-ICanBoogie.AuthenticationRequired.html
