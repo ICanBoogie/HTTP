@@ -441,7 +441,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return \ICanBoogie\HTTP\Request
 	 */
-	protected function volatile_get_previous()
+	protected function get_previous()
 	{
 		return $this->previous;
 	}
@@ -451,7 +451,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return Request\Context
 	 */
-	protected function volatile_get_context()
+	protected function get_context()
 	{
 		return $this->context;
 	}
@@ -461,7 +461,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return \ICanBoogie\HTTP\CacheControlHeader
 	 */
-	protected function volatile_get_cache_control()
+	protected function get_cache_control()
 	{
 		return $this->headers['Cache-Control'];
 	}
@@ -473,7 +473,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return string
 	 */
-	protected function volatile_get_script_name()
+	protected function get_script_name()
 	{
 		return $this->env['SCRIPT_NAME'];
 	}
@@ -490,7 +490,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return string
 	 */
-	protected function volatile_get_method()
+	protected function get_method()
 	{
 		$method = isset($this->env['REQUEST_METHOD']) ? $this->env['REQUEST_METHOD'] : self::METHOD_GET;
 
@@ -514,7 +514,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @param string|null
 	 */
-	protected function volatile_get_query_string()
+	protected function get_query_string()
 	{
 		return isset($this->env['QUERY_STRING']) ? $this->env['QUERY_STRING'] : null;
 	}
@@ -526,7 +526,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return int|null
 	 */
-	protected function volatile_get_content_length()
+	protected function get_content_length()
 	{
 		return isset($this->env['CONTENT_LENGTH']) ? $this->env['CONTENT_LENGTH'] : null;
 	}
@@ -538,7 +538,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return string|null
 	 */
-	protected function volatile_get_referer()
+	protected function get_referer()
 	{
 		return isset($this->env['HTTP_REFERER']) ? $this->env['HTTP_REFERER'] : null;
 	}
@@ -550,7 +550,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return string|null
 	 */
-	protected function volatile_get_user_agent()
+	protected function get_user_agent()
 	{
 		return isset($this->env['HTTP_USER_AGENT']) ? $this->env['HTTP_USER_AGENT'] : null;
 	}
@@ -560,7 +560,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_delete()
+	protected function get_is_delete()
 	{
 		return $this->method == self::METHOD_DELETE;
 	}
@@ -570,7 +570,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_get()
+	protected function get_is_get()
 	{
 		return $this->method == self::METHOD_GET;
 	}
@@ -580,7 +580,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_head()
+	protected function get_is_head()
 	{
 		return $this->method == self::METHOD_HEAD;
 	}
@@ -590,7 +590,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_options()
+	protected function get_is_options()
 	{
 		return $this->method == self::METHOD_OPTIONS;
 	}
@@ -600,7 +600,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_patch()
+	protected function get_is_patch()
 	{
 		return $this->method == self::METHOD_PATCH;
 	}
@@ -610,7 +610,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_post()
+	protected function get_is_post()
 	{
 		return $this->method == self::METHOD_POST;
 	}
@@ -620,7 +620,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_put()
+	protected function get_is_put()
 	{
 		return $this->method == self::METHOD_PUT;
 	}
@@ -630,7 +630,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_trace()
+	protected function get_is_trace()
 	{
 		return $this->method == self::METHOD_TRACE;
 	}
@@ -640,7 +640,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_xhr()
+	protected function get_is_xhr()
 	{
 		return !empty($this->env['HTTP_X_REQUESTED_WITH']) && preg_match('/XMLHttpRequest/', $this->env['HTTP_X_REQUESTED_WITH']);
 	}
@@ -650,7 +650,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_local()
+	protected function get_is_local()
 	{
 		static $patterns = array('::1', '/^127\.0\.0\.\d{1,3}$/', '/^0:0:0:0:0:0:0:1(%.*)?$/');
 
@@ -685,7 +685,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return string
 	 */
-	protected function volatile_get_ip()
+	protected function get_ip()
 	{
 		if (isset($this->env['HTTP_X_FORWARDED_FOR']))
 		{
@@ -699,7 +699,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 		return (isset($this->env['REMOTE_ADDR']) ? $this->env['REMOTE_ADDR'] : null) ?: '::1';
 	}
 
-	protected function volatile_get_authorization()
+	protected function get_authorization()
 	{
 		if (isset($this->env['HTTP_AUTHORIZATION']))
 		{
@@ -727,7 +727,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return string
 	 */
-	protected function volatile_get_uri()
+	protected function get_uri()
 	{
 		return isset($this->env['REQUEST_URI']) ? $this->env['REQUEST_URI'] : (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null);
 	}
@@ -737,7 +737,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return int
 	 */
-	protected function volatile_get_port()
+	protected function get_port()
 	{
 		return $this->env['REQUEST_PORT'];
 	}
@@ -747,7 +747,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return string
 	 */
-	protected function volatile_get_path()
+	protected function get_path()
 	{
 		$uri = $this->uri;
 		$qs_pos = strpos($uri, '?');
@@ -761,7 +761,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return string
 	 */
-	protected function volatile_get_normalized_path()
+	protected function get_normalized_path()
 	{
 		return \ICanBoogie\normalize_url_path($this->path);
 	}
@@ -771,12 +771,12 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return mixed
 	 */
-	protected function volatile_get_extension()
+	protected function get_extension()
 	{
 		return pathinfo($this->path, PATHINFO_EXTENSION);
 	}
 
-	protected function set_params($params)
+	protected function lazy_set_params($params)
 	{
 		return $params;
 	}
@@ -789,7 +789,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @return array
 	 */
-	protected function get_params()
+	protected function lazy_get_params()
 	{
 		return $this->path_params + $this->request_params + $this->query_params;
 	}
@@ -814,7 +814,7 @@ class Context extends \ICanBoogie\Object
 	 * The request the context belongs to.
 	 *
 	 * The variable is declared as private but is actually readable thanks to the
-	 * {@link volatile_get_request} getter.
+	 * {@link get_request} getter.
 	 *
 	 * @var \ICanBoogie\HTTP\Request
 	 */
@@ -838,19 +838,11 @@ class Context extends \ICanBoogie\Object
 	}
 
 	/**
-	 * @throws PropertyNotWritable in attempt to write {@link $request}
-	 */
-	protected function volatile_set_request()
-	{
-		throw new PropertyNotWritable(array('request', $this));
-	}
-
-	/**
 	 * Returns the {@link $request} property.
 	 *
 	 * @return \ICanBoogie\HTTP\Request
 	 */
-	protected function volatile_get_request()
+	protected function get_request()
 	{
 		return $this->request;
 	}
@@ -862,7 +854,7 @@ class Context extends \ICanBoogie\Object
 	 *
 	 * @throws \InvalidArgumentException if the value is not null and does not implements \ICanBoogie\HTTP\IDispatcher.
 	 */
-	protected function volatile_set_dispatcher($dispatcher)
+	protected function set_dispatcher($dispatcher)
 	{
 		if ($dispatcher !== null && !($dispatcher instanceof \ICanBoogie\HTTP\IDispatcher))
 		{
@@ -877,7 +869,7 @@ class Context extends \ICanBoogie\Object
 	 *
 	 * @return \ICanBoogie\HTTP\IDispatcher
 	 */
-	protected function volatile_get_dispatcher()
+	protected function get_dispatcher()
 	{
 		return $this->dispatcher;
 	}

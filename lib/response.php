@@ -17,48 +17,48 @@ use ICanBoogie\PropertyNotWritable;
  * A response to a HTTP request.
  *
  * @property integer $status The HTTP status code.
- * See: {@link volatile_set_status()} {@link volatile_get_status()}
+ * See: {@link set_status()} {@link get_status()}
  * @property string $status_message The HTTP status message.
- * See: {@link volatile_set_status_message()} {@link volatile_get_status_message()}
+ * See: {@link set_status_message()} {@link get_status_message()}
  * @property int $ttl Adjusts the `s-maxage` part of the `Cache-Control` header field definition according to the `Age` header field definition.
- * See: {@link volatile_set_ttl()} {@link volatile_get_ttl()}
+ * See: {@link set_ttl()} {@link get_ttl()}
  *
  * @property int $age Shortcut to the `Age` header field definition.
- * See: {@link volatile_set_age()} {@link volatile_get_age()}
+ * See: {@link set_age()} {@link get_age()}
  * @property \ICanBoogie\HTTP\CacheControlHeader $cache_control Shortcut to the `Cache-Control` header field definition.
- * See: {@link volatile_set_cache_control()} {@link volatile_get_cache_control()}
+ * See: {@link set_cache_control()} {@link get_cache_control()}
  * @property int $content_length Shortcut to the `Content-Length` header field definition.
- * See: {@link volatile_set_content_length()} {@link volatile_get_content_length()}
+ * See: {@link set_content_length()} {@link get_content_length()}
  * @property \ICanBoogie\HTTP\ContentTypeHeader $content_type Shortcut to the `Content-Type` header field definition.
- * See: {@link volatile_set_content_type()} {@link volatile_get_content_type()}
+ * See: {@link set_content_type()} {@link get_content_type()}
  * @property \ICanBoogie\HTTP\DateHeader $date Shortcut to the `Date` header field definition.
- * See: {@link volatile_set_date()} {@link volatile_get_date()}
+ * See: {@link set_date()} {@link get_date()}
  * @property string $etag Shortcut to the `Etag` header field definition.
- * See: {@link volatile_set_etag()} {@link volatile_get_etag()}
+ * See: {@link set_etag()} {@link get_etag()}
  * @property \ICanBoogie\HTTP\DateHeader $expires Shortcut to the `Expires` header field definition.
- * See: {@link volatile_set_expires()} {@link volatile_get_expires()}
+ * See: {@link set_expires()} {@link get_expires()}
  * @property \ICanBoogie\HTTP\DateHeader $last_modified Shortcut to the `Last-Modified` header field definition.
- * See: {@link volatile_set_last_modified()} {@link volatile_get_last_modified()}
+ * See: {@link set_last_modified()} {@link get_last_modified()}
  * @property string $location Shortcut to the `Location` header field definition.
- * See: {@link volatile_set_location()} {@link volatile_get_location()}
+ * See: {@link set_location()} {@link get_location()}
  *
  * @property string|\Closure $body The body of the response.
- * See: {@link volatile_set_body()} {@link volatile_get_body()}
+ * See: {@link set_body()} {@link get_body()}
  *
- * @property-read boolean $is_cacheable {@link volatile_get_is_cacheable()}
- * @property-read boolean $is_client_error {@link volatile_get_is_client_error()}
- * @property-read boolean $is_empty {@link volatile_get_is_empty()}
- * @property-read boolean $is_forbidden {@link volatile_get_is_forbidden()}
- * @property-read boolean $is_fresh {@link volatile_get_is_fresh()}
- * @property-read boolean $is_informational {@link volatile_get_is_informational()}
- * @property-read boolean $is_not_found {@link volatile_get_is_not_found()}
- * @property-read boolean $is_ok {@link volatile_get_is_ok()}
- * @property-read boolean $is_private {@link volatile_get_is_private()}
- * @property-read boolean $is_redirect {@link volatile_get_is_redirect()}
- * @property-read boolean $is_server_error {@link volatile_get_is_server_error()}
- * @property-read boolean $is_successful {@link volatile_get_is_successful()}
- * @property-read boolean $is_valid {@link volatile_get_is_valid()}
- * @property-read boolean $is_validateable {@link volatile_get_is_validateable()}
+ * @property-read boolean $is_cacheable {@link get_is_cacheable()}
+ * @property-read boolean $is_client_error {@link get_is_client_error()}
+ * @property-read boolean $is_empty {@link get_is_empty()}
+ * @property-read boolean $is_forbidden {@link get_is_forbidden()}
+ * @property-read boolean $is_fresh {@link get_is_fresh()}
+ * @property-read boolean $is_informational {@link get_is_informational()}
+ * @property-read boolean $is_not_found {@link get_is_not_found()}
+ * @property-read boolean $is_ok {@link get_is_ok()}
+ * @property-read boolean $is_private {@link get_is_private()}
+ * @property-read boolean $is_redirect {@link get_is_redirect()}
+ * @property-read boolean $is_server_error {@link get_is_server_error()}
+ * @property-read boolean $is_successful {@link get_is_successful()}
+ * @property-read boolean $is_valid {@link get_is_valid()}
+ * @property-read boolean $is_validateable {@link get_is_validateable()}
  *
  * @see http://tools.ietf.org/html/rfc2616
  */
@@ -158,8 +158,8 @@ class Response extends \ICanBoogie\Object
 			$this->date = 'now';
 		}
 
-		$this->volatile_set_status($status);
-		$this->volatile_set_body($body);
+		$this->set_status($status);
+		$this->set_body($body);
 	}
 
 	/**
@@ -325,7 +325,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @throws \InvalidArgumentException When the HTTP status code is not valid.
 	 */
-	protected function volatile_set_status($status)
+	protected function set_status($status)
 	{
 		$status_message = null;
 
@@ -358,7 +358,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return integer
 	 */
-	protected function volatile_get_status()
+	protected function get_status()
 	{
 		return $this->status;
 	}
@@ -368,7 +368,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @var mixed
 	 *
-	 * @see volatile_set_body(), volatile_get_body()
+	 * @see set_body(), get_body()
 	 */
 	private $body;
 
@@ -384,7 +384,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @throws \UnexpectedValueException when the body cannot be converted to a string.
 	 */
-	protected function volatile_set_body($body)
+	protected function set_body($body)
 	{
 		if ($body !== null
 		&& !($body instanceof \Closure)
@@ -417,7 +417,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return string
 	 */
-	protected function volatile_get_body()
+	protected function get_body()
 	{
 		return $this->body;
 	}
@@ -447,7 +447,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return string
 	 */
-	protected function volatile_get_status_message()
+	protected function get_status_message()
 	{
 		return self::$status_messages[$this->status];
 	}
@@ -457,7 +457,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @param string|null $url
 	 */
-	protected function volatile_set_location($url)
+	protected function set_location($url)
 	{
 		if ($url !== null && !$url)
 		{
@@ -472,7 +472,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return string
 	 */
-	protected function volatile_get_location()
+	protected function get_location()
 	{
 		return $this->headers['Location'];
 	}
@@ -482,7 +482,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @param string $content_type
 	 */
-	protected function volatile_set_content_type($content_type)
+	protected function set_content_type($content_type)
 	{
 		$this->headers['Content-Type'] = $content_type;
 	}
@@ -492,7 +492,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return Headers\ContentType
 	 */
-	protected function volatile_get_content_type()
+	protected function get_content_type()
 	{
 		return $this->headers['Content-Type'];
 	}
@@ -502,7 +502,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @param int $length
 	 */
-	protected function volatile_set_content_length($length)
+	protected function set_content_length($length)
 	{
 		$this->headers['Content-Length'] = $length;
 	}
@@ -512,7 +512,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return int
 	 */
-	protected function volatile_get_content_length()
+	protected function get_content_length()
 	{
 		return $this->headers['Content-Length'];
 	}
@@ -522,7 +522,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @param mixed $time
 	 */
-	protected function volatile_set_date($time)
+	protected function set_date($time)
 	{
 		$this->headers['Date'] = $time;
 	}
@@ -532,7 +532,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return Headers\DateHeader
 	 */
-	protected function volatile_get_date()
+	protected function get_date()
 	{
 		return $this->headers['Date'];
 	}
@@ -542,7 +542,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @param int $age
 	 */
-	protected function volatile_set_age($age)
+	protected function set_age($age)
 	{
 		$this->headers['Age'] = $age;
 	}
@@ -552,7 +552,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return int
 	 */
-	protected function volatile_get_age()
+	protected function get_age()
 	{
 		$age = $this->headers['Age'];
 
@@ -569,7 +569,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @param mixed $time.
 	 */
-	protected function volatile_set_last_modified($time)
+	protected function set_last_modified($time)
 	{
 		$this->headers['Last-Modified'] = $time;
 	}
@@ -579,7 +579,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return Headers\DateHeader
 	 */
-	protected function volatile_get_last_modified()
+	protected function get_last_modified()
 	{
 		return $this->headers['Last-Modified'];
 	}
@@ -591,7 +591,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @param mixed $time.
 	 */
-	protected function volatile_set_expires($time)
+	protected function set_expires($time)
 	{
 		$this->headers['Expires'] = $time;
 
@@ -603,7 +603,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return Headers\DateHeader
 	 */
-	protected function volatile_get_expires()
+	protected function get_expires()
 	{
 		return $this->headers['Expires'];
 	}
@@ -613,7 +613,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @param string $value
 	 */
-	protected function volatile_set_etag($value)
+	protected function set_etag($value)
 	{
 		$this->headers['Etag'] = $value;
 	}
@@ -623,7 +623,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return string
 	 */
-	protected function volatile_get_etag()
+	protected function get_etag()
 	{
 		return $this->headers['Etag'];
 	}
@@ -633,7 +633,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @param string $cache_directives
 	 */
-	protected function volatile_set_cache_control($cache_directives)
+	protected function set_cache_control($cache_directives)
 	{
 		$this->headers['Cache-Control'] = $cache_directives;
 	}
@@ -643,7 +643,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return \ICanBoogie\HTTP\CacheControlHeader
 	 */
-	protected function volatile_get_cache_control()
+	protected function get_cache_control()
 	{
 		return $this->headers['Cache-Control'];
 	}
@@ -655,7 +655,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @param int $seconds The number of seconds.
 	 */
-	protected function volatile_set_ttl($seconds)
+	protected function set_ttl($seconds)
 	{
 		$this->cache_control->s_max_age = $this->age->timestamp + $seconds;
 	}
@@ -669,7 +669,7 @@ class Response extends \ICanBoogie\Object
 	 * @return int|null The number of seconds to live, or `null` is no freshness information
 	 * is present.
 	 */
-	protected function volatile_get_ttl()
+	protected function get_ttl()
 	{
 		$max_age = $this->cache_control->max_age;
 
@@ -684,7 +684,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @param boolean $value
 	 */
-	protected function volatile_set_is_private($value)
+	protected function set_is_private($value)
 	{
 		$this->cache_control->cacheable = 'private';
 	}
@@ -694,7 +694,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_private()
+	protected function get_is_private()
 	{
 		return $this->cache_control->cacheable == 'private';
 	}
@@ -708,7 +708,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_valid()
+	protected function get_is_valid()
 	{
 		return $this->status >= 100 && $this->status < 600;
 	}
@@ -722,7 +722,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_informational()
+	protected function get_is_informational()
 	{
 		return $this->status >= 100 && $this->status < 200;
 	}
@@ -736,7 +736,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_successful()
+	protected function get_is_successful()
 	{
 		return $this->status >= 200 && $this->status < 300;
 	}
@@ -751,7 +751,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_redirect()
+	protected function get_is_redirect()
 	{
 		return $this->status >= 300 && $this->status < 400;
 	}
@@ -766,7 +766,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_client_error()
+	protected function get_is_client_error()
 	{
 		return $this->status >= 400 && $this->status < 500;
 	}
@@ -781,7 +781,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_server_error()
+	protected function get_is_server_error()
 	{
 		return $this->status >= 500 && $this->status < 600;
 	}
@@ -795,7 +795,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_ok()
+	protected function get_is_ok()
 	{
 		return $this->status == 200;
 	}
@@ -809,7 +809,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_forbidden()
+	protected function get_is_forbidden()
 	{
 		return $this->status == 403;
 	}
@@ -823,7 +823,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_not_found()
+	protected function get_is_not_found()
 	{
 		return $this->status == 404;
 	}
@@ -837,7 +837,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_empty()
+	protected function get_is_empty()
 	{
 		static $range = array(201, 204, 304);
 
@@ -850,7 +850,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_validateable()
+	protected function get_is_validateable()
 	{
 		return $this->headers['Last-Modified'] || $this->headers['ETag'];
 	}
@@ -866,7 +866,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_cacheable()
+	protected function get_is_cacheable()
 	{
 		static $range = array(200, 203, 300, 301, 302, 404, 410);
 
@@ -888,7 +888,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_fresh()
+	protected function get_is_fresh()
 	{
 		return $this->ttl > 0;
 	}

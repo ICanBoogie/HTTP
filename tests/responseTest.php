@@ -16,124 +16,34 @@ use ICanBoogie\DateTime;
 
 class ResponseTest extends \PHPUnit_Framework_TestCase
 {
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function testWriteIsValid()
+	static private $response;
+
+	static public function setupBeforeClass()
 	{
-		$r = new Response();
-		$r->is_valid = true;
+		self::$response = new Response;
 	}
 
 	/**
+	 * @dataProvider provide_test_write_readonly_properties
 	 * @expectedException ICanBoogie\PropertyNotWritable
+	 *
+	 * @param string $property Property name.
 	 */
-	public function testWriteIsInformational()
+	public function test_write_readonly_properties($property)
 	{
-		$r = new Response();
-		$r->is_informational = true;
+		self::$response->$property = null;
 	}
 
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function testWriteIsSuccessful()
+	public function provide_test_write_readonly_properties()
 	{
-		$r = new Response();
-		$r->is_successful = true;
+		$properties = 'is_valid|is_informational|is_successful|is_redirect|is_client_error'
+		. '|is_server_error|is_ok|is_forbidden|is_not_found|is_empty|is_validateable'
+		. '|is_cacheable|is_fresh';
+
+		return array_map(function($v) { return (array) $v; }, explode('|', $properties));
 	}
 
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function testWriteIsRedirect()
-	{
-		$r = new Response();
-		$r->is_redirect = true;
-	}
-
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function testWriteIsClientError()
-	{
-		$r = new Response();
-		$r->is_client_error = true;
-	}
-
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function testWriteIsServerError()
-	{
-		$r = new Response();
-		$r->is_server_error = true;
-	}
-
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function testWriteIsOk()
-	{
-		$r = new Response();
-		$r->is_ok = true;
-	}
-
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function testWriteIsForbidden()
-	{
-		$r = new Response();
-		$r->is_forbidden = true;
-	}
-
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function testWriteIsNotFound()
-	{
-		$r = new Response();
-		$r->is_not_found = true;
-	}
-
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function testWriteIsEmpty()
-	{
-		$r = new Response();
-		$r->is_empty = true;
-	}
-
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function testWriteIsValidateable()
-	{
-		$r = new Response();
-		$r->is_validateable = true;
-	}
-
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function testWriteIsCacheable()
-	{
-		$r = new Response();
-		$r->is_cacheable = true;
-	}
-
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function testWriteIsFresh()
-	{
-		$r = new Response();
-		$r->is_fresh = true;
-	}
-
-	public function testDate()
+	public function test_date()
 	{
 		$r = new Response();
 		$r->date = 'now';

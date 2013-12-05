@@ -21,19 +21,23 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
+	 * @dataProvider provide_test_write_readonly_properties
 	 * @expectedException ICanBoogie\PropertyNotWritable
+	 *
+	 * @param string $property Property name.
 	 */
-	public function test_set_authorization()
+	public function test_write_readonly_properties($property)
 	{
-		self::$request->authorization = true;
+		self::$request->$property = null;
 	}
 
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_cache_control()
+	public function provide_test_write_readonly_properties()
 	{
-		self::$request->cache_control = true;
+		$properties = 'authorization|content_length|cache_control|context|extension|ip'
+		. '|is_delete|is_get|is_head|is_local|is_options|is_patch|is_post|is_put|is_trace|is_xhr'
+		. '|normalized_path|method|path|port|previous|query_string|referer|script_name|uri|user_agent';
+
+		return array_map(function($v) { return (array) $v; }, explode('|', $properties));
 	}
 
 	public function test_from_with_cache_control()
@@ -46,36 +50,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$this->assertTrue($r->cache_control->must_revalidate);
 	}
 
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_content_length()
-	{
-		self::$request->content_length = true;
-	}
-
 	public function test_from_with_content_length()
 	{
 		$v = 123456789;
 		$r = Request::from(array('content_length' => $v));
 		$this->assertObjectNotHasAttribute('content_length', $r);
 		$this->assertEquals($v, $r->content_length);
-	}
-
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_context()
-	{
-		self::$request->context = true;
-	}
-
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_extension()
-	{
-		self::$request->extension = true;
 	}
 
 	/**
@@ -86,28 +66,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		Request::from(array('extension' => '.png'));
 	}
 
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_ip()
-	{
-		self::$request->ip = true;
-	}
-
 	public function test_from_with_ip()
 	{
 		$v = '192.168.13.69';
 		$r = Request::from(array('ip' => $v));
 		$this->assertObjectNotHasAttribute('ip', $r);
 		$this->assertEquals($v, $r->ip);
-	}
-
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_is_delete()
-	{
-		self::$request->is_delete = true;
 	}
 
 	public function test_from_with_is_delete()
@@ -123,14 +87,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$this->assertFalse($r->is_delete);
 	}
 
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_is_get()
-	{
-		self::$request->is_get = true;
-	}
-
 	public function test_from_with_is_get()
 	{
 		$r = Request::from(array('is_get' => true));
@@ -142,14 +98,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$this->assertObjectNotHasAttribute('is_get', $r);
 		$this->assertEquals(Request::METHOD_GET, $r->method);
 		$this->assertTrue($r->is_get);
-	}
-
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_is_head()
-	{
-		self::$request->is_head = true;
 	}
 
 	public function test_from_with_is_head()
@@ -165,14 +113,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$this->assertFalse($r->is_head);
 	}
 
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_is_local()
-	{
-		self::$request->is_local = true;
-	}
-
 	public function test_from_with_is_local()
 	{
 		$r = Request::from(array('is_local' => true));
@@ -182,14 +122,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$r = Request::from(array('is_local' => false));
 		$this->assertObjectNotHasAttribute('is_local', $r);
 		$this->assertTrue($r->is_local); // yes is_local is `true` even if it was defined as `false`, that's because IP is not defined.
-	}
-
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_is_options()
-	{
-		self::$request->is_options = true;
 	}
 
 	public function test_from_with_is_options()
@@ -205,14 +137,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$this->assertFalse($r->is_options);
 	}
 
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_is_patch()
-	{
-		self::$request->is_patch = true;
-	}
-
 	public function test_from_with_is_patch()
 	{
 		$r = Request::from(array('is_patch' => true));
@@ -224,14 +148,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$this->assertObjectNotHasAttribute('is_patch', $r);
 		$this->assertEquals(Request::METHOD_GET, $r->method);
 		$this->assertFalse($r->is_patch);
-	}
-
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_is_post()
-	{
-		self::$request->is_post = true;
 	}
 
 	public function test_from_with_is_post()
@@ -247,14 +163,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$this->assertFalse($r->is_post);
 	}
 
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_is_put()
-	{
-		self::$request->is_put = true;
-	}
-
 	public function test_from_with_is_put()
 	{
 		$r = Request::from(array('is_put' => true));
@@ -266,14 +174,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$this->assertObjectNotHasAttribute('is_put', $r);
 		$this->assertEquals(Request::METHOD_GET, $r->method);
 		$this->assertFalse($r->is_put);
-	}
-
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_is_trace()
-	{
-		self::$request->is_trace = true;
 	}
 
 	public function test_from_with_is_trace()
@@ -289,14 +189,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$this->assertFalse($r->is_trace);
 	}
 
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_is_xhr()
-	{
-		self::$request->is_xhr = true;
-	}
-
 	public function test_from_with_is_xhr()
 	{
 		$r = Request::from(array('is_xhr' => true));
@@ -308,35 +200,11 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$this->assertFalse($r->is_xhr);
 	}
 
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_normalized_path()
-	{
-		self::$request->normalized_path = true;
-	}
-
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_method()
-	{
-		self::$request->method = true;
-	}
-
 	public function test_from_with_method()
 	{
 		$r = Request::from(array('method' => Request::METHOD_OPTIONS));
 		$this->assertObjectNotHasAttribute('method', $r);
 		$this->assertEquals(Request::METHOD_OPTIONS, $r->method);
-	}
-
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_path()
-	{
-		self::$request->path = true;
 	}
 
 	public function test_from_with_path()
@@ -351,22 +219,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_port()
-	{
-		self::$request->port = true;
-	}
-
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_previous()
-	{
-		self::$request->previous = true;
-	}
-
-	/**
 	 * @expectedException \InvalidArgumentException
 	 */
 	public function test_from_with_previous()
@@ -375,27 +227,11 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_query_string()
-	{
-		self::$request->query_string = true;
-	}
-
-	/**
 	 * @expectedException \InvalidArgumentException
 	 */
 	public function test_from_with_query_string()
 	{
 		Request::from(array('query_string' => true));
-	}
-
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_referer()
-	{
-		self::$request->referer = true;
 	}
 
 	public function test_from_with_referer()
@@ -407,27 +243,11 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_script_name()
-	{
-		self::$request->script_name = true;
-	}
-
-	/**
 	 * @expectedException \InvalidArgumentException
 	 */
 	public function test_from_with_script_name()
 	{
 		Request::from(array('script_name' => true));
-	}
-
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_uri()
-	{
-		self::$request->uri = true;
 	}
 
 	public function test_from_with_uri()
@@ -436,14 +256,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$r = Request::from(array('uri' => $v));
 		$this->assertObjectNotHasAttribute('uri', $r);
 		$this->assertEquals($v, $r->uri);
-	}
-
-	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
-	 */
-	public function test_set_user_agent()
-	{
-		self::$request->user_agent = true;
 	}
 
 	public function test_from_with_user_agent()
