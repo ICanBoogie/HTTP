@@ -19,8 +19,8 @@
 	},
 	"minimum-stability": "dev",
 	"require": {
-		"php": ">=5.3.0",
-		"icanboogie/prototype": "2.x-dev",
+		"php": ">=5.4.0",
+		"icanboogie/prototype": "2.x",
 		"icanboogie/event": "*",
 		"icanboogie/datetime": "*"
 	},

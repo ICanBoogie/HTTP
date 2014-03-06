@@ -1,4 +1,4 @@
-# HTTP [![Build Status](https://secure.travis-ci.org/ICanBoogie/HTTP.png?branch=master)](http://travis-ci.org/ICanBoogie/HTTP)
+# HTTP [![Build Status](https://secure.travis-ci.org/ICanBoogie/HTTP.png?branch=2.0)](http://travis-ci.org/ICanBoogie/HTTP)
 
 The HTTP package provides an API to handle HTTP requests.
 
@@ -594,9 +594,15 @@ class AlterEvent extends \ICanBoogie\Event
 
 
 
+----------
+
+
+
+
+
 ## Requirements
 
-The package requires PHP 5.3 or later.
+The package requires PHP 5.4 or later.
 
 
 
@@ -611,7 +617,7 @@ Create a `composer.json` file and run `php composer.phar install` command to ins
 {
 	"minimum-stability": "dev",
 	"require": {
-		"icanboogie/http": "*"
+		"icanboogie/http": "2.x"
 	}
 }
 ```
@@ -657,7 +663,7 @@ clean the directory with the `make clean` command.
 
 The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
-[![Build Status](https://travis-ci.org/ICanBoogie/HTTP.png?branch=master)](https://travis-ci.org/ICanBoogie/HTTP)
+[![Build Status](https://travis-ci.org/ICanBoogie/HTTP.png?branch=2.0)](https://travis-ci.org/ICanBoogie/HTTP)
 
 
 
