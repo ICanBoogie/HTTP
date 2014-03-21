@@ -165,60 +165,16 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, IDispatcher
 	{
 		if (!$this->dispatchers_order)
 		{
-			$order = $this->dispatchers_weight;
-			$top = -100;
-			$bottom = 100;
+			$weights = $this->dispatchers_weight;
 
-			foreach ($order as $id => &$weight)
-			{
-				if ($weight === 'top')
-				{
-					$weight = --$top;
-				}
-				else if ($weight === 'bottom')
-				{
-					$weight = ++$bottom;
-				}
-			}
+			$this->dispatchers_order = \ICanBoogie\sort_by_weight($this->dispatchers, function($v, $k) use($weights) {
 
-			unset($weight);
+				return $weights[$k];
 
-			foreach ($order as $id => $weight)
-			{
-				if (strpos($weight, 'before:') === 0)
-				{
-					$target = substr($weight, 7);
-
-					if (isset($order[$target]))
-					{
-						$order = \ICanBoogie\array_insert($order, $target, $order[$target], $id);
-					}
-					else
-					{
-						$weight = 0;
-					}
-				}
-				else if (strpos($weight, 'after:') === 0)
-				{
-					$target = substr($weight, 6);
-
-					if (isset($order[$target]))
-					{
-						$order = \ICanBoogie\array_insert($order, $target, $order[$target], $id, true);
-					}
-					else
-					{
-						$weight = 0;
-					}
-				}
-			}
-
-			\ICanBoogie\stable_sort($order);
-
-			$this->dispatchers_order = $order;
+			});
 		}
 
-		return new \ArrayIterator(array_merge($this->dispatchers_order, $this->dispatchers));
+		return new \ArrayIterator($this->dispatchers_order);
 	}
 
 	/**
