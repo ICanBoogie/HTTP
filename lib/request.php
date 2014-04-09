@@ -257,6 +257,11 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 
 				$construct_args[0] = $env;
 			}
+
+			if (!empty($env['QUERY_STRING']))
+			{
+				parse_str($env['QUERY_STRING'], $properties['query_params']);
+			}
 		}
 
 		return parent::from($properties, $construct_args, $class_name);

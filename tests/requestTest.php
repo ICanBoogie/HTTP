@@ -256,6 +256,38 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$r = Request::from(array('uri' => $v));
 		$this->assertObjectNotHasAttribute('uri', $r);
 		$this->assertEquals($v, $r->uri);
+
+		$r = Request::from($v);
+		$this->assertObjectNotHasAttribute('uri', $r);
+		$this->assertEquals($v, $r->uri);
+	}
+
+	public function test_from_with_uri_and_query_string()
+	{
+		$p1 = 1;
+		$p2 = "\\a";
+		$p3 = "L'été est là";
+
+		$path = '/uri/';
+		$query_string = http_build_query([ 'p1' => $p1, 'p2' => $p2, 'p3' => $p3 ]);
+		$v = "{$path}?{$query_string}";
+		$r = Request::from($v);
+		$this->assertObjectNotHasAttribute('uri', $r);
+		$this->assertEquals($v, $r->uri);
+		$this->assertEquals($path, $r->path);
+		$this->assertEquals($query_string, $r->query_string);
+		$this->assertArrayHasKey('p1', $r->query_params);
+		$this->assertArrayHasKey('p2', $r->query_params);
+		$this->assertArrayHasKey('p3', $r->query_params);
+		$this->assertArrayHasKey('p1', $r->params);
+		$this->assertArrayHasKey('p2', $r->params);
+		$this->assertArrayHasKey('p3', $r->params);
+		$this->assertEquals($p1, $r->query_params['p1']);
+		$this->assertEquals($p2, $r->query_params['p2']);
+		$this->assertEquals($p3, $r->query_params['p3']);
+		$this->assertEquals($p1, $r['p1']);
+		$this->assertEquals($p2, $r['p2']);
+		$this->assertEquals($p3, $r['p3']);
 	}
 
 	public function test_from_with_user_agent()
@@ -278,6 +310,11 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals($q, $r->query_string);
 		$this->assertEquals($p . '?' . $q, $r->uri);
 		$this->assertEquals($p, $r->path);
+		$this->assertArrayHasKey('redirect_to', $r->query_params);
+		$this->assertArrayHasKey('redirect_to', $r->params);
+		$this->assertEquals('haven', $r->query_params['redirect_to']);
+		$this->assertEquals('haven', $r->params['redirect_to']);
+		$this->assertEquals('haven', $r['redirect_to']);
 	}
 
 	public function test_path_when_uri_is_missing_query_string()
