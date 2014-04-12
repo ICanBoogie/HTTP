@@ -421,6 +421,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	public function offsetSet($param, $value)
 	{
 		$this->params[$param] = $value;
+		$this->request_params[$param] = $value;
 	}
 
 	/**

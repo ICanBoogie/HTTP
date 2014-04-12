@@ -324,4 +324,45 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals('/api/users/login', $r->uri);
 		$this->assertEquals('/api/users/login', $r->path);
 	}
+
+	public function test_params()
+	{
+		$r = Request::from([
+
+			'path_params' => [
+
+				'p1' => 1,
+				'p2' => 2
+
+			],
+
+			'request_params' => [
+
+				'p1' => 10,
+				'p2' => 20,
+				'p3' => 3
+
+			],
+
+			'query_params' => [
+
+				'p1' => 100,
+				'p2' => 200,
+				'p3' => 300,
+				'p4' => 4
+
+			]
+
+		]);
+
+		$this->assertSame([ 'p1' => 1, 'p2' => 2, 'p3' => 3, 'p4' => 4 ], $r->params);
+
+		$r['p5'] = 5;
+
+		$expected = [ 'p1' => 1, 'p2' => 2, 'p3' => 3, 'p4' => 4, 'p5' => 5 ];
+		$this->assertSame($expected, $r->params);
+		unset($r->params);
+		$expected = [ 'p1' => 1, 'p2' => 2, 'p3' => 3, 'p4' => 4, 'p5' => 5 ];
+		$this->assertEquals($expected, $r->params);
+	}
 }
