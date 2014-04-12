@@ -1,4 +1,4 @@
-# HTTP [![Build Status](https://secure.travis-ci.org/ICanBoogie/HTTP.png?branch=2.0)](http://travis-ci.org/ICanBoogie/HTTP)
+# HTTP [![Build Status](https://secure.travis-ci.org/ICanBoogie/HTTP.png?branch=2.1.x)](http://travis-ci.org/ICanBoogie/HTTP)
 
 The HTTP package provides an API to handle HTTP requests.
 
@@ -21,17 +21,17 @@ $initial_request = Request::from($_SERVER);
 
 # a fake request in the same environment
 
-$request = Request::from('path/to/file.html', array($_SERVER));
+$request = Request::from('path/to/file.html', [ $_SERVER ]);
 
 # a request created from scratch
 
-$request = Request::from(array
-(
+$request = Request::from([
+
 	'path' => 'path/to/file.html',
 	'is_local' => true,            // or 'ip' => '::1'
 	'is_post' => true,             // or 'method' => Request::METHOD_POST
 	'content_length' => 123
-));
+]);
 ```
 
 Requests are handled by a dispatcher, which returns a [Response][]
@@ -46,7 +46,7 @@ $response = $initial_request();
 
 # or
 
-$response = $request->post(array('arg' => 'value'));
+$response = $request->post([ 'arg' => 'value' ]);
 ```
 
 
@@ -111,6 +111,88 @@ foreach ($request as $parameter => $value)
 
 
 
+
+### Request files
+
+Files associated with a request are collected in a [FileList][] instance. The initial request
+created with `$_SERVER` obtain its files from `$_FILES`. For custom requests files are defined
+using the `files` keyword.
+
+```php
+<?php
+
+$request = Request::from($_SERVER);
+
+# or
+
+$request = Request::from([
+
+	'files' => [
+
+		'uploaded' => [ 'pathname' => '/path/to/my/example.zip' ]
+
+	]
+
+]);
+
+#
+
+$files = $request->files;    // instanceof FileList
+$file = $files['uploaded'];  // instanceof File
+$file = $files['undefined']; // null
+```
+
+Uploaded files, and _pretend_ uploaded files, are represented by [File][] instances. The class
+tries its best to provide the same API for both. The `is_uploaded` property lets you distinguish
+uploaded files from _pretend_ uploaded files.
+
+The `is_valid` property is a simple way to check if a file is valid. The `move()` method
+let's you move the file out of the temporary folder or around the filesystem.
+
+```php
+<?php
+
+echo $file->name;            // example.zip
+echo $file->unsuffixed_name; // example
+echo $file->extension;       // .zip
+echo $file->size;            // 1234
+echo $file->type;            // application/zip
+echo $file->is_uploaded;     // false
+
+if ($file->is_valid)
+{
+	// `true` means that the destination file will be overwritten
+	$file->move('/path/to/repository/' . $file->name, true);
+}
+```
+
+The `match()` method is used to check if a file matches a MIME type, a MIME class, or a file
+extension:
+
+```php
+<?php
+
+echo $file->match('application/zip');             // true
+echo $file->match('application');                 // true
+echo $file->match('.zip');                        // true
+echo $file->match('image/png')                    // false
+echo $file->match('image')                        // false
+echo $file->match('.png')                         // false
+```
+
+The method also handles sets, and returns `true` if there's any match:
+
+```php
+echo $file->match([ '.png', 'application/zip' ]); // true
+echo $file->match([ '.png', '.zip' ]);            // true
+echo $file->match([ 'image/png', '.zip' ]);       // true
+echo $file->match([ 'image/png', 'text/plain' ]); // false
+```
+
+
+
+
+
 ## Response
 
 The response to a request is represented by a [Response](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Response.html) instance.
@@ -120,14 +202,12 @@ The response to a request is represented by a [Response](http://icanboogie.org/d
 
 use ICanBoogie\HTTP\Response;
 
-$response = new Response
-(
-	'<!DOCTYPE html><html><body><h1>Hello world!</h1></body></html>', 200, array
-	(
-		'Content-Type' => 'text/html',
-		'Cache-Control' => 'public, max-age=3600'
-	)
-);
+$response = new Response('<!DOCTYPE html><html><body><h1>Hello world!</h1></body></html>', 200, [
+
+	'Content-Type' => 'text/html',
+	'Cache-Control' => 'public, max-age=3600'
+
+]);
 ```
 
 The response is returned simply by invoking it:
@@ -165,7 +245,7 @@ $response->headers['Content-Type'] = 'text/html; charset=utf-8';
 echo $response->headers['Content-Type']->type; // text/html
 echo $response->headers['Content-Type']->charset; // utf-8
 
-$response->headers['Content-Type']->type = 'application/xml'; 
+$response->headers['Content-Type']->type = 'application/xml';
 
 echo $response->headers['Content-Type']; // application/xml; charset=utf-8
 ```
@@ -177,7 +257,7 @@ echo $response->headers['Content-Type']; // application/xml; charset=utf-8
 ### Content-Disposition header
 
 The `Content-Disposition` header is represented by a [ContentDispositionHeader](http://icanboogie.org/docs/class-ICanBoogie.HTTP.ContentDispositionHeader.html)
-instance making it easily manipulate. Accentuated filenames are supported. 
+instance making it easily manipulate. Accentuated filenames are supported.
 
 ```php
 <?php
@@ -230,15 +310,13 @@ All date related headers can be specified as Unix timestamp, strings or `DateTim
 
 use ICanBoogie\HTTP\Response;
 
-$response = new Response
-(
-	'{ "message": "Ok" }', 200, array
-	(
-		'Content-Type' => 'application/json',
-		'Date' => 'now',
-		'Expires' => '+1 hour'
-	) 
-);
+$response = new Response('{ "message": "Ok" }', 200, [
+
+	'Content-Type' => 'application/json',
+	'Date' => 'now',
+	'Expires' => '+1 hour'
+
+]);
 ```
 
 
@@ -275,12 +353,13 @@ plugins.
 
 use ICanBoogie\HTTP\Dispatcher;
 
-$dispatcher = new Dispatcher(array
-(
+$dispatcher = new Dispatcher([
+
 	'operation' => 'ICanBoogie\Operation\Dispatcher',
 	'route' => 'ICanBoogie\Routing\Dispatcher',
 	'page' => 'Icybee\Modules\Pages\PageController'
-));
+
+]);
 ```
 
 
@@ -300,12 +379,12 @@ to a target. Consider the following example:
 ```php
 <?php
 
-$dispatcher = new Dispatcher(array(
+$dispatcher = new Dispatcher([
 
 	'two' => 'dummy',
 	'three' => 'dummy'
 
-));
+]);
 
 $dispatcher['bottom']      = new WeightedDispatcher('dummy', 'bottom');
 $dispatcher['megabottom']  = new WeightedDispatcher('dummy', 'bottom');
@@ -554,11 +633,12 @@ ICanBoogie\HTTP\Helpers::patch('get_dispatcher', function() {
 
 	if (!$dispatcher)
 	{
-		$dispatcher = new Dispatcher(array
-		(
+		$dispatcher = new Dispatcher([
+
 			'operation' => 'ICanBoogie\Operation\Dispatcher',
 			'route' => 'ICanBoogie\Routing\Dispatcher'
-		));
+
+		]);
 
 		new Dispatcher\AlterEvent($dispatcher);
 	}
@@ -663,7 +743,7 @@ clean the directory with the `make clean` command.
 
 The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
-[![Build Status](https://travis-ci.org/ICanBoogie/HTTP.png?branch=2.0)](https://travis-ci.org/ICanBoogie/HTTP)
+[![Build Status](https://travis-ci.org/ICanBoogie/HTTP.png?branch=2.1.x)](https://travis-ci.org/ICanBoogie/HTTP)
 
 
 
@@ -671,7 +751,7 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
 ## License
 
-ICanBoogie/HTTP is licensed under the New BSD License - See the LICENSE file for details.
+ICanBoogie/HTTP is licensed under the New BSD License - See the (LICENSE)[LICENSE) file for details.
 
 
 
@@ -684,6 +764,8 @@ ICanBoogie/HTTP is licensed under the New BSD License - See the LICENSE file for
 [Response]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Response.html
 [RedirectResponse]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.RedirectResponse.html
 [NotFound]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.NotFound.html
+[File]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.File.html
+[FileList]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.FileList.html
 [ForceRedirect]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.ForceRedirect.html
 [RescueEvent]: http://icanboogie.org/docs/class-ICanBoogie.Exception.RescueEvent.html
 [AuthenticationRequired]: http://icanboogie.org/docs/class-ICanBoogie.AuthenticationRequired.html

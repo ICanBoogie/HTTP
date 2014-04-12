@@ -33,11 +33,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	public function provide_test_write_readonly_properties()
 	{
-		$properties = 'authorization|content_length|cache_control|context|extension|ip'
-		. '|is_delete|is_get|is_head|is_local|is_options|is_patch|is_post|is_put|is_trace|is_xhr'
-		. '|normalized_path|method|path|port|previous|query_string|referer|script_name|uri|user_agent';
+		$properties = 'authorization content_length cache_control context extension ip'
+		. ' is_delete is_get is_head is_local is_options is_patch is_post is_put is_trace is_xhr'
+		. ' normalized_path method path port previous query_string referer script_name uri'
+		. ' user_agent files';
 
-		return array_map(function($v) { return (array) $v; }, explode('|', $properties));
+		return array_map(function($v) { return (array) $v; }, explode(' ', $properties));
 	}
 
 	public function test_from_with_cache_control()
@@ -295,6 +296,33 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$r = Request::from(array('user_agent' => 'Madonna'));
 		$this->assertObjectNotHasAttribute('user_agent', $r);
 		$this->assertEquals('Madonna', $r->user_agent);
+	}
+
+	public function test_from_with_files()
+	{
+		$r = Request::from('/path/to/file');
+		$this->assertInstanceOf('ICanBoogie\HTTP\FileList', $r->files);
+		$this->assertEquals(0, $r->files->count());
+
+		$r = Request::from([
+
+			'files' => [
+
+				'one' => [ 'pathname' => __FILE__ ],
+				'two' => [ 'pathname' => __FILE__ ]
+
+			]
+
+		]);
+
+		$this->assertInstanceOf('ICanBoogie\HTTP\FileList', $r->files);
+		$this->assertEquals(2, $r->files->count());
+
+		foreach ([ 'one', 'two' ] as $id)
+		{
+			$this->assertInstanceOf('ICanBoogie\HTTP\File', $r->files[$id]);
+			$this->assertEquals(__FILE__, $r->files[$id]->pathname);
+		}
 	}
 
 	public function test_query_string_from_uri()

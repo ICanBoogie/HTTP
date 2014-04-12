@@ -50,6 +50,7 @@ use ICanBoogie\PropertyNotWritable;
  *
  * @property-read \ICanBoogie\HTTP\Request\Context $context the request's context.
  * @property-read Request $previous Previous request.
+ * @property-read FileList $files The files associated with the request.
  *
  * @property-read boolean $authorization Authorization of the request.
  * @property-read int $content_length Length of the request content.
@@ -174,6 +175,23 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	protected $env;
 
 	/**
+	 * Files associated with the request.
+	 *
+	 * @var FileList
+	 */
+	protected $files;
+
+	protected function get_files()
+	{
+		if ($this->files instanceof FileList)
+		{
+			return $this->files;
+		}
+
+		return $this->files = FileList::from($this->files);
+	}
+
+	/**
 	 * Previous request.
 	 *
 	 * @var Request
@@ -214,7 +232,8 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 					'cookies' => &$_COOKIE,
 					'path_params' => array(),
 					'query_params' => &$_GET,
-					'request_params' => &$_POST
+					'request_params' => &$_POST,
+					'files' => $_FILES
 				),
 
 				array($_SERVER)
@@ -283,6 +302,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 				'path_params' =>    function() { return true; },
 				'query_params' =>   function() { return true; },
 				'request_params' => function() { return true; },
+				'files' =>          function() { return true; },
 
 				'cache_control' =>  function($value, array &$env) { $env['HTTP_CACHE_CONTROL'] = $value; },
 				'content_length' => function($value, array &$env) { $env['CONTENT_LENGTH'] = $value; },
