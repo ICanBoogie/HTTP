@@ -1,4 +1,4 @@
-# HTTP [![Build Status](https://secure.travis-ci.org/ICanBoogie/HTTP.png?branch=2.1.x)](http://travis-ci.org/ICanBoogie/HTTP)
+# HTTP [![Build Status](https://secure.travis-ci.org/ICanBoogie/HTTP.png?branch=2.1)](http://travis-ci.org/ICanBoogie/HTTP)
 
 The HTTP package provides an API to handle HTTP requests.
 
@@ -743,7 +743,7 @@ clean the directory with the `make clean` command.
 
 The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
-[![Build Status](https://travis-ci.org/ICanBoogie/HTTP.png?branch=2.1.x)](https://travis-ci.org/ICanBoogie/HTTP)
+[![Build Status](https://travis-ci.org/ICanBoogie/HTTP.png?branch=2.1)](https://travis-ci.org/ICanBoogie/HTTP)
 
 
 
