@@ -14,11 +14,12 @@ namespace ICanBoogie\HTTP;
 /**
  * Representation of a POST file.
  *
- * @property-read string $name
- * @property-read string $type
- * @property-read string $size
- * @property-read string $error
- * @property-read string $pathname
+ * @property-read string $name Name of the file.
+ * @property-read string $type MIME type of the file.
+ * @property-read string $size Size of the file.
+ * @property-read string $error Error code, one of `UPLOAD_ERR_*`.
+ * @property-read string $error_message A formatted message representing the error.
+ * @property-read string $pathname Pathname of the file.
  * @property-read string $extension The extension of the file. If any, the dot is included e.g.
  * ".zip".
  * @property-read string $unsuffixed_name The name of the file without its extension.
@@ -107,6 +108,26 @@ class File
 		}
 
 		return 'application/octet-stream';
+	}
+
+	/**
+	 * Format a message.
+	 *
+	 * @return \ICanBoogie\I18n\FormattedString|\ICanBoogie\FormattedString|string
+	 */
+	static private function format($format, array $args=[], array $options=[])
+	{
+		if (class_exists('ICanBoogie\I18n\FormattedString', true))
+		{
+			return new \ICanBoogie\I18n\FormattedString($format, $args, $options);
+		}
+
+		if (class_exists('ICanBoogie\FormattedString', true))
+		{
+			return new \ICanBoogie\FormattedString($format, $args, $options);
+		}
+
+		return \ICanBoogie\format($format, $args, $options);
 	}
 
 	/*
@@ -256,6 +277,53 @@ class File
 	protected function get_error()
 	{
 		return $this->error;
+	}
+
+	/**
+	 * Returns the message associated with the error.
+	 *
+	 * @return \ICanBoogie\I18n\FormattedString|\ICanBoogie\FormattedString|string|null
+	 */
+	protected function get_error_message()
+	{
+		switch ($this->error)
+		{
+			case UPLOAD_ERR_OK:
+
+				return;
+
+			case UPLOAD_ERR_INI_SIZE:
+
+				return $this->format("Maximum file size is :size Mb", [ ':size' => (int) ini_get('upload_max_filesize') ]);
+
+			case UPLOAD_ERR_FORM_SIZE:
+
+				return $this->format("Maximum file size is :size Mb", [ ':size' => 'MAX_FILE_SIZE' ]);
+
+			case UPLOAD_ERR_PARTIAL:
+
+				return $this->format("The uploaded file was only partially uploaded.");
+
+			case UPLOAD_ERR_NO_FILE:
+
+				return $this->format("No file was uploaded.");
+
+			case UPLOAD_ERR_NO_TMP_DIR:
+
+				return $this->format("Missing a temporary folder.");
+
+			case UPLOAD_ERR_CANT_WRITE:
+
+				return $this->format("Failed to write file to disk.");
+
+			case UPLOAD_ERR_EXTENSION:
+
+				return $this->format("A PHP extension stopped the file upload.");
+
+			default:
+
+				return $this->format("An error has occured.");
+		}
 	}
 
 	/**

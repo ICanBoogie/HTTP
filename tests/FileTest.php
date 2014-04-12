@@ -16,9 +16,9 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * @dataProvider provide_test_get_extension
 	 */
-	public function test_get_extension($expected, $properties)
+	public function test_get_extension($expected, $pathname)
 	{
-		$file = File::from($properties);
+		$file = File::from([ 'pathname' => $pathname ]);
 
 		$this->assertEquals($expected, $file->extension);
 	}
@@ -27,12 +27,12 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	{
 		return [
 
-			[ '.c',        [ 'pathname' => '/path/to/example.c' ] ],
-			[ '.zip',      [ 'pathname' => '/path/to/example.zip' ] ],
-			[ '.document', [ 'pathname' => '/path/to/example.document' ] ],
-			[ '.png',      [ 'pathname' => '/path/to/example.zip.png' ] ],
-			[ '.gz',       [ 'pathname' => '/path/to/example.tar.gz' ] ],
-			[ '',          [ 'pathname' => '/path/to/example' ] ]
+			[ '.c',        '/path/to/example.c' ],
+			[ '.zip',      '/path/to/example.zip' ],
+			[ '.document', '/path/to/example.document' ],
+			[ '.png',      '/path/to/example.zip.png' ],
+			[ '.gz',       '/path/to/example.tar.gz' ],
+			[ '',          '/path/to/example' ]
 
 		];
 	}
@@ -40,9 +40,9 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * @dataProvider provide_test_match
 	 */
-	public function test_match($properties, $expected, $against)
+	public function test_match($expected, $against)
 	{
-		$file = File::from($properties);
+		$file = File::from([ 'pathname' => '/path/to/example.zip' ]);
 
 		$this->assertEquals($expected, $file->match($against));
 	}
@@ -51,19 +51,58 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	{
 		return [
 
-			[ [ 'pathname' => '/path/to/example.zip' ], true,  '.zip' ],
-			[ [ 'pathname' => '/path/to/example.zip' ], true,  'application/zip' ],
-			[ [ 'pathname' => '/path/to/example.zip' ], true,  'application' ],
-			[ [ 'pathname' => '/path/to/example.zip' ], true,  [ '.mp3', '.zip' ] ],
-			[ [ 'pathname' => '/path/to/example.zip' ], true,  [ '.mp3', 'application' ] ],
-			[ [ 'pathname' => '/path/to/example.zip' ], true,  [ '.mp3', 'application/zip' ] ],
-			[ [ 'pathname' => '/path/to/example.zip' ], true,  [ '.zip', 'application/zip' ] ],
-			[ [ 'pathname' => '/path/to/example.zip' ], false, '.png' ],
-			[ [ 'pathname' => '/path/to/example.zip' ], false, 'image/png' ],
-			[ [ 'pathname' => '/path/to/example.zip' ], false, 'image' ],
-			[ [ 'pathname' => '/path/to/example.zip' ], false, [ '.mp3', '.png' ] ],
-			[ [ 'pathname' => '/path/to/example.zip' ], false, [ '.mp3', 'image' ] ],
-			[ [ 'pathname' => '/path/to/example.zip' ], false, [ '.mp3', 'image/png' ] ]
+			[ true,  '.zip' ],
+			[ true,  'application/zip' ],
+			[ true,  'application' ],
+			[ true,  [ '.mp3', '.zip' ] ],
+			[ true,  [ '.mp3', 'application' ] ],
+			[ true,  [ '.mp3', 'application/zip' ] ],
+			[ true,  [ '.zip', 'application/zip' ] ],
+			[ false, '.png' ],
+			[ false, 'image/png' ],
+			[ false, 'image' ],
+			[ false, [ '.mp3', '.png' ] ],
+			[ false, [ '.mp3', 'image' ] ],
+			[ false, [ '.mp3', 'image/png' ] ]
+
+		];
+	}
+
+	/**
+	 * @dataProvider provide_test_error_message
+	 */
+	public function test_error_message($error, $expected)
+	{
+		$file = File::from([ 'error' => $error ]);
+
+		$this->assertEquals($error, $file->error);
+
+		if ($expected === null)
+		{
+			$this->assertNull($file->error_message);
+		}
+		else
+		{
+			$message = $file->error_message;
+
+			$this->assertInstanceOf('ICanBoogie\FormattedString', $message);
+			$this->assertStringStartsWith($expected, (string) $message);
+		}
+	}
+
+	public function provide_test_error_message()
+	{
+		return [
+
+			[ UPLOAD_ERR_OK,         null ],
+			[ UPLOAD_ERR_INI_SIZE,   "Maximum file size is" ],
+			[ UPLOAD_ERR_FORM_SIZE,  "Maximum file size is" ],
+			[ UPLOAD_ERR_PARTIAL,    "The uploaded file was only partially uploaded." ],
+			[ UPLOAD_ERR_NO_FILE,    "No file was uploaded." ],
+			[ UPLOAD_ERR_NO_TMP_DIR, "Missing a temporary folder." ],
+			[ UPLOAD_ERR_CANT_WRITE, "Failed to write file to disk." ],
+			[ UPLOAD_ERR_EXTENSION,  "A PHP extension stopped the file upload." ],
+			[ 123456,                "An error has occured."]
 
 		];
 	}
@@ -89,7 +128,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 
 	public function provide_readonly_properties()
 	{
-		$properties = 'error extension is_uploaded is_valid name pathname size type'
+		$properties = 'error error_message extension is_uploaded is_valid name pathname size type'
 		. ' unsuffixed_name';
 
 		return array_map(function($v) { return (array) $v; }, explode(' ', $properties));
