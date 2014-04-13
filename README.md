@@ -321,7 +321,7 @@ echo $response->headers['Cache-Control']; // public, max-age=7200
 
 
 
-### Date, Expires, If-Modified-Since, If-Unmodified-Since and Reply-After headers
+### Date, Expires, If-Modified-Since, If-Unmodified-Since and Retry-After headers
 
 All date related headers can be specified as Unix timestamp, strings or `DateTime` instances.
 

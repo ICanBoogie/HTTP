@@ -11,6 +11,8 @@
 
 namespace ICanBoogie\HTTP;
 
+use ICanBoogie\DateTime;
+
 class HeadersTest extends \PHPUnit_Framework_TestCase
 {
 	public function testDateTimeFromDateTime()
@@ -65,5 +67,55 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 		$this->assertInstanceOf('ICanBoogie\HTTP\ContentTypeHeader', $headers['Content-Type']);
 		$this->assertEquals('text/plain', $headers['Content-Type']->type);
 		$this->assertEquals('iso-8859-1', $headers['Content-Type']->charset);
+	}
+
+	/**
+	 * @dataProvider provide_test_date_header
+	 */
+	public function test_date_header($field, $value, $expected)
+	{
+		$headers = new Headers;
+
+		if ($field !== 'Retry-After')
+		{
+			$this->assertInstanceOf('ICanBoogie\HTTP\DateHeader', $headers[$field]);
+		}
+
+		$headers[$field] = $value;
+
+		$this->assertInstanceOf('ICanBoogie\HTTP\DateHeader', $headers[$field]);
+		$this->assertEquals($expected, (string) $headers[$field]);
+	}
+
+	public function provide_test_date_header()
+	{
+		$v1 = new \ICanBoogie\DateTime;
+		$v2 = new \DateTime;
+		$v3 = (string) $v1;
+		$expected = $v1->utc->as_rfc1123;
+
+		return [
+
+			[ 'Date', $v1, $expected ],
+			[ 'Date', $v2, $expected ],
+			[ 'Date', $v3, $expected ],
+
+			[ 'Expires', $v1, $expected ],
+			[ 'Expires', $v2, $expected ],
+			[ 'Expires', $v3, $expected ],
+
+			[ 'If-Modified-Since', $v1, $expected ],
+			[ 'If-Modified-Since', $v2, $expected ],
+			[ 'If-Modified-Since', $v3, $expected ],
+
+			[ 'If-Unmodified-Since', $v1, $expected ],
+			[ 'If-Unmodified-Since', $v2, $expected ],
+			[ 'If-Unmodified-Since', $v3, $expected ],
+
+			[ 'Retry-After', $v1, $expected ],
+			[ 'Retry-After', $v2, $expected ],
+			[ 'Retry-After', $v3, $expected ]
+
+		];
 	}
 }

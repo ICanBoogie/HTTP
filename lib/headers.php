@@ -200,11 +200,14 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 				# http://stackoverflow.com/questions/12626699/if-modified-since-http-header-passed-by-ie9-includes-length
 				#
 
-				$pos = strpos($value, ';');
-
-				if ($pos)
+				if (is_string($value))
 				{
-					$value = substr($value, 0, $pos);
+					$pos = strpos($value, ';');
+
+					if ($pos)
+					{
+						$value = substr($value, 0, $pos);
+					}
 				}
 			}
 			break;
@@ -212,7 +215,7 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 			# http://tools.ietf.org/html/rfc2616#section-14.37
 			case 'Retry-After':
 			{
-				$value = is_numeric($value) ? $value : Headers\DateHeader::from($value);
+				$value = is_numeric($value) ? $value : DateHeader::from($value);
 			}
 			break;
 		}
