@@ -31,6 +31,7 @@ $request = Request::from([
 	'is_local' => true,            // or 'ip' => '::1'
 	'is_post' => true,             // or 'method' => Request::METHOD_POST
 	'content_length' => 123
+
 ]);
 ```
 
@@ -187,6 +188,25 @@ echo $file->match([ '.png', 'application/zip' ]); // true
 echo $file->match([ '.png', '.zip' ]);            // true
 echo $file->match([ 'image/png', '.zip' ]);       // true
 echo $file->match([ 'image/png', 'text/plain' ]); // false
+```
+
+[File][] instances implements the [ToArray][] interface and can be converted into arrays
+with the `to_array()` method:
+
+```php
+$file->to_array();
+/*
+[
+	'name' => 'example.zip',
+	'unsuffixed_name' => 'example',
+	'extension' => '.zip',
+	'type' => 'application/zip',
+	'size' => 1234,
+	'pathname' => '/path/to/my/example.zip',
+	'error' => null,
+	'error_message' => null
+]
+*/
 ```
 
 
@@ -768,4 +788,5 @@ ICanBoogie/HTTP is licensed under the New BSD License - See the [LICENSE](LICENS
 [FileList]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.FileList.html
 [ForceRedirect]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.ForceRedirect.html
 [RescueEvent]: http://icanboogie.org/docs/class-ICanBoogie.Exception.RescueEvent.html
+[ToArray]: http://icanboogie.org/docs/class-ICanBoogie.ToArray.html
 [AuthenticationRequired]: http://icanboogie.org/docs/class-ICanBoogie.AuthenticationRequired.html
