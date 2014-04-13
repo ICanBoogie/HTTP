@@ -363,10 +363,15 @@ class File
 	 * check if a file matches multiple type e.g. `[ "image", ".mp3" ]`, which matches any type
 	 * of image or files with the ".mp3" extension.
 	 *
-	 * @return boolean `true` if the file matches, `false` otherwise.
+	 * @return boolean `true` if the file matches (or `$type` is empty), `false` otherwise.
 	 */
 	public function match($type)
 	{
+		if (!$type)
+		{
+			return true;
+		}
+
 		if (is_array($type))
 		{
 			$type_list = $type;

@@ -51,6 +51,10 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	{
 		return [
 
+			[ true,  null ],
+			[ true,  false ],
+			[ true,  '' ],
+			[ true,  [] ],
 			[ true,  '.zip' ],
 			[ true,  'application/zip' ],
 			[ true,  'application' ],
