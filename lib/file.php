@@ -11,6 +11,8 @@
 
 namespace ICanBoogie\HTTP;
 
+use ICanBoogie\ToArray;
+
 /**
  * Representation of a POST file.
  *
@@ -27,7 +29,7 @@ namespace ICanBoogie\HTTP;
  * @property-read bool $is_valid `true` if the file is valid, `false` otherwise.
  * See: {@link is_valid()}.
  */
-class File
+class File implements ToArray
 {
 	use \ICanBoogie\PrototypeTrait;
 
@@ -153,7 +155,7 @@ class File
 	 */
 	protected function get_unsuffixed_name()
 	{
-		return basename($this->name, $this->extension);
+		return $this->name ? basename($this->name, $this->extension) : null;
 	}
 
 	protected $type;
@@ -267,6 +269,45 @@ class File
 		{
 			unset($this->size);
 		}
+	}
+
+	/**
+	 * Return an array representation of the instance.
+	 *
+	 * The following properties are exported:
+	 *
+	 * - {@link $name}
+	 * - {@link $unsuffixed_name}
+	 * - {@link $extension}
+	 * - {@link $type}
+	 * - {@link $size}
+	 * - {@link $pathname}
+	 * - {@link $error}
+	 * - {@link $error_message}
+	 *
+	 * @return array
+	 */
+	public function to_array()
+	{
+		$error_message = $this->error_message;
+
+		if ($error_message !== null)
+		{
+			$error_message = (string) $error_message;
+		}
+
+		return [
+
+			'name' => $this->name,
+			'unsuffixed_name' => $this->unsuffixed_name,
+			'extension' => $this->extension,
+			'type' => $this->type,
+			'size' => $this->size,
+			'pathname' => $this->pathname,
+			'error' => $this->error,
+			'error_message' => $error_message
+
+		];
 	}
 
 	/**

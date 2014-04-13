@@ -112,6 +112,91 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
+	 * @dataProvider provide_test_to_array
+	 */
+	public function test_to_array($properties, $expected)
+	{
+		$this->assertSame($expected, File::from($properties)->to_array());
+	}
+
+	public function provide_test_to_array()
+	{
+		return [
+
+			[
+
+				[
+
+					'pathname' => __FILE__
+
+				],
+
+				[
+
+					'name' => basename(__FILE__),
+					'unsuffixed_name' => basename(__FILE__, '.php'),
+					'extension' => '.php',
+					'type' => 'application/x-php',
+					'size' => filesize(__FILE__),
+					'pathname' => __FILE__,
+					'error' => null,
+					'error_message' => null
+
+				]
+
+			],
+
+			[
+
+				[
+
+					'pathname' => '/path/to/image.png',
+					'size' => 1234
+
+				],
+
+				[
+
+					'name' => 'image.png',
+					'unsuffixed_name' => 'image',
+					'extension' => '.png',
+					'type' => 'image/png',
+					'size' => 1234,
+					'pathname' => '/path/to/image.png',
+					'error' => null,
+					'error_message' => null
+
+				]
+
+			],
+
+			[
+
+				[
+
+					'error' => UPLOAD_ERR_NO_FILE
+
+				],
+
+				[
+
+					'name' => null,
+					'unsuffixed_name' => null,
+					'extension' => null,
+					'type' => null,
+					'size' => null,
+					'pathname' => null,
+					'error' => UPLOAD_ERR_NO_FILE,
+					'error_message' => "No file was uploaded."
+
+				]
+
+			]
+
+		];
+	}
+
+	/**
 	 * @dataProvider provide_readonly_properties
 	 * @expectedException ICanBoogie\PropertyNotWritable
 	 */
