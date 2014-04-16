@@ -30,7 +30,12 @@ $request = Request::from([
 	'path' => 'path/to/file.html',
 	'is_local' => true,            // or 'ip' => '::1'
 	'is_post' => true,             // or 'method' => Request::METHOD_POST
-	'content_length' => 123
+	'content_length' => 123,
+	'headers' => [
+
+		'Cache-Control' => 'no-cache'
+
+	]
 
 ]);
 ```

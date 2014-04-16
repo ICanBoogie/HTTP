@@ -200,17 +200,25 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 
 	/**
 	 * A request can be created from the `$_SERVER` super global array. In that case `$_SERVER` is
-	 * used as environment and the request is created with the following properties:
+	 * used as environment the request is created with the following properties:
 	 *
 	 * - {@link $cookie}: a reference to the `$_COOKIE` super global array.
 	 * - {@link $path_params}: initialized to an empty array.
 	 * - {@link $query_params}: a reference to the `$_GET` super global array.
 	 * - {@link $request_params}: a reference to the `$_POST` super global array.
+	 * - {@link $files}: a reference to the `$_FILES` super global array.
 	 *
 	 * A request can also be created from an array of properties, in which case most of them are
 	 * mapped to the `$env` constructor param. For instance, `is_xhr` set the
 	 * `HTTP_X_REQUESTED_WITH` enviroment property to 'XMLHttpRequest'. In fact, only the
-	 * `path_params`, `query_params` and `request_params` are preserved.
+	 * following parameters are preserved:
+	 *
+	 * - `path_params`
+	 * - `query_params`
+	 * - `request_params`
+	 * - `files`: The files associated with the request.
+	 * - `headers`: The header fields of the request. If specified, the headers available in the
+	 * environement are ignored.
 	 *
 	 * @param array $properties
 	 * @param array $construct_args
@@ -225,65 +233,79 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	{
 		if ($properties === $_SERVER)
 		{
-			return parent::from
-			(
-				array
-				(
-					'cookies' => &$_COOKIE,
-					'path_params' => array(),
-					'query_params' => &$_GET,
-					'request_params' => &$_POST,
-					'files' => $_FILES
-				),
+			return parent::from([
 
-				array($_SERVER)
-			);
+				'cookies' => &$_COOKIE,
+				'path_params' => [],
+				'query_params' => &$_GET,
+				'request_params' => &$_POST,
+				'files' => &$_FILES
+
+			], [ $_SERVER ]);
 		}
-		else
+
+		$env = isset($construct_args[0]) ? $construct_args[0] : [];
+
+		if (is_string($properties))
 		{
-			$env = isset($construct_args[0]) ? $construct_args[0] : array();
+			$properties = [ 'uri' => $properties ];
+			$env['QUERY_STRING'] = '';
+		}
 
-			if (is_string($properties))
+		if ($properties)
+		{
+			$mappers = self::get_properties_mappers();
+
+			foreach ($properties as $property => &$value)
 			{
-				$properties = array
-				(
-					'uri' => $properties
-				);
-
-				$env['QUERY_STRING'] = '';
-			}
-
-			if ($properties)
-			{
-				$mappers = self::get_properties_mappers();
-
-				foreach ($properties as $property => $value)
+				if (empty($mappers[$property]))
 				{
-					if (empty($mappers[$property]))
-					{
-						throw new \InvalidArgumentException("Unsupported property: <q>$property</q>.");
-					}
-
-					#
-					# The mapper returns `true` if the property is to be preserved.
-					#
-
-					if (!$mappers[$property]($value, $env))
-					{
-						unset($properties[$property]);
-					}
+					throw new \InvalidArgumentException("Unsupported property: <q>$property</q>.");
 				}
 
-				$construct_args[0] = $env;
+				#
+				# The mapper returns `true` if the property is to be preserved.
+				#
+
+				$value = $mappers[$property]($value, $env);
+
+				if ($value === null)
+				{
+					unset($properties[$property]);
+
+					continue;
+				}
 			}
 
-			if (!empty($env['QUERY_STRING']))
-			{
-				parse_str($env['QUERY_STRING'], $properties['query_params']);
-			}
+			$construct_args[0] = $env;
 		}
 
-		return parent::from($properties, $construct_args, $class_name);
+		if (!empty($env['QUERY_STRING']))
+		{
+			parse_str($env['QUERY_STRING'], $properties['query_params']);
+		}
+
+		#
+		# Because Object::from() serialize/unserialize the properties to create the instance,
+		# objects are recreated as well. For instance, if a `Headers` instance is provided using
+		# the `headers` property, a clone of that instance will be used by the instance. To
+		# circumvent that we set back objects that were defined in the properties. Depending on
+		# the future updates to `Object` the code might become obsolete.
+		#
+
+		$instance = parent::from($properties, $construct_args, $class_name);
+
+		foreach ($properties as $property => $value)
+		{
+			if (!is_object($value))
+			{
+				continue;
+			}
+
+			$instance->$property = $value;
+		}
+
+		return $instance;
 	}
 
 	/**
@@ -299,10 +321,11 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 		{
 			$mappers = array
 			(
-				'path_params' =>    function() { return true; },
-				'query_params' =>   function() { return true; },
-				'request_params' => function() { return true; },
-				'files' =>          function() { return true; },
+				'path_params' =>    function($value) { return $value; },
+				'query_params' =>   function($value) { return $value; },
+				'request_params' => function($value) { return $value; },
+				'files' =>          function($value) { return $value; },
+				'headers' =>        function($value) { return ($value instanceof Headers) ? $value : new Headers($value); },
 
 				'cache_control' =>  function($value, array &$env) { $env['HTTP_CACHE_CONTROL'] = $value; },
 				'content_length' => function($value, array &$env) { $env['CONTENT_LENGTH'] = $value; },
@@ -337,10 +360,15 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @param array $env Environment of the request, usually the `$_SERVER` super global.
 	 */
-	protected function __construct(array $env=array())
+	protected function __construct(array $env=[])
 	{
 		$this->env = $env;
-		$this->headers = new Headers($env);
+
+		if (!$this->headers)
+		{
+			$this->headers = new Headers($env);
+		}
+
 		$this->context = new Request\Context($this);
 
 		if ($this->params === null)

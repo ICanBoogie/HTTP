@@ -325,6 +325,41 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		}
 	}
 
+	public function test_from_with_headers()
+	{
+		$r = Request::from([
+
+			'uri' => '/path/to/file',
+			'headers' => [
+
+				"Cache-Control" => "max-age=0",
+				"Accept" => "application/json"
+
+			]
+
+		]);
+
+		$this->assertInstanceOf('ICanBoogie\HTTP\Headers', $r->headers);
+		$this->assertEquals("max-age=0", (string) $r->headers['Cache-Control']);
+		$this->assertEquals("application/json", (string) $r->headers['Accept']);
+
+		$headers = new Headers([
+
+			"Cache-Control" => "max-age=0",
+			"Accept" => "application/json"
+
+		]);
+
+		$r = Request::from([
+
+			'uri' => '/path/to/file',
+			'headers' => $headers
+
+		]);
+
+		$this->assertSame($headers, $r->headers);
+	}
+
 	public function test_query_string_from_uri()
 	{
 		$p = '/api/users/login';
