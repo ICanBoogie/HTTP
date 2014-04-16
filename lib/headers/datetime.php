@@ -18,6 +18,16 @@ namespace ICanBoogie\HTTP;
  */
 class DateHeader extends \ICanBoogie\DateTime
 {
+	static public function from($source, $timezone=null)
+	{
+		if ($source === null)
+		{
+			return static::none();
+		}
+
+		return parent::from($source, $timezone);
+	}
+
 	/**
 	 * Returns a new {@link DateHeader} object.
 	 *
@@ -47,6 +57,6 @@ class DateHeader extends \ICanBoogie\DateTime
 	 */
 	public function __toString()
 	{
-		return $this->utc->as_rfc1123;
+		return $this->is_empty ? '' : $this->utc->as_rfc1123;
 	}
 }

@@ -153,7 +153,7 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 			if (empty($this->fields[$field]))
 			{
 				$class = self::$mapping[$field];
-				$this->fields[$field] = new $class;
+				$this->fields[$field] = call_user_func($class . '::from', null);
 			}
 
 			return $this->fields[$field];

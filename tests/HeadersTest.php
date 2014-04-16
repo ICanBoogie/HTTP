@@ -118,4 +118,43 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 
 		];
 	}
+
+	/**
+	 * @dataProvider provide_test_empty_date
+	 */
+	public function test_empty_date($field)
+	{
+		$h = new Headers;
+
+		$this->assertInstanceOf('ICanBoogie\HTTP\DateHeader', $h[$field]);
+		$this->assertTrue($h[$field]->is_empty);
+	}
+
+	public function provide_test_empty_date()
+	{
+		return [
+
+			[ 'Date' ],
+			[ 'Expires' ],
+			[ 'If-Modified-Since' ],
+			[ 'If-Unmodified-Since' ]
+
+		];
+	}
+
+	public function test_to_string_with_empty_dates()
+	{
+		$h = new Headers([
+
+			'Content-Type' => 'text/plain'
+
+		]);
+
+		$this->assertTrue($h['Date']->is_empty);
+		$this->assertTrue($h['Expires']->is_empty);
+		$this->assertTrue($h['If-Modified-Since']->is_empty);
+		$this->assertTrue($h['If-Unmodified-Since']->is_empty);
+
+		$this->assertEquals("Content-Type: text/plain\r\n", (string) $h);
+	}
 }

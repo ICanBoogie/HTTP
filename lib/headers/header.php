@@ -100,6 +100,11 @@ abstract class Header implements \ArrayAccess
 			return $source;
 		}
 
+		if ($source === null)
+		{
+			return new static;
+		}
+
 		list($value, $parameters) = static::parse($source);
 
 		return new static($value, $parameters);
