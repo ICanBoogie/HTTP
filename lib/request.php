@@ -295,14 +295,17 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 
 		$instance = parent::from($properties, $construct_args, $class_name);
 
-		foreach ($properties as $property => $value)
+		if ($properties)
 		{
-			if (!is_object($value))
+			foreach ($properties as $property => $value)
 			{
-				continue;
-			}
+				if (!is_object($value))
+				{
+					continue;
+				}
 
-			$instance->$property = $value;
+				$instance->$property = $value;
+			}
 		}
 
 		return $instance;
