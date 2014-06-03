@@ -309,7 +309,7 @@ class Response extends \ICanBoogie\Object
 			$body = (string) $body;
 		}
 
-		if (!is_object($body))
+		if (is_numeric($body) || is_string($body))
 		{
 			$headers['Content-Length'] = strlen($body);
 		}
