@@ -213,14 +213,19 @@ class Response extends \ICanBoogie\Object
 	 */
 	public function __toString()
 	{
+		$header = clone $this->headers;
+		$body = $this->body;
+
+		$this->finalize($header, $body);
+
 		ob_start();
 
-		$this->echo_body($this->body);
+		$this->echo_body($body);
 
 		$body = ob_get_clean();
 
 		return "HTTP/{$this->version} {$this->status} {$this->status_message}\r\n"
-		. $this->headers
+		. $header
 		. "\r\n"
 		. $body;
 	}
@@ -245,21 +250,10 @@ class Response extends \ICanBoogie\Object
 	 */
 	public function __invoke()
 	{
-		#
-		# If the body is a string we add the `Content-Length`
-		#
-
+		$headers = clone $this->headers;
 		$body = $this->body;
 
-		if (is_object($body) && method_exists($body, '__toString'))
-		{
-			$body = (string) $body;
-		}
-
-		if (is_numeric($body) || is_string($body))
-		{
-			$this->headers['Content-Length'] = strlen($body);
-		}
+		$this->finalize($headers, $body);
 
 		#
 		# send headers
@@ -282,24 +276,43 @@ class Response extends \ICanBoogie\Object
 
 			header("HTTP/{$this->version} {$this->status} {$this->status_message}");
 
-			$this->headers();
+			$headers();
 		}
 
 		if ($body === null)
 		{
-			if ($this->location)
-			{
-				exit;
-			}
-			else if (!$this->is_ok)
-			{
-				return;
-			}
+			if ($this->location) exit;
+			if (!$this->is_ok) return;
 		}
 
 		$this->echo_body($body);
 
 		exit;
+	}
+
+	/**
+	 * Finalize the body.
+	 *
+	 * If the body is a string or can be converted into a string the `Content-Length` header is
+	 * added with the length of that string.
+	 *
+	 * Subclasses might want to override this method if they wish to alter the header or the body
+	 * before the response is sent or transformed into a string.
+	 *
+	 * @param Header $headers Reference to the final header.
+	 * @param mixed $body Reference to the final body.
+	 */
+	protected function finalize(Headers &$headers, &$body)
+	{
+		if (is_object($body) && method_exists($body, '__toString'))
+		{
+			$body = (string) $body;
+		}
+
+		if (!is_object($body))
+		{
+			$headers['Content-Length'] = strlen($body);
+		}
 	}
 
 	/**
