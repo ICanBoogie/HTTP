@@ -62,8 +62,10 @@ use ICanBoogie\PropertyNotWritable;
  *
  * @see http://tools.ietf.org/html/rfc2616
  */
-class Response extends \ICanBoogie\Object
+class Response
 {
+	use \ICanBoogie\PrototypeTrait;
+
 	/**
 	 * HTTP status messages.
 	 *
