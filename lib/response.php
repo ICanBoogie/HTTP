@@ -153,7 +153,7 @@ class Response extends \ICanBoogie\Object
 
 		$this->headers = $headers;
 
-		if (!$this->headers['Date'])
+		if ($this->date->is_empty)
 		{
 			$this->date = 'now';
 		}
@@ -213,21 +213,28 @@ class Response extends \ICanBoogie\Object
 	 */
 	public function __toString()
 	{
-		$header = clone $this->headers;
-		$body = $this->body;
+		try
+		{
+			$header = clone $this->headers;
+			$body = $this->body;
 
-		$this->finalize($header, $body);
+			$this->finalize($header, $body);
 
-		ob_start();
+			ob_start();
 
-		$this->echo_body($body);
+			$this->echo_body($body);
 
-		$body = ob_get_clean();
+			$body = ob_get_clean();
 
-		return "HTTP/{$this->version} {$this->status} {$this->status_message}\r\n"
-		. $header
-		. "\r\n"
-		. $body;
+			return "HTTP/{$this->version} {$this->status} {$this->status_message}\r\n"
+			. $header
+			. "\r\n"
+			. $body;
+		}
+		catch (\Exception $e)
+		{
+			return (string) $e;
+		}
 	}
 
 	/**

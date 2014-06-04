@@ -46,6 +46,9 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	public function test_date()
 	{
 		$r = new Response();
+		$this->assertInstanceOf('ICanBoogie\HTTP\DateHeader', $r->date);
+		$this->assertTrue(DateTime::now() == $r->date);
+
 		$r->date = 'now';
 		$this->assertInstanceOf('ICanBoogie\HTTP\DateHeader', $r->date);
 		$this->assertEquals('UTC', $r->date->zone->name);
@@ -61,7 +64,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 		$r = new Response;
 		$r->body = "Madonna";
 
-		$this->assertEquals("HTTP/1.0 200 OK\r\nContent-Length: 7\r\n\r\nMadonna", (string) $r);
+		$this->assertEquals("HTTP/1.0 200 OK\r\nDate: {$r->date}\r\nContent-Length: 7\r\n\r\nMadonna", (string) $r);
 		$this->assertNull($r->content_length);
 	}
 
@@ -69,7 +72,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	{
 		$r = new Response;
 
-		$this->assertEquals("HTTP/1.0 200 OK\r\n\r\n", (string) $r);
+		$this->assertEquals("HTTP/1.0 200 OK\r\nDate: {$r->date}\r\n\r\n", (string) $r);
 		$this->assertNull($r->content_length);
 	}
 }
