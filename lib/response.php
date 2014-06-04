@@ -163,42 +163,6 @@ class Response extends \ICanBoogie\Object
 	}
 
 	/**
-	 * Handles read-only properties.
-	 *
-	 * @throws PropertyNotWritable in attempt to write one of the following properties:
-	 * {@link $is_valid}, {@link $is_informational}, {@link $is_successful}, {@link $is_redirect),
-	 * {@link $is_client_error}, {@link $is_server_error}, {@link $is_ok}, {@link $is_forbidden},
-	 * {@link $is_not_found}, {@link $is_empty}, {@link $is_validateable}, {@link $is_cacheable},
-	 * {@link $is_fresh}
-	 */
-	public function __set($property, $value)
-	{
-		static $readonly = array
-		(
-			'is_valid',
-			'is_informational',
-			'is_successful',
-			'is_redirect',
-			'is_client_error',
-			'is_server_error',
-			'is_ok',
-			'is_forbidden',
-			'is_not_found',
-			'is_empty',
-			'is_validateable',
-			'is_cacheable',
-			'is_fresh'
-		);
-
-		if (in_array($property, $readonly))
-		{
-			throw new PropertyNotWritable(array($property, $this));
-		}
-
-		parent::__set($property, $value);
-	}
-
-	/**
 	 * Clones the {@link $headers] property.
 	 */
 	public function __clone()

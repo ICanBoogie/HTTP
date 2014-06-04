@@ -36,11 +36,11 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
 	public function provide_test_write_readonly_properties()
 	{
-		$properties = 'is_valid|is_informational|is_successful|is_redirect|is_client_error'
-		. '|is_server_error|is_ok|is_forbidden|is_not_found|is_empty|is_validateable'
-		. '|is_cacheable|is_fresh';
+		$properties = 'is_valid is_informational is_successful is_redirect is_client_error'
+		. ' is_server_error is_ok is_forbidden is_not_found is_empty is_validateable'
+		. ' is_cacheable is_fresh';
 
-		return array_map(function($v) { return (array) $v; }, explode('|', $properties));
+		return array_map(function($v) { return (array) $v; }, explode(' ', $properties));
 	}
 
 	public function test_date()
