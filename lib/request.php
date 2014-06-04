@@ -27,7 +27,7 @@ use ICanBoogie\PropertyNotWritable;
  *
  * # Creating a request from scratch, with the current environment.
  *
- * $request = Request::from(array(
+ * $request = Request::from([
  *
  *     'uri' => '/path/to/my/page.html?page=2',
  *     'user_agent' => 'Mozilla'
@@ -35,7 +35,7 @@ use ICanBoogie\PropertyNotWritable;
  *     'is_xhr' => true,
  *     'is_local' => true
  *
- * ), array($_SERVER));
+ * ], $_SERVER);
  * </pre>
  *
  * @method Response connect() connect(array $params)
@@ -79,8 +79,10 @@ use ICanBoogie\PropertyNotWritable;
  *
  * @see http://en.wikipedia.org/wiki/Uniform_resource_locator
  */
-class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggregate
+class Request implements \ArrayAccess, \IteratorAggregate
 {
+	use \ICanBoogie\PrototypeTrait;
+
 	/*
 	 * HTTP methods as defined by the {@link http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html Hypertext Transfert protocol 1.1}.
 	 */
@@ -191,6 +193,8 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 		return $this->files = FileList::from($this->files);
 	}
 
+	public $cookie;
+
 	/**
 	 * Previous request.
 	 *
@@ -220,64 +224,55 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 * - `headers`: The header fields of the request. If specified, the headers available in the
 	 * environement are ignored.
 	 *
-	 * @param array $properties
-	 * @param array $construct_args
-	 * @param string $class_name
+	 * @param array $properties Properties of the request.
+	 * @param array $env Environment, usually the `$_SERVER` array.
 	 *
 	 * @throws \InvalidArgumentException in attempt to use a property that is not mapped to an
 	 * environment property.
 	 *
 	 * @return Request
 	 */
-	static public function from($properties=null, array $construct_args=array(), $class_name=null)
+	static public function from($properties=null, array $env=[])
 	{
 		if ($properties === $_SERVER)
 		{
-			return parent::from([
+			return static::from([
 
-				'cookies' => &$_COOKIE,
+				'cookie' => &$_COOKIE,
 				'path_params' => [],
 				'query_params' => &$_GET,
 				'request_params' => &$_POST,
 				'files' => &$_FILES
 
-			], [ $_SERVER ]);
+			], $_SERVER);
 		}
-
-		$env = isset($construct_args[0]) ? $construct_args[0] : [];
 
 		if (is_string($properties))
 		{
-			$properties = [ 'uri' => $properties ];
-			$env['QUERY_STRING'] = '';
+			return static::from([
+
+				'uri' => $properties
+
+			], $env);
 		}
 
-		if ($properties)
+		$properties = $properties ?: [];
+
+		$mappers = self::get_properties_mappers();
+
+		foreach ($properties as $property => &$value)
 		{
-			$mappers = self::get_properties_mappers();
-
-			foreach ($properties as $property => &$value)
+			if (empty($mappers[$property]))
 			{
-				if (empty($mappers[$property]))
-				{
-					throw new \InvalidArgumentException("Unsupported property: <q>$property</q>.");
-				}
-
-				#
-				# The mapper returns `true` if the property is to be preserved.
-				#
-
-				$value = $mappers[$property]($value, $env);
-
-				if ($value === null)
-				{
-					unset($properties[$property]);
-
-					continue;
-				}
+				throw new \InvalidArgumentException("Unsupported property: <q>$property</q>.");
 			}
 
-			$construct_args[0] = $env;
+			$value = $mappers[$property]($value, $env);
+
+			if ($value === null)
+			{
+				unset($properties[$property]);
+			}
 		}
 
 		if (!empty($env['QUERY_STRING']))
@@ -285,30 +280,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 			parse_str($env['QUERY_STRING'], $properties['query_params']);
 		}
 
-		#
-		# Because Object::from() serialize/unserialize the properties to create the instance,
-		# objects are recreated as well. For instance, if a `Headers` instance is provided using
-		# the `headers` property, a clone of that instance will be used by the instance. To
-		# circumvent that we set back objects that were defined in the properties. Depending on
-		# the future updates to `Object` the code might become obsolete.
-		#
-
-		$instance = parent::from($properties, $construct_args, $class_name);
-
-		if ($properties)
-		{
-			foreach ($properties as $property => $value)
-			{
-				if (!is_object($value))
-				{
-					continue;
-				}
-
-				$instance->$property = $value;
-			}
-		}
-
-		return $instance;
+		return new static($properties, $env);
 	}
 
 	/**
@@ -327,6 +299,7 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 				'path_params' =>    function($value) { return $value; },
 				'query_params' =>   function($value) { return $value; },
 				'request_params' => function($value) { return $value; },
+				'cookie' =>         function($value) { return $value; },
 				'files' =>          function($value) { return $value; },
 				'headers' =>        function($value) { return ($value instanceof Headers) ? $value : new Headers($value); },
 
@@ -363,9 +336,14 @@ class Request extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 *
 	 * @param array $env Environment of the request, usually the `$_SERVER` super global.
 	 */
-	protected function __construct(array $env=[])
+	protected function __construct(array $properties, array $env=[])
 	{
 		$this->env = $env;
+
+		foreach ($properties as $property => $value)
+		{
+			$this->$property = $value;
+		}
 
 		if (!$this->headers)
 		{

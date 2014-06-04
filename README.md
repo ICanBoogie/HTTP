@@ -21,7 +21,7 @@ $initial_request = Request::from($_SERVER);
 
 # a fake request in the same environment
 
-$request = Request::from('path/to/file.html', [ $_SERVER ]);
+$request = Request::from('path/to/file.html', $_SERVER);
 
 # a request created from scratch
 
@@ -48,7 +48,7 @@ available:
 ```php
 <?php
 
-$response = $initial_request();
+$response = $request();
 
 # or
 

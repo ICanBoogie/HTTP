@@ -364,7 +364,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	{
 		$p = '/api/users/login';
 		$q = 'redirect_to=haven';
-		$r = Request::from($p, array(array('QUERY_STRING' => $q)));
+		$r = Request::from($p, [ 'QUERY_STRING' => $q ]);
 		$this->assertEmpty($r->query_string);
 		$this->assertEquals($p, $r->uri);
 		$this->assertEquals($p, $r->path);
@@ -382,7 +382,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	public function test_path_when_uri_is_missing_query_string()
 	{
-		$r = Request::from(array(), array(array('QUERY_STRING' => 'redirect_to=haven', 'REQUEST_URI' => '/api/users/login')));
+		$r = Request::from([], [ 'QUERY_STRING' => 'redirect_to=haven', 'REQUEST_URI' => '/api/users/login' ]);
 		$this->assertEquals('redirect_to=haven', $r->query_string);
 		$this->assertEquals('/api/users/login', $r->uri);
 		$this->assertEquals('/api/users/login', $r->path);
