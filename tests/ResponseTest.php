@@ -45,7 +45,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
 	public function test_date()
 	{
-		$r = new Response();
+		$r = new Response;
 		$this->assertInstanceOf('ICanBoogie\HTTP\DateHeader', $r->date);
 		$this->assertTrue(DateTime::now() == $r->date);
 

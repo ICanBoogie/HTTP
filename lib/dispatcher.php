@@ -389,14 +389,14 @@ use ICanBoogie\HTTP\Request;
 class BeforeDispatchEvent extends \ICanBoogie\Event
 {
 	/**
-	 * The HTTP request.
+	 * The request.
 	 *
 	 * @var Request
 	 */
 	public $request;
 
 	/**
-	 * Reference to the HTTP response.
+	 * Reference to the response.
 	 *
 	 * @var Response
 	 */
@@ -405,8 +405,9 @@ class BeforeDispatchEvent extends \ICanBoogie\Event
 	/**
 	 * The event is constructed with the type `dispatch:before`.
 	 *
-	 * @param Dispatcher $target
-	 * @param array $payload
+	 * @param Dispatcher $target.
+	 * @param Request The request.
+	 * @param Response|null Reference to the response.
 	 */
 	public function __construct(Dispatcher $target, Request $request, &$response)
 	{
@@ -446,8 +447,9 @@ class DispatchEvent extends \ICanBoogie\Event
 	/**
 	 * The event is constructed with the type `dispatch`.
 	 *
-	 * @param Dispatcher $target
-	 * @param array $payload
+	 * @param Dispatcher $target.
+	 * @param Request The request.
+	 * @param Response|null Reference to the response.
 	 */
 	public function __construct(Dispatcher $target, Request $request, &$response)
 	{
@@ -478,7 +480,7 @@ class RescueEvent extends \ICanBoogie\Event
 	public $response;
 
 	/**
-	 * Reference tot the exception.
+	 * Reference to the exception.
 	 *
 	 * @var \Exception
 	 */
@@ -495,7 +497,8 @@ class RescueEvent extends \ICanBoogie\Event
 	 * The event is constructed with the type `rescue`.
 	 *
 	 * @param \Exception $target
-	 * @param array $payload
+	 * @param Request $request The request.
+	 * @param Response|null Reference to the response.
 	 */
 	public function __construct(\Exception &$target, Request $request, &$response)
 	{

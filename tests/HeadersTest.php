@@ -17,7 +17,7 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 {
 	public function testDateTimeFromDateTime()
 	{
-		$datetime = new \DateTime();
+		$datetime = new \DateTime;
 		$headers_datetime = new DateHeader($datetime);
 		$datetime->setTimezone(new \DateTimeZone('GMT'));
 
@@ -40,7 +40,7 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 
 	public function testCacheControl()
 	{
-		$headers = new Headers();
+		$headers = new Headers;
 		$this->assertInstanceOf('ICanBoogie\HTTP\CacheControlHeader', $headers['Cache-Control']);
 		$headers['Cache-Control'] = 'public, max-age=3600, no-transform';
 		$this->assertInstanceOf('ICanBoogie\HTTP\CacheControlHeader', $headers['Cache-Control']);

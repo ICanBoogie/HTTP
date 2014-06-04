@@ -53,7 +53,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
 		});
 
-		$dispatcher = new Dispatcher();
+		$dispatcher = new Dispatcher;
 		$response = $dispatcher(Request::from($_SERVER));
 
 		$this->assertTrue($before_done);
@@ -98,7 +98,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testNotFound()
 	{
-		$dispatcher = new Dispatcher();
+		$dispatcher = new Dispatcher;
 		$dispatcher(Request::from($_SERVER));
 	}
 
