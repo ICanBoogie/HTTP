@@ -35,28 +35,31 @@ use ICanBoogie\PropertyNotDefined;
  */
 class CacheControlHeader
 {
-	static protected $cacheable_values = array
-	(
+	static protected $cacheable_values = [
+
 		'private',
 		'public',
 		'no-cache'
-	);
 
-	static protected $booleans = array
-	(
+	];
+
+	static protected $booleans = [
+
 		'no-store',
 		'no-transform',
 		'only-if-cached',
 		'must-revalidate',
 		'proxy-revalidate'
-	);
 
-	static protected $placeholder = array
-	(
+	];
+
+	static protected $placeholder = [
+
 		'cacheable'
-	);
 
-	static private $default_values = array();
+	];
+
+	static private $default_values = [];
 
 	/**
 	 * Returns the default values of the instance.
@@ -73,7 +76,7 @@ class CacheControlHeader
 		}
 
 		$reflection = new \ReflectionClass($class);
-		$default_values = array();
+		$default_values = [];
 
 		foreach ($reflection->getDefaultProperties() as $property => $default_value)
 		{
@@ -103,7 +106,7 @@ class CacheControlHeader
 		$directives = array_map('trim', $directives);
 
 		$properties = self::get_default_values();
-		$extensions = array();
+		$extensions = [];
 
 		foreach ($directives as $value)
 		{
@@ -138,7 +141,7 @@ class CacheControlHeader
 			}
 		}
 
-		return array($properties, $extensions);
+		return [ $properties, $extensions ];
 	}
 
 	/**
@@ -274,7 +277,7 @@ class CacheControlHeader
 	 *
 	 * @var string
 	 */
-	public $extensions = array();
+	public $extensions = [];
 
 	/**
 	 * If they are defined, the object is initialized with the cache directives.
@@ -296,7 +299,7 @@ class CacheControlHeader
 			case 'cacheable': return $this->cacheable;
 		}
 
-		throw new PropertyNotDefined(array($property, $this));
+		throw new PropertyNotDefined([ $property, $this ]);
 	}
 
 	public function __set($property, $value)
@@ -314,11 +317,12 @@ class CacheControlHeader
 				{
 					throw new \InvalidArgumentException(\ICanBoogie\format
 					(
-						"%var must be one of: public, private, no-cache. Give: %value", array
-						(
+						"%var must be one of: public, private, no-cache. Give: %value", [
+
 							'var' => 'cacheable',
 							'value' => $value
-						)
+
+						]
 					));
 				}
 
@@ -327,7 +331,7 @@ class CacheControlHeader
 			return;
 		}
 
-		throw new PropertyNotDefined(array($property, $this));
+		throw new PropertyNotDefined([ $property, $this ]);
 	}
 
 	/**

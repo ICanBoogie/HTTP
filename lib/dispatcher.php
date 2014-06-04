@@ -27,14 +27,14 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, IDispatcher
 	 *
 	 * @var array[string]callable|string
 	 */
-	protected $dispatchers = array();
+	protected $dispatchers = [];
 
 	/**
 	 * The weights of the dispatchers.
 	 *
 	 * @var array[string]mixed
 	 */
-	protected $dispatchers_weight = array();
+	protected $dispatchers_weight = [];
 
 	protected $dispatchers_order;
 
@@ -44,7 +44,7 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, IDispatcher
 	 * Dispatchers can be defined as callable or class name. If a dispatcher definition is not a
 	 * callable it is used as class name to instantiate a dispatcher.
 	 */
-	public function __construct(array $dispatchers=array())
+	public function __construct(array $dispatchers=[])
 	{
 		foreach ($dispatchers as $dispatcher_id => $dispatcher)
 		{

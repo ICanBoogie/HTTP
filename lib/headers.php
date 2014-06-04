@@ -23,8 +23,8 @@ namespace ICanBoogie\HTTP;
  */
 class Headers implements \ArrayAccess, \IteratorAggregate
 {
-	static private $mapping = array
-	(
+	static private $mapping = [
+
 		'Cache-Control'       => 'ICanBoogie\HTTP\CacheControlHeader',
 		'Content-Disposition' => 'ICanBoogie\HTTP\ContentDispositionHeader',
 		'Content-Type'        => 'ICanBoogie\HTTP\ContentTypeHeader',
@@ -33,14 +33,15 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 		'If-Modified-Since'   => 'ICanBoogie\HTTP\DateHeader',
 		'If-Unmodified-Since' => 'ICanBoogie\HTTP\DateHeader',
 		'Last-Modified'       => 'ICanBoogie\HTTP\DateHeader'
-	);
+
+	];
 
 	/**
 	 * Header fields.
 	 *
 	 * @var array[string]mixed
 	 */
-	protected $fields = array();
+	protected $fields = [];
 
 	/**
 	 * If the `REQUEST_URI` key is found in the header fields they are considered coming from the
@@ -50,7 +51,7 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @param array $headers The initial headers.
 	 */
-	public function __construct(array $fields=array())
+	public function __construct(array $fields=[])
 	{
 		if (isset($fields['REQUEST_URI']))
 		{

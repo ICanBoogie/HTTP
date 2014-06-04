@@ -75,17 +75,15 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
 		});
 
-		$dispatcher = new Dispatcher
-		(
-			array
-			(
-				'exception' => function() {
+		$dispatcher = new Dispatcher([
 
-					throw new \Exception('Damned!');
+			'exception' => function() {
 
-				}
-			)
-		);
+				throw new \Exception('Damned!');
+
+			}
+
+		]);
 
 		$response = $dispatcher(Request::from($_SERVER));
 
@@ -106,12 +104,12 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
 	public function testSetDispatchersWeight()
 	{
-		$dispatcher = new Dispatcher(array(
+		$dispatcher = new Dispatcher([
 
 			'two' => 'dummy',
 			'three' => 'dummy'
 
-		));
+		]);
 
 		$dispatcher['bottom'] = new WeightedDispatcher('dummy', 'bottom');
 		$dispatcher['megabottom'] = new WeightedDispatcher('dummy', 'bottom');

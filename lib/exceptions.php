@@ -51,7 +51,7 @@ class MethodNotSupported extends HTTPError
 {
 	public function __construct($method, $code=500, \Exception $previous=null)
 	{
-		parent::__construct(\ICanboogie\format('Method not supported: %method', array('method' => $method)), $code, $previous);
+		parent::__construct(\ICanboogie\format('Method not supported: %method', [ 'method' => $method ]), $code, $previous);
 	}
 }
 
@@ -89,6 +89,6 @@ class ForceRedirect extends HTTPError
 			return $this->location;
 		}
 
-		throw new PropertyNotDefined(array($property, $this));
+		throw new PropertyNotDefined([ $property, $this ]);
 	}
 }

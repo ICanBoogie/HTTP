@@ -97,8 +97,8 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	const METHOD_PATCH = 'PATCH';
 	const METHOD_TRACE = 'TRACE';
 
-	static public $methods = array
-	(
+	static public $methods = [
+
 		self::METHOD_CONNECT,
 		self::METHOD_DELETE,
 		self::METHOD_GET,
@@ -108,7 +108,8 @@ class Request implements \ArrayAccess, \IteratorAggregate
 		self::METHOD_PUT,
 		self::METHOD_PATCH,
 		self::METHOD_TRACE
-	);
+
+	];
 
 	/**
 	 * Current request.
@@ -132,21 +133,21 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @var array
 	 */
-	public $path_params = array();
+	public $path_params = [];
 
 	/**
 	 * Parameters defined by the query string.
 	 *
 	 * @var array
 	 */
-	public $query_params = array();
+	public $query_params = [];
 
 	/**
 	 * Parameters defined by the request body.
 	 *
 	 * @var array
 	 */
-	public $request_params = array();
+	public $request_params = [];
 
 	/**
 	 * Union of {@link $path_params}, {@link $request_params} and {@link $query_params}.
@@ -294,8 +295,8 @@ class Request implements \ArrayAccess, \IteratorAggregate
 
 		if (!$mappers)
 		{
-			$mappers = array
-			(
+			$mappers = [
+
 				'path_params' =>    function($value) { return $value; },
 				'query_params' =>   function($value) { return $value; },
 				'request_params' => function($value) { return $value; },
@@ -322,7 +323,8 @@ class Request implements \ArrayAccess, \IteratorAggregate
 				'referer' =>        function($value, array &$env) { $env['HTTP_REFERER'] = $value; },
 				'uri' =>            function($value, array &$env) { $env['REQUEST_URI'] = $value; $qs = strpos($value, '?'); $env['QUERY_STRING'] = $qs === false ? '' : substr($value, $qs + 1); },
 				'user_agent' =>     function($value, array &$env) { $env['HTTP_USER_AGENT'] = $value; }
-			);
+
+			];
 		}
 
 		return $mappers;
@@ -386,9 +388,9 @@ class Request implements \ArrayAccess, \IteratorAggregate
 
 		if ($params !== null)
 		{
-			$this->path_params = array();
-			$this->query_params = array();
-			$this->request_params = array();
+			$this->path_params = [];
+			$this->query_params = [];
+			$this->request_params = [];
 			$this->params = $params;
 		}
 
@@ -422,7 +424,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 		{
 			array_unshift($arguments, $http_method);
 
-			return call_user_func_array(array($this, '__invoke'), $arguments);
+			return call_user_func_array([ $this, '__invoke' ], $arguments);
 		}
 
 		return parent::__call($method, $arguments);
@@ -687,7 +689,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	 */
 	protected function get_is_local()
 	{
-		static $patterns = array('::1', '/^127\.0\.0\.\d{1,3}$/', '/^0:0:0:0:0:0:0:1(%.*)?$/');
+		static $patterns = [ '::1', '/^127\.0\.0\.\d{1,3}$/', '/^0:0:0:0:0:0:0:1(%.*)?$/' ];
 
 		$ip = $this->ip;
 

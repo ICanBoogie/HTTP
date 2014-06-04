@@ -48,49 +48,50 @@ class CacheControlHeaderTest extends \PHPUnit_Framework_TestCase
 
 	public function provide_properties()
 	{
-		return array
-		(
-			array('', array()),
+		return [
 
-			array('public', array('cacheable' => 'public')),
-			array('private', array('cacheable' => 'private')),
-			array('no-cache', array('cacheable' => 'no-cache')),
-			array('no-cache', array('cacheable' => false)),
-			array('', array('cacheable' => null)),
+			[ '', [] ],
 
-			array('no-store', array('no_store' => true)),
-			array('', array('no_store' => false)),
+			[ 'public', [ 'cacheable' => 'public' ] ],
+			[ 'private', [ 'cacheable' => 'private'] ],
+			[ 'no-cache', [ 'cacheable' => 'no-cache' ] ],
+			[ 'no-cache', [ 'cacheable' => false ] ],
+			[ '', [ 'cacheable' => null ] ],
 
-			array('no-transform', array('no_transform' => true)),
-			array('', array('no_transform' => false)),
+			[ 'no-store', [  'no_store' => true ] ],
+			[ '', [ 'no_store' => false ] ],
 
-			array('only-if-cached', array('only_if_cached' => true)),
-			array('', array('only_if_cached' => false)),
+			[ 'no-transform', [ 'no_transform' => true ] ],
+			[ '', [ 'no_transform' => false ] ],
 
-			array('must-revalidate', array('must_revalidate' => true)),
-			array('', array('must_revalidate' => false)),
+			[ 'only-if-cached', [ 'only_if_cached' => true ] ],
+			[ '', [ 'only_if_cached' => false ] ],
 
-			array('proxy-revalidate', array('proxy_revalidate' => true)),
-			array('', array('proxy_revalidate' => false)),
+			[ 'must-revalidate', [ 'must_revalidate' => true ] ],
+			[ '', [ 'must_revalidate' => false ] ],
 
-			array('max-age=3600', array('max_age' => 3600)),
-			array('max-age=0', array('max_age' => 0)),
-			array('', array('max_age' => null)),
+			[ 'proxy-revalidate', [ 'proxy_revalidate' => true ] ],
+			[ '', [ 'proxy_revalidate' => false ] ],
 
-			array('s-maxage=3600', array('s_maxage' => 3600)),
-			array('s-maxage=0', array('s_maxage' => 0)),
-			array('', array('s_maxage' => null)),
+			[ 'max-age=3600', [ 'max_age' => 3600 ] ],
+			[ 'max-age=0', [ 'max_age' => 0 ] ],
+			[ '', [ 'max_age' => null ] ],
 
-			array('max-stale=3600', array('max_stale' => 3600)),
-			array('max-stale=0', array('max_stale' => 0)),
-			array('', array('max_stale' => null)),
+			[ 's-maxage=3600', [ 's_maxage' => 3600 ] ],
+			[ 's-maxage=0', [ 's_maxage' => 0 ] ],
+			[ '', [ 's_maxage' => null ] ],
 
-			array('min-fresh=3600', array('min_fresh' => 3600)),
-			array('min-fresh=0', array('min_fresh' => 0)),
-			array('', array('min_fresh' => null)),
+			[ 'max-stale=3600', [ 'max_stale' => 3600 ] ],
+			[ 'max-stale=0', [ 'max_stale' => 0 ] ],
+			[ '', [ 'max_stale' => null ] ],
 
-			array('public, no-store, max-age=0', array('cacheable' => 'public', 'no_store' => true, 'must_revalidate' => false, 'max_age' => 0))
-		);
+			[ 'min-fresh=3600', [ 'min_fresh' => 3600 ] ],
+			[ 'min-fresh=0', [ 'min_fresh' => 0 ] ],
+			[ '', [ 'min_fresh' => null ] ],
+
+			[ 'public, no-store, max-age=0', [ 'cacheable' => 'public', 'no_store' => true, 'must_revalidate' => false, 'max_age' => 0 ] ]
+
+		];
 	}
 
 	/**

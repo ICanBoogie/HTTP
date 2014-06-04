@@ -41,7 +41,7 @@ class ContentTypeHeader extends Header
 	/**
 	 * Defines the `charset` parameter.
 	 */
-	public function __construct($value=null, array $attributes=array())
+	public function __construct($value=null, array $attributes=[])
 	{
 		$this->parameters['charset'] = new HeaderParameter('charset');
 

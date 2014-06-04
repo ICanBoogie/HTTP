@@ -239,7 +239,7 @@ class HeaderParameter
 		}
 
 		$normalized_value = self::to_ascii($value);
-		$normalized_value = str_replace(array('"', ';'), '', $normalized_value);
+		$normalized_value = str_replace([ '"', ';' ], '', $normalized_value);
 
 		return "{$attribute}=\"{$normalized_value}\"; {$attribute}*=" . $encoding . "'{$this->language}'" . rawurlencode($value);
 	}

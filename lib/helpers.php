@@ -21,12 +21,13 @@ namespace ICanBoogie\HTTP;
  */
 class Helpers
 {
-	static private $jumptable = array
-	(
-		'dispatch' => array(__CLASS__, 'dispatch'),
-		'get_dispatcher' => array(__CLASS__, 'get_dispatcher'),
-		'get_initial_request' => array(__CLASS__, 'get_initial_request')
-	);
+	static private $jumptable = [
+
+		'dispatch' =>            [ __CLASS__, 'dispatch' ],
+		'get_dispatcher' =>      [ __CLASS__, 'get_dispatcher' ],
+		'get_initial_request' => [ __CLASS__, 'get_initial_request' ]
+
+	];
 
 	/**
 	 * Calls the callback of a patchable function.

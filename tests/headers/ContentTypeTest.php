@@ -30,35 +30,29 @@ class ContentTypeTest extends \PHPUnit_Framework_TestCase
 
 	public function provider_from()
 	{
-		return array
-		(
-			array
-			(
-				'text/html', array
-				(
-					'text/html',
-					null
-				)
-			),
+		return [
 
-			array
-			(
-				'text/html; charset=utf-8', array
-				(
-					'text/html',
-					'utf-8'
-				)
-			),
+			[ 'text/html', [
 
-			array
-			(
-				'text/plain; charset=iso-8859-1', array
-				(
-					'text/plain',
-					'iso-8859-1'
-				)
-			)
-		);
+				'text/html',
+				null
+
+			] ],
+
+			[ 'text/html; charset=utf-8', [
+
+				'text/html',
+				'utf-8'
+
+			] ],
+
+			[ 'text/plain; charset=iso-8859-1', [
+
+				'text/plain',
+				'iso-8859-1'
+
+			] ]
+		];
 	}
 
 	public function test_attributes()

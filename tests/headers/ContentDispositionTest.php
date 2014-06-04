@@ -32,52 +32,45 @@ class ContentDispositionTest extends \PHPUnit_Framework_TestCase
 
 	public function provider_from()
 	{
-		return array
-		(
-			array
-			(
-				'attachment; filename="file name.ext"', array
-				(
-					'attachment',
-					'file name.ext',
-					'ASCII',
-					null
-				)
-			),
+		return [
 
-			array
-			(
-				'attachment; filename=file_name.ext', array
-				(
-					'attachment',
-					'file_name.ext',
-					'ASCII',
-					null
-				)
-			),
+			[ 'attachment; filename="file name.ext"', [
 
-			array
-			(
-				'attachment; filename="Naive file.txt"; filename*=UTF-8\'\'Na%C3%AFve%20file.txt', array
-				(
-					'attachment',
-					'Naïve file.txt',
-					'UTF-8',
-					null
-				)
-			),
+				'attachment',
+				'file name.ext',
+				'ASCII',
+				null
 
-			array
-			(
-				'attachment; filename="Naive file.txt"; filename*=UTF-8\'en\'Na%C3%AFve%20file.txt', array
-				(
-					'attachment',
-					'Naïve file.txt',
-					'UTF-8',
-					'en'
-				)
-			)
-		);
+			] ],
+
+			[ 'attachment; filename=file_name.ext', [
+
+				'attachment',
+				'file_name.ext',
+				'ASCII',
+				null
+
+			] ],
+
+			[ 'attachment; filename="Naive file.txt"; filename*=UTF-8\'\'Na%C3%AFve%20file.txt', [
+
+				'attachment',
+				'Naïve file.txt',
+				'UTF-8',
+				null
+
+			] ],
+
+			[ 'attachment; filename="Naive file.txt"; filename*=UTF-8\'en\'Na%C3%AFve%20file.txt', [
+
+				'attachment',
+				'Naïve file.txt',
+				'UTF-8',
+				'en'
+
+			] ]
+
+		];
 	}
 
 	public function test_value()

@@ -24,7 +24,7 @@ use ICanBoogie\PropertyNotDefined;
  *
  * class ContentDisposition extends Header
  * {
- *     public function __construct($value=null, array $attributes=array())
+ *     public function __construct($value=null, array $attributes=[])
  *     {
  *         $this->parameters['filename'] = new HeaderParameter('filename');
  *
@@ -83,7 +83,7 @@ abstract class Header implements \ArrayAccess
 	 *
 	 * @var array[string]HeaderParameter
 	 */
-	protected $parameters = array();
+	protected $parameters = [];
 
 	/**
 	 * Creates a {@link Header} instance from the provided source.
@@ -125,7 +125,7 @@ abstract class Header implements \ArrayAccess
 	{
 		if ($source instanceof self)
 		{
-			return array($source->value, $source->parameters);
+			return [ $source->value, $source->parameters ];
 		}
 
 		if (is_object($source) && method_exists($source, '__toString'))
@@ -137,16 +137,17 @@ abstract class Header implements \ArrayAccess
 		{
 			throw new \InvalidArgumentException(\ICanBoogie\format
 			(
-				"%var must be a string or an object implementing __toString(). Given: !data", array
-				(
+				"%var must be a string or an object implementing __toString(). Given: !data", [
+
 					'var' => 'source',
 					'data' => $source
-				)
+
+				]
 			));
 		}
 
 		$value_end = strpos($source, ';');
-		$parameters = array();
+		$parameters = [];
 
 		if ($value_end !== false)
 		{
@@ -170,7 +171,7 @@ abstract class Header implements \ArrayAccess
 			$value = $source;
 		}
 
-		return array($value, $parameters);
+		return [ $value, $parameters ];
 	}
 
 	/**
@@ -201,7 +202,7 @@ abstract class Header implements \ArrayAccess
 	{
 		if (!$this->offsetExists($attribute))
 		{
-			throw new OffsetNotDefined(array($attribute, $this));
+			throw new OffsetNotDefined([ $attribute, $this ]);
 		}
 
 		if ($value instanceof HeaderParameter)
@@ -226,7 +227,7 @@ abstract class Header implements \ArrayAccess
 	{
 		if (!$this->offsetExists($attribute))
 		{
-			throw new OffsetNotDefined(array($attribute, $this));
+			throw new OffsetNotDefined([ $attribute, $this ]);
 		}
 
 		return $this->parameters[$attribute];
@@ -242,7 +243,7 @@ abstract class Header implements \ArrayAccess
 	 * @param string $value
 	 * @param array $parameters
 	 */
-	public function __construct($value=null, array $parameters=array())
+	public function __construct($value=null, array $parameters=[])
 	{
 		$this->value = $value;
 
@@ -277,7 +278,7 @@ abstract class Header implements \ArrayAccess
 			return $this[$property]->value;
 		}
 
-		throw new PropertyNotDefined(array($property, $this));
+		throw new PropertyNotDefined([ $property, $this ]);
 	}
 
 	/**
@@ -306,7 +307,7 @@ abstract class Header implements \ArrayAccess
 			return;
 		}
 
-		throw new PropertyNotDefined(array($property, $this));
+		throw new PropertyNotDefined([ $property, $this ]);
 	}
 
 	/**
@@ -325,7 +326,7 @@ abstract class Header implements \ArrayAccess
 			return;
 		}
 
-		throw new PropertyNotDefined(array($property, $this));
+		throw new PropertyNotDefined([ $property, $this ]);
 	}
 
 	/**

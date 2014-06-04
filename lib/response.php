@@ -71,8 +71,8 @@ class Response
 	 *
 	 * @var array[int]string
 	 */
-	static public $status_messages = array
-	(
+	static public $status_messages = [
+
 		100 => "Continue",
 		101 => "Switching Protocols",
 
@@ -118,7 +118,8 @@ class Response
 		503 => "Service Unavailable",
 		504 => "Gateway Timeout",
 		505 => "HTTP Version Not Supported"
-	);
+
+	];
 
 	/**
 	 * Response headers.
@@ -142,7 +143,7 @@ class Response
 	 * @param int $status The status code of the response.
 	 * @param Headers|array $headers The initial header fields of the response.
 	 */
-	public function __construct($body=null, $status=200, $headers=array())
+	public function __construct($body=null, $status=200, $headers=[])
 	{
 		if (is_array($headers))
 		{
@@ -236,10 +237,11 @@ class Response
 		{
 			trigger_error(\ICanBoogie\format
 			(
-				"Cannot modify header information because it was already sent. Output started at !at.", array
-				(
+				"Cannot modify header information because it was already sent. Output started at !at.", [
+
 					'at' => $file . ':' . $line
-				)
+
+				]
 			));
 		}
 		else
@@ -825,7 +827,7 @@ class Response
 	 */
 	protected function get_is_empty()
 	{
-		static $range = array(201, 204, 304);
+		static $range = [ 201, 204, 304 ];
 
 		return in_array($this->status, $range);
 	}
@@ -854,7 +856,7 @@ class Response
 	 */
 	protected function get_is_cacheable()
 	{
-		static $range = array(200, 203, 300, 301, 302, 404, 410);
+		static $range = [ 200, 203, 300, 301, 302, 404, 410 ];
 
 		if (!in_array($this->status, $range))
 		{
@@ -908,7 +910,7 @@ class RedirectResponse extends Response
 	 *
 	 * @throws \InvalidArgumentException if the provided status code is not a redirect.
 	 */
-	public function __construct($url, $status=302, array $headers=array())
+	public function __construct($url, $status=302, array $headers=[])
 	{
 		parent::__construct
 		(
@@ -933,7 +935,7 @@ class RedirectResponse extends Response
 EOT;
 			},
 
-			$status, array('Location' => $url) + $headers
+			$status, [ 'Location' => $url ] + $headers
 		);
 
 		if (!$this->is_redirect)

@@ -39,7 +39,7 @@ class ContentDispositionHeader extends Header
 	/**
 	 * Defines the `filename` parameter.
 	 */
-	public function __construct($value=null, array $attributes=array())
+	public function __construct($value=null, array $attributes=[])
 	{
 		$this->parameters['filename'] = new HeaderParameter('filename');
 

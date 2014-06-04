@@ -44,7 +44,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	public function test_from_with_cache_control()
 	{
 		$v = "public, must-revalidate";
-		$r = Request::from(array('cache_control' => $v));
+		$r = Request::from([ 'cache_control' => $v ]);
 		$this->assertObjectNotHasAttribute('cache_control', $r);
 		$this->assertInstanceOf('ICanBoogie\HTTP\CacheControlHeader', $r->cache_control);
 		$this->assertEquals('public', $r->cache_control->cacheable);
@@ -54,7 +54,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	public function test_from_with_content_length()
 	{
 		$v = 123456789;
-		$r = Request::from(array('content_length' => $v));
+		$r = Request::from([ 'content_length' => $v ]);
 		$this->assertObjectNotHasAttribute('content_length', $r);
 		$this->assertEquals($v, $r->content_length);
 	}
@@ -64,25 +64,25 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_from_with_extension()
 	{
-		Request::from(array('extension' => '.png'));
+		Request::from([ 'extension' => '.png' ]);
 	}
 
 	public function test_from_with_ip()
 	{
 		$v = '192.168.13.69';
-		$r = Request::from(array('ip' => $v));
+		$r = Request::from([ 'ip' => $v ]);
 		$this->assertObjectNotHasAttribute('ip', $r);
 		$this->assertEquals($v, $r->ip);
 	}
 
 	public function test_from_with_is_delete()
 	{
-		$r = Request::from(array('is_delete' => true));
+		$r = Request::from([ 'is_delete' => true ]);
 		$this->assertObjectNotHasAttribute('is_delete', $r);
 		$this->assertEquals(Request::METHOD_DELETE, $r->method);
 		$this->assertTrue($r->is_delete);
 
-		$r = Request::from(array('is_delete' => false));
+		$r = Request::from([ 'is_delete' => false ]);
 		$this->assertObjectNotHasAttribute('is_delete', $r);
 		$this->assertEquals(Request::METHOD_GET, $r->method);
 		$this->assertFalse($r->is_delete);
@@ -90,12 +90,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	public function test_from_with_is_get()
 	{
-		$r = Request::from(array('is_get' => true));
+		$r = Request::from([ 'is_get' => true ]);
 		$this->assertObjectNotHasAttribute('is_get', $r);
 		$this->assertEquals(Request::METHOD_GET, $r->method);
 		$this->assertTrue($r->is_get);
 
-		$r = Request::from(array('is_get' => false));
+		$r = Request::from([ 'is_get' => false ]);
 		$this->assertObjectNotHasAttribute('is_get', $r);
 		$this->assertEquals(Request::METHOD_GET, $r->method);
 		$this->assertTrue($r->is_get);
@@ -103,12 +103,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	public function test_from_with_is_head()
 	{
-		$r = Request::from(array('is_head' => true));
+		$r = Request::from([ 'is_head' => true ]);
 		$this->assertObjectNotHasAttribute('is_head', $r);
 		$this->assertEquals(Request::METHOD_HEAD, $r->method);
 		$this->assertTrue($r->is_head);
 
-		$r = Request::from(array('is_head' => false));
+		$r = Request::from([ 'is_head' => false ]);
 		$this->assertObjectNotHasAttribute('is_head', $r);
 		$this->assertEquals(Request::METHOD_GET, $r->method);
 		$this->assertFalse($r->is_head);
@@ -116,23 +116,23 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	public function test_from_with_is_local()
 	{
-		$r = Request::from(array('is_local' => true));
+		$r = Request::from([ 'is_local' => true ]);
 		$this->assertObjectNotHasAttribute('is_local', $r);
 		$this->assertTrue($r->is_local);
 
-		$r = Request::from(array('is_local' => false));
+		$r = Request::from([ 'is_local' => false ]);
 		$this->assertObjectNotHasAttribute('is_local', $r);
 		$this->assertTrue($r->is_local); // yes is_local is `true` even if it was defined as `false`, that's because IP is not defined.
 	}
 
 	public function test_from_with_is_options()
 	{
-		$r = Request::from(array('is_options' => true));
+		$r = Request::from([ 'is_options' => true ]);
 		$this->assertObjectNotHasAttribute('is_options', $r);
 		$this->assertEquals(Request::METHOD_OPTIONS, $r->method);
 		$this->assertTrue($r->is_options);
 
-		$r = Request::from(array('is_options' => false));
+		$r = Request::from([ 'is_options' => false ]);
 		$this->assertObjectNotHasAttribute('is_options', $r);
 		$this->assertEquals(Request::METHOD_GET, $r->method);
 		$this->assertFalse($r->is_options);
@@ -140,12 +140,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	public function test_from_with_is_patch()
 	{
-		$r = Request::from(array('is_patch' => true));
+		$r = Request::from([ 'is_patch' => true ]);
 		$this->assertObjectNotHasAttribute('is_patch', $r);
 		$this->assertEquals(Request::METHOD_PATCH, $r->method);
 		$this->assertTrue($r->is_patch);
 
-		$r = Request::from(array('is_patch' => false));
+		$r = Request::from([ 'is_patch' => false ]);
 		$this->assertObjectNotHasAttribute('is_patch', $r);
 		$this->assertEquals(Request::METHOD_GET, $r->method);
 		$this->assertFalse($r->is_patch);
@@ -153,12 +153,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	public function test_from_with_is_post()
 	{
-		$r = Request::from(array('is_post' => true));
+		$r = Request::from([ 'is_post' => true ]);
 		$this->assertObjectNotHasAttribute('is_post', $r);
 		$this->assertEquals(Request::METHOD_POST, $r->method);
 		$this->assertTrue($r->is_post);
 
-		$r = Request::from(array('is_post' => false));
+		$r = Request::from([ 'is_post' => false ]);
 		$this->assertObjectNotHasAttribute('is_post', $r);
 		$this->assertEquals(Request::METHOD_GET, $r->method);
 		$this->assertFalse($r->is_post);
@@ -166,12 +166,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	public function test_from_with_is_put()
 	{
-		$r = Request::from(array('is_put' => true));
+		$r = Request::from([ 'is_put' => true ]);
 		$this->assertObjectNotHasAttribute('is_put', $r);
 		$this->assertEquals(Request::METHOD_PUT, $r->method);
 		$this->assertTrue($r->is_put);
 
-		$r = Request::from(array('is_put' => false));
+		$r = Request::from([ 'is_put' => false ]);
 		$this->assertObjectNotHasAttribute('is_put', $r);
 		$this->assertEquals(Request::METHOD_GET, $r->method);
 		$this->assertFalse($r->is_put);
@@ -179,12 +179,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	public function test_from_with_is_trace()
 	{
-		$r = Request::from(array('is_trace' => true));
+		$r = Request::from([ 'is_trace' => true ]);
 		$this->assertObjectNotHasAttribute('is_trace', $r);
 		$this->assertEquals(Request::METHOD_TRACE, $r->method);
 		$this->assertTrue($r->is_trace);
 
-		$r = Request::from(array('is_trace' => false));
+		$r = Request::from([ 'is_trace' => false ]);
 		$this->assertObjectNotHasAttribute('is_trace', $r);
 		$this->assertEquals(Request::METHOD_GET, $r->method);
 		$this->assertFalse($r->is_trace);
@@ -192,25 +192,25 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	public function test_from_with_is_xhr()
 	{
-		$r = Request::from(array('is_xhr' => true));
+		$r = Request::from([ 'is_xhr' => true ]);
 		$this->assertObjectNotHasAttribute('is_xhr', $r);
 		$this->assertTrue($r->is_xhr);
 
-		$r = Request::from(array('is_xhr' => false));
+		$r = Request::from([ 'is_xhr' => false ]);
 		$this->assertObjectNotHasAttribute('is_xhr', $r);
 		$this->assertFalse($r->is_xhr);
 	}
 
 	public function test_from_with_method()
 	{
-		$r = Request::from(array('method' => Request::METHOD_OPTIONS));
+		$r = Request::from([ 'method' => Request::METHOD_OPTIONS ]);
 		$this->assertObjectNotHasAttribute('method', $r);
 		$this->assertEquals(Request::METHOD_OPTIONS, $r->method);
 	}
 
 	public function test_from_with_path()
 	{
-		$r = Request::from(array('path' => '/path/'));
+		$r = Request::from([ 'path' => '/path/' ]);
 		$this->assertObjectNotHasAttribute('path', $r);
 		$this->assertEquals('/path/', $r->path);
 
@@ -224,7 +224,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_from_with_previous()
 	{
-		Request::from(array('previous' => true));
+		Request::from([ 'previous' => true ]);
 	}
 
 	/**
@@ -232,13 +232,13 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_from_with_query_string()
 	{
-		Request::from(array('query_string' => true));
+		Request::from([ 'query_string' => true ]);
 	}
 
 	public function test_from_with_referer()
 	{
 		$v = 'http://example.org/referer/';
-		$r = Request::from(array('referer' => $v));
+		$r = Request::from([ 'referer' => $v ]);
 		$this->assertObjectNotHasAttribute('referer', $r);
 		$this->assertEquals($v, $r->referer);
 	}
@@ -248,13 +248,13 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_from_with_script_name()
 	{
-		Request::from(array('script_name' => true));
+		Request::from([ 'script_name' => true ]);
 	}
 
 	public function test_from_with_uri()
 	{
 		$v = '/uri/';
-		$r = Request::from(array('uri' => $v));
+		$r = Request::from([ 'uri' => $v ]);
 		$this->assertObjectNotHasAttribute('uri', $r);
 		$this->assertEquals($v, $r->uri);
 
@@ -293,7 +293,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	public function test_from_with_user_agent()
 	{
-		$r = Request::from(array('user_agent' => 'Madonna'));
+		$r = Request::from([ 'user_agent' => 'Madonna' ]);
 		$this->assertObjectNotHasAttribute('user_agent', $r);
 		$this->assertEquals('Madonna', $r->user_agent);
 	}
