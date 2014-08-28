@@ -85,11 +85,6 @@ $method = $request->params['method'];
 $info = $request->params['info'];
 ```
 
-
-
-
-### The request as an array
-
 The request parameters are also available by using the request as an array, in which case
 accessing undefined parameters simply returns `null`:
 
