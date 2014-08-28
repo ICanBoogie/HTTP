@@ -66,31 +66,22 @@ class CacheControlHeader
 	 *
 	 * @return array[string]mixed
 	 */
-	static private function get_default_values()
+	static protected function get_default_values()
 	{
-		$class = get_called_class();
+		return [
 
-		if (isset(self::$default_values[$class]))
-		{
-			return self::$default_values[$class];
-		}
+			'no_store' => false,
+			'max_age' => null,
+			's_maxage' => null,
+			'max_stale' => null,
+			'min_fresh' => null,
+			'no_transform' => false,
+			'only_if_cached' => false,
+			'must_revalidate' => false,
+			'proxy_revalidate' => false,
+			'extensions' => []
 
-		$reflection = new \ReflectionClass($class);
-		$default_values = [];
-
-		foreach ($reflection->getDefaultProperties() as $property => $default_value)
-		{
-			$property_reflection = new \ReflectionProperty($class, $property);
-
-			if ($property_reflection->isStatic() || !$property_reflection->isPublic())
-			{
-				continue;
-			}
-
-			$default_values[$property] = $default_value;
-		}
-
-		return self::$default_values[$class] = $default_values;
+		];
 	}
 
 	/**
