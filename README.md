@@ -607,14 +607,33 @@ controller for the `GET` method is good enough.
 
 The following exceptions are defined by the HTTP package:
 
-* [HTTPError](http://icanboogie.org/docs/class-ICanBoogie.HTTP.HTTPError.html): Base class for HTTP exceptions.
-* [NotFound][]: Exception thrown when a resource is not found. For instance, this exception is
+* [NotFound][]: thrown when a resource is not found. For instance, this exception is
 thrown by the dispatcher when it fails to resolve a request into a response.
-* [ForceRedirect][]: Exception thrown when a redirect is absolutely required.
-* [ServiceUnavailable](http://icanboogie.org/docs/class-ICanBoogie.HTTP.ServiceUnavailable.html): Exception thrown when the server is currently unavailable
+* [ForceRedirect][]: thrown when a redirect is absolutely required.
+* [ServiceUnavailable](http://icanboogie.org/docs/class-ICanBoogie.HTTP.ServiceUnavailable.html): thrown when a server is currently unavailable
 (because it is overloaded or down for maintenance).
-* [MethodNotSupported](http://icanboogie.org/docs/class-ICanBoogie.HTTP.MethodNotSupported.html): Exception thrown when a HTTP method is not supported.
-* [StatusCodeNotValid](http://icanboogie.org/docs/class-ICanBoogie.HTTP.StatusCodeNotValid.html): Exception thrown when a HTTP status code is not valid.
+* [MethodNotSupported](http://icanboogie.org/docs/class-ICanBoogie.HTTP.MethodNotSupported.html): thrown when a HTTP method is not supported.
+* [StatusCodeNotValid](http://icanboogie.org/docs/class-ICanBoogie.HTTP.StatusCodeNotValid.html): thrown when a HTTP status code is not valid.
+
+All the exceptions defined by the package implement the `ICanBoogie\HTTP\Exception` interface.
+Using this interface one can easily catch HTTP related exceptions:
+
+```php
+<?php
+
+try
+{
+	// …
+}
+catch (\ICanBoogie\HTTP\Exception $e)
+{
+	// HTTP exception types
+}
+catch (\Exception $e)
+{
+	// Other exception types
+}
+```
 
 
 
