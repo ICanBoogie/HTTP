@@ -54,7 +54,7 @@ use ICanBoogie\PropertyNotWritable;
  *
  * @property-read boolean $authorization Authorization of the request.
  * @property-read int $content_length Length of the request content.
- * @property-read int $cache_control A {@link \ICanBoogie\HTTP\CacheControlHeader} object.
+ * @property-read int $cache_control A {@link \ICanBoogie\HTTP\Headers\CacheControl} object.
  * @property-read string $ip Remote IP of the request.
  * @property-read boolean $is_delete Is this a `DELETE` request?
  * @property-read boolean $is_get Is this a `GET` request?
@@ -496,7 +496,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * Returns the `Cache-Control` header.
 	 *
-	 * @return \ICanBoogie\HTTP\CacheControlHeader
+	 * @return \ICanBoogie\HTTP\Headers\CacheControl
 	 */
 	protected function get_cache_control()
 	{
@@ -843,7 +843,7 @@ use ICanBoogie\PropertyNotWritable;
  * request.
  *
  * @property-read \ICanBoogie\HTTP\Request $request The request associated with the context.
- * @property-read \ICanBoogie\HTTP\IDispatcher $dispatcher The dispatcher currently dispatching the request.
+ * @property-read \ICanBoogie\HTTP\DispatcherInterface $dispatcher The dispatcher currently dispatching the request.
  */
 class Context extends \ICanBoogie\Object
 {
@@ -860,7 +860,7 @@ class Context extends \ICanBoogie\Object
 	/**
 	 * The dispatcher currently dispatching the request.
 	 *
-	 * @var \ICanBoogie\HTTP\IDispatcher|null
+	 * @var \ICanBoogie\HTTP\DispatcherInterface|null
 	 */
 	private $dispatcher;
 
@@ -887,15 +887,15 @@ class Context extends \ICanBoogie\Object
 	/**
 	 * Sets the dispatcher currently dispatching the request.
 	 *
-	 * @param \ICanBoogie\HTTP\IDispatcher|null $dispatcher
+	 * @param \ICanBoogie\HTTP\DispatcherInterface|null $dispatcher
 	 *
-	 * @throws \InvalidArgumentException if the value is not null and does not implements \ICanBoogie\HTTP\IDispatcher.
+	 * @throws \InvalidArgumentException if the value is not null and does not implements \ICanBoogie\HTTP\DispatcherInterface.
 	 */
 	protected function set_dispatcher($dispatcher)
 	{
-		if ($dispatcher !== null && !($dispatcher instanceof \ICanBoogie\HTTP\IDispatcher))
+		if ($dispatcher !== null && !($dispatcher instanceof \ICanBoogie\HTTP\DispatcherInterface))
 		{
-			throw new \InvalidArgumentException('$dispatcher must be an instance of ICanBoogie\HTTP\IDispatcher. Given: ' . get_class($dispatcher) . '.');
+			throw new \InvalidArgumentException('$dispatcher must be an instance of ICanBoogie\HTTP\DispatcherInterface. Given: ' . get_class($dispatcher) . '.');
 		}
 
 		$this->dispatcher = $dispatcher;
@@ -904,7 +904,7 @@ class Context extends \ICanBoogie\Object
 	/**
 	 * Returns the {@link $dispatcher} property.
 	 *
-	 * @return \ICanBoogie\HTTP\IDispatcher
+	 * @return \ICanBoogie\HTTP\DispatcherInterface
 	 */
 	protected function get_dispatcher()
 	{

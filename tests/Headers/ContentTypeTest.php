@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP;
+namespace ICanBoogie\HTTP\Headers;
 
 class ContentTypeTest extends \PHPUnit_Framework_TestCase
 {
@@ -18,9 +18,9 @@ class ContentTypeTest extends \PHPUnit_Framework_TestCase
      */
 	public function test_from($source, $values)
 	{
-		$h = ContentTypeHeader::from($source);
+		$h = ContentType::from($source);
 
-		$this->assertInstanceOf('ICanBoogie\HTTP\ContentTypeHeader', $h);
+		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\ContentType', $h);
 		$this->assertEquals($values[0], $h->value);
 		$this->assertEquals($values[0], $h->type);
 		$this->assertEquals($values[1], $h->charset);
@@ -57,7 +57,7 @@ class ContentTypeTest extends \PHPUnit_Framework_TestCase
 
 	public function test_attributes()
 	{
-		$content_type = new ContentTypeHeader;
+		$content_type = new ContentType;
 
 		$this->assertNull($content_type->type);
 		$this->assertNull($content_type->charset);

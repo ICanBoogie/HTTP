@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP;
+namespace ICanBoogie\HTTP\Headers;
 
 /**
  * A date time object that renders into a string formatted for HTTP header fields.
  *
  * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3.1
  */
-class DateHeader extends \ICanBoogie\DateTime
+class Date extends \ICanBoogie\DateTime
 {
 	static public function from($source, $timezone=null)
 	{
@@ -29,7 +29,7 @@ class DateHeader extends \ICanBoogie\DateTime
 	}
 
 	/**
-	 * Returns a new {@link DateHeader} object.
+	 * Constructor.
 	 *
 	 * @param string|int|\DateTime $time If time is provided as a numeric value it is used as
 	 * "@{$time}" and the time zone is set to UTC.

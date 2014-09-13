@@ -25,7 +25,9 @@
 		"icanboogie/datetime": "*"
 	},
 	"autoload": {
-		"classmap": [ "lib/" ],
-		"files": [ "lib/helpers.php" ]
+		"psr-4": {
+			"ICanBoogie\\HTTP\\": "lib/"
+		},
+		"files": [ "helpers.php" ]
 	}
 }

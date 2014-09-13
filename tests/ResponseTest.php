@@ -9,9 +9,8 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\Tests\HTTP\Response;
+namespace ICanBoogie\HTTP;
 
-use ICanBoogie\HTTP\Response;
 use ICanBoogie\DateTime;
 
 class ResponseTest extends \PHPUnit_Framework_TestCase
@@ -46,11 +45,11 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	public function test_date()
 	{
 		$r = new Response;
-		$this->assertInstanceOf('ICanBoogie\HTTP\DateHeader', $r->date);
+		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\Date', $r->date);
 		$this->assertTrue(DateTime::now() == $r->date);
 
 		$r->date = 'now';
-		$this->assertInstanceOf('ICanBoogie\HTTP\DateHeader', $r->date);
+		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\Date', $r->date);
 		$this->assertEquals('UTC', $r->date->zone->name);
 		$this->assertTrue(DateTime::now() == $r->date);
 	}

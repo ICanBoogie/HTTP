@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP;
+namespace ICanBoogie\HTTP\Headers;
 
 use ICanBoogie\OffsetNotDefined;
 use ICanBoogie\PropertyNotDefined;
@@ -21,6 +21,8 @@ use ICanBoogie\PropertyNotDefined;
  *
  * <pre>
  * <?php
+ *
+ * namespace ICanBoogie\HTTP\Headers;
  *
  * class ContentDisposition extends Header
  * {

@@ -25,19 +25,19 @@ use ICanBoogie\PropertyNotWritable;
  *
  * @property int $age Shortcut to the `Age` header field definition.
  * See: {@link set_age()} {@link get_age()}
- * @property \ICanBoogie\HTTP\CacheControlHeader $cache_control Shortcut to the `Cache-Control` header field definition.
+ * @property \ICanBoogie\HTTP\Headers\CacheControl $cache_control Shortcut to the `Cache-Control` header field definition.
  * See: {@link set_cache_control()} {@link get_cache_control()}
  * @property int $content_length Shortcut to the `Content-Length` header field definition.
  * See: {@link set_content_length()} {@link get_content_length()}
- * @property \ICanBoogie\HTTP\ContentTypeHeader $content_type Shortcut to the `Content-Type` header field definition.
+ * @property \ICanBoogie\HTTP\Headers\ContentType $content_type Shortcut to the `Content-Type` header field definition.
  * See: {@link set_content_type()} {@link get_content_type()}
- * @property \ICanBoogie\HTTP\DateHeader $date Shortcut to the `Date` header field definition.
+ * @property \ICanBoogie\HTTP\Headers\Date $date Shortcut to the `Date` header field definition.
  * See: {@link set_date()} {@link get_date()}
  * @property string $etag Shortcut to the `Etag` header field definition.
  * See: {@link set_etag()} {@link get_etag()}
- * @property \ICanBoogie\HTTP\DateHeader $expires Shortcut to the `Expires` header field definition.
+ * @property \ICanBoogie\HTTP\Headers\Date $expires Shortcut to the `Expires` header field definition.
  * See: {@link set_expires()} {@link get_expires()}
- * @property \ICanBoogie\HTTP\DateHeader $last_modified Shortcut to the `Last-Modified` header field definition.
+ * @property \ICanBoogie\HTTP\Headers\Date $last_modified Shortcut to the `Last-Modified` header field definition.
  * See: {@link set_last_modified()} {@link get_last_modified()}
  * @property string $location Shortcut to the `Location` header field definition.
  * See: {@link set_location()} {@link get_location()}
@@ -518,7 +518,7 @@ class Response
 	/**
 	 * Returns the value of the `Date` header field.
 	 *
-	 * @return Headers\DateHeader
+	 * @return Headers\Date
 	 */
 	protected function get_date()
 	{
@@ -565,7 +565,7 @@ class Response
 	/**
 	 * Returns the value of the `Last-Modified` header field.
 	 *
-	 * @return Headers\DateHeader
+	 * @return Headers\Date
 	 */
 	protected function get_last_modified()
 	{
@@ -589,7 +589,7 @@ class Response
 	/**
 	 * Returns the value of the `Expires` header field.
 	 *
-	 * @return Headers\DateHeader
+	 * @return Headers\Date
 	 */
 	protected function get_expires()
 	{
@@ -629,7 +629,7 @@ class Response
 	/**
 	 * Returns the `Cache-Control` header field.
 	 *
-	 * @return \ICanBoogie\HTTP\CacheControlHeader
+	 * @return \ICanBoogie\HTTP\Headers\CacheControl
 	 */
 	protected function get_cache_control()
 	{

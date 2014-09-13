@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP;
+namespace ICanBoogie\HTTP\Headers;
 
 /**
  * Representation of the `Content-Type` header field.
@@ -17,7 +17,7 @@ namespace ICanBoogie\HTTP;
  * <pre>
  * <?php
  *
- * use ICanBoogie\HTTP\ContentTypeHeader;
+ * use ICanBoogie\HTTP\Headers\ContentType;
  *
  * $ct = new ContentType;
  * $ct->type = "text/html";
@@ -34,7 +34,7 @@ namespace ICanBoogie\HTTP;
  *
  * @see http://tools.ietf.org/html/rfc2616#section-14.17
  */
-class ContentTypeHeader extends Header
+class ContentType extends Header
 {
 	const VALUE_ALIAS = 'type';
 

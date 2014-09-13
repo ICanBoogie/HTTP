@@ -254,8 +254,7 @@ string of the `mail()` command.
 
 ### Content-Type header
 
-The `Content-Type` header is represented by a [ContentTypeHeader](http://icanboogie.org/docs/class-ICanBoogie.HTTP.ContentTypeHeader.html)
-instance making it easily manipulate.
+The `Content-Type` header is represented by a [ContentType][] instance making it easily manipulate.
 
 ```php
 <?php
@@ -276,8 +275,8 @@ echo $response->headers['Content-Type']; // application/xml; charset=utf-8
 
 ### Content-Disposition header
 
-The `Content-Disposition` header is represented by a [ContentDispositionHeader](http://icanboogie.org/docs/class-ICanBoogie.HTTP.ContentDispositionHeader.html)
-instance making it easily manipulate. Accentuated filenames are supported.
+The `Content-Disposition` header is represented by a [ContentDisposition][] instance making it
+easily manipulate. Accentuated filenames are supported.
 
 ```php
 <?php
@@ -296,10 +295,10 @@ echo $response->headers['Content-Disposition']; // attachment; filename="ete.jpg
 
 ### Cache-Control header
 
-The `Cache-Control` header is represented by a [CacheControlHeader](http://icanboogie.org/docs/class-ICanBoogie.HTTP.CacheControlHeader.html)
-instance making it easily manipulable. Directives can be set at once using a plain string,
-or individually using the properties of the [CacheControlHeader](http://icanboogie.org/docs/class-ICanBoogie.HTTP.CacheControlHeader.html) instance.
-Directives of the [rfc2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html) are supported.
+The `Cache-Control` header is represented by a [CacheControl][] instance making it easily
+manipulable. Directives can be set at once using a plain string, or individually using the
+properties of the [CacheControl] instance. Directives of the
+[rfc2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html) are supported.
 
 ```php
 <?php
@@ -355,7 +354,7 @@ relies on dispatcher plugins and events.
 ### Dispatcher plugins
 
 Wrapped in the comfort of the dispatcher, dispatcher plugins are the ones who really handle the
-requests. They may be instances of classes implementing the [IDispatcher][] interface or
+requests. They may be instances of classes implementing the [DispatcherInterface][] interface or
 callables, and they usually handle a very specific type of request.
 
 As an example, the following dispatcher plugins are used by the CMS Icybee:
@@ -797,9 +796,12 @@ ICanBoogie/HTTP is licensed under the New BSD License - See the [LICENSE](LICENS
 
 
 [BeforeDispatchEvent]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.BeforeDispatchEvent.html
+[CacheControl]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Headers.CacheControl.html
+[ContentDisposition]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Headers.ContentDisposition.html
+[ContentType]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Headers.ContentType.html
 [DispatchEvent]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.DispatchEvent.html
 [Dispatcher]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.html
-[IDispatcher]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.IDispatcher.html
+[DispatcherInterface]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.DispatcherInterface.html
 [Response]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Response.html
 [RedirectResponse]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.RedirectResponse.html
 [NotFound]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.NotFound.html

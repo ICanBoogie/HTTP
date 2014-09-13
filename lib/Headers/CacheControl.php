@@ -9,16 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP;
+namespace ICanBoogie\HTTP\Headers;
 
 use ICanBoogie\PropertyNotDefined;
+
 /**
  * Representation of the `Cache-Control` header field.
  *
  * <pre>
  * <?php
  *
- * use ICanBoogie\HTTP\CacheControlHeader;
+ * use ICanBoogie\HTTP\Headers\CacheControl;
  *
  * $cc = CacheControl::from('public, max-age=3600');
  * echo $cc->cacheable;           // true
@@ -33,7 +34,7 @@ use ICanBoogie\PropertyNotDefined;
  *
  * @see http://tools.ietf.org/html/rfc2616#section-14.9
  */
-class CacheControlHeader
+class CacheControl
 {
 	static protected $cacheable_values = [
 
@@ -140,7 +141,7 @@ class CacheControlHeader
 	 *
 	 * @param string $source
 	 *
-	 * @return \ICanBoogie\HTTP\CacheControlHeader
+	 * @return CacheControl
 	 */
 	static public function from($source)
 	{

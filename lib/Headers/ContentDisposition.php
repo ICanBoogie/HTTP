@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP;
+namespace ICanBoogie\HTTP\Headers;
 
 /**
  * Representation of the `Content-Disposition` header field.
@@ -17,7 +17,7 @@ namespace ICanBoogie\HTTP;
  * <pre>
  * <?php
  *
- * use ICanBoogie\HTTP\ContentDispositionHeader;
+ * use ICanBoogie\HTTP\Headers\ContentDisposition;
  *
  * $cd = new ContentDisposition;
  * $cd->type = attachment;
@@ -32,7 +32,7 @@ namespace ICanBoogie\HTTP;
  * @see http://tools.ietf.org/html/rfc2616#section-19.5.1
  * @see http://tools.ietf.org/html/rfc6266
  */
-class ContentDispositionHeader extends Header
+class ContentDisposition extends Header
 {
 	const VALUE_ALIAS = 'type';
 

@@ -9,14 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\Tests\HTTP\Dispatcher;
-
-use ICanBoogie\HTTP\WeightedDispatcher;
+namespace ICanBoogie\HTTP;
 
 use ICanBoogie\Events;
-use ICanBoogie\HTTP\Dispatcher;
-use ICanBoogie\HTTP\Request;
-use ICanBoogie\HTTP\Response;
 
 class DispatcherTest extends \PHPUnit_Framework_TestCase
 {

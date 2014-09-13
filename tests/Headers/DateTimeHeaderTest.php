@@ -9,18 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP;
+namespace ICanBoogie\HTTP\Headers;
 
 use ICanBoogie\DateTime;
 
-class DateTimeHeaderTest extends \PHPUnit_Framework_TestCase
+class DateTest extends \PHPUnit_Framework_TestCase
 {
 	/**
 	 * @dataProvider provider_test_to_string
 	 */
 	public function test_to_string($expected, $datetime)
 	{
-		$field = DateHeader::from($datetime);
+		$field = Date::from($datetime);
 
 		$this->assertEquals($expected, (string) $field);
 	}

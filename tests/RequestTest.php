@@ -46,7 +46,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$v = "public, must-revalidate";
 		$r = Request::from([ 'cache_control' => $v ]);
 		$this->assertObjectNotHasAttribute('cache_control', $r);
-		$this->assertInstanceOf('ICanBoogie\HTTP\CacheControlHeader', $r->cache_control);
+		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\CacheControl', $r->cache_control);
 		$this->assertEquals('public', $r->cache_control->cacheable);
 		$this->assertTrue($r->cache_control->must_revalidate);
 	}

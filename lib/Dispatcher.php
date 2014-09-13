@@ -20,7 +20,7 @@ namespace ICanBoogie\HTTP;
  * - `ICanBoogie\HTTP\Dispatcher::dispatch`: {@link Dispatcher\DispatchEvent}.
  * - `ICanBoogie\HTTP\Dispatcher::rescue`: {@link ICanBoogie\Exception\RescueEvent}.
  */
-class Dispatcher implements \ArrayAccess, \IteratorAggregate, IDispatcher
+class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterface
 {
 	/**
 	 * The dispatchers called during the dispatching of the request.
@@ -182,8 +182,8 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, IDispatcher
 	 *
 	 * The method iterates over the defined dispatchers until one of them returns a
 	 * {@link Response} instance. If an exception is throw during the dispatcher execution and
-	 * the dispatcher implements the {@link IDispatcher} interface then its
-	 * {@link IDispatcher::rescue} method is invoked to rescue the exception, otherwise the
+	 * the dispatcher implements the {@link DispatcherInterface} interface then its
+	 * {@link DispatcherInterface::rescue} method is invoked to rescue the exception, otherwise the
 	 * exception is just rethrown.
 	 *
 	 * {@link Dispatcher\BeforeDispatchEvent} is fired before dispatchers are traversed. If a
@@ -227,7 +227,7 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, IDispatcher
 				}
 				catch (\Exception $e)
 				{
-					if (!($dispatcher instanceof IDispatcher))
+					if (!($dispatcher instanceof DispatcherInterface))
 					{
 						throw $e;
 					}
@@ -299,35 +299,9 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, IDispatcher
 }
 
 /**
- * Dispatcher interface.
- */
-interface IDispatcher
-{
-	/**
-	 * Process the request.
-	 *
-	 * @param Request $request
-	 *
-	 * @return Response A response to the tequest.
-	 */
-	public function __invoke(Request $request);
-
-	/**
-	 * Rescues the exception that was thrown during the request process.
-	 *
-	 * @param \Exception $exception
-	 *
-	 * @return Response A response to the request exception.
-	 *
-	 * @throws \Exception when the request exception cannot be rescued.
-	 */
-	public function rescue(\Exception $exception, Request $request);
-}
-
-/**
  * Wrapper for callable dispatchers.
  */
-class CallableDispatcher implements IDispatcher
+class CallableDispatcher implements DispatcherInterface
 {
 	private $callable;
 
@@ -347,118 +321,9 @@ class CallableDispatcher implements IDispatcher
 	}
 }
 
-/**
- * Used to defined a dispatcher and its weight.
- *
- * <pre>
- * <?php
- *
- * $dispatcher['my'] = new WeightedDispatcher('callback', 'before:that_other_dispatcher');
- * </pre>
- */
-class WeightedDispatcher
-{
-	public $dispatcher;
-
-	public $weight;
-
-	public function __construct($dispatcher, $weight)
-	{
-		$this->dispatcher = $dispatcher;
-		$this->weight = $weight;
-	}
-}
-
 /*
  * Events
  */
-
-namespace ICanBoogie\HTTP\Dispatcher;
-
-use ICanBoogie\HTTP\Dispatcher;
-use ICanBoogie\HTTP\Response;
-use ICanBoogie\HTTP\Request;
-
-/**
- * Event class for the `ICanBoogie\HTTP\Dispatcher::dispatch:before` event.
- *
- * Third parties may use this event to provide a response to the request before the dispatchers
- * are invoked. The event is usually used by third parties to redirect requests or provide cached
- * responses.
- */
-class BeforeDispatchEvent extends \ICanBoogie\Event
-{
-	/**
-	 * The request.
-	 *
-	 * @var Request
-	 */
-	public $request;
-
-	/**
-	 * Reference to the response.
-	 *
-	 * @var Response
-	 */
-	public $response;
-
-	/**
-	 * The event is constructed with the type `dispatch:before`.
-	 *
-	 * @param Dispatcher $target.
-	 * @param Request The request.
-	 * @param Response|null Reference to the response.
-	 */
-	public function __construct(Dispatcher $target, Request $request, &$response)
-	{
-		if ($response !== null && !($response instanceof Response))
-		{
-			throw new \InvalidArgumentException('$response must be an instance of ICanBoogie\HTTP\Response. Given: ' . get_class($response) . '.');
-		}
-
-		$this->request = $request;
-		$this->response = &$response;
-
-		parent::__construct($target, 'dispatch:before');
-	}
-}
-
-/**
- * Event class for the `ICanBoogie\HTTP\Dispatcher::dispatch` event.
- *
- * Third parties may use this event to alter the response before it is returned by the dispatcher.
- */
-class DispatchEvent extends \ICanBoogie\Event
-{
-	/**
-	 * The request.
-	 *
-	 * @var Request
-	 */
-	public $request;
-
-	/**
-	 * Reference to the response.
-	 *
-	 * @var Response
-	 */
-	public $response;
-
-	/**
-	 * The event is constructed with the type `dispatch`.
-	 *
-	 * @param Dispatcher $target.
-	 * @param Request The request.
-	 * @param Response|null Reference to the response.
-	 */
-	public function __construct(Dispatcher $target, Request $request, &$response)
-	{
-		$this->request = $request;
-		$this->response = &$response;
-
-		parent::__construct($target, 'dispatch');
-	}
-}
 
 namespace ICanBoogie\Exception;
 

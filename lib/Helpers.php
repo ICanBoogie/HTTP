@@ -104,37 +104,3 @@ class Helpers
 		return $request;
 	}
 }
-
-/**
- * Dispatches a request.
- *
- * @param Request $request
- *
- * @return Response
- */
-function dispatch(Request $request)
-{
-	return Helpers::dispatch($request);
-}
-
-/**
- * Returns shared request dispatcher.
- *
- * @return Dispatcher
- */
-function get_dispatcher()
-{
-	return Helpers::get_dispatcher();
-}
-
-/**
- * Returns the initial request.
- *
- * The initial request is created once from the `$_SERVER` array.
- *
- * @return Request
- */
-function get_initial_request()
-{
-	return Helpers::get_initial_request();
-}
