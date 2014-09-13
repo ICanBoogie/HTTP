@@ -207,7 +207,7 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 
 		if (!$response)
 		{
-			foreach ($this as $id => &$dispatcher) // MOVE some to AGGREGATE
+			foreach ($this as $id => $dispatcher) // MOVE some to AGGREGATE
 			{
 				#
 				# If the dispatcher is not a callable then it is considered as a class name, which
@@ -216,7 +216,7 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 
 				if (!($dispatcher instanceof CallableDispatcher))
 				{
-					$dispatcher = is_callable($dispatcher) ? new CallableDispatcher($dispatcher) : new $dispatcher;
+					$this->dispatchers[$id] = $dispatcher = is_callable($dispatcher) ? new CallableDispatcher($dispatcher) : new $dispatcher;
 				}
 
 				try
