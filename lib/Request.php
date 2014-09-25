@@ -406,6 +406,16 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
+	 * Alias to {@link __invoke()}.
+	 *
+	 * @see __invoke
+	 */
+	public function send($method=null, $params=null)
+	{
+		return $this($method, $params);
+	}
+
+	/**
 	 * Overrides the method to provide a virtual method for each request method.
 	 *
 	 * Example:
