@@ -28,6 +28,13 @@
 		"psr-4": {
 			"ICanBoogie\\HTTP\\": "lib/"
 		},
+
+		"classmap": [
+
+			"lib/RescueEvent.php"
+
+		],
+
 		"files": [ "helpers.php" ]
 	}
 }
