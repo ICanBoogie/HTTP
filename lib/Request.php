@@ -248,6 +248,11 @@ class Request implements \ArrayAccess, \IteratorAggregate
 			], $_SERVER);
 		}
 
+		if (is_object($properties) && method_exists($properties, '__toString'))
+		{
+			$properties = (string) $properties;
+		}
+
 		if (is_string($properties))
 		{
 			return static::from([
