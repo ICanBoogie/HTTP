@@ -35,7 +35,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	{
 		$properties = 'authorization content_length cache_control context extension ip'
 		. ' is_delete is_get is_head is_local is_options is_patch is_post is_put is_trace is_xhr'
-		. ' normalized_path method path port previous query_string referer script_name uri'
+		. ' normalized_path method path port parent query_string referer script_name uri'
 		. ' user_agent files';
 
 		return array_map(function($v) { return (array) $v; }, explode(' ', $properties));
@@ -222,9 +222,9 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * @expectedException \InvalidArgumentException
 	 */
-	public function test_from_with_previous()
+	public function test_from_with_parent()
 	{
-		Request::from([ 'previous' => true ]);
+		Request::from([ 'parent' => true ]);
 	}
 
 	/**

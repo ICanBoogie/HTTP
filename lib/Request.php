@@ -49,7 +49,7 @@ use ICanBoogie\PropertyNotWritable;
  * @method Response trace() trace(array $params)
  *
  * @property-read \ICanBoogie\HTTP\Request\Context $context the request's context.
- * @property-read Request $previous Previous request.
+ * @property-read Request $parent Parent request.
  * @property-read FileList $files The files associated with the request.
  *
  * @property-read boolean $authorization Authorization of the request.
@@ -197,11 +197,11 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	public $cookie;
 
 	/**
-	 * Previous request.
+	 * Parent request.
 	 *
 	 * @var Request
 	 */
-	protected $previous;
+	protected $parent;
 
 	/**
 	 * A request can be created from the `$_SERVER` super global array. In that case `$_SERVER` is
@@ -368,7 +368,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * Dispatch the request.
 	 *
-	 * The {@link previous} property is used for request chaining. The {@link $current_request}
+	 * The {@link parent} property is used for request chaining. The {@link $current_request}
 	 * class property is set to the current request.
 	 *
 	 * @param string|null $method The request method. Use this parameter to override the request
@@ -399,15 +399,24 @@ class Request implements \ArrayAccess, \IteratorAggregate
 			$this->params = $params;
 		}
 
-		$this->previous = self::$current_request;
+		$this->parent = self::$current_request;
 
 		self::$current_request = $this;
 
-		$response = dispatch($this);
+		try
+		{
+			$response = dispatch($this);
 
-		self::$current_request = $this->previous;
+			self::$current_request = $this->parent;
 
-		return $response;
+			return $response;
+		}
+		catch (\Exception $e)
+		{
+			self::$current_request = $this->parent;
+
+			throw $e;
+		}
 	}
 
 	/**
@@ -489,13 +498,13 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * Returns the previous request.
+	 * Returns the parent request.
 	 *
 	 * @return \ICanBoogie\HTTP\Request
 	 */
-	protected function get_previous()
+	protected function get_parent()
 	{
-		return $this->previous;
+		return $this->parent;
 	}
 
 	/**
