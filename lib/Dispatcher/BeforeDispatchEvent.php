@@ -13,6 +13,7 @@ namespace ICanBoogie\HTTP\Dispatcher;
 
 use ICanBoogie\HTTP\Dispatcher;
 use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\Response;
 
 /**
  * Event class for the `ICanBoogie\HTTP\Dispatcher::dispatch:before` event.
