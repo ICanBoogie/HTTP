@@ -60,8 +60,6 @@ class CacheControl
 
 	];
 
-	static private $default_values = [];
-
 	/**
 	 * Returns the default values of the instance.
 	 *
