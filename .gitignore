@@ -1,9 +1,8 @@
-/.buildpath
-/.project
-/.settings
-/.README.md.html
-/composer.lock
-/composer.phar
-/docs
-/tests/sandbox
-/vendor
+.buildpath
+.project
+.settings
+.README.md.html
+composer.lock
+docs
+tests/sandbox
+vendor

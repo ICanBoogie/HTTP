@@ -55,6 +55,14 @@ class File implements ToArray
 
 	];
 
+	static protected $forced_types = [
+
+		'.js',
+		'.php',
+		'.txt'
+
+	];
+
 	static protected $types_alias = [
 
 		'text/x-php' => 'application/x-php'
@@ -83,17 +91,17 @@ class File implements ToArray
 	 * Resolve the MIME type of a file.
 	 *
 	 * @param string $pathname Pathname to the file.
-	 * @param string $extension The variable passed by reference recieves the extension
+	 * @param string $extension The variable passed by reference receives the extension
 	 * of the file.
 	 *
-	 * @return string The MIME type of the file, or 'application/octet-stream' if it could not
+	 * @return string The MIME type of the file, or `application/octet-stream` if it could not
 	 * be determined.
 	 */
 	static public function resolve_type($pathname, &$extension=null)
 	{
 		$extension = '.' . strtolower(pathinfo($pathname, PATHINFO_EXTENSION));
 
-		if (file_exists($pathname) && extension_loaded('fileinfo'))
+		if (!in_array($extension, self::$forced_types) && file_exists($pathname) && extension_loaded('fileinfo'))
 		{
 			$fi = new \finfo(FILEINFO_MIME_TYPE);
 			$type = $fi->file($pathname);

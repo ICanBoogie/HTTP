@@ -39,7 +39,7 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 	protected $dispatchers_order;
 
 	/**
-	 * Initialiazes the {@link $dispatchers} property.
+	 * Initializes the {@link $dispatchers} property.
 	 *
 	 * Dispatchers can be defined as callable or class name. If a dispatcher definition is not a
 	 * callable it is used as class name to instantiate a dispatcher.
@@ -184,7 +184,7 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 	 * {@link Response} instance. If an exception is throw during the dispatcher execution and
 	 * the dispatcher implements the {@link DispatcherInterface} interface then its
 	 * {@link DispatcherInterface::rescue} method is invoked to rescue the exception, otherwise the
-	 * exception is just rethrown.
+	 * exception is just re-thrown.
 	 *
 	 * {@link Dispatcher\BeforeDispatchEvent} is fired before dispatchers are traversed. If a
 	 * response is provided the dispatchers are skipped.
@@ -258,7 +258,7 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 	 * The response provided by one of the event hooks is returned. If there is no response the
 	 * exception is thrown again.
 	 *
-	 * If a response is finaly obtained, the `X-ICanBoogie-Rescued-Exception` header is added to
+	 * If a response is finally obtained, the `X-ICanBoogie-Rescued-Exception` header is added to
 	 * indicate where the exception was thrown from.
 	 *
 	 * @param \Exception $exception The exception to rescue.
@@ -266,7 +266,7 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 	 *
 	 * @return Response
 	 *
-	 * @throws \Exception The exception is rethrown if it could not be rescued.
+	 * @throws \Exception The exception is re-thrown if it could not be rescued.
 	 */
 	public function rescue(\Exception $exception, Request $request)
 	{

@@ -210,7 +210,7 @@ class Response
 	 * The header is modified according to the {@link version}, {@link status} and
 	 * {@link status_message} properties.
 	 *
-	 * The usual behaviour of the response is to echo its body and then terminate the script. But
+	 * The usual behavior of the response is to echo its body and then terminate the script. But
 	 * if its body is `null` the following happens :
 	 *
 	 * - If the {@link $location} property is defined the script is terminated.
@@ -218,7 +218,7 @@ class Response
 	 * - If the {@link $is_ok} property is falsy **the method returns**.
 	 *
 	 * Note: If the body is a string, or an object implementing the `__toString()` method, the
-	 * `Content-Length` header is automatically defined to the lenght of the body string.
+	 * `Content-Length` header is automatically defined to the length of the body string.
 	 *
 	 * Note: If the body is an instance of {@link Closure} it MUST echo the response's body.
 	 */
@@ -652,7 +652,7 @@ class Response
 	 * Returns the response's time-to-live in seconds.
 	 *
 	 * When the responses TTL is <= 0, the response may not be served from cache without first
-	 * revalidating with the origin.
+	 * re-validating with the origin.
 	 *
 	 * @return int|null The number of seconds to live, or `null` is no freshness information
 	 * is present.
@@ -880,18 +880,4 @@ class Response
 	{
 		return $this->ttl > 0;
 	}
-
-	/**
-	 * @throws PropertyNotWritable in attempt to write an unsupported property.
-	 *
-	 * Check the following:
-	 *
-	 * - status_message is not writeable.
-	 */
-	/*
-	protected function last_chance_set($property, $value, &$success)
-	{
-		throw new PropertyNotWritable(array($property, $this));
-	}
-	*/
 }

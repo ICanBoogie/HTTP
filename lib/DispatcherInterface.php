@@ -21,7 +21,7 @@ interface DispatcherInterface
 	 *
 	 * @param Request $request
 	 *
-	 * @return Response A response to the tequest.
+	 * @return Response A response to the request.
 	 */
 	public function __invoke(Request $request);
 

@@ -343,7 +343,7 @@ $response = new Response('{ "message": "Ok" }', 200, [
 
 ## Dispatcher
 
-Requests are handled using a [Dispatcher][] instance, but dispite the many features of the
+Requests are handled using a [Dispatcher][] instance, but despite the many features of the
 dispatcher, it is incapable of resolving the request into a response by itself, instead it
 relies on dispatcher plugins and events.
 
@@ -692,7 +692,7 @@ use ICanBoogie\HTTP\Dispatcher;
 /**
  * Event class for the `ICanBoogie\HTTP\Dispatcher::alter` event.
  *
- * Third parties may use this event to register additionnal dispatchers.
+ * Third parties may use this event to register additional dispatchers.
  */
 class AlterEvent extends \ICanBoogie\Event
 {

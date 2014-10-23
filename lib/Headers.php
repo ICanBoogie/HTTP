@@ -85,7 +85,7 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * Returns the header as a string.
 	 *
-	 * Header fields with empty string values are discarted.
+	 * Header fields with empty string values are discarded.
 	 *
 	 * @return string
 	 */
@@ -111,7 +111,7 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * Sends header fields using the {@link header()} function.
 	 *
-	 * Header fields with empty string values are discarted.
+	 * Header fields with empty string values are discarded.
 	 */
 	public function __invoke()
 	{

@@ -215,7 +215,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * A request can also be created from an array of properties, in which case most of them are
 	 * mapped to the `$env` constructor param. For instance, `is_xhr` set the
-	 * `HTTP_X_REQUESTED_WITH` enviroment property to 'XMLHttpRequest'. In fact, only the
+	 * `HTTP_X_REQUESTED_WITH` environment property to 'XMLHttpRequest'. In fact, only the
 	 * following parameters are preserved:
 	 *
 	 * - `path_params`
@@ -223,7 +223,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	 * - `request_params`
 	 * - `files`: The files associated with the request.
 	 * - `headers`: The header fields of the request. If specified, the headers available in the
-	 * environement are ignored.
+	 * environment are ignored.
 	 *
 	 * @param array $properties Properties of the request.
 	 * @param array $env Environment, usually the `$_SERVER` array.
