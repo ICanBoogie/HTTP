@@ -29,7 +29,7 @@ class RedirectResponse extends Response
 	{
 		parent::__construct
 		(
-			function($response) {
+			function(Response $response) {
 
 				$location = $response->location;
 				$title = \ICanBoogie\escape($location);
