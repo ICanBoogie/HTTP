@@ -21,8 +21,8 @@
 	"require": {
 		"php": ">=5.4.0",
 		"icanboogie/prototype": "2.x",
-		"icanboogie/event": "~1.2",
-		"icanboogie/datetime": "~1.0"
+		"icanboogie/event": ">=1.2",
+		"icanboogie/datetime": ">=1.1"
 	},
 	"autoload": {
 		"psr-4": {
