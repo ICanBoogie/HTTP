@@ -74,4 +74,17 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals("HTTP/1.0 200 OK\r\nDate: {$r->date}\r\n\r\n", (string) $r);
 		$this->assertNull($r->content_length);
 	}
+
+	public function test_is_private()
+	{
+		$r = new Response;
+		$this->assertEmpty($r->cache_control->cacheable);
+		$this->assertFalse($r->is_private);
+		$r->is_private = true;
+		$this->assertTrue($r->is_private);
+		$this->assertEquals('private', $r->cache_control->cacheable);
+		$r->is_private = false;
+		$this->assertFalse($r->is_private);
+		$this->assertEquals('public', $r->cache_control->cacheable);
+	}
 }

@@ -668,13 +668,13 @@ class Response
 	}
 
 	/**
-	 * Set the `cacheable` property of the `Cache-Control` header field to `private`.
+	 * Set the `cacheable` property of the `Cache-Control` header field to `private` or `public`.
 	 *
-	 * @param boolean $value
+	 * @param boolean $value Set `cacheable` to `private` if `true`, `public` if `false`.
 	 */
 	protected function set_is_private($value)
 	{
-		$this->cache_control->cacheable = 'private';
+		$this->cache_control->cacheable = $value ? 'private' : 'public';
 	}
 
 	/**
