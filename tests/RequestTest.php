@@ -20,6 +20,14 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		self::$request = Request::from($_SERVER);
 	}
 
+	public function test_clone()
+	{
+		$r1 = Request::from($_SERVER);
+		$r2 = clone $r1;
+
+		$this->assertNotSame($r1->headers, $r2->headers);
+	}
+
 	/**
 	 * @dataProvider provide_test_write_readonly_properties
 	 * @expectedException ICanBoogie\PropertyNotWritable
@@ -427,5 +435,45 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		unset($r->params);
 		$expected = [ 'p1' => 1, 'p2' => 2, 'p3' => 3, 'p4' => 4, 'p5' => 5 ];
 		$this->assertEquals($expected, $r->params);
+	}
+
+	/**
+	 * @dataProvider provide_test_change
+	 */
+	public function test_change(array $properties)
+	{
+		static $iterated;
+
+		if (!$iterated)
+		{
+			$iterated = Request::from([]);
+		}
+
+		$changed = $iterated->change($properties);
+
+		$this->assertNotSame($changed, $iterated);
+
+		foreach ($properties as $property => $value)
+		{
+			$this->assertEquals($value, $changed->$property);
+		}
+	}
+
+	public function provide_test_change()
+	{
+		return [
+
+			[ [ 'is_get' => true ] ],
+			[ [ 'is_head' => true ] ],
+			[ [ 'is_post' => true ] ],
+			[ [ 'is_put' => true ] ],
+			[ [ 'is_delete' => true ] ],
+			[ [ 'is_post' => true, 'is_xhr' => true ] ],
+			[ [ 'is_post' => true, 'is_xhr' => false ] ],
+			[ [ 'method' => Request::METHOD_CONNECT ] ],
+			[ [ 'uri' => '/path/to/something' ] ],
+			[ [ 'uri' => '/path/to/something-else' ] ],
+
+		];
 	}
 }

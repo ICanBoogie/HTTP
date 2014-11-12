@@ -322,7 +322,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 				'is_post' =>        function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_POST; },
 				'is_put' =>         function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_PUT; },
 				'is_trace' =>       function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_TRACE; },
-				'is_xhr' =>         function($value, array &$env) { if ($value) $env['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'; },
+				'is_xhr' =>         function($value, array &$env) { if ($value) $env['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'; else unset($env['HTTP_X_REQUESTED_WITH']); },
 				'method' =>         function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = $value; },
 				'path' =>           function($value, array &$env) { $env['REQUEST_URI'] = $value; }, // TODO-20130521: handle query string
 				'referer' =>        function($value, array &$env) { $env['HTTP_REFERER'] = $value; },
@@ -361,8 +361,16 @@ class Request implements \ArrayAccess, \IteratorAggregate
 
 		if ($this->params === null)
 		{
- 			$this->params = $this->path_params + $this->request_params + $this->query_params;
+			$this->params = $this->path_params + $this->request_params + $this->query_params;
 		}
+	}
+
+	/**
+	 * Clone headers.
+	 */
+	public function __clone()
+	{
+		$this->headers = clone $this->headers;
 	}
 
 	/**
@@ -371,34 +379,12 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	 * The {@link parent} property is used for request chaining. The {@link $current_request}
 	 * class property is set to the current request.
 	 *
-	 * @param string|null $method The request method. Use this parameter to override the request
-	 * method.
-	 * @param array|null $params The request parameters. Use this parameter to override the request
-	 * parameters. The {@link $path_params}, {@link $query_params} and
-	 * {@link $request_params} are set to empty arrays. The provided parameters are set to the
-	 * {@link $params} property.
-	 *
 	 * Note: If an exception is thrown during dispatch {@link $current_request} is not updated!
 	 *
 	 * @return Response The response to the request.
 	 */
-	public function __invoke($method=null, $params=null)
+	public function __invoke()
 	{
-		if ($method !== null)
-		{
-			$this->env['REQUEST_METHOD'] = $method;
-		}
-
-		// FIXME-20130814: if the method is not the same, the instance should be cloned, or the method restored.
-
-		if ($params !== null)
-		{
-			$this->path_params = [];
-			$this->query_params = [];
-			$this->request_params = [];
-			$this->params = $params;
-		}
-
 		$this->parent = self::$current_request;
 
 		self::$current_request = $this;
@@ -420,13 +406,61 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * Alias to {@link __invoke()}.
+	 * Return a new instance with the specified changed properties.
 	 *
-	 * @see __invoke
+	 * @param array $properties
+	 *
+	 * @throws \InvalidArgumentException
+	 *
+	 * @return \ICanBoogie\HTTP\Request
 	 */
-	public function send($method=null, $params=null)
+	public function change(array $properties)
 	{
-		return $this($method, $params);
+		$changed = clone $this;
+		$mappers = $this->properties_mappers;
+		$env = &$changed->env;
+
+		foreach ($properties as $property => &$value)
+		{
+			if (empty($mappers[$property]))
+			{
+				throw new \InvalidArgumentException("Unsupported property: <q>$property</q>.");
+			}
+
+			$value = $mappers[$property]($value, $env);
+
+			if ($value === null)
+			{
+				unset($properties[$property]);
+			}
+		}
+
+		return $changed;
+	}
+
+	/**
+	 * Invoke the request using another method.
+	 *
+	 * @param string|null $method The request method.
+	 * @param array|null $params The request parameters. Use this parameter to override the request
+	 * parameters.
+	 *
+	 * @return Response The response to the request.
+	 */
+	protected function send($method, array $params=null)
+	{
+		$properties = [ 'method' => $method ];
+
+		if ($params !== null)
+		{
+			$properties['request_params'] = $params;
+			$properties['path_params'] = [];
+			$properties['query_params'] = [];
+		}
+
+		$request = $this->change($properties);
+
+		return $request();
 	}
 
 	/**
@@ -448,7 +482,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 		{
 			array_unshift($arguments, $http_method);
 
-			return call_user_func_array([ $this, '__invoke' ], $arguments);
+			return call_user_func_array([ $this, 'send' ], $arguments);
 		}
 
 		return parent::__call($method, $arguments);

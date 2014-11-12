@@ -84,17 +84,20 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 		}
 		catch (\Exception $e)
 		{
-			if ($request->method === Request::METHOD_HEAD && $e instanceof NotFound)
+			if ($e instanceof NotFound && $request->is_head)
 			{
-				$get_request = clone $request;
-				$get_request->method = Request::METHOD_GET;
-
-				$response = $this($get_request);
+				$response = $this($request->change([ 'is_get' => true ]));
 
 				if (!($response instanceof Response))
 				{
 					return $response;
 				}
+
+				try
+				{
+					$response->content_length = strlen((string) $response->body);
+				}
+				catch (\Exception $e) {}
 
 				return new Response(null, $response->status, $response->headers);
 			}
