@@ -83,6 +83,22 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
+	 * Clone instantiated fields.
+	 */
+	public function __clone()
+	{
+		foreach ($this->fields as &$field)
+		{
+			if (!is_object($field))
+			{
+				continue;
+			}
+
+			$field = clone $field;
+		}
+	}
+
+	/**
 	 * Returns the header as a string.
 	 *
 	 * Header fields with empty string values are discarded.

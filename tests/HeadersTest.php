@@ -158,4 +158,14 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 
 		$this->assertEquals("Content-Type: text/plain\r\n", (string) $h);
 	}
+
+	public function test_clone()
+	{
+		$h1 = new Headers;
+		$cc1 = $h1['Cache-Control'];
+		$h2 = clone $h1;
+		$cc2 = $h2['Cache-Control'];
+
+		$this->assertNotSame($cc2, $cc1);
+	}
 }
