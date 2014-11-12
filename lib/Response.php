@@ -162,7 +162,11 @@ class Response
 		}
 
 		$this->set_status($status);
-		$this->set_body($body);
+
+		if ($body !== null)
+		{
+			$this->set_body($body);
+		}
 	}
 
 	/**
@@ -284,7 +288,7 @@ class Response
 			$body = (string) $body;
 		}
 
-		if (is_numeric($body) || is_string($body))
+		if (empty($headers['Content-Length']) && (is_numeric($body) || is_string($body)))
 		{
 			$headers['Content-Length'] = strlen($body);
 		}

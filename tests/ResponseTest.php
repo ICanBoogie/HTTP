@@ -75,6 +75,18 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 		$this->assertNull($r->content_length);
 	}
 
+	public function test_preserve_content_length()
+	{
+		$r = new Response(null, 200, [
+
+			'Content-Length' => 123
+
+		]);
+
+		$this->assertEquals(123, $r->content_length);
+		$this->assertEquals("HTTP/1.0 200 OK\r\nContent-Length: 123\r\nDate: {$r->date}\r\n\r\n", (string) $r);
+	}
+
 	public function test_is_private()
 	{
 		$r = new Response;
