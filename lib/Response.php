@@ -256,15 +256,12 @@ class Response
 			$headers();
 		}
 
-		if ($body === null)
+		if ($body === null && ($this->location || !$this->is_ok))
 		{
-			if ($this->location) exit;
-			if (!$this->is_ok) return;
+			return;
 		}
 
 		$this->echo_body($body);
-
-		exit;
 	}
 
 	/**
