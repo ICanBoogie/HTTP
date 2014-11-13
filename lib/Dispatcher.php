@@ -93,11 +93,14 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 					return $response;
 				}
 
-				try
+				if ($response->content_length === null)
 				{
-					$response->content_length = strlen((string) $response->body);
+					try
+					{
+						$response->content_length = strlen((string) $response->body);
+					}
+					catch (\Exception $e) {}
 				}
-				catch (\Exception $e) {}
 
 				return new Response(null, $response->status, $response->headers);
 			}

@@ -124,4 +124,53 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
 		$this->assertSame(' hypertop megatop top one two three four bottom megabottom hyperbottom', $order);
 	}
+
+	public function test_head_fallback()
+	{
+		$message = "Astonishing success!";
+
+		$dispatcher = new Dispatcher([
+
+			'primary' => function(Request $request) use($message) {
+
+				if ($request->is_get)
+				{
+					if ($request->uri == '/with-message')
+					{
+						return new Response($message, 200, [ 'X-Was-Get' => 'yes' ]);
+					}
+					else
+					{
+						return new Response(null, 200, [ 'X-Was-Get' => 'yes', 'Content-Length' => 1234 ]);
+					}
+				}
+
+			}
+
+		]);
+
+		$request = Request::from([
+
+			'uri' => '/with-message',
+			'is_head' => true
+
+		]);
+
+		$response = $dispatcher($request);
+
+		$this->assertInstanceOf('ICanBoogie\HTTP\Response', $response);
+		$this->assertEquals(200, $response->status);
+		$this->assertEquals(strlen($message), $response->content_length);
+		$this->assertEquals('yes', $response->headers['X-Was-Get']);
+		$this->assertNull($response->body);
+
+		$request = Request::from([
+
+			'is_head' => true
+
+		]);
+
+		$response = $dispatcher($request);
+		$this->assertEquals(1234, $response->content_length);
+	}
 }
