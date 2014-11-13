@@ -40,6 +40,20 @@ $request = Request::from([
 ]);
 ```
 
+Requests are for the most part immutable, but a new request can be created with changed properties
+by the `change()` method:
+
+```php
+<?php
+
+$request = Request::from($_SERVER)->change([
+
+	'is_head' => true,
+	'is_xhr' => true
+
+]);
+```
+
 Requests are handled by a dispatcher, which returns a [Response][]
 instance, or throws a `NotFound` exception if the request cannot be satisfied.
 Requests are usually dispatched simply by invoking them, or by using one of the HTTP methods
@@ -54,6 +68,7 @@ $response = $request();
 
 $response = $request->post([ 'arg' => 'value' ]);
 ```
+
 
 
 
@@ -297,7 +312,7 @@ echo $response->headers['Content-Disposition']; // attachment; filename="ete.jpg
 
 The `Cache-Control` header is represented by a [CacheControl][] instance making it easily
 manipulable. Directives can be set at once using a plain string, or individually using the
-properties of the [CacheControl] instance. Directives of the
+properties of the [CacheControl][] instance. Directives of the
 [rfc2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html) are supported.
 
 ```php
@@ -595,7 +610,7 @@ thrown) the dispatcher tries the same request with a `GET` method instead. If a 
 provided a new response is returned with only its status and headers but with an empty body,
 otherwise the dispatcher tries to rescue the exception.
 
-Leveragin this feature, you won't have to implement a controller for the `HEAD` method if the
+Leveraging this feature, you won't have to implement a controller for the `HEAD` method if the
 controller for the `GET` method is good enough.
 
 
@@ -728,16 +743,10 @@ The package requires PHP 5.4 or later.
 
 ## Installation
 
-The recommended way to install this package is through [Composer](http://getcomposer.org/).
-Create a `composer.json` file and run `php composer.phar install` command to install it:
+The recommended way to install this package is through [Composer](http://getcomposer.org/):
 
-```json
-{
-	"minimum-stability": "dev",
-	"require": {
-		"icanboogie/http": "2.x"
-	}
-}
+```
+$ composer require icanboogie/http
 ```
 
 The following packages are required, you might want to check them out:
@@ -755,7 +764,7 @@ The following packages are required, you might want to check them out:
 The package is [available on GitHub](https://github.com/ICanBoogie/HTTP), its repository can be
 cloned with the following command line:
 
-	$ git clone git://github.com/ICanBoogie/HTTP.git
+	$ git clone https://github.com/ICanBoogie/HTTP.git
 
 
 
