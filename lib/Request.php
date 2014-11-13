@@ -369,6 +369,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	public function __clone()
 	{
 		$this->headers = clone $this->headers;
+		$this->context = clone $this->context;
 	}
 
 	/**

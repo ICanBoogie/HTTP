@@ -26,6 +26,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$r2 = clone $r1;
 
 		$this->assertNotSame($r1->headers, $r2->headers);
+		$this->assertNotSame($r1->context, $r2->context);
 	}
 
 	/**
