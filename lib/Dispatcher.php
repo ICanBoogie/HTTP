@@ -78,6 +78,18 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 	 */
 	public function __invoke(Request $request)
 	{
+		$response = $this->handle($request);
+
+		if ($request->is_head && $response->body)
+		{
+			return new Response(null, $response->status, $response->headers);
+		}
+
+		return $response;
+	}
+
+	private function handle(Request $request)
+	{
 		try
 		{
 			return $this->dispatch($request);
@@ -86,12 +98,7 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 		{
 			if ($e instanceof NotFound && $request->is_head)
 			{
-				$response = $this($request->change([ 'is_get' => true ]));
-
-				if (!($response instanceof Response))
-				{
-					return $response;
-				}
+				$response = $this->handle($request->change([ 'is_get' => true ]));
 
 				if ($response->content_length === null)
 				{
@@ -102,7 +109,7 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 					catch (\Exception $e) {}
 				}
 
-				return new Response(null, $response->status, $response->headers);
+				return $response;
 			}
 
 			return $this->rescue($e, $request);

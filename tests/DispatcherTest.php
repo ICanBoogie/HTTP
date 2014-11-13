@@ -173,4 +173,29 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 		$response = $dispatcher($request);
 		$this->assertEquals(1234, $response->content_length);
 	}
+
+	public function test_head_strip_body()
+	{
+		$dispatcher = new Dispatcher([
+
+			'primary' => function(Request $request) {
+
+				return new Response("With a fantastic message!");
+
+			}
+
+		]);
+
+		$request = Request::from([
+
+			'is_head' => true
+
+		]);
+
+		$response = $dispatcher($request);
+		$expected = "HTTP/1.0 200 OK\r\nDate: {$response->date}\r\nContent-Length: 25\r\n\r\n";
+
+		$this->assertInstanceOf('ICanBoogie\HTTP\Response', $response);
+		$this->assertEquals($expected, (string) $response);
+	}
 }
