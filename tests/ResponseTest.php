@@ -60,11 +60,10 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_auto_content_length()
 	{
-		$r = new Response;
-		$r->body = "Madonna";
+		$r = new Response("Madonna");
 
 		$this->assertEquals("HTTP/1.0 200 OK\r\nDate: {$r->date}\r\nContent-Length: 7\r\n\r\nMadonna", (string) $r);
-		$this->assertNull($r->content_length);
+		$this->assertEquals(7, $r->content_length);
 	}
 
 	public function test_auto_content_length_with_null()

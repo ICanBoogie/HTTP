@@ -362,10 +362,11 @@ class Response
 	/**
 	 * Sets the response body.
 	 *
-	 * The body can be any data type that can be converted into a string this includes numeric and
-	 * objects implementing the {@link __toString()} method.
+	 * The body can be any data type that can be converted into a string. This includes numeric
+	 * and objects implementing the {@link __toString()} method.
 	 *
-	 * Note: This method is the setter for the {@link $body} property.
+	 * **Note**: If the length of `$body` can be determined, the `Content-Length` header field is
+	 * updated. Also, `Content-Length` is set to `null` if `$body` is `null`.
 	 *
 	 * @param string|\Closure|null $body
 	 *
@@ -391,7 +392,11 @@ class Response
 
 		if ($body === null)
 		{
-			$this->headers['Content-Length'] = null;
+			$this->content_length = null;
+		}
+		else if (!($body instanceof \Closure) && !is_object($body))
+		{
+			$this->content_length = strlen($body);
 		}
 
 		$this->body = $body;
