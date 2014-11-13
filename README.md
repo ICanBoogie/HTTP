@@ -603,7 +603,7 @@ resolved into [RedirectResponse][] instances.
 
 
 
-### A second chance for `HEAD` operations
+### A second chance for `HEAD` requests
 
 When a request with a `HEAD` method fails to get a response (a [NotFound][] exception was
 thrown) the dispatcher tries the same request with a `GET` method instead. If a response is
@@ -612,6 +612,15 @@ otherwise the dispatcher tries to rescue the exception.
 
 Leveraging this feature, you won't have to implement a controller for the `HEAD` method if the
 controller for the `GET` method is good enough.
+
+
+
+
+
+### Stripping the body of responses to `HEAD` requests
+
+The dispatcher cares about responses to `HEAD` requests and will strip responses of their body
+before returning them.
 
 
 
