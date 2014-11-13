@@ -11,8 +11,6 @@
 
 namespace ICanBoogie\HTTP;
 
-use ICanBoogie\PropertyNotWritable;
-
 /**
  * An HTTP request.
  *
@@ -891,8 +889,6 @@ class Request implements \ArrayAccess, \IteratorAggregate
 }
 
 namespace ICanBoogie\HTTP\Request;
-
-use ICanBoogie\PropertyNotWritable;
 
 /**
  * The context of a request.

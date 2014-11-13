@@ -11,8 +11,6 @@
 
 namespace ICanBoogie\HTTP;
 
-use ICanBoogie\ToArray;
-
 /**
  * Representation of a POST file.
  *
@@ -29,7 +27,7 @@ use ICanBoogie\ToArray;
  * @property-read bool $is_valid `true` if the file is valid, `false` otherwise.
  * See: {@link is_valid()}.
  */
-class File implements ToArray
+class File implements \ICanBoogie\ToArray
 {
 	use \ICanBoogie\PrototypeTrait;
 

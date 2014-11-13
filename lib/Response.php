@@ -11,8 +11,6 @@
 
 namespace ICanBoogie\HTTP;
 
-use ICanBoogie\PropertyNotWritable;
-
 /**
  * A response to a HTTP request.
  *
