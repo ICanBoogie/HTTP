@@ -283,7 +283,7 @@ class Response
 			$body = (string) $body;
 		}
 
-		if (empty($headers['Content-Length']) && (is_numeric($body) || is_string($body)))
+		if (empty($headers['Content-Length']) && $body)
 		{
 			$headers['Content-Length'] = strlen($body);
 		}
