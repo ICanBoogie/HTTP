@@ -55,15 +55,37 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * The `Content-Lenght` header field MUST be present, but it MUST NOT be added to the header
+	 * The `Content-Length` header field MUST be present, but it MUST NOT be added to the header
 	 * instance.
+	 *
+	 * @dataProvider provide_test_auto_content_length
 	 */
-	public function test_auto_content_length()
+	public function test_auto_content_length($body, $expected_value, $expected_length)
 	{
-		$r = new Response("Madonna");
+		$r = new Response($body);
 
-		$this->assertEquals("HTTP/1.0 200 OK\r\nDate: {$r->date}\r\nContent-Length: 7\r\n\r\nMadonna", (string) $r);
-		$this->assertEquals(7, $r->content_length);
+		$header_field = '';
+
+		if ($expected_length)
+		{
+			$header_field = "Content-Length: $expected_length\r\n";
+		}
+
+		$this->assertStringStartsWith("HTTP/1.0 200 OK\r\nDate: {$r->date}\r\n{$header_field}\r\n", (string) $r);
+		$this->assertSame($expected_value, $r->content_length);
+	}
+
+	public function provide_test_auto_content_length()
+	{
+		return [
+
+			[ 123, 3, 3  ],
+			[ 123.456, 7, 7 ],
+			[ "Madonna", 7, 7 ],
+			[ function() { return "Madonna"; }, null, null ],
+			[ DateTime::now(), null, 24 ]
+
+		];
 	}
 
 	public function test_auto_content_length_with_null()

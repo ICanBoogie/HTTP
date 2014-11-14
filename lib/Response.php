@@ -283,7 +283,7 @@ class Response
 			$body = (string) $body;
 		}
 
-		if (empty($headers['Content-Length']) && $body)
+		if (empty($headers['Content-Length']) && $body && !is_object($body) && !($body instanceof \Closure))
 		{
 			$headers['Content-Length'] = strlen($body);
 		}
@@ -390,11 +390,11 @@ class Response
 			));
 		}
 
-		if ($body === null)
+		if ($body === null || $body instanceof \Closure || is_object($body))
 		{
 			$this->content_length = null;
 		}
-		else if (!($body instanceof \Closure) && !is_object($body))
+		else
 		{
 			$this->content_length = strlen($body);
 		}
