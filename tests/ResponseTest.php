@@ -77,13 +77,15 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
 	public function provide_test_auto_content_length()
 	{
+		$now = DateTime::now();
+
 		return [
 
 			[ 123, 3, 3  ],
 			[ 123.456, 7, 7 ],
 			[ "Madonna", 7, 7 ],
 			[ function() { return "Madonna"; }, null, null ],
-			[ DateTime::now(), null, 24 ]
+			[ DateTime::now(), null, strlen(DateTime::now()) ]
 
 		];
 	}
