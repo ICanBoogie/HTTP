@@ -67,6 +67,7 @@ namespace ICanBoogie\HTTP;
  * @property-read string $method Method of the request.
  * @property-read string $normalized_path Path of the request normalized using the {@link \ICanBoogie\normalize_url_path()} function.
  * @property-read string $path Path info of the request.
+ * @property-read string $extension The extension of the path.
  * @property-read int $port Port of the request.
  * @property-read string $query_string Query string of the request.
  * @property-read string $script_name Name of the entered script.
@@ -336,9 +337,10 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * Initialize the properties {@link $env}, {@link $headers} and {@link $context}.
 	 *
-	 * If the {@link $params} property is `null` it is set with an usinon of {@link $path_params},
+	 * If the {@link $params} property is `null` it is set with an union of {@link $path_params},
 	 * {@link $request_params} and {@link $query_params}.
 	 *
+	 * @param array $properties Initial properties.
 	 * @param array $env Environment of the request, usually the `$_SERVER` super global.
 	 */
 	protected function __construct(array $properties, array $env=[])
@@ -381,6 +383,8 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	 * Note: If an exception is thrown during dispatch {@link $current_request} is not updated!
 	 *
 	 * @return Response The response to the request.
+	 *
+	 * @throws \Exception re-throws exception raised during dispatch.
 	 */
 	public function __invoke()
 	{
@@ -472,6 +476,11 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * Request::from('/api/core/aloha')->get();
 	 * </pre>
+	 *
+	 * @param $method
+	 * @param $arguments
+	 *
+	 * @return mixed
 	 */
 	public function __call($method, $arguments)
 	{
@@ -488,7 +497,11 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * Checks if the specified param exists in the request.
+	 * Checks if the specified param exists in the request's params.
+	 *
+	 * @param string $param The name of the parameter.
+	 *
+	 * @return bool
 	 */
 	public function offsetExists($param)
 	{
@@ -496,7 +509,11 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * Get the specified param from the request.
+	 * Get the specified param from the request's params.
+	 *
+	 * @param string $param The name of the parameter.
+	 *
+	 * @return mixed|null The value of the parameter, or `null` if the parameter does not exists.
 	 */
 	public function offsetGet($param)
 	{
@@ -505,6 +522,9 @@ class Request implements \ArrayAccess, \IteratorAggregate
 
 	/**
 	 * Set the specified param to the specified value.
+	 *
+	 * @param string $param The name of the parameter.
+	 * @param mixed $value The value of the parameter.
 	 */
 	public function offsetSet($param, $value)
 	{
@@ -513,7 +533,9 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * Remove the specified param from the request.
+	 * Remove the specified param from the request's parameters.
+	 *
+	 * @param mixed $param
 	 */
 	public function offsetUnset($param)
 	{
@@ -606,7 +628,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * The value is obtained from the `QUERY_STRING` key of the {@link $env} array.
 	 *
-	 * @param string|null
+	 * @return string|null
 	 */
 	protected function get_query_string()
 	{
@@ -614,7 +636,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * Returns the content lenght of the request.
+	 * Returns the content length of the request.
 	 *
 	 * The value is obtained from the `CONTENT_LENGTH` key of the {@link $env} array.
 	 *

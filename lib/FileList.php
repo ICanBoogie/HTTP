@@ -55,7 +55,7 @@ class FileList implements \ArrayAccess, \IteratorAggregate, \Countable
 	{
 		if (!$this->offsetExists($id))
 		{
-			return;
+			return null;
 		}
 
 		return $this->list[$id];

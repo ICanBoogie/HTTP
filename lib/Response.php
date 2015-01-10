@@ -149,7 +149,7 @@ class Response
 		}
 		else if (!($headers instanceof Headers))
 		{
-			throw new \InvalidArgumentException("$headers must be an array or a ICanBoogie\HTTP\Headers instance. Given: " . gettype($headers));
+			throw new \InvalidArgumentException("$headers must be an array or a ICanBoogie\\HTTP\\Headers instance. Given: " . gettype($headers));
 		}
 
 		$this->headers = $headers;
@@ -273,7 +273,7 @@ class Response
 	 * Subclasses might want to override this method if they wish to alter the header or the body
 	 * before the response is sent or transformed into a string.
 	 *
-	 * @param Header $headers Reference to the final header.
+	 * @param Headers $headers Reference to the final header.
 	 * @param mixed $body Reference to the final body.
 	 */
 	protected function finalize(Headers &$headers, &$body)

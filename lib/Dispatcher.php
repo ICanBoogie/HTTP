@@ -43,6 +43,8 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 	 *
 	 * Dispatchers can be defined as callable or class name. If a dispatcher definition is not a
 	 * callable it is used as class name to instantiate a dispatcher.
+	 *
+	 * @param array $dispatchers
 	 */
 	public function __construct(array $dispatchers=[])
 	{
@@ -121,7 +123,7 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 	 *
 	 * @param string $dispatcher_id The identifier of the dispatcher.
 	 *
-	 * @return `true` if the dispatcher is defined, `false` otherwise.
+	 * @return bool `true` if the dispatcher is defined, `false` otherwise.
 	 */
 	public function offsetExists($dispatcher_id)
 	{
@@ -132,6 +134,8 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 	 * Returns a dispatcher.
 	 *
 	 * @param string $dispatcher_id The identifier of the dispatcher.
+	 *
+	 * @return mixed
 	 */
 	public function offsetGet($dispatcher_id)
 	{
@@ -209,6 +213,8 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 	 *
 	 * @return Response
 	 *
+	 * @throws \Exception If the dispatcher that raised an exception during dispatch doesn't implement
+	 * {@link DispatcherInterface}.
 	 * @throws NotFound when neither the events nor the dispatchers were able to provide
 	 * a {@link Response}.
 	 */
@@ -283,6 +289,7 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 	 */
 	public function rescue(\Exception $exception, Request $request)
 	{
+		/* @var $response Response */
 		$response = null;
 
 		new \ICanBoogie\Exception\RescueEvent($exception, $request, $response);

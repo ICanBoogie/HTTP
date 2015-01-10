@@ -119,9 +119,13 @@ class File implements \ICanBoogie\ToArray
 	}
 
 	/**
-	 * Format a message.
+	 * Format a string.
 	 *
-	 * @return \ICanBoogie\I18n\FormattedString|\ICanBoogie\FormattedString|string
+	 * @param string $format The format of the string.
+	 * @param array $args The arguments.
+	 * @param array $options Some options.
+	 *
+	 * @return \ICanBoogie\FormattedString|\ICanBoogie\I18n\FormattedString|string
 	 */
 	static private function format($format, array $args=[], array $options=[])
 	{
@@ -183,7 +187,7 @@ class File implements \ICanBoogie\ToArray
 
 		if (!$this->pathname && !$this->tmp_name)
 		{
-			return;
+			return null;
 		}
 
 		return self::resolve_type($this->pathname ?: $this->tmp_name);
@@ -337,7 +341,7 @@ class File implements \ICanBoogie\ToArray
 		{
 			case UPLOAD_ERR_OK:
 
-				return;
+				return null;
 
 			case UPLOAD_ERR_INI_SIZE:
 
@@ -386,7 +390,7 @@ class File implements \ICanBoogie\ToArray
 
 		if (!$extension)
 		{
-			return;
+			return null;
 		}
 
 		return '.' . strtolower($extension);
@@ -451,7 +455,7 @@ class File implements \ICanBoogie\ToArray
 	 * Move the file.
 	 *
 	 * @param string $destination Pathname to the destination file.
-	 * @param string $overwrite If `true` the destination file is deleted before the file is move.
+	 * @param bool $overwrite If `true` the destination file is deleted before the file is move.
 	 *
 	 * @throws \Exception if the file failed to be moved.
 	 */

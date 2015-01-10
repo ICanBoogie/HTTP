@@ -49,7 +49,7 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	 * starting with the `HTTP_` prefix. Also, header field names are normalized. For instance,
 	 * `HTTP_CONTENT_TYPE` becomes `Content-Type`.
 	 *
-	 * @param array $headers The initial headers.
+	 * @param array $fields The initial headers.
 	 */
 	public function __construct(array $fields=[])
 	{
@@ -247,6 +247,8 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 
 	/**
 	 * Removes a header field.
+	 *
+	 * @param mixed $field
 	 */
 	public function offsetUnset($field)
 	{
