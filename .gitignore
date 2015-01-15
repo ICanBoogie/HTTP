@@ -1,8 +1,9 @@
 .buildpath
+.idea/
 .project
 .settings
 .README.md.html
 composer.lock
-docs
-tests/sandbox
-vendor
+docs/
+tests/sandbox/
+vendor/
