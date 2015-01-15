@@ -162,7 +162,7 @@ class CacheControl
 	}
 
 	/**
-	 * Wheter the request/response is cacheable. The following properties are supported: `public`,
+	 * Whether the request/response is cacheable. The following properties are supported: `public`,
 	 * `private` and `no-cache`. The variable may be empty in which case the cacheability of the
 	 * request/response is unspecified.
 	 *
@@ -209,7 +209,7 @@ class CacheControl
 	}
 
 	/**
-	 * Wheter the request/response is can be stored.
+	 * Whether the request/response is can be stored.
 	 *
 	 * Scope: request, response.
 	 *
