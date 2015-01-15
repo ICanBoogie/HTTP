@@ -11,7 +11,9 @@
 
 namespace ICanBoogie\HTTP\Headers;
 
-use ICanBoogie\PropertyNotDefined;
+use ICanBoogie\GetterTrait;
+use ICanBoogie\Object\HasMethod;
+use ICanBoogie\Object\SetterTrait;
 
 /**
  * Representation of the `Cache-Control` header field.
@@ -38,6 +40,12 @@ use ICanBoogie\PropertyNotDefined;
  */
 class CacheControl
 {
+	use GetterTrait, SetterTrait, HasMethod
+	{
+		HasMethod::has_method insteadof GetterTrait;
+		HasMethod::has_method insteadof SetterTrait;
+	}
+
 	static protected $cacheable_values = [
 
 		'private',
@@ -167,6 +175,40 @@ class CacheControl
 	private $cacheable;
 
 	/**
+	 * @return string
+	 */
+	protected function get_cacheable()
+	{
+		return $this->cacheable;
+	}
+
+	/**
+	 * @param $value
+	 */
+	protected function set_cacheable($value)
+	{
+		if ($value === false)
+		{
+			$value = 'no-cache';
+		}
+
+		if ($value !== null && !in_array($value, self::$cacheable_values))
+		{
+			throw new \InvalidArgumentException(\ICanBoogie\format
+			(
+				"%var must be one of: public, private, no-cache. Give: %value", [
+
+					'var' => 'cacheable',
+					'value' => $value
+
+				]
+			));
+		}
+
+		$this->cacheable = $value;
+	}
+
+	/**
 	 * Wheter the request/response is can be stored.
 	 *
 	 * Scope: request, response.
@@ -282,48 +324,6 @@ class CacheControl
 		{
 			$this->modify($cache_directives);
 		}
-	}
-
-	public function __get($property)
-	{
-		switch ($property)
-		{
-			case 'cacheable': return $this->cacheable;
-		}
-
-		throw new PropertyNotDefined([ $property, $this ]);
-	}
-
-	public function __set($property, $value)
-	{
-		switch ($property)
-		{
-			case 'cacheable':
-			{
-				if ($value === false)
-				{
-					$value = 'no-cache';
-				}
-
-				if ($value !== null && !in_array($value, self::$cacheable_values))
-				{
-					throw new \InvalidArgumentException(\ICanBoogie\format
-					(
-						"%var must be one of: public, private, no-cache. Give: %value", [
-
-							'var' => 'cacheable',
-							'value' => $value
-
-						]
-					));
-				}
-
-				$this->cacheable = $value;
-			}
-			return;
-		}
-
-		throw new PropertyNotDefined([ $property, $this ]);
 	}
 
 	/**
