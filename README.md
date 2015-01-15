@@ -291,7 +291,7 @@ echo $response->headers['Content-Type']; // application/xml; charset=utf-8
 ### Content-Disposition header
 
 The `Content-Disposition` header is represented by a [ContentDisposition][] instance making it
-easily manipulate. Accentuated filenames are supported.
+easily manipulate. Accentuated file names are supported.
 
 ```php
 <?php
