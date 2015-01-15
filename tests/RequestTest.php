@@ -477,4 +477,40 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 		];
 	}
+
+	public function test_change_with_previous_params()
+	{
+		$r1 = Request::from([
+
+			'request_params' => [ 'rp1' => 'one', 'rp2' => 'two' ],
+			'query_params' => [ 'qp1' => 'one' ],
+			'path_params' => [ 'pp1' => 'one' ]
+
+		]);
+
+		$this->assertSame([ 'pp1' => 'one', 'rp1' => 'one', 'rp2' => 'two', 'qp1' => 'one' ], $r1->params);
+
+		$r2 = $r1->change([
+
+			'request_params' => [],
+			'path_params' => [ 'pp2' => 'two' ]
+
+		]);
+
+		$this->assertSame([ ], $r2->request_params);
+		$this->assertSame([ 'pp2' => 'two' ], $r2->path_params);
+		$this->assertSame([ 'pp2' => 'two', 'qp1' => 'one' ], $r2->params);
+
+		$r3 = $r2->change([
+
+			'query_params' => [],
+			'path_params' => []
+
+		]);
+
+		$this->assertSame([ ], $r3->request_params);
+		$this->assertSame([ ], $r3->query_params);
+		$this->assertSame([ ], $r3->path_params);
+		$this->assertSame([ ], $r3->params);
+	}
 }

@@ -36,15 +36,15 @@ namespace ICanBoogie\HTTP;
  * ], $_SERVER);
  * </pre>
  *
- * @method Response connect() connect(array $params)
- * @method Response delete() delete(array $params)
- * @method Response get() get(array $params)
- * @method Response head() head(array $params)
- * @method Response options() options(array $params)
- * @method Response post() post(array $params)
- * @method Response put() put(array $params)
- * @method Response patch() patch(array $params)
- * @method Response trace() trace(array $params)
+ * @method Response connect() connect(array $params=null)
+ * @method Response delete() delete(array $params=null)
+ * @method Response get() get(array $params=null)
+ * @method Response head() head(array $params=null)
+ * @method Response options() options(array $params=null)
+ * @method Response post() post(array $params=null)
+ * @method Response put() put(array $params=null)
+ * @method Response patch() patch(array $params=null)
+ * @method Response trace() trace(array $params=null)
  *
  * @property-read \ICanBoogie\HTTP\Request\Context $context the request's context.
  * @property-read Request $parent Parent request.
@@ -366,12 +366,13 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * Clone headers.
+	 * Clone {@link $headers} and {@link $context}, and unset {@link $params}.
 	 */
 	public function __clone()
 	{
 		$this->headers = clone $this->headers;
 		$this->context = clone $this->context;
+		unset($this->params);
 	}
 
 	/**
@@ -423,7 +424,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 		$mappers = $this->properties_mappers;
 		$env = &$changed->env;
 
-		foreach ($properties as $property => &$value)
+		foreach ($properties as $property => $value)
 		{
 			if (empty($mappers[$property]))
 			{
@@ -434,8 +435,10 @@ class Request implements \ArrayAccess, \IteratorAggregate
 
 			if ($value === null)
 			{
-				unset($properties[$property]);
+				continue;
 			}
+
+			$changed->$property = $value;
 		}
 
 		return $changed;
