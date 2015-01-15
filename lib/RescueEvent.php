@@ -47,7 +47,7 @@ class RescueEvent extends \ICanBoogie\Event
 	 *
 	 * @param \Exception $target
 	 * @param Request $request The request.
-	 * @param Response|null Reference to the response.
+	 * @param Response|null $response Reference to the response.
 	 */
 	public function __construct(\Exception &$target, Request $request, &$response)
 	{

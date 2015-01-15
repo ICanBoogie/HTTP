@@ -38,6 +38,8 @@ class ContentDisposition extends Header
 
 	/**
 	 * Defines the `filename` parameter.
+	 *
+	 * @inheritdoc
 	 */
 	public function __construct($value=null, array $attributes=[])
 	{

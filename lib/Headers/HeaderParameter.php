@@ -51,7 +51,7 @@ class HeaderParameter
 	 *
 	 * @param mixed $source
 	 *
-	 * @return \ICanBoogie\HTTP\HeaderParameter
+	 * @return HeaderParameter
 	 */
 	static public function from($source)
 	{
@@ -201,7 +201,7 @@ class HeaderParameter
 
 		if (!$value)
 		{
-			return;
+			return '';
 		}
 
 		$attribute = $this->attribute;

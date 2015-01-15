@@ -202,7 +202,7 @@ class File implements \ICanBoogie\ToArray
 	 * is guessed using the pathname of the file. If the pathname is not available the method
 	 * returns `null`.
 	 *
-	 * @return int|null The size of the file or `null` if it cannot be determined.
+	 * @return int|false The size of the file or `false` if it cannot be determined.
 	 */
 	protected function get_size()
 	{
@@ -215,6 +215,8 @@ class File implements \ICanBoogie\ToArray
 		{
 			return filesize($this->pathname);
 		}
+
+		return null;
 	}
 
 	protected $tmp_name;

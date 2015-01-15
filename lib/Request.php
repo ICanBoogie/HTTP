@@ -11,6 +11,9 @@
 
 namespace ICanBoogie\HTTP;
 
+use ICanBoogie\Prototype\MethodNotDefined;
+use ICanBoogie\PrototypeTrait;
+
 /**
  * An HTTP request.
  *
@@ -80,10 +83,10 @@ namespace ICanBoogie\HTTP;
  */
 class Request implements \ArrayAccess, \IteratorAggregate
 {
-	use \ICanBoogie\PrototypeTrait;
+	use PrototypeTrait;
 
 	/*
-	 * HTTP methods as defined by the {@link http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html Hypertext Transfert protocol 1.1}.
+	 * HTTP methods as defined by the {@link http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html Hypertext Transfer protocol 1.1}.
 	 */
 	const METHOD_ANY = 'ANY';
 	const METHOD_CONNECT = 'CONNECT';
@@ -496,7 +499,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 			return call_user_func_array([ $this, 'send' ], $arguments);
 		}
 
-		return parent::__call($method, $arguments);
+		throw new MethodNotDefined($method, $this);
 	}
 
 	/**
@@ -558,7 +561,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * Returns the parent request.
 	 *
-	 * @return \ICanBoogie\HTTP\Request
+	 * @return Request
 	 */
 	protected function get_parent()
 	{
@@ -578,7 +581,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * Returns the `Cache-Control` header.
 	 *
-	 * @return \ICanBoogie\HTTP\Headers\CacheControl
+	 * @return Headers\CacheControl
 	 */
 	protected function get_cache_control()
 	{
@@ -836,6 +839,8 @@ class Request implements \ArrayAccess, \IteratorAggregate
 		{
 			return $this->env['REDIRECT_X_HTTP_AUTHORIZATION'];
 		}
+
+		return null;
 	}
 
 	/**

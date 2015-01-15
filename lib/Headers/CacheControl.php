@@ -32,6 +32,8 @@ use ICanBoogie\PropertyNotDefined;
  * echo $cc;                      // no-cache, no-store, must-revalidate
  * </pre>
  *
+ * @property bool $cacheable
+ *
  * @see http://tools.ietf.org/html/rfc2616#section-14.9
  */
 class CacheControl
@@ -272,7 +274,7 @@ class CacheControl
 	/**
 	 * If they are defined, the object is initialized with the cache directives.
 	 *
-	 * @param string $cache_directive Cache directives.
+	 * @param string $cache_directives Cache directives.
 	 */
 	public function __construct($cache_directives=null)
 	{

@@ -11,14 +11,17 @@
 
 namespace ICanBoogie\HTTP\Request;
 
+use ICanBoogie\HTTP\DispatcherInterface;
+use ICanBoogie\HTTP\Request;
+
 /**
  * The context of a request.
  *
  * This is a general purpose container used to store the objects and variables related to a
  * request.
  *
- * @property-read \ICanBoogie\HTTP\Request $request The request associated with the context.
- * @property-read \ICanBoogie\HTTP\DispatcherInterface $dispatcher The dispatcher currently dispatching the request.
+ * @property-read Request $request The request associated with the context.
+ * @property-read DispatcherInterface $dispatcher The dispatcher currently dispatching the request.
  */
 class Context extends \ICanBoogie\Object
 {
@@ -28,23 +31,23 @@ class Context extends \ICanBoogie\Object
 	 * The variable is declared as private but is actually readable thanks to the
 	 * {@link get_request} getter.
 	 *
-	 * @var \ICanBoogie\HTTP\Request
+	 * @var Request
 	 */
 	private $request;
 
 	/**
 	 * The dispatcher currently dispatching the request.
 	 *
-	 * @var \ICanBoogie\HTTP\DispatcherInterface|null
+	 * @var DispatcherInterface|null
 	 */
 	private $dispatcher;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param \ICanBoogie\HTTP\Request $request The request the context belongs to.
+	 * @param Request $request The request the context belongs to.
 	 */
-	public function __construct(\ICanBoogie\HTTP\Request $request)
+	public function __construct(Request $request)
 	{
 		$this->request = $request;
 	}
@@ -52,7 +55,7 @@ class Context extends \ICanBoogie\Object
 	/**
 	 * Returns the {@link $request} property.
 	 *
-	 * @return \ICanBoogie\HTTP\Request
+	 * @return Request
 	 */
 	protected function get_request()
 	{
@@ -62,13 +65,13 @@ class Context extends \ICanBoogie\Object
 	/**
 	 * Sets the dispatcher currently dispatching the request.
 	 *
-	 * @param \ICanBoogie\HTTP\DispatcherInterface|null $dispatcher
+	 * @param DispatcherInterface|null $dispatcher
 	 *
-	 * @throws \InvalidArgumentException if the value is not null and does not implements \ICanBoogie\HTTP\DispatcherInterface.
+	 * @throws \InvalidArgumentException if the value is not null and does not implements {@link DispatcherInterface}.
 	 */
 	protected function set_dispatcher($dispatcher)
 	{
-		if ($dispatcher !== null && !($dispatcher instanceof \ICanBoogie\HTTP\DispatcherInterface))
+		if ($dispatcher !== null && !($dispatcher instanceof DispatcherInterface))
 		{
 			throw new \InvalidArgumentException('$dispatcher must be an instance of ICanBoogie\HTTP\DispatcherInterface. Given: ' . get_class($dispatcher) . '.');
 		}
@@ -79,7 +82,7 @@ class Context extends \ICanBoogie\Object
 	/**
 	 * Returns the {@link $dispatcher} property.
 	 *
-	 * @return \ICanBoogie\HTTP\DispatcherInterface
+	 * @return DispatcherInterface
 	 */
 	protected function get_dispatcher()
 	{

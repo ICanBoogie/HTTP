@@ -83,7 +83,7 @@ abstract class Header implements \ArrayAccess
 	/**
 	 * The parameters supported by the header.
 	 *
-	 * @var array[string]HeaderParameter
+	 * @var HeaderParameter[]
 	 */
 	protected $parameters = [];
 
@@ -178,6 +178,10 @@ abstract class Header implements \ArrayAccess
 
 	/**
 	 * Checks if a parameter exists.
+	 *
+	 * @param string $attribute
+	 *
+	 * @return bool
 	 */
 	public function offsetExists($attribute)
 	{
@@ -186,6 +190,8 @@ abstract class Header implements \ArrayAccess
 
 	/**
 	 * Sets the value of a parameter to `null`.
+	 *
+	 * @param string $attribute
 	 */
 	public function offsetUnset($attribute)
 	{
@@ -197,6 +203,9 @@ abstract class Header implements \ArrayAccess
 	 *
 	 * If the value is an instance of {@link HeaderParameter} then the parameter is replaced,
 	 * otherwise the value of the current parameter is updated and its language is set to `null`.
+	 *
+	 * @param string $attribute
+	 * @param mixed $value
 	 *
 	 * @throws OffsetNotDefined in attempt to access a parameter that is not defined.
 	 */
@@ -221,6 +230,8 @@ abstract class Header implements \ArrayAccess
 	/**
 	 * Returns a {@link HeaderParameter} instance.
 	 *
+	 * @param string $attribute
+	 *
 	 * @return HeaderParameter
 	 *
 	 * @throws OffsetNotDefined in attempt to access a parameter that is not defined.
@@ -241,7 +252,6 @@ abstract class Header implements \ArrayAccess
 	 * To enable future extensions, unrecognized parameters are ignored. Supported parameters must
 	 * be defined by a child class before it calls its parent.
 	 *
-	 * @param string $name
 	 * @param string $value
 	 * @param array $parameters
 	 */

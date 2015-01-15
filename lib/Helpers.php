@@ -46,7 +46,7 @@ class Helpers
 	 * Patches a patchable function.
 	 *
 	 * @param string $name Name of the function.
-	 * @param collable $callback Callback.
+	 * @param callable $callback Callback.
 	 *
 	 * @throws \RuntimeException in attempt to patch an undefined function.
 	 */
@@ -81,6 +81,8 @@ class Helpers
 
 	/**
 	 * Fallback for the {@link dispatch()} function.
+	 *
+	 * @param Request $request
 	 */
 	static private function dispatch(Request $request)
 	{

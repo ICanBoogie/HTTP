@@ -649,7 +649,7 @@ class Response
 	 */
 	protected function set_ttl($seconds)
 	{
-		$this->cache_control->s_max_age = $this->age->timestamp + $seconds;
+		$this->cache_control->s_max_age = $this->age + $seconds;
 	}
 
 	/**
@@ -669,6 +669,8 @@ class Response
 		{
 			return $max_age - $this->age;
 		}
+
+		return null;
 	}
 
 	/**
@@ -872,7 +874,7 @@ class Response
 			return false;
 		}
 
-		return $this->is_validateable() || $this->is_fresh();
+		return $this->is_validateable || $this->is_fresh;
 	}
 
 	/**

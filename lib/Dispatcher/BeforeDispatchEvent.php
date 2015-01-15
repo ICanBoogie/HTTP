@@ -42,8 +42,8 @@ class BeforeDispatchEvent extends \ICanBoogie\Event
 	 * The event is constructed with the type `dispatch:before`.
 	 *
 	 * @param Dispatcher $target.
-	 * @param Request The request.
-	 * @param Response|null Reference to the response.
+	 * @param Request $request The request.
+	 * @param Response|null $response Reference to the response.
 	 */
 	public function __construct(Dispatcher $target, Request $request, &$response)
 	{

@@ -207,7 +207,7 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 	 * response is provided the dispatchers are skipped.
 	 *
 	 * {@link Dispatcher\DispatchEvent} is fired before the response is returned. The event is
-	 * fired event if the dispatchers didn't return a response. It's the last chance to get one.
+	 * fired event if the dispatchers did'nt return a response. It's the last chance to get one.
 	 *
 	 * @param Request $request
 	 *

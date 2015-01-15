@@ -40,6 +40,8 @@ class ContentType extends Header
 
 	/**
 	 * Defines the `charset` parameter.
+	 *
+	 * @inheritdoc
 	 */
 	public function __construct($value=null, array $attributes=[])
 	{

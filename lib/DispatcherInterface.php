@@ -29,6 +29,7 @@ interface DispatcherInterface
 	 * Rescues the exception that was thrown during the request process.
 	 *
 	 * @param \Exception $exception
+	 * @param Request $request
 	 *
 	 * @return Response A response to the request exception.
 	 *

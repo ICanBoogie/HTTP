@@ -31,7 +31,7 @@ class DispatchEvent extends \ICanBoogie\Event
 	/**
 	 * Reference to the response.
 	 *
-	 * @var Response
+	 * @var \ICanBoogie\HTTP\Response
 	 */
 	public $response;
 
@@ -39,8 +39,8 @@ class DispatchEvent extends \ICanBoogie\Event
 	 * The event is constructed with the type `dispatch`.
 	 *
 	 * @param Dispatcher $target.
-	 * @param Request The request.
-	 * @param mixed Reference to the response.
+	 * @param Request $request The request.
+	 * @param mixed $response Reference to the response.
 	 */
 	public function __construct(Dispatcher $target, Request $request, &$response)
 	{
