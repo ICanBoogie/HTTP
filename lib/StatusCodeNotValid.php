@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP;
 
-use ICanBoogie\GetterTrait;
+use ICanBoogie\Accessor\AccessorTrait;
 
 /**
  * Exception thrown when the HTTP status code is not valid.
@@ -20,7 +20,7 @@ use ICanBoogie\GetterTrait;
  */
 class StatusCodeNotValid extends \InvalidArgumentException implements Exception
 {
-	use GetterTrait;
+	use AccessorTrait;
 
 	private $status_code;
 

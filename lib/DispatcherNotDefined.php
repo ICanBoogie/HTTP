@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP;
 
-use ICanBoogie\GetterTrait;
+use ICanBoogie\Accessor\AccessorTrait;
 
 /**
  * Exception thrown in attempt to obtain a dispatcher that is not defined.
@@ -20,7 +20,7 @@ use ICanBoogie\GetterTrait;
  */
 class DispatcherNotDefined extends \LogicException implements Exception
 {
-	use GetterTrait;
+	use AccessorTrait;
 
 	private $dispatcher_id;
 

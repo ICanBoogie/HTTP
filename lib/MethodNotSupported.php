@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP;
 
-use ICanBoogie\GetterTrait;
+use ICanBoogie\Accessor\AccessorTrait;
 
 /**
  * Exception thrown when the HTTP method is not supported.
@@ -20,7 +20,7 @@ use ICanBoogie\GetterTrait;
  */
 class MethodNotSupported extends HTTPError
 {
-	use GetterTrait;
+	use AccessorTrait;
 
 	private $method;
 

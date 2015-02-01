@@ -11,9 +11,7 @@
 
 namespace ICanBoogie\HTTP\Headers;
 
-use ICanBoogie\GetterTrait;
-use ICanBoogie\Object\HasMethod;
-use ICanBoogie\Object\SetterTrait;
+use ICanBoogie\Accessor\AccessorTrait;
 
 /**
  * Representation of the `Cache-Control` header field.
@@ -40,11 +38,7 @@ use ICanBoogie\Object\SetterTrait;
  */
 class CacheControl
 {
-	use GetterTrait, SetterTrait, HasMethod
-	{
-		HasMethod::has_method insteadof GetterTrait;
-		HasMethod::has_method insteadof SetterTrait;
-	}
+	use AccessorTrait;
 
 	static protected $cacheable_values = [
 

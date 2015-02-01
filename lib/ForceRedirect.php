@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP;
 
-use ICanBoogie\GetterTrait;
+use ICanBoogie\Accessor\AccessorTrait;
 
 /**
  * Exception thrown to force the redirect of the response.
@@ -20,7 +20,7 @@ use ICanBoogie\GetterTrait;
  */
 class ForceRedirect extends HTTPError
 {
-	use GetterTrait;
+	use AccessorTrait;
 
 	private $location;
 
