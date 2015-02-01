@@ -1,4 +1,11 @@
-# HTTP [![Build Status](https://secure.travis-ci.org/ICanBoogie/HTTP.svg?branch=2.2)](http://travis-ci.org/ICanBoogie/HTTP)
+# HTTP
+
+[![Release](https://img.shields.io/github/release/ICanBoogie/HTTP.svg)](https://github.com/ICanBoogie/HTTP/releases)
+[![Build Status](https://img.shields.io/travis/ICanBoogie/HTTP/master.svg)](http://travis-ci.org/ICanBoogie/HTTP)
+[![HHVM](https://img.shields.io/hhvm/icanboogie/http/master.svg)](http://hhvm.h4cc.de/package/icanboogie/http)
+[![Code Quality](https://img.shields.io/scrutinizer/g/ICanBoogie/HTTP/master.svg)](https://scrutinizer-ci.com/g/ICanBoogie/HTTP)
+[![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/HTTP/master.svg)](https://coveralls.io/r/ICanBoogie/HTTP)
+[![Packagist](https://img.shields.io/packagist/dt/icanboogie/http.svg)](https://packagist.org/packages/icanboogie/http)
 
 The HTTP package provides an API to handle HTTP requests.
 
@@ -799,7 +806,8 @@ clean the directory with the `make clean` command.
 
 The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
-[![Build Status](https://travis-ci.org/ICanBoogie/HTTP.svg?branch=2.2)](https://travis-ci.org/ICanBoogie/HTTP)
+[![Build Status](https://img.shields.io/travis/ICanBoogie/HTTP/master.svg)](https://travis-ci.org/ICanBoogie/HTTP)
+[![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/HTTP/master.svg)](https://coveralls.io/r/ICanBoogie/HTTP)
 
 
 
