@@ -235,35 +235,67 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return Request
 	 */
-	static public function from($properties=null, array $env=[])
+	static public function from($properties = null, array $env = [])
 	{
+		if (!$properties)
+		{
+			return new static([], $env);
+		}
+
 		if ($properties === $_SERVER)
 		{
-			return static::from([
-
-				'cookie' => &$_COOKIE,
-				'path_params' => [],
-				'query_params' => &$_GET,
-				'request_params' => &$_POST,
-				'files' => &$_FILES
-
-			], $_SERVER);
+			return static::from_server();
 		}
 
-		if (is_object($properties) && method_exists($properties, '__toString'))
+		if (is_string($properties) || (is_object($properties) && method_exists($properties, '__toString')))
 		{
-			$properties = (string) $properties;
+			return static::from_uri((string) $properties, $env);
 		}
 
-		if (is_string($properties))
-		{
-			return static::from([
+		return static::from_properties($properties, $env);
+	}
 
-				'uri' => $properties
+	/**
+	 * Creates an instance from the `$_SERVER` array.
+	 *
+	 * @return Request
+	 */
+	static protected function from_server()
+	{
+		return static::from([
 
-			], $env);
-		}
+			'cookie' => &$_COOKIE,
+			'path_params' => [],
+			'query_params' => &$_GET,
+			'request_params' => &$_POST,
+			'files' => &$_FILES
 
+		], $_SERVER);
+	}
+
+	/**
+	 * Creates an instance from an URI.
+	 *
+	 * @param string $uri
+	 * @param array $env
+	 *
+	 * @return Request
+	 */
+	static protected function from_uri($uri, array $env)
+	{
+		return static::from([ 'uri' => $uri ], $env);
+	}
+
+	/**
+	 * Creates an instance from an array of properties.
+	 *
+	 * @param array $properties
+	 * @param array $env
+	 *
+	 * @return Request
+	 */
+	static protected function from_properties(array $properties, array $env)
+	{
 		$properties = $properties ?: [];
 
 		$mappers = self::get_properties_mappers();

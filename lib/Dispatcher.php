@@ -108,7 +108,12 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 					{
 						$response->content_length = strlen((string) $response->body);
 					}
-					catch (\Exception $e) {}
+					catch (\Exception $e)
+					{
+						#
+						# It's not that bad if we can't obtain the length of the body.
+						#
+					}
 				}
 
 				return $response;
@@ -184,7 +189,7 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 		{
 			$weights = $this->dispatchers_weight;
 
-			$this->dispatchers_order = \ICanBoogie\sort_by_weight($this->dispatchers, function($v, $k) use($weights) {
+			$this->dispatchers_order = \ICanBoogie\sort_by_weight($this->dispatchers, function($v, $k) use ($weights) {
 
 				return $weights[$k];
 

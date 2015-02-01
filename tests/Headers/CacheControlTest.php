@@ -15,6 +15,9 @@ class CacheControlTest extends \PHPUnit_Framework_TestCase
 {
 	/**
 	 * @dataProvider provide_properties
+	 *
+	 * @param string $expect
+	 * @param array $properties
 	 */
 	public function test_properties($expect, $properties)
 	{
@@ -30,6 +33,9 @@ class CacheControlTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @dataProvider provide_properties
+	 *
+	 * @param string $from
+	 * @param array $properties
 	 */
 	public function test_from($from, $properties)
 	{
@@ -95,7 +101,7 @@ class CacheControlTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException InvalidArgumentException
+	 * @expectedException \InvalidArgumentException
 	 */
 	public function test_set_invalid_cacheable()
 	{

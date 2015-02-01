@@ -374,6 +374,24 @@ class Response
 	 */
 	protected function set_body($body)
 	{
+		$this->assert_body_is_valid($body);
+
+		$this->content_length = ($body === null || $body instanceof \Closure || is_object($body))
+			? null
+			: strlen($body);
+
+		$this->body = $body;
+	}
+
+	/**
+	 * Asserts that the a body is valid.
+	 *
+	 * @param $body
+	 *
+	 * @throws \UnexpectedValueException if the specified body doesn't meet the requirements.
+	 */
+	protected function assert_body_is_valid($body)
+	{
 		if ($body !== null
 		&& !($body instanceof \Closure)
 		&& !is_numeric($body)
@@ -389,23 +407,10 @@ class Response
 				)
 			));
 		}
-
-		if ($body === null || $body instanceof \Closure || is_object($body))
-		{
-			$this->content_length = null;
-		}
-		else
-		{
-			$this->content_length = strlen($body);
-		}
-
-		$this->body = $body;
 	}
 
 	/**
 	 * Returns the response body.
-	 *
-	 * Note: This method is the getter for the {@link $body} property.
 	 *
 	 * @return string
 	 */
@@ -633,7 +638,7 @@ class Response
 	/**
 	 * Returns the `Cache-Control` header field.
 	 *
-	 * @return \ICanBoogie\HTTP\Headers\CacheControl
+	 * @return Headers\CacheControl
 	 */
 	protected function get_cache_control()
 	{
@@ -649,7 +654,7 @@ class Response
 	 */
 	protected function set_ttl($seconds)
 	{
-		$this->cache_control->s_max_age = $this->age + $seconds;
+		$this->cache_control->s_maxage = $this->age + $seconds;
 	}
 
 	/**

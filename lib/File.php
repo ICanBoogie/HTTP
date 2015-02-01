@@ -139,13 +139,18 @@ class File implements \ICanBoogie\ToArray
 			return new \ICanBoogie\FormattedString($format, $args, $options);
 		}
 
-		return \ICanBoogie\format($format, $args, $options);
+		return \ICanBoogie\format($format, $args);
 	}
 
 	/*
 	 * Instance
 	 */
 
+	/**
+	 * Name of the file.
+	 *
+	 * @var string
+	 */
 	protected $name;
 
 	/**
@@ -375,7 +380,7 @@ class File implements \ICanBoogie\ToArray
 
 			default:
 
-				return $this->format("An error has occured.");
+				return $this->format("An error has occurred.");
 		}
 	}
 

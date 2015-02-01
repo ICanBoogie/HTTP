@@ -122,7 +122,7 @@ class HeaderParameter
 		// \x21 = CHAR except 0 - 31 (\x1f) and SP (\x20)
 		// \x7e = CHAR except DEL
 
-		return !preg_match('#[^\x21-\x7e]#', $str, $matches) && !preg_match('#[\(\)\<\>\@\,\;\:\\\\"\/\[\]\?\=\{\}\x9]#', $str);
+		return !preg_match('#[^\x21-\x7e]#', $str) && !preg_match('#[\(\)\<\>\@\,\;\:\\\\"\/\[\]\?\=\{\}\x9]#', $str);
 	}
 
 	/**

@@ -106,7 +106,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 			[ UPLOAD_ERR_NO_TMP_DIR, "Missing a temporary folder." ],
 			[ UPLOAD_ERR_CANT_WRITE, "Failed to write file to disk." ],
 			[ UPLOAD_ERR_EXTENSION,  "A PHP extension stopped the file upload." ],
-			[ 123456,                "An error has occured."]
+			[ 123456,                "An error has occurred."]
 
 		];
 	}

@@ -24,7 +24,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @dataProvider provide_test_write_readonly_properties
-	 * @expectedException ICanBoogie\PropertyNotWritable
+	 * @expectedException \ICanBoogie\PropertyNotWritable
 	 *
 	 * @param string $property Property name.
 	 */
@@ -85,7 +85,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 			[ 123.456, 7, 7 ],
 			[ "Madonna", 7, 7 ],
 			[ function() { return "Madonna"; }, null, null ],
-			[ DateTime::now(), null, strlen(DateTime::now()) ]
+			[ $now, null, strlen($now) ]
 
 		];
 	}
