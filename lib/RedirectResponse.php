@@ -25,7 +25,7 @@ class RedirectResponse extends Response
 	 *
 	 * @throws \InvalidArgumentException if the provided status code is not a redirect.
 	 */
-	public function __construct($url, $status=302, array $headers=[])
+	public function __construct($url, $status = 302, array $headers = [])
 	{
 		parent::__construct
 		(
@@ -53,7 +53,7 @@ EOT;
 			$status, [ 'Location' => $url ] + $headers
 		);
 
-		if (!$this->is_redirect)
+		if (!$this->status->is_redirect)
 		{
 			throw new \InvalidArgumentException("The HTTP status code is not a redirect: {$status}.");
 		}

@@ -4,11 +4,14 @@ namespace ICanBoogie\HTTP;
 
 class RedirectResponseTest extends \PHPUnit_Framework_TestCase
 {
+	/**
+	 * @covers \ICanBoogie\HTTP\RedirectResponse::__construct
+	 */
 	public function test_construct()
 	{
 		$r = new RedirectResponse("/go/to/there");
-		$this->assertTrue($r->is_redirect);
-		$this->assertEquals(302, $r->status);
+		$this->assertTrue($r->status->is_redirect);
+		$this->assertEquals(302, $r->status->code);
 		$this->assertEquals("/go/to/there", $r->location);
 	}
 

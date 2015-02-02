@@ -159,7 +159,8 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 		$response = $dispatcher($request);
 
 		$this->assertInstanceOf('ICanBoogie\HTTP\Response', $response);
-		$this->assertEquals(200, $response->status);
+		$this->assertInstanceOf('ICanBoogie\HTTP\Status', $response->status);
+		$this->assertEquals(200, $response->status->code);
 		$this->assertEquals(strlen($message), $response->content_length);
 		$this->assertEquals('yes', $response->headers['X-Was-Get']);
 		$this->assertNull($response->body);

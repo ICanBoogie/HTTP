@@ -237,7 +237,7 @@ $file->to_array();
 
 ## Response
 
-The response to a request is represented by a [Response](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Response.html) instance.
+The response to a request is represented by a [Response][] instance.
 
 ```php
 <?php
@@ -264,11 +264,28 @@ $response();
 
 
 
+### Redirect response
+
+A redirect response can be easily created using a [RedirectResponse][] instance.
+
+```php
+<?php
+
+use ICanBoogie\HTTP\RedirectResponse;
+
+$response = new RedirectResponse('/to/redirect/location');
+$response->status->code;        // 302
+$response->status->is_redirect; // true
+```
+
+
+
+
+
 ## Headers
 
-HTTP headers are represented by a [Headers](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Headers.html)
-instance. There are used by requests and responses, but can also be used to create the headers
-string of the `mail()` command.
+HTTP headers are represented by a [Headers][] instance. There are used by requests and
+responses, but can also be used to create the headers string of the `mail()` command.
 
 
 
@@ -828,6 +845,7 @@ ICanBoogie/HTTP is licensed under the New BSD License - See the [LICENSE](LICENS
 [DispatchEvent]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.DispatchEvent.html
 [Dispatcher]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.html
 [DispatcherInterface]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.DispatcherInterface.html
+[Headers]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Headers.html
 [Response]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Response.html
 [RedirectResponse]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.RedirectResponse.html
 [NotFound]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.NotFound.html

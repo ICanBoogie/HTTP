@@ -335,11 +335,17 @@ class CallableDispatcher implements DispatcherInterface
 		$this->callable = $callable;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function __invoke(Request $request)
 	{
 		return call_user_func($this->callable, $request);
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function rescue(\Exception $exception, Request $request)
 	{
 		throw $exception;

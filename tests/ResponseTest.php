@@ -35,9 +35,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
 	public function provide_test_write_readonly_properties()
 	{
-		$properties = 'is_valid is_informational is_successful is_redirect is_client_error'
-		. ' is_server_error is_ok is_forbidden is_not_found is_empty is_validateable'
-		. ' is_cacheable is_fresh';
+		$properties = 'is_validateable is_cacheable is_fresh';
 
 		return array_map(function($v) { return (array) $v; }, explode(' ', $properties));
 	}
@@ -110,16 +108,27 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals("HTTP/1.0 200 OK\r\nContent-Length: 123\r\nDate: {$r->date}\r\n\r\n", (string) $r);
 	}
 
-	public function test_is_private()
+	/**
+	 * @covers \ICanBoogie\HTTP\Response::get_is_cacheable
+	 * @dataProvider provide_test_is_cacheable
+	 *
+	 * @param Response $response
+	 * @param bool $expected
+	 */
+	public function test_is_cacheable($response, $expected)
 	{
-		$r = new Response;
-		$this->assertEmpty($r->cache_control->cacheable);
-		$this->assertFalse($r->is_private);
-		$r->is_private = true;
-		$this->assertTrue($r->is_private);
-		$this->assertEquals('private', $r->cache_control->cacheable);
-		$r->is_private = false;
-		$this->assertFalse($r->is_private);
-		$this->assertEquals('public', $r->cache_control->cacheable);
+		$this->assertEquals($expected, $response->is_cacheable);
+	}
+
+	public function provide_test_is_cacheable()
+	{
+		return [
+
+			[ new Response('A', 200), true ],
+			[ new Response('A', 200, [ 'Cache-Control' => "public" ]), true ],
+			[ new Response('A', 200, [ 'Cache-Control' => "private" ]), false ],
+			[ new Response('A', 405), false ]
+
+		];
 	}
 }

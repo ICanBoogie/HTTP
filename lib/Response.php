@@ -11,31 +11,30 @@
 
 namespace ICanBoogie\HTTP;
 
+use ICanBoogie\Accessor\AccessorTrait;
+
 /**
  * A response to a HTTP request.
  *
- * @property integer $status The HTTP status code.
- * See: {@link set_status()} {@link get_status()}
- * @property string $status_message The HTTP status message.
- * See: {@link set_status_message()} {@link get_status_message()}
+ * @property Status|mixed $status
+ *
  * @property int $ttl Adjusts the `s-maxage` part of the `Cache-Control` header field definition according to the `Age` header field definition.
  * See: {@link set_ttl()} {@link get_ttl()}
- *
  * @property int $age Shortcut to the `Age` header field definition.
  * See: {@link set_age()} {@link get_age()}
- * @property \ICanBoogie\HTTP\Headers\CacheControl $cache_control Shortcut to the `Cache-Control` header field definition.
+ * @property Headers\CacheControl $cache_control Shortcut to the `Cache-Control` header field definition.
  * See: {@link set_cache_control()} {@link get_cache_control()}
  * @property int $content_length Shortcut to the `Content-Length` header field definition.
  * See: {@link set_content_length()} {@link get_content_length()}
- * @property \ICanBoogie\HTTP\Headers\ContentType $content_type Shortcut to the `Content-Type` header field definition.
+ * @property Headers\ContentType $content_type Shortcut to the `Content-Type` header field definition.
  * See: {@link set_content_type()} {@link get_content_type()}
- * @property \ICanBoogie\HTTP\Headers\Date $date Shortcut to the `Date` header field definition.
+ * @property Headers\Date $date Shortcut to the `Date` header field definition.
  * See: {@link set_date()} {@link get_date()}
  * @property string $etag Shortcut to the `Etag` header field definition.
  * See: {@link set_etag()} {@link get_etag()}
- * @property \ICanBoogie\HTTP\Headers\Date $expires Shortcut to the `Expires` header field definition.
+ * @property Headers\Date $expires Shortcut to the `Expires` header field definition.
  * See: {@link set_expires()} {@link get_expires()}
- * @property \ICanBoogie\HTTP\Headers\Date $last_modified Shortcut to the `Last-Modified` header field definition.
+ * @property Headers\Date $last_modified Shortcut to the `Last-Modified` header field definition.
  * See: {@link set_last_modified()} {@link get_last_modified()}
  * @property string $location Shortcut to the `Location` header field definition.
  * See: {@link set_location()} {@link get_location()}
@@ -44,80 +43,15 @@ namespace ICanBoogie\HTTP;
  * See: {@link set_body()} {@link get_body()}
  *
  * @property-read boolean $is_cacheable {@link get_is_cacheable()}
- * @property-read boolean $is_client_error {@link get_is_client_error()}
- * @property-read boolean $is_empty {@link get_is_empty()}
- * @property-read boolean $is_forbidden {@link get_is_forbidden()}
  * @property-read boolean $is_fresh {@link get_is_fresh()}
- * @property-read boolean $is_informational {@link get_is_informational()}
- * @property-read boolean $is_not_found {@link get_is_not_found()}
- * @property-read boolean $is_ok {@link get_is_ok()}
  * @property-read boolean $is_private {@link get_is_private()}
- * @property-read boolean $is_redirect {@link get_is_redirect()}
- * @property-read boolean $is_server_error {@link get_is_server_error()}
- * @property-read boolean $is_successful {@link get_is_successful()}
- * @property-read boolean $is_valid {@link get_is_valid()}
  * @property-read boolean $is_validateable {@link get_is_validateable()}
  *
  * @see http://tools.ietf.org/html/rfc2616
  */
 class Response
 {
-	use \ICanBoogie\PrototypeTrait;
-
-	/**
-	 * HTTP status messages.
-	 *
-	 * @var array[int]string
-	 */
-	static public $status_messages = [
-
-		100 => "Continue",
-		101 => "Switching Protocols",
-
-		200 => "OK",
-		201 => "Created",
-		202 => "Accepted",
-		203 => "Non-Authoritative Information",
-		204 => "No Content",
-		205 => "Reset Content",
-		206 => "Partial Content",
-
-		300 => "Multiple Choices",
-		301 => "Moved Permanently",
-		302 => "Found",
-		303 => "See Other",
-		304 => "Not Modified",
-		305 => "Use Proxy",
-		307 => "Temporary Redirect",
-
-		400 => "Bad Request",
-		401 => "Unauthorized",
-		402 => "Payment Required",
-		403 => "Forbidden",
-		404 => "Not Found",
-		405 => "Method Not Allowed",
-		406 => "Not Acceptable",
-		407 => "Proxy Authentication Required",
-		408 => "Request Timeout",
-		409 => "Conflict",
-		410 => "Gone",
-		411 => "Length Required",
-		412 => "Precondition Failed",
-		413 => "Request Entity Too Large",
-		414 => "Request-URI Too Long",
-		415 => "Unsupported Media Type",
-		416 => "Requested Range Not Satisfiable",
-		417 => "Expectation Failed",
-		418 => "I'm a teapot",
-
-		500 => "Internal Server Error",
-		501 => "Not Implemented",
-		502 => "Bad Gateway",
-		503 => "Service Unavailable",
-		504 => "Gateway Timeout",
-		505 => "HTTP Version Not Supported"
-
-	];
+	use AccessorTrait;
 
 	/**
 	 * Response headers.
@@ -138,7 +72,7 @@ class Response
 	 * properties.
 	 *
 	 * @param mixed $body The body of the response.
-	 * @param int $status The status code of the response.
+	 * @param Status|int $status The status code of the response.
 	 * @param Headers|array $headers The initial header fields of the response.
 	 */
 	public function __construct($body=null, $status=200, $headers=[])
@@ -168,11 +102,12 @@ class Response
 	}
 
 	/**
-	 * Clones the {@link $headers] property.
+	 * Clones the {@link $headers} and {@link $status} properties.
 	 */
 	public function __clone()
 	{
 		$this->headers = clone $this->headers;
+		$this->status = clone $this->status;
 	}
 
 	/**
@@ -195,7 +130,7 @@ class Response
 
 			$body = ob_get_clean();
 
-			return "HTTP/{$this->version} {$this->status} {$this->status_message}\r\n"
+			return "HTTP/{$this->version} {$this->status}\r\n"
 			. $header
 			. "\r\n"
 			. $body;
@@ -209,8 +144,7 @@ class Response
 	/**
 	 * Issues the HTTP response.
 	 *
-	 * The header is modified according to the {@link version}, {@link status} and
-	 * {@link status_message} properties.
+	 * The header is modified according to the {@link version} and {@link status} properties.
 	 *
 	 * The usual behavior of the response is to echo its body and then terminate the script. But
 	 * if its body is `null` the following happens :
@@ -251,12 +185,12 @@ class Response
 			header_remove('Pragma');
 			header_remove('X-Powered-By');
 
-			header("HTTP/{$this->version} {$this->status} {$this->status_message}");
+			header("HTTP/{$this->version} {$this->status}");
 
 			$headers();
 		}
 
-		if ($body === null && ($this->location || !$this->is_ok))
+		if ($body === null && ($this->location || !$this->status->is_ok))
 		{
 			return;
 		}
@@ -292,58 +226,24 @@ class Response
 	/**
 	 * Status of the HTTP response.
 	 *
-	 * @var int
+	 * @var Status
 	 */
 	private $status;
 
 	/**
-	 * Message describing the status code.
-	 *
-	 * @var string
-	 */
-	public $status_message;
-
-	/**
 	 * Sets response status code and optionally status message.
 	 *
-	 * This method is the setter for the {@link $status} property.
-	 *
 	 * @param integer|array $status HTTP status code or HTTP status code and HTTP status message.
-	 *
-	 * @throws \InvalidArgumentException When the HTTP status code is not valid.
 	 */
 	protected function set_status($status)
 	{
-		$status_message = null;
-
-		if (is_array($status))
-		{
-			list($status, $status_message) = $status;
-		}
-
-		$this->status = (int) $status;
-
-		if (!$this->is_valid)
-		{
-			throw new StatusCodeNotValid($status);
-		}
-
-		if ($status_message === null)
-		{
-			unset($this->status_message);
-		}
-		else
-		{
-			$this->status_message = $status_message;
-		}
+		$this->status = Status::from($status);
 	}
 
 	/**
-	 * Returns the response status code.
+	 * Returns the response status.
 	 *
-	 * This method is the getter for the {@link $status} property.
-	 *
-	 * @return integer
+	 * @return Status
 	 */
 	protected function get_status()
 	{
@@ -434,19 +334,6 @@ class Response
 		{
 			echo $body;
 		}
-	}
-
-	/**
-	 * Returns the message associated with the status code.
-	 *
-	 * This method is the volatile getter for the {@link $status_message} property and is only
-	 * called if the property is not accessible.
-	 *
-	 * @return string
-	 */
-	protected function get_status_message()
-	{
-		return self::$status_messages[$this->status];
 	}
 
 	/**
@@ -679,171 +566,6 @@ class Response
 	}
 
 	/**
-	 * Set the `cacheable` property of the `Cache-Control` header field to `private` or `public`.
-	 *
-	 * @param boolean $value Set `cacheable` to `private` if `true`, `public` if `false`.
-	 */
-	protected function set_is_private($value)
-	{
-		$this->cache_control->cacheable = $value ? 'private' : 'public';
-	}
-
-	/**
-	 * Checks that the `cacheable` property of the `Cache-Control` header field is `private`.
-	 *
-	 * @return boolean
-	 */
-	protected function get_is_private()
-	{
-		return $this->cache_control->cacheable == 'private';
-	}
-
-	/**
-	 * Checks if the response is valid.
-	 *
-	 * A response is considered valid when its status is between 100 and 600, 100 included.
-	 *
-	 * Note: This method is the getter for the `is_valid` magic property.
-	 *
-	 * @return boolean
-	 */
-	protected function get_is_valid()
-	{
-		return $this->status >= 100 && $this->status < 600;
-	}
-
-	/**
-	 * Checks if the response is informational.
-	 *
-	 * A response is considered informational when its status is between 100 and 200, 100 included.
-	 *
-	 * Note: This method is the getter for the `is_informational` magic property.
-	 *
-	 * @return boolean
-	 */
-	protected function get_is_informational()
-	{
-		return $this->status >= 100 && $this->status < 200;
-	}
-
-	/**
-	 * Checks if the response is successful.
-	 *
-	 * A response is considered successful when its status is between 200 and 300, 200 included.
-	 *
-	 * Note: This method is the getter for the `is_successful` magic property.
-	 *
-	 * @return boolean
-	 */
-	protected function get_is_successful()
-	{
-		return $this->status >= 200 && $this->status < 300;
-	}
-
-	/**
-	 * Checks if the response is a redirection.
-	 *
-	 * A response is considered to be a redirection when its status is between 300 and 400, 300
-	 * included.
-	 *
-	 * Note: This method is the getter for the `is_redirect` magic property.
-	 *
-	 * @return boolean
-	 */
-	protected function get_is_redirect()
-	{
-		return $this->status >= 300 && $this->status < 400;
-	}
-
-	/**
-	 * Checks if the response is a client error.
-	 *
-	 * A response is considered a client error when its status is between 400 and 500, 400
-	 * included.
-	 *
-	 * Note: This method is the getter for the `is_client_error` magic property.
-	 *
-	 * @return boolean
-	 */
-	protected function get_is_client_error()
-	{
-		return $this->status >= 400 && $this->status < 500;
-	}
-
-	/**
-	 * Checks if the response is a server error.
-	 *
-	 * A response is considered a server error when its status is between 500 and 600, 500
-	 * included.
-	 *
-	 * Note: This method is the getter for the `is_server_error` magic property.
-	 *
-	 * @return boolean
-	 */
-	protected function get_is_server_error()
-	{
-		return $this->status >= 500 && $this->status < 600;
-	}
-
-	/**
-	 * Checks if the response is ok.
-	 *
-	 * A response is considered ok when its status is 200.
-	 *
-	 * Note: This method is the getter for the `is_ok` magic property.
-	 *
-	 * @return boolean
-	 */
-	protected function get_is_ok()
-	{
-		return $this->status == 200;
-	}
-
-	/**
-	 * Checks if the response is forbidden.
-	 *
-	 * A response is forbidden ok when its status is 403.
-	 *
-	 * Note: This method is the getter for the `is_forbidden` magic property.
-	 *
-	 * @return boolean
-	 */
-	protected function get_is_forbidden()
-	{
-		return $this->status == 403;
-	}
-
-	/**
-	 * Checks if the response is not found.
-	 *
-	 * A response is considered not found when its status is 404.
-	 *
-	 * Note: This method is the getter for the `is_not_found` magic property.
-	 *
-	 * @return boolean
-	 */
-	protected function get_is_not_found()
-	{
-		return $this->status == 404;
-	}
-
-	/**
-	 * Checks if the response is empty.
-	 *
-	 * A response is considered empty when its status is 201, 204 or 304.
-	 *
-	 * Note: This method is the getter for the `is_empty` magic property.
-	 *
-	 * @return boolean
-	 */
-	protected function get_is_empty()
-	{
-		static $range = [ 201, 204, 304 ];
-
-		return in_array($this->status, $range);
-	}
-
-	/**
 	 * Checks that the response includes header fields that can be used to validate the response
 	 * with the origin server using a conditional GET request.
 	 *
@@ -858,23 +580,16 @@ class Response
 	 * Checks that the response is worth caching under any circumstance.
 	 *
 	 * Responses marked _private_ with an explicit `Cache-Control` directive are considered
-	 * uncacheable.
+	 * not cacheable.
 	 *
 	 * Responses with neither a freshness lifetime (Expires, max-age) nor cache validator
-	 * (`Last-Modified`, `ETag`) are considered uncacheable.
+	 * (`Last-Modified`, `ETag`) are considered not cacheable.
 	 *
 	 * @return boolean
 	 */
 	protected function get_is_cacheable()
 	{
-		static $range = [ 200, 203, 300, 301, 302, 404, 410 ];
-
-		if (!in_array($this->status, $range))
-		{
-			return false;
-		}
-
-		if ($this->cache_control->no_store || $this->cache_control->cacheable == 'private')
+		if (!$this->status->is_cacheable || $this->cache_control->no_store || $this->cache_control->cacheable == 'private')
 		{
 			return false;
 		}
