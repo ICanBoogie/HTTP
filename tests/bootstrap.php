@@ -10,3 +10,14 @@
  */
 
 require __DIR__ . '/../vendor/autoload.php';
+
+#
+# Cleanup sandbox
+#
+
+$di = new \RegexIterator(new \DirectoryIterator(__DIR__ . '/sandbox'), '/^bytes/');
+
+foreach ($di as $file)
+{
+	unlink($file->getPathname());
+}

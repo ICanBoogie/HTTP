@@ -115,21 +115,15 @@ abstract class Header implements \ArrayAccess
 	/**
 	 * Parse the provided source and extract its value and parameters.
 	 *
-	 * @param string|Header $source The source to create the instance from. If the source is
-	 * an instance of {@link Header} its value and parameters are returned.
+	 * @param string $source The source to create the instance from.
 	 *
 	 * @throws \InvalidArgumentException if `$source` is not a string nor an object implementing
-	 * `__toString()`, or and instance of {@link Header}.
+	 * `__toString()`.
 	 *
 	 * @return array
 	 */
 	static protected function parse($source)
 	{
-		if ($source instanceof self)
-		{
-			return [ $source->value, $source->parameters ];
-		}
-
 		if (is_object($source) && method_exists($source, '__toString'))
 		{
 			$source = (string) $source;
@@ -331,14 +325,12 @@ abstract class Header implements \ArrayAccess
 	 */
 	public function __unset($property)
 	{
-		if (isset($this->parameters[$property]))
+		if (!isset($this->parameters[$property]))
 		{
-			unset($this[$property]);
-
 			return;
 		}
 
-		throw new PropertyNotDefined([ $property, $this ]);
+		unset($this[$property]);
 	}
 
 	/**

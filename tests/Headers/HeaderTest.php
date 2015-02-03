@@ -11,6 +11,7 @@
 
 namespace ICanBoogie\HTTP\Headers;
 
+use ICanBoogie\FormattedString;
 use ICanBoogie\HTTP\Headers\HeaderTest\A;
 
 class HeaderTest extends \PHPUnit_Framework_TestCase
@@ -60,11 +61,29 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
 
 		$a->p = 'madonna.mp3';
 		$this->assertEquals('inline; p=madonna.mp3', (string) $a);
+		$a['p'] = 'madonna.ogg';
+		$this->assertEquals('inline; p=madonna.ogg', (string) $a);
 		unset($a->p);
 		$this->assertNull($a->p);
 		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\HeaderParameter', $a['p']);
 		$this->assertNotInstanceOf('ICanBoogie\HTTP\Headers\HeaderParameter', $a->p);
 		$this->assertEquals('inline', (string) $a);
+	}
+
+	public function test_unsetting_attribute()
+	{
+		$a = new A;
+		$expected = uniqid();
+		$a->p = $expected;
+		$this->assertEquals($expected, $a->p);
+		$this->assertEquals($expected, $a['p']->value);
+
+		unset($a->p);
+		$this->assertNull($a->p);
+		$this->assertTrue(isset($a['p']));
+		$this->assertNull($a['p']->value);
+
+		unset($a->undefined);
 	}
 
 	public function test_ignore_unrecognized_parameter()
@@ -77,7 +96,7 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException ICanBoogie\PropertyNotDefined
+	 * @expectedException \ICanBoogie\PropertyNotDefined
 	 */
 	public function test_setting_unsupported_attribute_using_a_property_should_throw_an_exception()
 	{
@@ -86,7 +105,7 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException ICanBoogie\OffsetNotDefined
+	 * @expectedException \ICanBoogie\OffsetNotDefined
 	 */
 	public function test_setting_unsupported_attribute_using_an_offset_should_throw_an_exception()
 	{
@@ -95,7 +114,7 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException ICanBoogie\PropertyNotDefined
+	 * @expectedException \ICanBoogie\PropertyNotDefined
 	 */
 	public function test_getting_unsupported_attribute_using_a_property_should_throw_an_exception()
 	{
@@ -104,12 +123,46 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException ICanBoogie\OffsetNotDefined
+	 * @expectedException \ICanBoogie\OffsetNotDefined
 	 */
 	public function test_getting_unsupported_attribute_using_an_offset_should_throw_an_exception()
 	{
 		$a = new A;
 		$b = $a['b'];
+	}
+
+	public function test_from()
+	{
+		$h = new A;
+		$this->assertSame($h, Header::from($h));
+	}
+
+	public function test_from_to_string()
+	{
+		$h = A::from(new FormattedString('madonna; p=music'));
+
+		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\Header', $h);
+		$this->assertEquals("madonna", $h->value);
+		$this->assertEquals("music", $h->p);
+	}
+
+	/**
+	 * @expectedException \InvalidArgumentException
+	 * @dataProvider provide_invalid_from_source
+	 */
+	public function test_from_with_invalid_input_should_throw_exception($source)
+	{
+		$a = A::from(new \StdClass);
+	}
+
+	public function provide_invalid_from_source()
+	{
+		return [
+
+			[ new \StdClass ],
+			[ [ 1, 2, 3 ] ]
+
+		];
 	}
 }
 

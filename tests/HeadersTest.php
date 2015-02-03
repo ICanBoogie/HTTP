@@ -108,6 +108,7 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 			[ 'If-Modified-Since', $v1, $expected ],
 			[ 'If-Modified-Since', $v2, $expected ],
 			[ 'If-Modified-Since', $v3, $expected ],
+			[ 'If-Modified-Since', $v3 . ";length=xxxx", $expected ],
 
 			[ 'If-Unmodified-Since', $v1, $expected ],
 			[ 'If-Unmodified-Since', $v2, $expected ],
@@ -167,5 +168,57 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 		$cc2 = $h2['Cache-Control'];
 
 		$this->assertNotSame($cc2, $cc1);
+	}
+
+	public function test_should_iterate()
+	{
+		$h = new Headers([
+
+			'REQUEST_URI' => '/',
+			'HTTP_CACHE_CONTROL' => 'public',
+			'HTTP_DATE' => 'now',
+			'HTTP_EXPIRES' => '+1 month'
+
+		]);
+
+		$names = [];
+
+		foreach ($h as $field => $v)
+		{
+			$names[] = $field;
+		}
+
+		$this->assertEquals([ 'Cache-Control', 'Date', 'Expires' ], $names);
+	}
+
+	public function test_should_send_headers()
+	{
+		$now = new DateTime('now', 'utc');
+		$in_one_month = new DateTime('+1 month', 'utc');
+
+		$h = $this
+			->getMockBuilder('ICanBoogie\HTTP\Headers')
+			->setMethods([ 'send_header' ])
+			->getMock();
+
+		$h->expects($this->exactly(4))
+			->method('send_header')
+			->withConsecutive(
+
+				[ "Cache-Control", "public" ],
+				[ "X-Empty-3", "0" ],
+				[ "Date", $now->as_rfc1123 ],
+				[ "Expires", $in_one_month->as_rfc1123 ]
+
+			);
+
+		$h['Cache-Control'] = 'public';
+		$h['X-Empty-1'] = null;
+		$h['X-Empty-2'] = '';
+		$h['X-Empty-3'] = 0;
+		$h['Date'] = $now;
+		$h['Expires'] = $in_one_month;
+
+		$h();
 	}
 }

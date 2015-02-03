@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP\Headers;
 
-use ICanBoogie\PropertyNotDefined;
+use ICanBoogie\Accessor\AccessorTrait;
 
 /**
  * Representation of a header parameter.
@@ -25,6 +25,8 @@ use ICanBoogie\PropertyNotDefined;
  */
 class HeaderParameter
 {
+	use AccessorTrait;
+
 	/**
 	 * Token of the parameter.
 	 *
@@ -32,12 +34,22 @@ class HeaderParameter
 	 */
 	protected $attribute;
 
+	protected function get_attribute()
+	{
+		return $this->attribute;
+	}
+
 	/**
 	 * Value of the parameter.
 	 *
 	 * @var string
 	 */
 	public $value;
+
+	protected function get_charset()
+	{
+		return mb_detect_encoding($this->value) ?: 'ISO-8859-1';
+	}
 
 	/**
 	 * Language of the value.
@@ -155,26 +167,6 @@ class HeaderParameter
 		$this->attribute = $attribute;
 		$this->value = $value;
 		$this->language = $language;
-	}
-
-	/**
-	 * Handles the {@link $attribute} and {@link $charset} magic properties.
-	 *
-	 * @param string $property
-	 *
-	 * @throws PropertyNotDefined in attempt to get an undefined property.
-	 *
-	 * @return mixed
-	 */
-	public function __get($property)
-	{
-		switch ($property)
-		{
-			case 'attribute': return $this->attribute;
-			case 'charset': return mb_detect_encoding($this->value) ?: 'ISO-8859-1';
-		}
-
-		throw new PropertyNotDefined(array($property, $this));
 	}
 
 	/**

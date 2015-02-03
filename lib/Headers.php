@@ -140,9 +140,22 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 				continue;
 			}
 
-			header("$field: $value");
+			$this->send_header($field, $value);
 		}
 	}
+
+	/**
+	 * Send header field.
+	 *
+	 * Note: The only reason for this method is testing.
+	 *
+	 * @param string $field
+	 * @param string $value
+	 */
+	protected function send_header($field, $value)
+	{
+		header("$field: $value"); // @codeCoverageIgnore
+	} // @codeCoverageIgnore
 
 	/**
 	 * Checks if a header field exists.

@@ -83,7 +83,7 @@ class Response
 		}
 		else if (!($headers instanceof Headers))
 		{
-			throw new \InvalidArgumentException("$headers must be an array or a ICanBoogie\\HTTP\\Headers instance. Given: " . gettype($headers));
+			throw new \InvalidArgumentException("\$headers must be an array or a ICanBoogie\\HTTP\\Headers instance. Given: " . gettype($headers));
 		}
 
 		$this->headers = $headers;

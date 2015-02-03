@@ -31,7 +31,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @dataProvider provide_test_write_readonly_properties
-	 * @expectedException ICanBoogie\PropertyNotWritable
+	 * @expectedException \ICanBoogie\PropertyNotWritable
 	 *
 	 * @param string $property Property name.
 	 */
@@ -81,6 +81,18 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$v = '192.168.13.69';
 		$r = Request::from([ 'ip' => $v ]);
 		$this->assertObjectNotHasAttribute('ip', $r);
+		$this->assertEquals($v, $r->ip);
+	}
+
+	public function test_from_with_forwarded_ip()
+	{
+		$v = '192.168.13.69';
+		$r = Request::from([ 'headers' => [
+
+			'X-Forwarded-For' => "$v,::1"
+
+		] ]);
+
 		$this->assertEquals($v, $r->ip);
 	}
 
@@ -215,6 +227,26 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$r = Request::from([ 'method' => Request::METHOD_OPTIONS ]);
 		$this->assertObjectNotHasAttribute('method', $r);
 		$this->assertEquals(Request::METHOD_OPTIONS, $r->method);
+	}
+
+	public function test_from_with_emulated_method()
+	{
+		$r = Request::from([
+
+			'method' => Request::METHOD_POST,
+			'request_params' => [ '_method' => Request::METHOD_DELETE ]
+
+		]);
+
+		$this->assertEquals(Request::METHOD_DELETE, $r->method);
+	}
+
+	/**
+	 * @expectedException \ICanBoogie\HTTP\MethodNotSupported
+	 */
+	public function test_from_with_invalid_method()
+	{
+		Request::from([ 'method' => uniqid() ]);
 	}
 
 	public function test_from_with_path()
@@ -369,6 +401,83 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$this->assertSame($headers, $r->headers);
 	}
 
+	/**
+	 * @dataProvider provide_test_get_is_local
+	 */
+	public function test_get_is_local($ip, $expected)
+	{
+		$r = Request::from([ 'ip' => $ip ]);
+		$this->assertEquals($expected, $r->is_local);
+	}
+
+	public function provide_test_get_is_local()
+	{
+		return [
+
+			[ '::1', true ],
+			[ '127.0.0.1', true ],
+			[ '127.0.0.255', true ],
+			[ '0:0:0:0:0:0:0:1', true ],
+			[ '192.168.0.1', false ],
+			[ '0:0:0:0:0:0:0:2', false ]
+
+		];
+	}
+
+	public function test_get_script_name()
+	{
+		$expected = __FILE__;
+		$r = Request::from([], [ 'SCRIPT_NAME' => $expected ]);
+		$this->assertEquals($expected, $r->script_name);
+	}
+
+	/**
+	 * @dataProvider provide_test_get_authorization
+	 */
+	public function test_get_authorization($env, $expected)
+	{
+		$r = Request::from([], $env);
+		$this->assertEquals($expected, $r->authorization);
+	}
+
+	public function provide_test_get_authorization()
+	{
+		$ex1 = uniqid();
+		$ex2 = uniqid();
+		$ex3 = uniqid();
+		$ex4 = uniqid();
+
+		return [
+
+			[ [ 'HTTP_AUTHORIZATION' => $ex1 ], $ex1 ],
+			[ [ 'X-HTTP_AUTHORIZATION' => $ex2 ], $ex2 ],
+			[ [ 'X_HTTP_AUTHORIZATION' => $ex3 ], $ex3 ],
+			[ [ 'REDIRECT_X_HTTP_AUTHORIZATION' => $ex4 ], $ex4 ],
+			[ [  ], null ]
+
+		];
+	}
+
+	public function test_get_port()
+	{
+		$expected = '1234';
+		$r = Request::from([], [ 'REQUEST_PORT' => $expected ]);
+		$this->assertEquals($expected, $r->port);
+	}
+
+	public function test_get_normalized_path()
+	{
+		$expected = '/';
+		$r = Request::from('/index.php');
+		$this->assertEquals($expected, $r->normalized_path);
+	}
+
+	public function test_get_extension()
+	{
+		$r = Request::from('/cat.gif');
+		$this->assertEquals('gif', $r->extension);
+	}
+
 	public function test_query_string_from_uri()
 	{
 		$p = '/api/users/login';
@@ -430,12 +539,27 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$this->assertSame([ 'p1' => 1, 'p2' => 2, 'p3' => 3, 'p4' => 4 ], $r->params);
 
 		$r['p5'] = 5;
+		$this->assertTrue(isset($r['p5']));
 
 		$expected = [ 'p1' => 1, 'p2' => 2, 'p3' => 3, 'p4' => 4, 'p5' => 5 ];
 		$this->assertSame($expected, $r->params);
 		unset($r->params);
 		$expected = [ 'p1' => 1, 'p2' => 2, 'p3' => 3, 'p4' => 4, 'p5' => 5 ];
 		$this->assertEquals($expected, $r->params);
+
+		unset($r['p5']);
+		$expected = [ 'p1' => 1, 'p2' => 2, 'p3' => 3, 'p4' => 4 ];
+		$this->assertEquals($expected, $r->params);
+		$this->assertFalse(isset($r['p5']));
+
+		$t = [];
+
+		foreach ($r as $k => $v)
+		{
+			$t[$k] = $v;
+		}
+
+		$this->assertEquals($expected, $t);
 	}
 
 	/**
@@ -512,5 +636,155 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$this->assertSame([ ], $r3->query_params);
 		$this->assertSame([ ], $r3->path_params);
 		$this->assertSame([ ], $r3->params);
+	}
+
+	/**
+	 * @expectedException \InvalidArgumentException
+	 */
+	public function test_should_throw_exception_when_changing_with_unsupported_property()
+	{
+		$r = Request::from();
+		$r->change([ 'unsupported_property' => uniqid() ]);
+	}
+
+	public function test_send()
+	{
+		$response = $this
+			->getMockBuilder('ICanBoogie\HTTP\Response')
+			->disableOriginalConstructor()
+			->getMock();
+
+		$request_params = [
+
+			'p1' => uniqid(),
+			'p2' => uniqid()
+
+		];
+
+		$properties = [
+
+			'method' => Request::METHOD_POST,
+			'request_params' => $request_params,
+			'path_params' => [],
+			'query_params' => []
+
+		];
+
+		$r1 = $this
+			->getMockBuilder('ICanBoogie\HTTP\Request')
+			->disableOriginalConstructor()
+			->setMethods([ 'change' ])
+			->getMock();
+
+		$r2 = $this
+			->getMockBuilder('ICanBoogie\HTTP\Request')
+			->disableOriginalConstructor()
+			->setMethods([ 'dispatch' ])
+			->getMock();
+
+		$r2->expects($this->once())
+			->method('dispatch')
+			->willReturn($response);
+
+		$r1->expects($this->once())
+			->method('change')
+			->with($properties)
+			->willReturn($r2);
+
+		$this->assertSame($response, $r1->post($request_params));
+	}
+
+	/**
+	 * @expectedException \ICanBoogie\Prototype\MethodNotDefined
+	 */
+	public function test_should_throw_exception_when_invoking_undefined_method()
+	{
+		$r = Request::from();
+		$r->undefined();
+	}
+
+	public function test_invoke()
+	{
+		$response = new Response;
+
+		$r = $this
+			->getMockBuilder('ICanBoogie\HTTP\Request')
+			->disableOriginalConstructor()
+			->setMethods([ 'dispatch' ])
+			->getMock();
+
+		$r->expects($this->once())
+			->method('dispatch')
+			->willReturn($response);
+
+		/* @var $r Request */
+
+		$this->assertSame($response, $r());
+	}
+
+	public function test_invoke_with_exception()
+	{
+		$exception = new \Exception;
+
+		$r = $this
+			->getMockBuilder('ICanBoogie\HTTP\Request')
+			->disableOriginalConstructor()
+			->setMethods([ 'dispatch' ])
+			->getMock();
+
+		$r->expects($this->once())
+			->method('dispatch')
+			->willThrowException($exception);
+
+		/* @var $r Request */
+
+		try
+		{
+			$r();
+
+			$this->fail("Expected exception.");
+		}
+		catch (\Exception $e)
+		{
+			$this->assertNull(Request::get_current_request());
+			$this->assertSame($exception, $e);
+		}
+	}
+
+	public function test_parent()
+	{
+		$response = new Response;
+
+		$r1 = $this
+			->getMockBuilder('ICanBoogie\HTTP\Request')
+			->disableOriginalConstructor()
+			->setMethods([ 'dispatch' ])
+			->getMock();
+
+		$r2 = $this
+			->getMockBuilder('ICanBoogie\HTTP\Request')
+			->disableOriginalConstructor()
+			->setMethods([ 'dispatch' ])
+			->getMock();
+
+		$r1->expects($this->once())
+			->method('dispatch')
+			->willReturnCallback(function() use ($r2) {
+
+				return $r2();
+
+			});
+
+		$r2->expects($this->once())
+			->method('dispatch')
+			->willReturnCallback(function() use ($response, $r1, $r2) {
+
+				$this->assertEquals($r2->parent, $r1);
+
+				return $response;
+
+			});
+
+		$this->assertSame($response, $r1());
 	}
 }

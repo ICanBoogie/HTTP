@@ -11,8 +11,8 @@
 
 namespace ICanBoogie\HTTP;
 
+use ICanBoogie\Accessor\AccessorTrait;
 use ICanBoogie\Prototype\MethodNotDefined;
-use ICanBoogie\PrototypeTrait;
 
 /**
  * An HTTP request.
@@ -83,7 +83,7 @@ use ICanBoogie\PrototypeTrait;
  */
 class Request implements \ArrayAccess, \IteratorAggregate
 {
-	use PrototypeTrait;
+	use AccessorTrait;
 
 	/*
 	 * HTTP methods as defined by the {@link http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html Hypertext Transfer protocol 1.1}.
@@ -133,7 +133,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * Parameters extracted from the request path.
 	 *
-	 * @var array
+	 * @var array// @codeCoverageIgnore
 	 */
 	public $path_params = [];
 
@@ -268,7 +268,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 			'path_params' => [],
 			'query_params' => &$_GET,
 			'request_params' => &$_POST,
-			'files' => &$_FILES
+			'files' => &$_FILES // @codeCoverageIgnore
 
 		], $_SERVER);
 	}
@@ -377,6 +377,8 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @param array $properties Initial properties.
 	 * @param array $env Environment of the request, usually the `$_SERVER` super global.
+	 *
+	 * @throws MethodNotSupported when the request method is not supported.
 	 */
 	protected function __construct(array $properties, array $env=[])
 	{
@@ -385,6 +387,13 @@ class Request implements \ArrayAccess, \IteratorAggregate
 		foreach ($properties as $property => $value)
 		{
 			$this->$property = $value;
+		}
+
+		$method = $this->method;
+
+		if (!in_array($method, self::$methods))
+		{
+			throw new MethodNotSupported($method);
 		}
 
 		if (!$this->headers)
@@ -411,37 +420,65 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
+	 * Alias for {@link send()}.
+	 *
+	 * @return Response The response to the request.
+	 */
+	public function __invoke()
+	{
+		return $this->send();
+	}
+
+	/**
 	 * Dispatch the request.
 	 *
-	 * The {@link parent} property is used for request chaining. The {@link $current_request}
-	 * class property is set to the current request.
+	 * The {@link parent} property is used for request chaining.
 	 *
 	 * Note: If an exception is thrown during dispatch {@link $current_request} is not updated!
+	 *
+	 * Note: If the request is changed because of the `$method` or `$params` parameters, it
+	 * is the _changed_ instance that is dispatched, not the actual instance.
+	 *
+	 * @param string|null $method Use this parameter to change the request method.
+	 * @param array|null $params Use this parameter to change the {@link $request_params}
+	 * property of the request.
 	 *
 	 * @return Response The response to the request.
 	 *
 	 * @throws \Exception re-throws exception raised during dispatch.
 	 */
-	public function __invoke()
+	public function send($method = null, array $params = null)
 	{
+		$request = $this->adapt($method, $params);
+
 		$this->parent = self::$current_request;
 
-		self::$current_request = $this;
+		self::$current_request = $request;
 
 		try
 		{
-			$response = dispatch($this);
+			$response = $request->dispatch();
 
-			self::$current_request = $this->parent;
+			self::$current_request = $request->parent;
 
 			return $response;
 		}
 		catch (\Exception $e)
 		{
-			self::$current_request = $this->parent;
+			self::$current_request = $request->parent;
 
 			throw $e;
 		}
+	}
+
+	/**
+	 * Dispatches the request using the {@link dispatch()} helper.
+	 *
+	 * @return Response
+	 */
+	protected function dispatch()
+	{
+		return dispatch($this); // @codeCoverageIgnore
 	}
 
 	/**
@@ -480,17 +517,27 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * Invoke the request using another method.
+	 * Adapts the request to the specified method and params.
 	 *
-	 * @param string|null $method The request method.
-	 * @param array|null $params The request parameters. Use this parameter to override the request
-	 * parameters.
+	 * @param string $method The method.
+	 * @param array $params The params.
 	 *
-	 * @return Response The response to the request.
+	 * @return Request The same instance is returned if the method is the same and the params
+	 * are `null`. Otherwise a _changed_ request is returned.
 	 */
-	protected function send($method, array $params=null)
+	protected function adapt($method, array $params = null)
 	{
-		$properties = [ 'method' => $method ];
+		if ((!$method || $method == $this->method) && !$params)
+		{
+			return $this;
+		}
+
+		$properties = [];
+
+		if ($method)
+		{
+			$properties = [ 'method' => $method ];
+		}
 
 		if ($params !== null)
 		{
@@ -499,9 +546,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 			$properties['query_params'] = [];
 		}
 
-		$request = $this->change($properties);
-
-		return $request();
+		return $this->change($properties);
 	}
 
 	/**
@@ -640,8 +685,6 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	 * The method is retrieved from {@link $env}, if the key `REQUEST_METHOD` is not defined,
 	 * the method defaults to {@link METHOD_GET}.
 	 *
-	 * @throws MethodNotSupported when the request method is not supported.
-	 *
 	 * @return string
 	 */
 	protected function get_method()
@@ -651,11 +694,6 @@ class Request implements \ArrayAccess, \IteratorAggregate
 		if ($method == self::METHOD_POST && !empty($this->request_params['_method']))
 		{
 			$method = strtoupper($this->request_params['_method']);
-		}
-
-		if (!in_array($method, self::$methods))
-		{
-			throw new MethodNotSupported($method);
 		}
 
 		return $method;
@@ -841,13 +879,13 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	 */
 	protected function get_ip()
 	{
-		if (isset($this->env['HTTP_X_FORWARDED_FOR']))
+		$forwarded_for = $this->headers['X-Forwarded-For'];
+
+		if ($forwarded_for)
 		{
-			$addr = $this->env['HTTP_X_FORWARDED_FOR'];
+			list($ip) = explode(',', $forwarded_for);
 
-			list($addr) = explode(',', $addr);
-
-			return $addr;
+			return $ip;
 		}
 
 		return (isset($this->env['REMOTE_ADDR']) ? $this->env['REMOTE_ADDR'] : null) ?: '::1';

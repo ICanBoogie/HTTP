@@ -14,6 +14,45 @@ namespace ICanBoogie\HTTP;
 class FileTest extends \PHPUnit_Framework_TestCase
 {
 	/**
+	 * Creates a file with random bytes.
+	 *
+	 * @param string $extension
+	 *
+	 * @return string The pathname of the file.
+	 */
+	static private function create_file($extension = '')
+	{
+		$pathname = __DIR__ . '/sandbox/bytes-' . uniqid() . $extension;
+		file_put_contents($pathname, openssl_random_pseudo_bytes(2048));
+
+		return $pathname;
+	}
+
+	/**
+	 * @dataProvider provide_test_resolve_type
+	 *
+	 * @param $pathname
+	 * @param $expected
+	 */
+	public function test_resolve_type($pathname, $expected)
+	{
+		$this->assertEquals($expected, File::resolve_type($pathname));
+	}
+
+	public function provide_test_resolve_type()
+	{
+		$bytes = self::create_file();
+
+		return [
+
+			[ $bytes, 'application/octet-stream' ],
+			[ __DIR__ . '/../composer.json', 'application/json' ],
+			[ __DIR__ . '/../LICENSE', 'text/plain' ]
+
+		];
+	}
+
+	/**
 	 * @dataProvider provide_test_get_extension
 	 */
 	public function test_get_extension($expected, $pathname)
@@ -198,7 +237,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @dataProvider provide_readonly_properties
-	 * @expectedException ICanBoogie\PropertyNotWritable
+	 * @expectedException \ICanBoogie\PropertyNotWritable
 	 */
 	public function test_write_readonly_properties($property)
 	{
@@ -261,5 +300,60 @@ class FileTest extends \PHPUnit_Framework_TestCase
 		$this->assertNull($file->error);
 		$this->assertFalse($file->is_valid);
 		$this->assertFalse($file->is_uploaded);
+	}
+
+	public function test_should_get_defined_type()
+	{
+		$expected = 'application/x-bytes';
+
+		$file = File::from([
+
+			'pathname' => self::create_file(),
+			'type' => $expected
+
+		]);
+
+		$this->assertEquals($expected, $file->type);
+	}
+
+	public function test_should_get_defined_size()
+	{
+		$expected = 123456;
+
+		$file = File::from([
+
+			'pathname' => self::create_file(),
+			'size' => $expected
+
+		]);
+
+		$this->assertEquals($expected, $file->size);
+	}
+
+	/**
+	 * @expectedException \Exception
+	 */
+	public function test_move_overwrite()
+	{
+		$p1 = self::create_file();
+		$p2 = self::create_file();
+
+		$file = File::from($p1);
+		$file->move($p2);
+	}
+
+	public function test_move_overwrite_force()
+	{
+		$p1 = self::create_file();
+		$p2 = self::create_file();
+
+		$expected = file_get_contents($p1);
+
+		$file = File::from([ 'pathname' => $p1 ]);
+		$file->move($p2, true);
+
+		$this->assertFileNotExists($p1);
+		$this->assertFileExists($p2);
+		$this->assertStringEqualsFile($p2, $expected);
 	}
 }

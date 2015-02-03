@@ -47,7 +47,8 @@ class RedirectResponse extends Response
 	Redirecting to <a href="{$location}">{$title}</a>.
 </body>
 </html>
-EOT;
+EOT
+; // @codeCoverageIgnore
 			},
 
 			$status, [ 'Location' => $url ] + $headers
@@ -55,7 +56,7 @@ EOT;
 
 		if (!$this->status->is_redirect)
 		{
-			throw new \InvalidArgumentException("The HTTP status code is not a redirect: {$status}.");
+			throw new StatusCodeNotValid($this->status->code, "The HTTP status code is not a redirect: {$status}.");
 		}
 	}
 }

@@ -11,6 +11,8 @@
 
 namespace ICanBoogie\HTTP;
 
+use ICanBoogie\Accessor\AccessorTrait;
+
 /**
  * Representation of a POST file.
  *
@@ -29,7 +31,7 @@ namespace ICanBoogie\HTTP;
  */
 class File implements \ICanBoogie\ToArray
 {
-	use \ICanBoogie\PrototypeTrait;
+	use AccessorTrait;
 
 	static protected $types = [
 
@@ -39,6 +41,7 @@ class File implements \ICanBoogie\ToArray
 		'.jpg'  => 'image/jpeg',
 		'.jpeg' => 'image/jpeg',
 		'.js'   => 'application/javascript',
+		'.json' => 'application/json',
 		'.mp3'  => 'audio/mpeg',
 		'.odt'  => 'application/vnd.oasis.opendocument.text',
 		'.pdf'  => 'application/pdf',
@@ -56,6 +59,7 @@ class File implements \ICanBoogie\ToArray
 	static protected $forced_types = [
 
 		'.js',
+		'.json',
 		'.php',
 		'.txt'
 
@@ -75,14 +79,23 @@ class File implements \ICanBoogie\ToArray
 		{
 			$properties = isset($_FILES[$properties_or_name])
 			? $_FILES[$properties_or_name]
-			: [ 'name' => $properties_or_name];
+			: [ 'name' => basename($properties_or_name) ];
 		}
 		else if (is_array($properties_or_name))
 		{
 			$properties = $properties_or_name;
 		}
 
+		$properties = self::filter_initial_properties($properties);
+
 		return new static($properties);
+	}
+
+	static private function filter_initial_properties(array $properties)
+	{
+		static $initial_properties = [ 'name', 'type', 'size', 'tmp_name', 'error', 'pathname' ];
+
+		return array_intersect_key($properties, array_combine($initial_properties, $initial_properties));
 	}
 
 	/**
@@ -99,7 +112,12 @@ class File implements \ICanBoogie\ToArray
 	{
 		$extension = '.' . strtolower(pathinfo($pathname, PATHINFO_EXTENSION));
 
-		if (!in_array($extension, self::$forced_types) && file_exists($pathname) && extension_loaded('fileinfo'))
+		if (in_array($extension, self::$forced_types))
+		{
+			return self::$types[$extension];
+		}
+
+		if (file_exists($pathname) && extension_loaded('fileinfo'))
 		{
 			$fi = new \finfo(FILEINFO_MIME_TYPE);
 			$type = $fi->file($pathname);
@@ -108,14 +126,14 @@ class File implements \ICanBoogie\ToArray
 			{
 				return isset(self::$types_alias[$type]) ? self::$types_alias[$type] : $type;
 			}
-		}
+		} // @codeCoverageIgnore
 
 		if (isset(self::$types[$extension]))
 		{
 			return self::$types[$extension];
 		}
 
-		return 'application/octet-stream';
+		return 'application/octet-stream'; // @codeCoverageIgnore
 	}
 
 	/**
@@ -131,7 +149,7 @@ class File implements \ICanBoogie\ToArray
 	{
 		if (class_exists('ICanBoogie\I18n\FormattedString', true))
 		{
-			return new \ICanBoogie\I18n\FormattedString($format, $args, $options);
+			return new \ICanBoogie\I18n\FormattedString($format, $args, $options); // @codeCoverageIgnore
 		}
 
 		if (class_exists('ICanBoogie\FormattedString', true))
@@ -139,7 +157,7 @@ class File implements \ICanBoogie\ToArray
 			return new \ICanBoogie\FormattedString($format, $args, $options);
 		}
 
-		return \ICanBoogie\format($format, $args);
+		return \ICanBoogie\format($format, $args); // @codeCoverageIgnore
 	}
 
 	/*
@@ -260,15 +278,8 @@ class File implements \ICanBoogie\ToArray
 
 	protected function __construct(array $properties)
 	{
-		static $initial_properties = [ 'name', 'type', 'size', 'tmp_name', 'error', 'pathname' ];
-
 		foreach ($properties as $property => $value)
 		{
-			if (!in_array($property, $initial_properties))
-			{
-				continue;
-			}
-
 			$this->$property = $value;
 		}
 
@@ -482,7 +493,7 @@ class File implements \ICanBoogie\ToArray
 		{
 			if (!rename($this->pathname, $destination))
 			{
-				throw new \Exception("Unable to move file to destination: $destination.");
+				throw new \Exception("Unable to move file to destination: $destination.");  // @codeCoverageIgnore
 			}
 		}
 		else

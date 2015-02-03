@@ -95,9 +95,17 @@ class CacheControlTest extends \PHPUnit_Framework_TestCase
 			[ 'min-fresh=0', [ 'min_fresh' => 0 ] ],
 			[ '', [ 'min_fresh' => null ] ],
 
-			[ 'public, no-store, max-age=0', [ 'cacheable' => 'public', 'no_store' => true, 'must_revalidate' => false, 'max_age' => 0 ] ]
+			[ 'public, no-store, max-age=0', [ 'cacheable' => 'public', 'no_store' => true, 'must_revalidate' => false, 'max_age' => 0 ] ],
 
 		];
+	}
+
+	public function test_from_same()
+	{
+		$instance = CacheControl::from('public, no-store, max-age=0');
+
+		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\CacheControl', $instance);
+		$this->assertSame($instance, CacheControl::from($instance));
 	}
 
 	/**
@@ -107,5 +115,11 @@ class CacheControlTest extends \PHPUnit_Framework_TestCase
 	{
 		$f = new CacheControl;
 		$f->cacheable = 'madonna';
+	}
+
+	public function test_extensions()
+	{
+		$f = new CacheControl("public, ext1=one, ext2=two");
+		$this->assertEquals([ 'ext1' => "one", 'ext2' => "two" ], $f->extensions);
 	}
 }

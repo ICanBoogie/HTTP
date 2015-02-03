@@ -22,6 +22,60 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 		self::$response = new Response;
 	}
 
+	public function test_clone()
+	{
+		$r1 = new Response;
+		$r2 = clone $r1;
+
+		$this->assertNotSame($r2->headers, $r1->headers);
+		$this->assertNotSame($r2->status, $r1->status);
+	}
+
+	/**
+	 * @expectedException \UnexpectedValueException
+	 */
+	public function test_invalid_body_should_throw_exception()
+	{
+		new Response(new \Stdclass);
+	}
+
+	/**
+	 * @expectedException \InvalidArgumentException
+	 */
+	public function test_should_throw_exception_setting_empty_string_location()
+	{
+		$r = new Response;
+		$r->location = '';
+	}
+
+	/**
+	 * @expectedException \InvalidArgumentException
+	 */
+	public function test_invalid_headers_should_throw_exception()
+	{
+		new Response(null, 200, (object) []);
+	}
+
+	public function test_should_remove_location_with_null()
+	{
+		$location = '/path/to/resource';
+		$r = new Response;
+		$r->location = $location;
+		$this->assertEquals($location, $r->location);
+		$this->location = null;
+		$this->assertNull($this->location);
+	}
+
+	public function test_should_set_content_type()
+	{
+		$expected = 'application/json';
+		$r = new Response;
+		$r->content_type = $expected;
+		$this->assertEquals($expected, $r->content_type);
+		$r->content_type = null;
+		$this->assertNull($r->content_type->value);
+	}
+
 	/**
 	 * @dataProvider provide_test_write_readonly_properties
 	 * @expectedException \ICanBoogie\PropertyNotWritable
