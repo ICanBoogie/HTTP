@@ -18,7 +18,7 @@ use ICanBoogie\Accessor\AccessorTrait;
  *
  * @property-read string $location The location of the redirect.
  */
-class ForceRedirect extends HTTPError
+class ForceRedirect extends \Exception implements Exception
 {
 	use AccessorTrait;
 

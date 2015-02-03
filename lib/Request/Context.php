@@ -13,6 +13,7 @@ namespace ICanBoogie\HTTP\Request;
 
 use ICanBoogie\HTTP\DispatcherInterface;
 use ICanBoogie\HTTP\Request;
+use ICanBoogie\PrototypeTrait;
 
 /**
  * The context of a request.
@@ -21,19 +22,23 @@ use ICanBoogie\HTTP\Request;
  * request.
  *
  * @property-read Request $request The request associated with the context.
- * @property-read DispatcherInterface $dispatcher The dispatcher currently dispatching the request.
+ * @property DispatcherInterface $dispatcher The dispatcher currently dispatching the request.
  */
-class Context extends \ICanBoogie\Object
+class Context
 {
+	use PrototypeTrait;
+
 	/**
 	 * The request the context belongs to.
-	 *
-	 * The variable is declared as private but is actually readable thanks to the
-	 * {@link get_request} getter.
 	 *
 	 * @var Request
 	 */
 	private $request;
+
+	protected function get_request()
+	{
+		return $this->request;
+	}
 
 	/**
 	 * The dispatcher currently dispatching the request.
@@ -41,26 +46,6 @@ class Context extends \ICanBoogie\Object
 	 * @var DispatcherInterface|null
 	 */
 	private $dispatcher;
-
-	/**
-	 * Constructor.
-	 *
-	 * @param Request $request The request the context belongs to.
-	 */
-	public function __construct(Request $request)
-	{
-		$this->request = $request;
-	}
-
-	/**
-	 * Returns the {@link $request} property.
-	 *
-	 * @return Request
-	 */
-	protected function get_request()
-	{
-		return $this->request;
-	}
 
 	/**
 	 * Sets the dispatcher currently dispatching the request.
@@ -79,13 +64,16 @@ class Context extends \ICanBoogie\Object
 		$this->dispatcher = $dispatcher;
 	}
 
-	/**
-	 * Returns the {@link $dispatcher} property.
-	 *
-	 * @return DispatcherInterface
-	 */
 	protected function get_dispatcher()
 	{
 		return $this->dispatcher;
+	}
+
+	/**
+	 * @param Request $request The request the context belongs to.
+	 */
+	public function __construct(Request $request)
+	{
+		$this->request = $request;
 	}
 }

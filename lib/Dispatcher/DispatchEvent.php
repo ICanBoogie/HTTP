@@ -38,8 +38,8 @@ class DispatchEvent extends \ICanBoogie\Event
 	/**
 	 * The event is constructed with the type `dispatch`.
 	 *
-	 * @param Dispatcher $target.
-	 * @param Request $request The request.
+	 * @param Dispatcher $target
+	 * @param Request $request
 	 * @param mixed $response Reference to the response.
 	 */
 	public function __construct(Dispatcher $target, Request $request, &$response)

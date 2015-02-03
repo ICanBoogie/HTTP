@@ -67,7 +67,7 @@ class CacheControl
 	/**
 	 * Returns the default values of the instance.
 	 *
-	 * @return array[string]mixed
+	 * @return array
 	 */
 	static protected function get_default_values()
 	{
@@ -303,7 +303,7 @@ class CacheControl
 	 *
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.6
 	 *
-	 * @var string
+	 * @var array
 	 */
 	public $extensions = [];
 

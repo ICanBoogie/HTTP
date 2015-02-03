@@ -15,9 +15,9 @@ namespace ICanBoogie\HTTP;
  * Exception thrown when the server is currently unavailable (because it is overloaded or
  * down for maintenance).
  */
-class ServiceUnavailable extends HTTPError
+class ServiceUnavailable extends \Exception implements Exception
 {
-	public function __construct($message="The server is currently unavailable (because it is overloaded or down for maintenance).", $code=503, \Exception $previous=null)
+	public function __construct($message = "The server is currently unavailable (because it is overloaded or down for maintenance).", $code = 503, \Exception $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 	}

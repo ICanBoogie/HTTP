@@ -16,31 +16,19 @@ use ICanBoogie\Accessor\AccessorTrait;
 /**
  * A response to a HTTP request.
  *
- * @property Status|mixed $status
+ * @property Status $status
+ * @property mixed $body The body of the response.
  *
  * @property int $ttl Adjusts the `s-maxage` part of the `Cache-Control` header field definition according to the `Age` header field definition.
- * See: {@link set_ttl()} {@link get_ttl()}
  * @property int $age Shortcut to the `Age` header field definition.
- * See: {@link set_age()} {@link get_age()}
  * @property Headers\CacheControl $cache_control Shortcut to the `Cache-Control` header field definition.
- * See: {@link set_cache_control()} {@link get_cache_control()}
  * @property int $content_length Shortcut to the `Content-Length` header field definition.
- * See: {@link set_content_length()} {@link get_content_length()}
  * @property Headers\ContentType $content_type Shortcut to the `Content-Type` header field definition.
- * See: {@link set_content_type()} {@link get_content_type()}
  * @property Headers\Date $date Shortcut to the `Date` header field definition.
- * See: {@link set_date()} {@link get_date()}
  * @property string $etag Shortcut to the `Etag` header field definition.
- * See: {@link set_etag()} {@link get_etag()}
  * @property Headers\Date $expires Shortcut to the `Expires` header field definition.
- * See: {@link set_expires()} {@link get_expires()}
  * @property Headers\Date $last_modified Shortcut to the `Last-Modified` header field definition.
- * See: {@link set_last_modified()} {@link get_last_modified()}
  * @property string $location Shortcut to the `Location` header field definition.
- * See: {@link set_location()} {@link get_location()}
- *
- * @property string|\Closure $body The body of the response.
- * See: {@link set_body()} {@link get_body()}
  *
  * @property-read boolean $is_cacheable {@link get_is_cacheable()}
  * @property-read boolean $is_fresh {@link get_is_fresh()}
@@ -72,10 +60,10 @@ class Response
 	 * properties.
 	 *
 	 * @param mixed $body The body of the response.
-	 * @param Status|int $status The status code of the response.
+	 * @param int|Status $status The status code of the response.
 	 * @param Headers|array $headers The initial header fields of the response.
 	 */
-	public function __construct($body=null, $status=200, $headers=[])
+	public function __construct($body = null, $status = 200, $headers = [])
 	{
 		if (is_array($headers))
 		{
@@ -233,7 +221,7 @@ class Response
 	/**
 	 * Sets response status code and optionally status message.
 	 *
-	 * @param integer|array $status HTTP status code or HTTP status code and HTTP status message.
+	 * @param int|Status $status HTTP status code or HTTP status code and HTTP status message.
 	 */
 	protected function set_status($status)
 	{
@@ -292,21 +280,23 @@ class Response
 	 */
 	protected function assert_body_is_valid($body)
 	{
-		if ($body !== null
-		&& !($body instanceof \Closure)
-		&& !is_numeric($body)
-		&& !is_string($body)
-		&& !(is_object($body) && method_exists($body, '__toString')))
+		if ($body === null
+		|| $body instanceof \Closure
+		|| is_numeric($body)
+		|| is_string($body)
+		|| (is_object($body) && method_exists($body, '__toString')))
 		{
-			throw new \UnexpectedValueException(\ICanBoogie\format
-			(
-				'The Response body must be a string, an object implementing the __toString() method or be callable, %type given. !value', array
-				(
-					'type' => gettype($body),
-					'value' => $body
-				)
-			));
+			return;
 		}
+
+		throw new \UnexpectedValueException(\ICanBoogie\format
+		(
+			'The Response body must be a string, an object implementing the __toString() method or be callable, %type given. !value', array
+			(
+				'type' => gettype($body),
+				'value' => $body
+			)
+		));
 	}
 
 	/**
@@ -451,7 +441,7 @@ class Response
 	/**
 	 * Sets the value of the `Last-Modified` header field.
 	 *
-	 * @param mixed $time.
+	 * @param mixed $time
 	 */
 	protected function set_last_modified($time)
 	{
@@ -473,7 +463,7 @@ class Response
 	 *
 	 * The method also calls the {@link session_cache_expire()} function.
 	 *
-	 * @param mixed $time.
+	 * @param mixed $time
 	 */
 	protected function set_expires($time)
 	{

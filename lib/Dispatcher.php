@@ -330,6 +330,9 @@ class CallableDispatcher implements DispatcherInterface
 {
 	private $callable;
 
+	/**
+	 * @param callable $callable
+	 */
 	public function __construct($callable)
 	{
 		$this->callable = $callable;

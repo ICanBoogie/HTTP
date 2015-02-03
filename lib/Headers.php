@@ -37,9 +37,21 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	];
 
 	/**
+	 * Normalizes field name.
+	 *
+	 * @param string $name
+	 *
+	 * @return string
+	 */
+	static private function normalize_field_name($name)
+	{
+		return mb_convert_case(strtr(substr($name, 5), '_', '-'), MB_CASE_TITLE);
+	}
+
+	/**
 	 * Header fields.
 	 *
-	 * @var array[string]mixed
+	 * @var array
 	 */
 	protected $fields = [];
 
@@ -51,7 +63,7 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @param array $fields The initial headers.
 	 */
-	public function __construct(array $fields=[])
+	public function __construct(array $fields = [])
 	{
 		if (isset($fields['REQUEST_URI']))
 		{
@@ -62,8 +74,8 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 					continue;
 				}
 
-				$field = strtr(substr($field, 5), '_', '-');
-				$field = mb_convert_case($field, MB_CASE_TITLE);
+				$field = self::normalize_field_name($field);
+
 				$this[$field] = $value;
 			}
 		}
@@ -73,8 +85,7 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 			{
 				if (strpos($field, 'HTTP_') === 0)
 				{
-					$field = strtr(substr($field, 5), '_', '-');
-					$field = mb_convert_case($field, MB_CASE_TITLE);
+					$field = self::normalize_field_name($field);
 				}
 
 				$this[$field] = $value;

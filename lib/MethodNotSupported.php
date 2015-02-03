@@ -16,9 +16,9 @@ use ICanBoogie\Accessor\AccessorTrait;
 /**
  * Exception thrown when the HTTP method is not supported.
  *
- * @property-read string $method The method that is not supported.
+ * @property-read string $method The unsupported HTTP method.
  */
-class MethodNotSupported extends HTTPError
+class MethodNotSupported extends \Exception implements Exception
 {
 	use AccessorTrait;
 
@@ -29,7 +29,12 @@ class MethodNotSupported extends HTTPError
 		return $this->method;
 	}
 
-	public function __construct($method, $code=500, \Exception $previous=null)
+	/**
+	 * @param string $method The unsupported HTTP method.
+	 * @param int $code
+	 * @param \Exception $previous
+	 */
+	public function __construct($method, $code = 500, \Exception $previous = null)
 	{
 		$this->method = $method;
 

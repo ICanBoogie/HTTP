@@ -113,6 +113,62 @@ class Request implements \ArrayAccess, \IteratorAggregate
 
 	];
 
+	static private $properties_mappers;
+
+	/**
+	 * Returns request properties mappers.
+	 *
+	 * @return \Closure[]
+	 */
+	static protected function get_properties_mappers()
+	{
+		if (self::$properties_mappers)
+		{
+			return self::$properties_mappers;
+		}
+
+		return self::$properties_mappers = static::create_properties_mappers();
+	}
+
+	/**
+	 * Returns request properties mappers.
+	 *
+	 * @return \Closure[]
+	 */
+	static protected function create_properties_mappers()
+	{
+		return [
+
+			'path_params' =>    function($value) { return $value; },
+			'query_params' =>   function($value) { return $value; },
+			'request_params' => function($value) { return $value; },
+			'cookie' =>         function($value) { return $value; },
+			'files' =>          function($value) { return $value; },
+			'headers' =>        function($value) { return ($value instanceof Headers) ? $value : new Headers($value); },
+
+			'cache_control' =>  function($value, array &$env) { $env['HTTP_CACHE_CONTROL'] = $value; },
+			'content_length' => function($value, array &$env) { $env['CONTENT_LENGTH'] = $value; },
+			'ip' =>             function($value, array &$env) { if ($value) $env['REMOTE_ADDR'] = $value; },
+			'is_local' =>       function($value, array &$env) { if ($value) $env['REMOTE_ADDR'] = '::1'; },
+			'is_delete' =>      function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_DELETE; },
+			'is_connect' =>     function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_CONNECT; },
+			'is_get' =>         function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_GET; },
+			'is_head' =>        function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_HEAD; },
+			'is_options' =>     function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_OPTIONS; },
+			'is_patch' =>       function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_PATCH; },
+			'is_post' =>        function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_POST; },
+			'is_put' =>         function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_PUT; },
+			'is_trace' =>       function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_TRACE; },
+			'is_xhr' =>         function($value, array &$env) { if ($value) $env['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'; else unset($env['HTTP_X_REQUESTED_WITH']); },
+			'method' =>         function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = $value; },
+			'path' =>           function($value, array &$env) { $env['REQUEST_URI'] = $value; }, // TODO-20130521: handle query string
+			'referer' =>        function($value, array &$env) { $env['HTTP_REFERER'] = $value; },
+			'uri' =>            function($value, array &$env) { $env['REQUEST_URI'] = $value; $qs = strpos($value, '?'); $env['QUERY_STRING'] = $qs === false ? '' : substr($value, $qs + 1); },
+			'user_agent' =>     function($value, array &$env) { $env['HTTP_USER_AGENT'] = $value; }
+
+		];
+	}
+
 	/**
 	 * Current request.
 	 *
@@ -298,7 +354,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	{
 		$properties = $properties ?: [];
 
-		$mappers = self::get_properties_mappers();
+		$mappers = static::get_properties_mappers();
 
 		foreach ($properties as $property => &$value)
 		{
@@ -324,52 +380,6 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * Returns properties to env mappers.
-	 *
-	 * @return array
-	 */
-	static public function get_properties_mappers()
-	{
-		static $mappers;
-
-		if (!$mappers)
-		{
-			$mappers = [
-
-				'path_params' =>    function($value) { return $value; },
-				'query_params' =>   function($value) { return $value; },
-				'request_params' => function($value) { return $value; },
-				'cookie' =>         function($value) { return $value; },
-				'files' =>          function($value) { return $value; },
-				'headers' =>        function($value) { return ($value instanceof Headers) ? $value : new Headers($value); },
-
-				'cache_control' =>  function($value, array &$env) { $env['HTTP_CACHE_CONTROL'] = $value; },
-				'content_length' => function($value, array &$env) { $env['CONTENT_LENGTH'] = $value; },
-				'ip' =>             function($value, array &$env) { if ($value) $env['REMOTE_ADDR'] = $value; },
-				'is_local' =>       function($value, array &$env) { if ($value) $env['REMOTE_ADDR'] = '::1'; },
-				'is_delete' =>      function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_DELETE; },
-				'is_connect' =>     function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_CONNECT; },
-				'is_get' =>         function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_GET; },
-				'is_head' =>        function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_HEAD; },
-				'is_options' =>     function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_OPTIONS; },
-				'is_patch' =>       function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_PATCH; },
-				'is_post' =>        function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_POST; },
-				'is_put' =>         function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_PUT; },
-				'is_trace' =>       function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_TRACE; },
-				'is_xhr' =>         function($value, array &$env) { if ($value) $env['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'; else unset($env['HTTP_X_REQUESTED_WITH']); },
-				'method' =>         function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = $value; },
-				'path' =>           function($value, array &$env) { $env['REQUEST_URI'] = $value; }, // TODO-20130521: handle query string
-				'referer' =>        function($value, array &$env) { $env['HTTP_REFERER'] = $value; },
-				'uri' =>            function($value, array &$env) { $env['REQUEST_URI'] = $value; $qs = strpos($value, '?'); $env['QUERY_STRING'] = $qs === false ? '' : substr($value, $qs + 1); },
-				'user_agent' =>     function($value, array &$env) { $env['HTTP_USER_AGENT'] = $value; }
-
-			];
-		}
-
-		return $mappers;
-	}
-
-	/**
 	 * Initialize the properties {@link $env}, {@link $headers} and {@link $context}.
 	 *
 	 * If the {@link $params} property is `null` it is set with an union of {@link $path_params},
@@ -382,6 +392,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	 */
 	protected function __construct(array $properties, array $env=[])
 	{
+		$this->context = new Request\Context($this);
 		$this->env = $env;
 
 		foreach ($properties as $property => $value)
@@ -389,19 +400,12 @@ class Request implements \ArrayAccess, \IteratorAggregate
 			$this->$property = $value;
 		}
 
-		$method = $this->method;
-
-		if (!in_array($method, self::$methods))
-		{
-			throw new MethodNotSupported($method);
-		}
+		$this->assert_method($this->method);
 
 		if (!$this->headers)
 		{
 			$this->headers = new Headers($env);
 		}
-
-		$this->context = new Request\Context($this);
 
 		if ($this->params === null)
 		{
@@ -482,6 +486,21 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
+	 * Asserts that a method is supported.
+	 *
+	 * @param string $method
+	 *
+	 * @throws MethodNotSupported
+	 */
+	private function assert_method($method)
+	{
+		if (!in_array($method, self::$methods))
+		{
+			throw new MethodNotSupported($method);
+		}
+	}
+
+	/**
 	 * Return a new instance with the specified changed properties.
 	 *
 	 * @param array $properties
@@ -493,7 +512,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	public function change(array $properties)
 	{
 		$changed = clone $this;
-		$mappers = $this->properties_mappers;
+		$mappers = static::get_properties_mappers();
 		$env = &$changed->env;
 
 		foreach ($properties as $property => $value)
@@ -844,26 +863,14 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	 */
 	protected function get_is_local()
 	{
-		static $patterns = [ '::1', '/^127\.0\.0\.\d{1,3}$/', '/^0:0:0:0:0:0:0:1(%.*)?$/' ];
-
 		$ip = $this->ip;
 
-		foreach ($patterns as $pattern)
+		if ($ip == '::1' || preg_match('/^127\.0\.0\.\d{1,3}$/', $ip))
 		{
-			if ($pattern{0} == '/')
-			{
-				if (preg_match($pattern, $ip))
-				{
-					return true;
-				}
-			}
-			else if ($pattern == $ip)
-			{
-				return true;
-			}
+			return true;
 		}
 
-		return false;
+		return preg_match('/^0:0:0:0:0:0:0:1(%.*)?$/', $ip);
 	}
 
 	/**
