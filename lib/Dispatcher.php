@@ -11,6 +11,8 @@
 
 namespace ICanBoogie\HTTP;
 
+use ICanBoogie\Exception\RescueEvent;
+
 /**
  * Dispatches requests.
  *
@@ -25,14 +27,14 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 	/**
 	 * The dispatchers called during the dispatching of the request.
 	 *
-	 * @var array[string]callable|string
+	 * @var array
 	 */
 	protected $dispatchers = [];
 
 	/**
 	 * The weights of the dispatchers.
 	 *
-	 * @var array[string]mixed
+	 * @var array
 	 */
 	protected $dispatchers_weight = [];
 
@@ -46,7 +48,7 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 	 *
 	 * @param array $dispatchers
 	 */
-	public function __construct(array $dispatchers=[])
+	public function __construct(array $dispatchers = [])
 	{
 		foreach ($dispatchers as $dispatcher_id => $dispatcher)
 		{
@@ -100,27 +102,39 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 		{
 			if ($e instanceof NotFound && $request->is_head)
 			{
-				$response = $this->handle($request->change([ 'is_get' => true ]));
-
-				if ($response->content_length === null)
-				{
-					try
-					{
-						$response->content_length = strlen((string) $response->body);
-					}
-					catch (\Exception $e)
-					{
-						#
-						# It's not that bad if we can't obtain the length of the body.
-						#
-					}
-				}
-
-				return $response;
+				return $this->handle_head($request);
 			}
 
 			return $this->rescue($e, $request);
 		}
+	}
+
+	/**
+	 * Trying to rescue a NotFound HEAD request using GET instead.
+	 *
+	 * @param Request $request
+	 *
+	 * @return Response
+	 */
+	private function handle_head(Request $request)
+	{
+		$response = $this->handle($request->change([ 'is_get' => true ]));
+
+		if ($response->content_length === null)
+		{
+			try
+			{
+				$response->content_length = strlen((string) $response->body);
+			}
+			catch (\Exception $e)
+			{
+				#
+				# It's not that bad if we can't obtain the length of the body.
+				#
+			}
+		}
+
+		return $response;
 	}
 
 	/**
@@ -231,7 +245,7 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 
 		if (!$response)
 		{
-			foreach ($this as $id => $dispatcher) // MOVE some to AGGREGATE
+			foreach ($this as $id => $dispatcher)
 			{
 				#
 				# If the dispatcher is not a callable then it is considered as a class name, which
@@ -243,25 +257,9 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 					$this->dispatchers[$id] = $dispatcher = is_callable($dispatcher) ? new CallableDispatcher($dispatcher) : new $dispatcher;
 				}
 
-				try
-				{
-					$request->context->dispatcher = $dispatcher;
-
-					$response = call_user_func($dispatcher, $request);
-				}
-				catch (\Exception $e)
-				{
-					if (!($dispatcher instanceof DispatcherInterface))
-					{
-						throw $e;
-					}
-
-					$response = $dispatcher->rescue($e, $request);
-				}
+				$response = $this->dispatch_with_dispatcher($dispatcher, $request);
 
 				if ($response) break;
-
-				$request->context->dispatcher = null;
 			}
 		}
 
@@ -271,6 +269,34 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 		{
 			throw new NotFound;
 		}
+
+		return $response;
+	}
+
+	/**
+	 * Dispatches the request using a dispatcher.
+	 *
+	 * @param DispatcherInterface $dispatcher
+	 * @param Request $request
+	 *
+	 * @return Response
+	 *
+	 * @throws \Exception
+	 */
+	protected function dispatch_with_dispatcher(DispatcherInterface $dispatcher, Request $request)
+	{
+		try
+		{
+			$request->context->dispatcher = $dispatcher;
+
+			$response = $dispatcher($request);
+		}
+		catch (\Exception $e)
+		{
+			$response = $dispatcher->rescue($e, $request);
+		}
+
+		$request->context->dispatcher = null;
 
 		return $response;
 	}
@@ -297,7 +323,7 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 		/* @var $response Response */
 		$response = null;
 
-		new \ICanBoogie\Exception\RescueEvent($exception, $request, $response);
+		new RescueEvent($exception, $request, $response);
 
 		if (!$response)
 		{
@@ -323,34 +349,3 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 	}
 }
 
-/**
- * Wrapper for callable dispatchers.
- */
-class CallableDispatcher implements DispatcherInterface
-{
-	private $callable;
-
-	/**
-	 * @param callable $callable
-	 */
-	public function __construct($callable)
-	{
-		$this->callable = $callable;
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function __invoke(Request $request)
-	{
-		return call_user_func($this->callable, $request);
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function rescue(\Exception $exception, Request $request)
-	{
-		throw $exception;
-	}
-}

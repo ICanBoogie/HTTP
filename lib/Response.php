@@ -171,15 +171,18 @@ class Response
 	 */
 	protected function finalize(Headers &$headers, &$body)
 	{
-		if (is_object($body) && method_exists($body, '__toString'))
+		if ($headers['Content-Length'] || $body instanceof \Closure)
 		{
-			$body = (string) $body;
+			return;
 		}
 
-		if (empty($headers['Content-Length']) && $body && !is_object($body) && !($body instanceof \Closure))
+		if (!method_exists($body, '__toString'))
 		{
-			$headers['Content-Length'] = strlen($body);
+			return;
 		}
+
+		$body = (string) $body;
+		$headers['Content-Length'] = strlen($body);
 	}
 
 	/**
