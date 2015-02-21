@@ -37,7 +37,7 @@ class Helpers
 	 *
 	 * @return mixed
 	 */
-	static public function __callstatic($name, array $arguments)
+	static public function __callStatic($name, array $arguments)
 	{
 		return call_user_func_array(self::$jumptable[$name], $arguments);
 	}
@@ -48,16 +48,22 @@ class Helpers
 	 * @param string $name Name of the function.
 	 * @param callable $callback Callback.
 	 *
-	 * @throws \RuntimeException in attempt to patch an undefined function.
+	 * @return callable Previous callable.
+	 *
+	 * @throws \LogicException in attempt to patch an undefined function.
 	 */
 	static public function patch($name, $callback)
 	{
 		if (empty(self::$jumptable[$name]))
 		{
-			throw new \RuntimeException("Undefined patchable: $name.");
+			throw new \LogicException("Undefined patchable: $name.");
 		}
 
+		$previous = self::$jumptable[$name];
+
 		self::$jumptable[$name] = $callback;
+
+		return $previous;
 	}
 
 	/*

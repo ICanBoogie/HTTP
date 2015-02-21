@@ -106,6 +106,18 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 		$this->assertTrue(DateTime::now() == $r->date);
 	}
 
+	public function test_age()
+	{
+		$r = new Response;
+		$this->assertEquals(0, $r->age);
+
+		$r->date = '-3 second';
+		$this->assertEquals(3, $r->age);
+
+		$r->age = 123;
+		$this->assertSame(123, $r->age);
+	}
+
 	/**
 	 * The `Content-Length` header field MUST be present, but it MUST NOT be added to the header
 	 * instance.
@@ -162,6 +174,20 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals("HTTP/1.0 200 OK\r\nContent-Length: 123\r\nDate: {$r->date}\r\n\r\n", (string) $r);
 	}
 
+	public function test_is_validateable()
+	{
+		$response = new Response;
+		$this->assertFalse($response->is_validateable);
+
+		$response->headers['ETag'] = uniqid();
+		$this->assertTrue($response->is_validateable);
+		$response->headers['ETag'] = null;
+		$this->assertFalse($response->is_validateable);
+
+		$response->headers['Last-Modified'] = 'now';
+		$this->assertTrue($response->is_validateable);
+	}
+
 	/**
 	 * @covers \ICanBoogie\HTTP\Response::get_is_cacheable
 	 * @dataProvider provide_test_is_cacheable
@@ -178,11 +204,103 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	{
 		return [
 
-			[ new Response('A', 200), true ],
-			[ new Response('A', 200, [ 'Cache-Control' => "public" ]), true ],
+			[ new Response('A', 200), false ],
+			[ new Response('A', 200, [ 'Cache-Control' => "public" ]), false ],
 			[ new Response('A', 200, [ 'Cache-Control' => "private" ]), false ],
-			[ new Response('A', 405), false ]
+			[ new Response('A', 405), false ],
+
+			[ new Response('A', 200, [ 'Last-Modified' => 'yesterday' ]), true ],
+			[ new Response('A', 200, [ 'Last-Modified' => 'yesterday', 'Cache-Control' => "public" ]), true ],
+			[ new Response('A', 200, [ 'Last-Modified' => 'yesterday', 'Cache-Control' => "private" ]), false ],
+			[ new Response('A', 405, [ 'Last-Modified' => 'yesterday' ]), false ]
 
 		];
+	}
+
+	public function test_invoke()
+	{
+		$body = uniqid();
+
+		$headers = $this
+			->getMockBuilder('ICanBoogie\HTTP\Headers')
+			->disableOriginalConstructor()
+			->setMethods([ '__invoke' ])
+			->getMock();
+
+		$response = $this
+			->getMockBuilder('ICanBoogie\HTTP\Response')
+			->setConstructorArgs([ $body, 200, $headers ])
+			->setMethods([ 'finalize', 'send_headers', 'send_body' ])
+			->getMock();
+		$response
+			->expects($this->once())
+			->method('finalize')
+			->with($this->equalTo($headers), $body);
+		$response
+			->expects($this->once())
+			->method('send_headers')
+			->with($this->equalTo($headers))
+			->willReturn(true);
+		$response
+			->expects($this->once())
+			->method('send_body')
+			->with($body);
+
+		/* @var $response Response */
+
+		$response();
+	}
+
+	public function test_invoke_empty_body()
+	{
+		$body = null;
+
+		$headers = $this
+			->getMockBuilder('ICanBoogie\HTTP\Headers')
+			->disableOriginalConstructor()
+			->setMethods([ '__invoke' ])
+			->getMock();
+
+		$response = $this
+			->getMockBuilder('ICanBoogie\HTTP\Response')
+			->setConstructorArgs([ $body, 200, $headers ])
+			->setMethods([ 'finalize', 'send_headers', 'send_body' ])
+			->getMock();
+		$response
+			->expects($this->once())
+			->method('finalize')
+			->with($this->equalTo($headers), $body);
+		$response
+			->expects($this->once())
+			->method('send_headers')
+			->with($this->equalTo($headers))
+			->willReturn(true);
+		$response
+			->expects($this->never())
+			->method('send_body')
+			->with($body);
+
+		/* @var $response Response */
+
+		$response();
+	}
+
+	public function test_to_string_with_exception()
+	{
+		$body = uniqid();
+
+		$exception = new \Exception('Message' . uniqid());
+
+		$response = $this
+			->getMockBuilder('ICanBoogie\HTTP\Response')
+			->setConstructorArgs([ $body ])
+			->setMethods([ 'finalize', 'send_headers', 'send_body' ])
+			->getMock();
+		$response
+			->expects($this->once())
+			->method('finalize')
+			->willThrowException($exception);
+
+		$this->assertEquals($exception->getMessage(), (string) $response);
 	}
 }

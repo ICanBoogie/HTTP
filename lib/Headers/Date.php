@@ -11,12 +11,14 @@
 
 namespace ICanBoogie\HTTP\Headers;
 
+use ICanBoogie\DateTime;
+
 /**
  * A date time object that renders into a string formatted for HTTP header fields.
  *
  * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3.1
  */
-class Date extends \ICanBoogie\DateTime
+class Date extends DateTime
 {
 	static public function from($source, $timezone=null)
 	{

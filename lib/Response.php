@@ -114,7 +114,7 @@ class Response
 
 			ob_start();
 
-			$this->echo_body($body);
+			$this->send_body($body);
 
 			$body = ob_get_clean();
 
@@ -125,26 +125,21 @@ class Response
 		}
 		catch (\Exception $e)
 		{
-			return (string) $e;
+			return $e->getMessage();
 		}
 	}
 
 	/**
 	 * Issues the HTTP response.
 	 *
-	 * The header is modified according to the {@link version} and {@link status} properties.
+	 * {@link finalize()} is invoked to finalize the headers (a cloned actually)
+	 * and the body. {@link send_headers} is invoked to send the headers and {@link send_body()}
+	 *is invoked to send the body, if the body is not `null`.
 	 *
-	 * The usual behavior of the response is to echo its body and then terminate the script. But
-	 * if its body is `null` the following happens :
+	 * The body is not send in the following instances:
 	 *
-	 * - If the {@link $location} property is defined the script is terminated.
-	 *
-	 * - If the {@link $is_ok} property is falsy **the method returns**.
-	 *
-	 * Note: If the body is a string, or an object implementing the `__toString()` method, the
-	 * `Content-Length` header is automatically defined to the length of the body string.
-	 *
-	 * Note: If the body is an instance of {@link Closure} it MUST echo the response's body.
+	 * - The finalized body is `null`.
+	 * - The status is not ok.
 	 */
 	public function __invoke()
 	{
@@ -152,38 +147,14 @@ class Response
 		$body = $this->body;
 
 		$this->finalize($headers, $body);
+		$this->send_headers($headers);
 
-		#
-		# send headers
-		#
-
-		if (headers_sent($file, $line))
-		{
-			trigger_error(\ICanBoogie\format
-			(
-				"Cannot modify header information because it was already sent. Output started at !at.", [
-
-					'at' => $file . ':' . $line
-
-				]
-			));
-		}
-		else
-		{
-			header_remove('Pragma');
-			header_remove('X-Powered-By');
-
-			header("HTTP/{$this->version} {$this->status}");
-
-			$headers();
-		}
-
-		if ($body === null && ($this->location || !$this->status->is_ok))
+		if ($body === null)
 		{
 			return;
 		}
 
-		$this->echo_body($body);
+		$this->send_body($body);
 	}
 
 	/**
@@ -209,6 +180,56 @@ class Response
 		{
 			$headers['Content-Length'] = strlen($body);
 		}
+	}
+
+	/**
+	 * Sends response headers.
+	 *
+	 * @param Headers $headers
+	 *
+	 * @return bool `true` is the headers were sent, `false` otherwise.
+	 */
+	protected function send_headers(Headers $headers)
+	{
+		if (headers_sent($file, $line))
+		{
+			trigger_error(\ICanBoogie\format
+			(
+				"Cannot modify header information because it was already sent. Output started at !at.", [
+
+					'at' => $file . ':' . $line
+
+				]
+			));
+
+			return false;
+		}
+
+		header_remove('Pragma');
+		header_remove('X-Powered-By');
+
+		header("HTTP/{$this->version} {$this->status}");
+
+		$headers();
+
+		return true;
+	}
+
+	/**
+	 * Sends response body.
+	 *
+	 * @param mixed $body
+	 */
+	protected function send_body($body)
+	{
+		if ($body instanceof \Closure)
+		{
+			$body($this);
+
+			return;
+		}
+
+		echo $body;
 	}
 
 	/**
@@ -307,23 +328,6 @@ class Response
 	protected function get_body()
 	{
 		return $this->body;
-	}
-
-	/**
-	 * Echo the body.
-	 *
-	 * @param mixed $body
-	 */
-	protected function echo_body($body)
-	{
-		if ($body instanceof \Closure)
-		{
-			$body($this);
-		}
-		else
-		{
-			echo $body;
-		}
 	}
 
 	/**
@@ -435,7 +439,12 @@ class Response
 			return $age;
 		}
 
-		return max(time() - $this->date->format('U'), 0);
+		if (!$this->date->is_empty)
+		{
+			return max(0, time() - $this->date->utc->timestamp);
+		}
+
+		return null;
 	}
 
 	/**
@@ -563,7 +572,7 @@ class Response
 	 */
 	protected function get_is_validateable()
 	{
-		return $this->headers['Last-Modified'] || $this->headers['ETag'];
+		return !$this->headers['Last-Modified']->is_empty || $this->headers['ETag'];
 	}
 
 	/**

@@ -1,6 +1,6 @@
 # HTTP
 
-[![Release](https://img.shields.io/github/release/ICanBoogie/HTTP.svg)](https://github.com/ICanBoogie/HTTP/releases)
+[![Release](https://img.shields.io/packagist/v/icanboogie/http.svg)](https://packagist.org/packages/icanboogie/http)
 [![Build Status](https://img.shields.io/travis/ICanBoogie/HTTP/master.svg)](http://travis-ci.org/ICanBoogie/HTTP)
 [![HHVM](https://img.shields.io/hhvm/icanboogie/http.svg)](http://hhvm.h4cc.de/package/icanboogie/http)
 [![Code Quality](https://img.shields.io/scrutinizer/g/ICanBoogie/HTTP/master.svg)](https://scrutinizer-ci.com/g/ICanBoogie/HTTP)
