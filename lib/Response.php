@@ -160,9 +160,6 @@ class Response
 	/**
 	 * Finalize the body.
 	 *
-	 * If the body is a string or can be converted into a string the `Content-Length` header is
-	 * added with the length of that string.
-	 *
 	 * Subclasses might want to override this method if they wish to alter the header or the body
 	 * before the response is sent or transformed into a string.
 	 *
@@ -171,18 +168,12 @@ class Response
 	 */
 	protected function finalize(Headers &$headers, &$body)
 	{
-		if ($headers['Content-Length'] || $body instanceof \Closure)
-		{
-			return;
-		}
-
-		if (!method_exists($body, '__toString'))
+		if ($body instanceof \Closure || !method_exists($body, '__toString'))
 		{
 			return;
 		}
 
 		$body = (string) $body;
-		$headers['Content-Length'] = strlen($body);
 	}
 
 	/**
@@ -277,9 +268,6 @@ class Response
 	 * The body can be any data type that can be converted into a string. This includes numeric
 	 * and objects implementing the {@link __toString()} method.
 	 *
-	 * **Note**: If the length of `$body` can be determined, the `Content-Length` header field is
-	 * updated. Also, `Content-Length` is set to `null` if `$body` is `null`.
-	 *
 	 * @param string|\Closure|null $body
 	 *
 	 * @throws \UnexpectedValueException when the body cannot be converted to a string.
@@ -287,10 +275,6 @@ class Response
 	protected function set_body($body)
 	{
 		$this->assert_body_is_valid($body);
-
-		$this->content_length = ($body === null || $body instanceof \Closure || is_object($body))
-			? null
-			: strlen($body);
 
 		$this->body = $body;
 	}

@@ -24,17 +24,19 @@ test-coverage: vendor
 	@phpunit --coverage-html build/coverage
 
 doc: vendor
-	@mkdir -p "docs"
-
-	@apigen \
-	--source ./ \
-	--destination docs/ --title $(PACKAGE_NAME) \
+	@mkdir -p build/docs
+	@apigen generate \
+	--source lib \
+	--source vendor \
 	--exclude "*/composer/*" \
-	--exclude "*/tests/*" \
-	--template-config /usr/share/php/data/ApiGen/templates/bootstrap/config.neon
+	--exclude "*/autoload.php" \
+	--destination build/docs/ \
+	--title "$(PACKAGE_NAME) $(PACKAGE_VERSION)" \
+	--template-theme "bootstrap" \
+	--debug
 
 clean:
-	@rm -fR docs
+	@rm -fR build
 	@rm -fR vendor
 	@rm -f composer.lock
 	@rm -f composer.phar

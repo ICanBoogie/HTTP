@@ -195,7 +195,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 		]);
 
 		$response = $dispatcher($request);
-		$expected = "HTTP/1.0 200 OK\r\nDate: {$response->date}\r\nContent-Length: 25\r\n\r\n";
+		$expected = "HTTP/1.0 200 OK\r\nDate: {$response->date}\r\n\r\n";
 
 		$this->assertInstanceOf('ICanBoogie\HTTP\Response', $response);
 		$this->assertNotSame($response, $original_response);

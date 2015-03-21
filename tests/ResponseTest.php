@@ -119,37 +119,32 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * The `Content-Length` header field MUST be present, but it MUST NOT be added to the header
+	 * The `Content-Length` header field MUST NOT be present, and MUST NOT be added to the header
 	 * instance.
 	 *
-	 * @dataProvider provide_test_auto_content_length
+	 * @dataProvider provide_test_no_content_length
 	 */
-	public function test_auto_content_length($body, $expected_value, $expected_length)
+	public function test_no_content_length($body)
 	{
 		$r = new Response($body);
+		$s = (string) $r;
 
-		$header_field = '';
-
-		if ($expected_length)
-		{
-			$header_field = "Content-Length: $expected_length\r\n";
-		}
-
-		$this->assertStringStartsWith("HTTP/1.0 200 OK\r\nDate: {$r->date}\r\n{$header_field}\r\n", (string) $r);
-		$this->assertSame($expected_value, $r->content_length);
+		$this->assertStringStartsWith("HTTP/1.0 200 OK\r\nDate: {$r->date}\r\n", $s);
+		$this->assertNotContains("Content-Length", $s);
+		$this->assertNull($r->content_length);
 	}
 
-	public function provide_test_auto_content_length()
+	public function provide_test_no_content_length()
 	{
 		$now = DateTime::now();
 
 		return [
 
-			[ 123, 3, 3  ],
-			[ 123.456, 7, 7 ],
-			[ "Madonna", 7, 7 ],
-			[ function() { return "Madonna"; }, null, null ],
-			[ $now, null, strlen($now) ]
+			[ 123  ],
+			[ 123.456 ],
+			[ "Madonna" ],
+			[ function() { return "Madonna"; } ],
+			[ $now ]
 
 		];
 	}

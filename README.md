@@ -15,7 +15,7 @@ The HTTP package provides an API to handle HTTP requests.
 
 ## Request
 
-A request is represented by a [Request](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Request.html) instance.
+A request is represented by a [Request][] instance.
 The initial request is usually created from the `$_SERVER` array, while sub requests are created
 from arrays of properties.
 
@@ -237,7 +237,9 @@ $file->to_array();
 
 ## Response
 
-The response to a request is represented by a [Response][] instance.
+The response to a request is represented by a [Response][] instance. The response body can either be a `null`, a string or an object implementing `__toString()`, or a closure.
+
+**Note:** Contrary to [Request][] instances, [Response][] instances or completely mutable.
 
 ```php
 <?php
@@ -252,7 +254,82 @@ $response = new Response('<!DOCTYPE html><html><body><h1>Hello world!</h1></body
 ]);
 ```
 
-The response is returned simply by invoking it:
+
+
+
+### Response status
+
+The response status is represented by a [Status][] instance. It can be defined as a HTTP response code such as `200`, an array such as `[ 200, "Ok" ]`, or a string such as `"200 Ok"`.
+
+```php
+<?php
+
+$response = new Response;
+
+echo $response->status;               // 200 Ok
+echo $response->status->code;         // 200
+echo $response->status->message;      // Ok
+$response->status->is_valid;          // true
+
+$response->status = 404;
+echo $response->status->code;         // 404
+echo $response->status->message;      // Not Found
+$response->status->is_valid;          // false
+$response->status->is_client_error;   // true
+$response->status->is_not_found;      // true
+```
+
+
+
+
+
+### Streaming the response body
+
+When large response body needs to be issued, it is recommended to use a closure as response body instead of a huge string that will consume a lot of memory.
+
+```php
+<?php
+
+use ICanBoogie\HTTP\Response;
+
+$fh = fopen('/path/to/my/huge/file', 'rb);
+$output = function() use ($fh)
+{
+	fseek($fh, 0);
+
+	if (!ini_get('safe_mode'))
+	{
+		set_time_limit(0);
+	}
+
+	while (!feof($fh) && !connection_aborted())
+	{
+		echo fread($fh, 1024 * 8);
+
+		flush();
+	}
+
+	fclose($fh);
+};
+
+return new Response($output, 200);
+```
+
+
+
+
+
+### About `Content-Length` header field
+
+Before v2.3.2 the `Content-Length` header field was added automatically when it was computable, for instance when the body was a string or an instance implementing `__toString()`. Starting v2.3.2 this is no longer the case and the header field has to be defined when required. This was decided to prevent a bug with Apache+FastCGI+DEFLATE where the `Content-Length` field was not adjusted although the body was compressed. Also, in most cases it's not such a good idea to define that field for generated content because it prevents the response to be send as [compressed chunks](http://en.wikipedia.org/wiki/Chunked_transfer_encoding).
+
+
+
+
+
+### Returning a response
+
+A response is returned simply by invoking it:
 
 ```php
 <?php
@@ -852,6 +929,8 @@ ICanBoogie/HTTP is licensed under the New BSD License - See the [LICENSE](LICENS
 [File]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.File.html
 [FileList]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.FileList.html
 [ForceRedirect]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.ForceRedirect.html
+[Request]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Request.html
 [RescueEvent]: http://icanboogie.org/docs/class-ICanBoogie.Exception.RescueEvent.html
+[Status]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Status.html
 [ToArray]: http://icanboogie.org/docs/class-ICanBoogie.ToArray.html
 [AuthenticationRequired]: http://icanboogie.org/docs/class-ICanBoogie.AuthenticationRequired.html

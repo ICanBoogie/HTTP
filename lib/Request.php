@@ -630,6 +630,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	 */
 	public function offsetSet($param, $value)
 	{
+		$this->params;
 		$this->params[$param] = $value;
 		$this->request_params[$param] = $value;
 	}
