@@ -11,6 +11,7 @@
 
 namespace ICanBoogie\Exception;
 
+use ICanBoogie\Event;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
 
@@ -18,29 +19,57 @@ use ICanBoogie\HTTP\Response;
  * Event class for the `Exception:rescue` event type.
  *
  * Third parties may use this event to provide a response for the exception.
+ *
+ * @property \Exception $exception
+ * @property Response $response
  */
-class RescueEvent extends \ICanBoogie\Event
+class RescueEvent extends Event
 {
 	/**
 	 * Reference to the response.
 	 *
 	 * @var Response
 	 */
-	public $response;
+	private $response;
+
+	protected function get_response()
+	{
+		return $this->response;
+	}
+
+	protected function set_response(Response $response = null)
+	{
+		$this->response = $response;
+	}
 
 	/**
 	 * Reference to the exception.
 	 *
 	 * @var \Exception
 	 */
-	public $exception;
+	private $exception;
+
+	protected function get_exception()
+	{
+		return $this->exception;
+	}
+
+	protected function set_exception(\Exception $exception)
+	{
+		$this->exception = $exception;
+	}
 
 	/**
 	 * The request.
 	 *
 	 * @var Request
 	 */
-	public $request;
+	private $request;
+
+	protected function get_request()
+	{
+		return $this->request;
+	}
 
 	/**
 	 * The event is constructed with the type `rescue`.
@@ -49,13 +78,8 @@ class RescueEvent extends \ICanBoogie\Event
 	 * @param Request $request The request.
 	 * @param Response|null $response Reference to the response.
 	 */
-	public function __construct(\Exception &$target, Request $request, &$response)
+	public function __construct(\Exception &$target, Request $request, Response &$response = null)
 	{
-		if ($response !== null && !($response instanceof Response))
-		{
-			throw new \InvalidArgumentException('$response must be an instance of ICanBoogie\HTTP\Response. Given: ' . (is_object($response) ? get_class($response) : gettype($response)) . '.');
-		}
-
 		$this->response = &$response;
 		$this->exception = &$target;
 		$this->request = $request;
