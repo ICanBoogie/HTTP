@@ -14,13 +14,13 @@ namespace ICanBoogie\HTTP;
 use ICanBoogie\Exception\RescueEvent;
 
 /**
- * Dispatches requests.
+ * Dispatches HTTP requests.
  *
- * Events:
+ * ## Events
  *
- * - `ICanBoogie\HTTP\Dispatcher::dispatch:before`: {@link Dispatcher\BeforeDispatchEvent}.
- * - `ICanBoogie\HTTP\Dispatcher::dispatch`: {@link Dispatcher\DispatchEvent}.
- * - `ICanBoogie\HTTP\Dispatcher::rescue`: {@link ICanBoogie\Exception\RescueEvent}.
+ * - `ICanBoogie\HTTP\Dispatcher::dispatch:before` of class {@link Dispatcher\BeforeDispatchEvent}.
+ * - `ICanBoogie\HTTP\Dispatcher::dispatch` of class {@link Dispatcher\DispatchEvent}.
+ * - `ICanBoogie\HTTP\Dispatcher::rescue` of class {@link ICanBoogie\Exception\RescueEvent}.
  */
 class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterface
 {
@@ -348,4 +348,3 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 		return $response;
 	}
 }
-

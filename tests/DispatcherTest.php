@@ -15,6 +15,9 @@ use ICanBoogie\Events;
 
 class DispatcherTest extends \PHPUnit_Framework_TestCase
 {
+	/**
+	 * @var Events
+	 */
 	static private $events;
 
 	static public function setUpBeforeClass()
@@ -89,7 +92,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException ICanBoogie\HTTP\NotFound
+	 * @expectedException \ICanBoogie\HTTP\NotFound
 	 */
 	public function testNotFound()
 	{

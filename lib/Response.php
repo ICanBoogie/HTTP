@@ -183,6 +183,7 @@ class Response
 	 *
 	 * @return bool `true` is the headers were sent, `false` otherwise.
 	 */
+	// @codeCoverageIgnoreStart
 	protected function send_headers(Headers $headers)
 	{
 		if (headers_sent($file, $line))
@@ -208,6 +209,7 @@ class Response
 
 		return true;
 	}
+	// @codeCoverageIgnoreEnd
 
 	/**
 	 * Sends response body.

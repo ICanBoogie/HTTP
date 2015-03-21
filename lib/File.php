@@ -12,6 +12,7 @@
 namespace ICanBoogie\HTTP;
 
 use ICanBoogie\Accessor\AccessorTrait;
+use ICanBoogie\ToArray;
 
 /**
  * Representation of a POST file.
@@ -29,9 +30,12 @@ use ICanBoogie\Accessor\AccessorTrait;
  * @property-read bool $is_valid `true` if the file is valid, `false` otherwise.
  * See: {@link is_valid()}.
  */
-class File implements \ICanBoogie\ToArray
+class File implements ToArray
 {
 	use AccessorTrait;
+
+	const MOVE_OVERWRITE = true;
+	const MOVE_NO_OVERWRITE = false;
 
 	static protected $types = [
 
@@ -71,6 +75,13 @@ class File implements \ICanBoogie\ToArray
 
 	];
 
+	/**
+	 * Creates a {@link File} instance.
+	 *
+	 * @param array|string $properties_or_name An array of properties or a file identifier.
+	 *
+	 * @return File
+	 */
 	static public function from($properties_or_name)
 	{
 		$properties = [];
@@ -91,6 +102,13 @@ class File implements \ICanBoogie\ToArray
 		return new static($properties);
 	}
 
+	/**
+	 * Keeps only initial properties.
+	 *
+	 * @param array $properties
+	 *
+	 * @return array
+	 */
 	static private function filter_initial_properties(array $properties)
 	{
 		static $initial_properties = [ 'name', 'type', 'size', 'tmp_name', 'error', 'pathname' ];
@@ -99,7 +117,7 @@ class File implements \ICanBoogie\ToArray
 	}
 
 	/**
-	 * Resolve the MIME type of a file.
+	 * Resolves the MIME type of a file.
 	 *
 	 * @param string $pathname Pathname to the file.
 	 * @param string $extension The variable passed by reference receives the extension
@@ -108,7 +126,7 @@ class File implements \ICanBoogie\ToArray
 	 * @return string The MIME type of the file, or `application/octet-stream` if it could not
 	 * be determined.
 	 */
-	static public function resolve_type($pathname, &$extension=null)
+	static public function resolve_type($pathname, &$extension = null)
 	{
 		$extension = '.' . strtolower(pathinfo($pathname, PATHINFO_EXTENSION));
 
@@ -145,7 +163,7 @@ class File implements \ICanBoogie\ToArray
 	 *
 	 * @return \ICanBoogie\FormattedString|\ICanBoogie\I18n\FormattedString|string
 	 */
-	static private function format($format, array $args=[], array $options=[])
+	static private function format($format, array $args = [], array $options = [])
 	{
 		if (class_exists('ICanBoogie\I18n\FormattedString', true))
 		{
@@ -247,7 +265,7 @@ class File implements \ICanBoogie\ToArray
 	protected $error;
 
 	/**
-	 * Check if the file is valid.
+	 * Whether the file is valid.
 	 *
 	 * A file is considered valid if it has no error code, if it has a size,
 	 * if it has either a temporary name or a pathname and that the file actually exists.
@@ -264,9 +282,9 @@ class File implements \ICanBoogie\ToArray
 	protected $pathname;
 
 	/**
-	 * Return the pathname of the file.
+	 * Returns the pathname of the file.
 	 *
-	 * Note: If the {@link $pathname} property is empty, the {@link $tmp_name} property
+	 * **Note:** If the {@link $pathname} property is empty, the {@link $tmp_name} property
 	 * is returned.
 	 *
 	 * @return string
@@ -300,7 +318,7 @@ class File implements \ICanBoogie\ToArray
 	}
 
 	/**
-	 * Return an array representation of the instance.
+	 * Returns an array representation of the instance.
 	 *
 	 * The following properties are exported:
 	 *
@@ -398,7 +416,7 @@ class File implements \ICanBoogie\ToArray
 	/**
 	 * Returns the extension of the file, if any.
 	 *
-	 * Note: The extension includes the dot e.g. ".zip". The extension if always in lower case.
+	 * **Note:** The extension includes the dot e.g. ".zip". The extension is always in lower case.
 	 *
 	 * @return string|null
 	 */
@@ -415,7 +433,7 @@ class File implements \ICanBoogie\ToArray
 	}
 
 	/**
-	 * Check if a file is uploaded.
+	 * Checks if a file is uploaded.
 	 *
 	 * @return boolean `true` if the file is uploaded, `false` otherwise.
 	 */
@@ -425,14 +443,14 @@ class File implements \ICanBoogie\ToArray
 	}
 
 	/**
-	 * Check if the file matches a MIME class, a MIME type, or a file extension.
+	 * Checks if the file matches a MIME class, a MIME type, or a file extension.
 	 *
 	 * @param string|array $type The type can be a MIME class (e.g. "image"),
 	 * a MIME type (e.g. "image/png"), or an extensions (e.g. ".zip"). An array can be used to
 	 * check if a file matches multiple type e.g. `[ "image", ".mp3" ]`, which matches any type
 	 * of image or files with the ".mp3" extension.
 	 *
-	 * @return boolean `true` if the file matches (or `$type` is empty), `false` otherwise.
+	 * @return bool `true` if the file matches (or `$type` is empty), `false` otherwise.
 	 */
 	public function match($type)
 	{
@@ -443,17 +461,7 @@ class File implements \ICanBoogie\ToArray
 
 		if (is_array($type))
 		{
-			$type_list = $type;
-
-			foreach ($type_list as $type)
-			{
-				if ($this->match($type))
-				{
-					return true;
-				}
-			}
-
-			return false;
+			return $this->match_multiple($type);
 		}
 
 		if ($type{0} === '.')
@@ -470,14 +478,35 @@ class File implements \ICanBoogie\ToArray
 	}
 
 	/**
-	 * Move the file.
+	 * Checks if the file matches one of the types in the list.
+	 *
+	 * @param array $type_list
+	 *
+	 * @return bool `true` if the file matches, `false` otherwise.
+	 */
+	private function match_multiple(array $type_list)
+	{
+		foreach ($type_list as $type)
+		{
+			if ($this->match($type))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Moves the file.
 	 *
 	 * @param string $destination Pathname to the destination file.
-	 * @param bool $overwrite If `true` the destination file is deleted before the file is move.
+	 * @param bool $overwrite Use {@link MOVE_OVERWRITE} to delete the destination before the file
+	 * is moved. Defaults to {@link MOVE_NO_OVERWRITE}.
 	 *
 	 * @throws \Exception if the file failed to be moved.
 	 */
-	public function move($destination, $overwrite=false)
+	public function move($destination, $overwrite = self::MOVE_NO_OVERWRITE)
 	{
 		if (file_exists($destination))
 		{

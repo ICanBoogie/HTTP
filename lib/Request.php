@@ -189,7 +189,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * Parameters extracted from the request path.
 	 *
-	 * @var array// @codeCoverageIgnore
+	 * @var array
 	 */
 	public $path_params = [];
 
@@ -390,7 +390,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @throws MethodNotSupported when the request method is not supported.
 	 */
-	protected function __construct(array $properties, array $env=[])
+	protected function __construct(array $properties, array $env = [])
 	{
 		$this->context = new Request\Context($this);
 		$this->env = $env;
@@ -507,7 +507,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @throws \InvalidArgumentException
 	 *
-	 * @return \ICanBoogie\HTTP\Request
+	 * @return Request
 	 */
 	public function change(array $properties)
 	{
@@ -931,7 +931,9 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	 */
 	protected function get_uri()
 	{
-		return isset($this->env['REQUEST_URI']) ? $this->env['REQUEST_URI'] : (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null);
+		return isset($this->env['REQUEST_URI'])
+			? $this->env['REQUEST_URI']
+			: (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null);
 	}
 
 	/**

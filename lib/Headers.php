@@ -163,10 +163,12 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	 * @param string $field
 	 * @param string $value
 	 */
+	// @codeCoverageIgnoreStart
 	protected function send_header($field, $value)
 	{
-		header("$field: $value"); // @codeCoverageIgnore
-	} // @codeCoverageIgnore
+		header("$field: $value");
+	}
+	// @codeCoverageIgnoreEnd
 
 	/**
 	 * Checks if a header field exists.

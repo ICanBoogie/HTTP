@@ -1,6 +1,7 @@
 # customization
 
-PACKAGE_NAME = "ICanBoogie/HTTP"
+PACKAGE_NAME = ICanBoogie/HTTP
+PACKAGE_VERSION = 2.3.2
 
 # do not edit the following lines
 
@@ -27,11 +28,8 @@ doc: vendor
 	@mkdir -p build/docs
 	@apigen generate \
 	--source lib \
-	--source vendor \
-	--exclude "*/composer/*" \
-	--exclude "*/autoload.php" \
 	--destination build/docs/ \
-	--title "$(PACKAGE_NAME) $(PACKAGE_VERSION)" \
+	--title "$(PACKAGE_NAME) v$(PACKAGE_VERSION)" \
 	--template-theme "bootstrap" \
 	--debug
 
@@ -39,4 +37,3 @@ clean:
 	@rm -fR build
 	@rm -fR vendor
 	@rm -f composer.lock
-	@rm -f composer.phar
