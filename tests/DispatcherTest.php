@@ -204,4 +204,29 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 		$this->assertNotSame($response, $original_response);
 		$this->assertEquals($expected, (string) $response);
 	}
+
+	public function test_array_access_interface()
+	{
+		$dispatcher = new Dispatcher;
+		$d1 = function() {};
+		$k1 = 'd' . uniqid();
+
+		$this->assertFalse(isset($dispatcher[$k1]));
+		$dispatcher[$k1] = $d1;
+		$this->assertTrue(isset($dispatcher[$k1]));
+		$this->assertSame($d1, $dispatcher[$k1]);
+		unset($dispatcher[$k1]);
+		$this->assertFalse(isset($dispatcher[$k1]));
+
+		try
+		{
+			$dispatcher[$k1];
+
+			$this->fail('Expected DispatcherNotDefined');
+		}
+		catch (\Exception $e)
+		{
+			$this->assertInstanceOf('ICanBoogie\HTTP\DispatcherNotDefined', $e);
+		}
+	}
 }

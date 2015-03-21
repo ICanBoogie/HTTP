@@ -21,6 +21,7 @@ use ICanBoogie\HTTP\Response;
  * Third parties may use this event to provide a response for the exception.
  *
  * @property \Exception $exception
+ * @property-read Request $request
  * @property Response $response
  */
 class RescueEvent extends Event

@@ -11,6 +11,7 @@
 
 namespace ICanBoogie\HTTP\Dispatcher;
 
+use ICanBoogie\Event;
 use ICanBoogie\HTTP\Dispatcher;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
@@ -21,22 +22,40 @@ use ICanBoogie\HTTP\Response;
  * Third parties may use this event to provide a response to the request before the dispatchers
  * are invoked. The event is usually used by third parties to redirect requests or provide cached
  * responses.
+ *
+ * @property-read Request $request
+ * @property Response $response
  */
-class BeforeDispatchEvent extends \ICanBoogie\Event
+class BeforeDispatchEvent extends Event
 {
 	/**
 	 * The request.
 	 *
 	 * @var Request
 	 */
-	public $request;
+	private $request;
+
+	protected function get_request()
+	{
+		return $this->request;
+	}
 
 	/**
 	 * Reference to the response.
 	 *
 	 * @var Response
 	 */
-	public $response;
+	private $response;
+
+	protected function get_response()
+	{
+		return $this->response;
+	}
+
+	protected function set_response(Response $response = null)
+	{
+		$this->response = $response;
+	}
 
 	/**
 	 * The event is constructed with the type `dispatch:before`.
@@ -45,13 +64,8 @@ class BeforeDispatchEvent extends \ICanBoogie\Event
 	 * @param Request $request
 	 * @param Response|null $response Reference to the response.
 	 */
-	public function __construct(Dispatcher $target, Request $request, &$response)
+	public function __construct(Dispatcher $target, Request $request, Response &$response = null)
 	{
-		if ($response !== null && !($response instanceof Response))
-		{
-			throw new \InvalidArgumentException('$response must be an instance of ICanBoogie\HTTP\Response. Given: ' . get_class($response) . '.');
-		}
-
 		$this->request = $request;
 		$this->response = &$response;
 

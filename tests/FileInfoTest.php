@@ -36,5 +36,4 @@ class FileInfoTest extends \PHPUnit_Framework_TestCase
 
 		];
 	}
-
 }

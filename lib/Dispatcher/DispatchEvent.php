@@ -11,38 +11,58 @@
 
 namespace ICanBoogie\HTTP\Dispatcher;
 
+use ICanBoogie\Event;
 use ICanBoogie\HTTP\Dispatcher;
 use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\Response;
 
 /**
  * Event class for the `ICanBoogie\HTTP\Dispatcher::dispatch` event.
  *
  * Third parties may use this event to alter the response before it is returned by the dispatcher.
+ *
+ * @property-read Request $request
+ * @property Response $response
  */
-class DispatchEvent extends \ICanBoogie\Event
+class DispatchEvent extends Event
 {
 	/**
 	 * The request.
 	 *
 	 * @var Request
 	 */
-	public $request;
+	private $request;
+
+	protected function get_request()
+	{
+		return $this->request;
+	}
 
 	/**
 	 * Reference to the response.
 	 *
-	 * @var \ICanBoogie\HTTP\Response
+	 * @var Response
 	 */
-	public $response;
+	private $response;
+
+	protected function get_response()
+	{
+		return $this->response;
+	}
+
+	protected function set_response(Response $response = null)
+	{
+		$this->response = $response;
+	}
 
 	/**
 	 * The event is constructed with the type `dispatch`.
 	 *
 	 * @param Dispatcher $target
 	 * @param Request $request
-	 * @param mixed $response Reference to the response.
+	 * @param Response|null $response Reference to the response.
 	 */
-	public function __construct(Dispatcher $target, Request $request, &$response)
+	public function __construct(Dispatcher $target, Request $request, Response &$response = null)
 	{
 		$this->request = $request;
 		$this->response = &$response;
