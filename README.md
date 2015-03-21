@@ -47,8 +47,7 @@ $request = Request::from([
 ]);
 ```
 
-Requests are for the most part immutable, but a new request can be created with changed properties
-by the `change()` method:
+Requests are for the most part immutable, a modified request can be created from another by the `change()` method:
 
 ```php
 <?php
@@ -86,7 +85,7 @@ Parameters sent along the request are collected in arrays, whether they are sent
 query string, the post body or the path info. The `query_params`, `request_params` and
 `path_params` give you access to these parameters.
 
-You can access each type of parameters as follows:
+You can access each type of parameter as follows:
 
 ```php
 <?php
@@ -212,7 +211,7 @@ echo $file->match([ 'image/png', '.zip' ]);       // true
 echo $file->match([ 'image/png', 'text/plain' ]); // false
 ```
 
-[File][] instances implements the [ToArray][] interface and can be converted into arrays
+[File][] instances implement the [ToArray][] interface and can be converted into arrays
 with the `to_array()` method:
 
 ```php
