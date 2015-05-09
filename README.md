@@ -740,10 +740,10 @@ The following exceptions are defined by the HTTP package:
 * [NotFound][]: thrown when a resource is not found. For instance, this exception is
 thrown by the dispatcher when it fails to resolve a request into a response.
 * [ForceRedirect][]: thrown when a redirect is absolutely required.
-* [ServiceUnavailable](http://icanboogie.org/docs/class-ICanBoogie.HTTP.ServiceUnavailable.html): thrown when a server is currently unavailable
+* [ServiceUnavailable](http://api.icanboogie.org/http/class-ICanBoogie.HTTP.ServiceUnavailable.html): thrown when a server is currently unavailable
 (because it is overloaded or down for maintenance).
-* [MethodNotSupported](http://icanboogie.org/docs/class-ICanBoogie.HTTP.MethodNotSupported.html): thrown when a HTTP method is not supported.
-* [StatusCodeNotValid](http://icanboogie.org/docs/class-ICanBoogie.HTTP.StatusCodeNotValid.html): thrown when a HTTP status code is not valid.
+* [MethodNotSupported](http://api.icanboogie.org/http/class-ICanBoogie.HTTP.MethodNotSupported.html): thrown when a HTTP method is not supported.
+* [StatusCodeNotValid](http://api.icanboogie.org/http/class-ICanBoogie.HTTP.StatusCodeNotValid.html): thrown when a HTTP status code is not valid.
 
 All the exceptions defined by the package implement the `ICanBoogie\HTTP\Exception` interface.
 Using this interface one can easily catch HTTP related exceptions:
@@ -773,9 +773,9 @@ catch (\Exception $e)
 
 The following helpers are available:
 
-* [dispatch](http://icanboogie.org/docs/function-ICanBoogie.HTTP.dispatch.html): Dispatches a request using the dispatcher returned by `get_dispatcher()`.
-* [get_dispatcher](http://icanboogie.org/docs/function-ICanBoogie.HTTP.get_dispatcher.html): Returns the main dispatcher.
-* [get_initial_request](http://icanboogie.org/docs/function-ICanBoogie.HTTP.get_initial_request.html): Returns the initial request.
+* [dispatch](http://api.icanboogie.org/http/function-ICanBoogie.HTTP.dispatch.html): Dispatches a request using the dispatcher returned by `get_dispatcher()`.
+* [get_dispatcher](http://api.icanboogie.org/http/function-ICanBoogie.HTTP.get_dispatcher.html): Returns the main dispatcher.
+* [get_initial_request](http://api.icanboogie.org/http/function-ICanBoogie.HTTP.get_initial_request.html): Returns the initial request.
 
 
 
@@ -889,7 +889,7 @@ cloned with the following command line:
 ## Documentation
 
 The package is documented as part of the [ICanBoogie][] framework
-[documentation](http://icanboogie.org/docs/). You can generate the documentation for the package and its dependencies with the `make doc` command. The documentation is generated in the `build/docs` directory. [ApiGen](http://apigen.org/) is required. The directory can later be cleaned with the `make clean` command.
+[documentation](http://api.icanboogie.org/http/). You can generate the documentation for the package and its dependencies with the `make doc` command. The documentation is generated in the `build/docs` directory. [ApiGen](http://apigen.org/) is required. The directory can later be cleaned with the `make clean` command.
 
 
 
@@ -916,22 +916,22 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
 
 
-[BeforeDispatchEvent]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.BeforeDispatchEvent.html
-[CacheControl]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Headers.CacheControl.html
-[ContentDisposition]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Headers.ContentDisposition.html
-[ContentType]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Headers.ContentType.html
-[DispatchEvent]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.DispatchEvent.html
-[Dispatcher]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.html
-[DispatcherInterface]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.DispatcherInterface.html
-[Headers]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Headers.html
-[Response]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Response.html
-[RedirectResponse]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.RedirectResponse.html
-[NotFound]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.NotFound.html
-[File]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.File.html
-[FileList]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.FileList.html
-[ForceRedirect]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.ForceRedirect.html
-[Request]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Request.html
-[RescueEvent]: http://icanboogie.org/docs/class-ICanBoogie.Exception.RescueEvent.html
-[Status]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Status.html
-[ToArray]: http://icanboogie.org/docs/class-ICanBoogie.ToArray.html
-[AuthenticationRequired]: http://icanboogie.org/docs/class-ICanBoogie.AuthenticationRequired.html
+[BeforeDispatchEvent]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Dispatcher.BeforeDispatchEvent.html
+[CacheControl]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Headers.CacheControl.html
+[ContentDisposition]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Headers.ContentDisposition.html
+[ContentType]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Headers.ContentType.html
+[DispatchEvent]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Dispatcher.DispatchEvent.html
+[Dispatcher]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Dispatcher.html
+[DispatcherInterface]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.DispatcherInterface.html
+[Headers]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Headers.html
+[Response]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Response.html
+[RedirectResponse]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.RedirectResponse.html
+[NotFound]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.NotFound.html
+[File]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.File.html
+[FileList]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.FileList.html
+[ForceRedirect]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.ForceRedirect.html
+[Request]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Request.html
+[RescueEvent]: http://api.icanboogie.org/http/class-ICanBoogie.Exception.RescueEvent.html
+[Status]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Status.html
+[ToArray]: http://api.icanboogie.org/common/class-ICanBoogie.ToArray.html
+[AuthenticationRequired]: http://api.icanboogie.org/icanboogie/class-ICanBoogie.AuthenticationRequired.html
