@@ -47,34 +47,24 @@ $request = Request::from([
 ]);
 ```
 
-Requests are for the most part immutable, a modified request can be created from another by the `change()` method:
+
+
+
+
+### A request with changed properties
+
+Requests are for the most part immutable, the `with()` method is used to create an instance with changed properties from another instance.
 
 ```php
 <?php
 
-$request = Request::from($_SERVER)->change([
+$request = Request::from($_SERVER)->with([
 
 	'is_head' => true,
 	'is_xhr' => true
 
 ]);
 ```
-
-Requests are handled by a dispatcher, which returns a [Response][]
-instance, or throws a `NotFound` exception if the request cannot be satisfied.
-Requests are usually dispatched simply by invoking them, or by using one of the HTTP methods
-available:
-
-```php
-<?php
-
-$response = $request();
-
-# or
-
-$response = $request->post([ 'arg' => 'value' ]);
-```
-
 
 
 
@@ -228,6 +218,24 @@ $file->to_array();
 	'error_message' => null
 ]
 */
+```
+
+
+
+
+
+### Dispatching requests
+
+Requests are handled by a dispatcher, which returns a [Response][] instance, or throws a `NotFound` exception if the request cannot be satisfied. Requests are usually dispatched simply by invoking them, or by using one of the HTTP methods available:
+
+```php
+<?php
+
+$response = $request();
+
+# using the POST method and additional parameters
+
+$response = $request->post([ 'param' => 'value' ]);
 ```
 
 

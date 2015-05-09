@@ -118,7 +118,7 @@ class Dispatcher implements \ArrayAccess, \IteratorAggregate, DispatcherInterfac
 	 */
 	private function handle_head(Request $request)
 	{
-		$response = $this->handle($request->change([ 'is_get' => true ]));
+		$response = $this->handle($request->with([ 'is_get' => true ]));
 
 		if ($response->content_length === null)
 		{

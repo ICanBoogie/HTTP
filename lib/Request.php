@@ -501,7 +501,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * Return a new instance with the specified changed properties.
+	 * Returns a new instance with the specified changed properties.
 	 *
 	 * @param array $properties
 	 *
@@ -509,7 +509,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return Request
 	 */
-	public function change(array $properties)
+	public function with(array $properties)
 	{
 		$changed = clone $this;
 		$mappers = static::get_properties_mappers();
@@ -565,7 +565,7 @@ class Request implements \ArrayAccess, \IteratorAggregate
 			$properties['query_params'] = [];
 		}
 
-		return $this->change($properties);
+		return $this->with($properties);
 	}
 
 	/**

@@ -574,7 +574,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 			$iterated = Request::from([]);
 		}
 
-		$changed = $iterated->change($properties);
+		$changed = $iterated->with($properties);
 
 		$this->assertNotSame($changed, $iterated);
 
@@ -614,7 +614,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 		$this->assertSame([ 'pp1' => 'one', 'rp1' => 'one', 'rp2' => 'two', 'qp1' => 'one' ], $r1->params);
 
-		$r2 = $r1->change([
+		$r2 = $r1->with([
 
 			'request_params' => [],
 			'path_params' => [ 'pp2' => 'two' ]
@@ -625,7 +625,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$this->assertSame([ 'pp2' => 'two' ], $r2->path_params);
 		$this->assertSame([ 'pp2' => 'two', 'qp1' => 'one' ], $r2->params);
 
-		$r3 = $r2->change([
+		$r3 = $r2->with([
 
 			'query_params' => [],
 			'path_params' => []
@@ -644,7 +644,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	public function test_should_throw_exception_when_changing_with_unsupported_property()
 	{
 		$r = Request::from();
-		$r->change([ 'unsupported_property' => uniqid() ]);
+		$r->with([ 'unsupported_property' => uniqid() ]);
 	}
 
 	public function test_send()
@@ -673,7 +673,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$r1 = $this
 			->getMockBuilder('ICanBoogie\HTTP\Request')
 			->disableOriginalConstructor()
-			->setMethods([ 'change' ])
+			->setMethods([ 'with' ])
 			->getMock();
 
 		$r2 = $this
@@ -687,7 +687,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 			->willReturn($response);
 
 		$r1->expects($this->once())
-			->method('change')
+			->method('with')
 			->with($properties)
 			->willReturn($r2);
 
