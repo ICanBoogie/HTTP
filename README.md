@@ -173,8 +173,7 @@ echo $file->is_uploaded;     // false
 
 if ($file->is_valid)
 {
-	// `true` means that the destination file will be overwritten
-	$file->move('/path/to/repository/' . $file->name, true);
+	$file->move('/path/to/repository/' . $file->name, File::MOVE_OVERWRITE);
 }
 ```
 

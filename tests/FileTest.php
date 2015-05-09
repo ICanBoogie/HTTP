@@ -311,7 +311,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 		$expected = file_get_contents($p1);
 
 		$file = File::from([ 'pathname' => $p1 ]);
-		$file->move($p2, true);
+		$file->move($p2, File::MOVE_OVERWRITE);
 
 		$this->assertFileNotExists($p1);
 		$this->assertFileExists($p2);
