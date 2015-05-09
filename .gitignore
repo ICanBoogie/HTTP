@@ -1,10 +1,4 @@
-.buildpath
-.idea/
-.project
-.settings
-.README.md.html
-build/coverage
+build
 composer.lock
-docs/
-tests/sandbox/
-vendor/
+tests/sandbox
+vendor

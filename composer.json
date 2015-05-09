@@ -20,7 +20,7 @@
 	"require": {
 		"php": ">=5.4.0",
 		"icanboogie/prototype": "~2.2.0",
-		"icanboogie/event": "~1.3.1",
+		"icanboogie/event": "~1.3.2",
 		"icanboogie/datetime": "~1.1.1"
 	},
 	"autoload": {
