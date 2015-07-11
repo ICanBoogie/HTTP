@@ -11,22 +11,63 @@
 
 namespace ICanBoogie\HTTP;
 
+use ICanBoogie\Accessor\AccessorTrait;
+
 /**
- * Used to defined a dispatcher and its weight.
+ * Used to define a dispatcher and its weight.
  *
  * <pre>
  * <?php
  *
  * $dispatcher['my'] = new WeightedDispatcher('callback', 'before:that_other_dispatcher');
  * </pre>
+ *
+ * @property-read string|DispatcherInterface $dispatcher
+ * @property-read int|string $weight
  */
 class WeightedDispatcher
 {
-	public $dispatcher;
+	use AccessorTrait;
 
-	public $weight;
+	const WEIGHT_TOP = 'top';
+	const WEIGHT_BOTTOM = 'bottom';
+	const WEIGHT_BEFORE_PREFIX = 'before:';
+	const WEIGHT_AFTER_PREFIX = 'after:';
+	const WEIGHT_DEFAULT = 0;
 
-	public function __construct($dispatcher, $weight)
+	/**
+	 * @var DispatcherInterface|string
+	 */
+	private $dispatcher;
+
+	/**
+	 * @return DispatcherInterface|string
+	 */
+	protected function get_dispatcher()
+	{
+		return $this->dispatcher;
+	}
+
+	/**
+	 * @var int|string
+	 */
+	private $weight;
+
+	/**
+	 * @return int|string
+	 */
+	protected function get_weight()
+	{
+		return $this->weight;
+	}
+
+	/**
+	 * Initializes the {@link $dispatcher} and {@link $weight} properties.
+	 *
+	 * @param DispatcherInterface|string $dispatcher
+	 * @param int|string $weight
+	 */
+	public function __construct($dispatcher, $weight = self::WEIGHT_DEFAULT)
 	{
 		$this->dispatcher = $dispatcher;
 		$this->weight = $weight;
