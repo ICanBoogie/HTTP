@@ -781,6 +781,38 @@ The following helpers are available:
 
 
 
+### Altering the dispatcher
+
+The `ICanBoogie\HTTP\Dispatcher::alter` event of class [ICanBoogie\HTTP\Dispatcher\AlterEvent][] is fired after the dispatcher has been created. Third parties may use this event to register or alter dispatchers, or replace the dispatcher altogether.
+
+The following code illustrate how a `hello` dispatcher, that returns
+"Hello world!" when the request matches the path "/hello", can be registered.
+
+```php
+<?php
+
+use ICanBoogie\HTTP\Dispatcher;
+use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\Response;
+
+$app->events->attach(function(Dispatcher\AlterEvent $event, Dispatcher $target) {
+
+	$target['hello'] = function(Request $request) {
+
+		if ($request->path === '/hello')
+		{
+			return new Response('Hello world!');
+		}
+		
+	}
+
+});
+```
+
+
+
+
+
 ### Patching helpers
 
 Helpers can be patched using the `Helpers::patch()` method.

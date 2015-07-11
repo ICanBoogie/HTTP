@@ -14,23 +14,38 @@ namespace ICanBoogie\HTTP;
 /**
  * Dispatches a request.
  *
+ * The request is dispatched by the dispatcher returned by the {@link get_dispatcher()} function.
+ *
  * @param Request $request
  *
  * @return Response
  */
 function dispatch(Request $request)
 {
-	return Helpers::dispatch($request);
+	$dispatcher = get_dispatcher();
+
+	return $dispatcher($request);
 }
 
 /**
- * Returns shared request dispatcher.
+ * Returns a shared request dispatcher.
+ *
+ * {@link Dispatcher\AlterEvent} is fired when the instance is first created.
  *
  * @return Dispatcher
  */
 function get_dispatcher()
 {
-	return Helpers::get_dispatcher();
+	static $dispatcher;
+
+	if (!$dispatcher)
+	{
+		$dispatcher = new Dispatcher;
+
+		new Dispatcher\AlterEvent($dispatcher);
+	}
+
+	return $dispatcher;
 }
 
 /**
@@ -42,5 +57,12 @@ function get_dispatcher()
  */
 function get_initial_request()
 {
-	return Helpers::get_initial_request();
+	static $initial_request;
+
+	if (!$initial_request)
+	{
+		$initial_request = Request::from($_SERVER);
+	}
+
+	return $initial_request;
 }
