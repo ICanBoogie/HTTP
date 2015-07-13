@@ -13,6 +13,7 @@ namespace ICanBoogie\HTTP\Dispatcher;
 
 use ICanBoogie\Event;
 use ICanBoogie\HTTP\Dispatcher;
+use ICanBoogie\HTTP\WeightedDispatcher;
 
 /**
  * Event class for the `ICanBoogie\HTTP\Dispatcher::alter` event.
@@ -56,5 +57,41 @@ class AlterEvent extends Event
 		$this->instance = &$target;
 
 		parent::__construct($target, 'alter');
+	}
+
+	/**
+	 * Inserts a dispatcher.
+	 *
+	 * @param string $id Dispatcher identifier.
+	 * @param mixed $dispatcher Dispatcher.
+	 * @param int $weight
+	 */
+	public function insert($id, $dispatcher, $weight = 0)
+	{
+		$this->instance[$id] = new WeightedDispatcher($dispatcher, $weight);
+	}
+
+	/**
+	 * Inserts a dispatcher before another.
+	 *
+	 * @param string $id Dispatcher identifier.
+	 * @param mixed $dispatcher Dispatcher.
+	 * @param string $reference Reference dispatcher identifier.
+	 */
+	public function insert_before($id, $dispatcher, $reference)
+	{
+		$this->insert($id, $dispatcher, WeightedDispatcher::WEIGHT_BEFORE_PREFIX . $reference);
+	}
+
+	/**
+	 * Inserts a dispatcher after another.
+	 *
+	 * @param string $id Dispatcher identifier.
+	 * @param mixed $dispatcher Dispatcher.
+	 * @param string $reference Reference dispatcher identifier.
+	 */
+	public function insert_after($id, $dispatcher, $reference)
+	{
+		$this->insert($id, $dispatcher, WeightedDispatcher::WEIGHT_AFTER_PREFIX . $reference);
 	}
 }

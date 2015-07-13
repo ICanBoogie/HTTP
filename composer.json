@@ -18,9 +18,9 @@
 		"source": "https://github.com/ICanBoogie/HTTP"
 	},
 	"require": {
-		"php": ">=5.4.0",
+		"php": ">=5.5.0",
 		"icanboogie/prototype": "~2.2.0",
-		"icanboogie/event": "~1.3.2",
+		"icanboogie/event": "1.4.x-dev",
 		"icanboogie/datetime": "~1.1.1"
 	},
 	"autoload": {
