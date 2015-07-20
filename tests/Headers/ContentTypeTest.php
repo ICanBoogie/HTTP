@@ -20,7 +20,7 @@ class ContentTypeTest extends \PHPUnit_Framework_TestCase
 	{
 		$h = ContentType::from($source);
 
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\ContentType', $h);
+		$this->assertInstanceOf(ContentType::class, $h);
 		$this->assertEquals($values[0], $h->value);
 		$this->assertEquals($values[0], $h->type);
 		$this->assertEquals($values[1], $h->charset);

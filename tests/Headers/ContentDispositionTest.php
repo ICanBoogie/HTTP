@@ -20,7 +20,7 @@ class ContentDispositionTest extends \PHPUnit_Framework_TestCase
 	{
 		$h = ContentDisposition::from($source);
 
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\ContentDisposition', $h);
+		$this->assertInstanceOf(ContentDisposition::class, $h);
 		$this->assertEquals($values[0], $h->value);
 		$this->assertEquals($values[1], (string) $h->filename);
 		$this->assertEquals($values[1], $h->filename);
@@ -102,7 +102,7 @@ class ContentDispositionTest extends \PHPUnit_Framework_TestCase
 	public function test_attributes()
 	{
 		$cd = new ContentDisposition;
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\HeaderParameter', $cd['filename']);
+		$this->assertInstanceOf(HeaderParameter::class, $cd['filename']);
 		$this->assertNull($cd->filename);
 
 		$cd->type = 'inline';
@@ -111,13 +111,13 @@ class ContentDispositionTest extends \PHPUnit_Framework_TestCase
 		$cd->filename = 'madonna.mp3';
 		$this->assertEquals('inline; filename=madonna.mp3', (string) $cd);
 		unset($cd['filename']);
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\HeaderParameter', $cd['filename']);
+		$this->assertInstanceOf(HeaderParameter::class, $cd['filename']);
 		$this->assertEquals('inline', (string) $cd);
 
 		$cd->filename = 'madonna.mp3';
 		$this->assertEquals('inline; filename=madonna.mp3', (string) $cd);
 		unset($cd->filename);
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\HeaderParameter', $cd['filename']);
+		$this->assertInstanceOf(HeaderParameter::class, $cd['filename']);
 		$this->assertEquals('inline', (string) $cd);
 	}
 }

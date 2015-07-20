@@ -32,7 +32,7 @@ class AlterEventTest extends \PHPUnit_Framework_TestCase
 		/* @var $other_dispatcher Dispatcher */
 		/* @var $event AlterEvent */
 
-		$event = EventReflection::from(AlterEvent::class)->with([
+		$event = AlterEvent::from([
 
 			'target' => &$dispatcher
 
@@ -63,7 +63,7 @@ class AlterEventTest extends \PHPUnit_Framework_TestCase
 
 		/* @var $event AlterEvent */
 
-		$event = EventReflection::from(AlterEvent::class)->with([
+		$event = AlterEvent::from([
 
 			'target' => &$dispatcher
 
@@ -92,7 +92,7 @@ class AlterEventTest extends \PHPUnit_Framework_TestCase
 
 		/* @var $event AlterEvent */
 
-		$event = EventReflection::from(AlterEvent::class)->with([
+		$event = AlterEvent::from([
 
 			'target' => &$dispatcher
 

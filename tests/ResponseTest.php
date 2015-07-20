@@ -97,11 +97,11 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	public function test_date()
 	{
 		$r = new Response;
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\Date', $r->date);
+		$this->assertInstanceOf(Headers\Date::class, $r->date);
 		$this->assertTrue(DateTime::now() == $r->date);
 
 		$r->date = 'now';
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\Date', $r->date);
+		$this->assertInstanceOf(Headers\Date::class, $r->date);
 		$this->assertEquals('UTC', $r->date->zone->name);
 		$this->assertTrue(DateTime::now() == $r->date);
 	}
@@ -217,13 +217,13 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 		$body = uniqid();
 
 		$headers = $this
-			->getMockBuilder('ICanBoogie\HTTP\Headers')
+			->getMockBuilder(Headers::class)
 			->disableOriginalConstructor()
 			->setMethods([ '__invoke' ])
 			->getMock();
 
 		$response = $this
-			->getMockBuilder('ICanBoogie\HTTP\Response')
+			->getMockBuilder(Response::class)
 			->setConstructorArgs([ $body, 200, $headers ])
 			->setMethods([ 'finalize', 'send_headers', 'send_body' ])
 			->getMock();
@@ -251,13 +251,13 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 		$body = null;
 
 		$headers = $this
-			->getMockBuilder('ICanBoogie\HTTP\Headers')
+			->getMockBuilder(Headers::class)
 			->disableOriginalConstructor()
 			->setMethods([ '__invoke' ])
 			->getMock();
 
 		$response = $this
-			->getMockBuilder('ICanBoogie\HTTP\Response')
+			->getMockBuilder(Response::class)
 			->setConstructorArgs([ $body, 200, $headers ])
 			->setMethods([ 'finalize', 'send_headers', 'send_body' ])
 			->getMock();
@@ -287,7 +287,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 		$exception = new \Exception('Message' . uniqid());
 
 		$response = $this
-			->getMockBuilder('ICanBoogie\HTTP\Response')
+			->getMockBuilder(Response::class)
 			->setConstructorArgs([ $body ])
 			->setMethods([ 'finalize', 'send_headers', 'send_body' ])
 			->getMock();

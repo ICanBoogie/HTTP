@@ -42,9 +42,9 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 	public function testCacheControl()
 	{
 		$headers = new Headers;
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\CacheControl', $headers['Cache-Control']);
+		$this->assertInstanceOf(Headers\CacheControl::class, $headers['Cache-Control']);
 		$headers['Cache-Control'] = 'public, max-age=3600, no-transform';
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\CacheControl', $headers['Cache-Control']);
+		$this->assertInstanceOf(Headers\CacheControl::class, $headers['Cache-Control']);
 		$this->assertEquals('public', $headers['Cache-Control']->cacheable);
 		$this->assertEquals('3600', $headers['Cache-Control']->max_age);
 		$this->assertTrue($headers['Cache-Control']->no_transform);
@@ -53,9 +53,9 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 	public function testContentDisposition()
 	{
 		$headers = new Headers;
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\ContentDisposition', $headers['Content-Disposition']);
+		$this->assertInstanceOf(Headers\ContentDisposition::class, $headers['Content-Disposition']);
 		$headers['Content-Disposition'] = "attachment; filename=test.txt";
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\ContentDisposition', $headers['Content-Disposition']);
+		$this->assertInstanceOf(Headers\ContentDisposition::class, $headers['Content-Disposition']);
 		$this->assertEquals('attachment', $headers['Content-Disposition']->type);
 		$this->assertEquals('test.txt', $headers['Content-Disposition']->filename);
 	}
@@ -63,9 +63,9 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 	public function testContentType()
 	{
 		$headers = new Headers;
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\ContentType', $headers['Content-Type']);
+		$this->assertInstanceOf(Headers\ContentType::class, $headers['Content-Type']);
 		$headers['Content-Type'] = 'text/plain; charset=iso-8859-1';
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\ContentType', $headers['Content-Type']);
+		$this->assertInstanceOf(Headers\ContentType::class, $headers['Content-Type']);
 		$this->assertEquals('text/plain', $headers['Content-Type']->type);
 		$this->assertEquals('iso-8859-1', $headers['Content-Type']->charset);
 	}
@@ -79,12 +79,12 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 
 		if ($field !== 'Retry-After')
 		{
-			$this->assertInstanceOf('ICanBoogie\HTTP\Headers\Date', $headers[$field]);
+			$this->assertInstanceOf(Headers\Date::class, $headers[$field]);
 		}
 
 		$headers[$field] = $value;
 
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\Date', $headers[$field]);
+		$this->assertInstanceOf(Headers\Date::class, $headers[$field]);
 		$this->assertEquals($expected, (string) $headers[$field]);
 	}
 
@@ -128,7 +128,7 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 	{
 		$h = new Headers;
 
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\Date', $h[$field]);
+		$this->assertInstanceOf(Headers\Date::class, $h[$field]);
 		$this->assertTrue($h[$field]->is_empty);
 	}
 
@@ -197,7 +197,7 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 		$in_one_month = new DateTime('+1 month', 'utc');
 
 		$h = $this
-			->getMockBuilder('ICanBoogie\HTTP\Headers')
+			->getMockBuilder(Headers::class)
 			->setMethods([ 'send_header' ])
 			->getMock();
 

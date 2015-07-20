@@ -597,7 +597,6 @@ request for "/index.html" would be redirected to "/".
 ```php
 <?php
 
-use ICanBoogie\Event;
 use ICanBoogie\HTTP\Dispatcher;
 use ICanBoogie\HTTP\RedirectResponse;
 
@@ -636,7 +635,6 @@ the content type "text/html" was found for a request.
 ```php
 <?php
 
-use ICanBoogie\Event;
 use ICanBoogie\HTTP\Dispatcher;
 
 $events->attach(function(Dispatcher\DispatchEvent $event, Dispatcher $target) use($cache) {
@@ -883,7 +881,7 @@ class AlterEvent extends \ICanBoogie\Event
 
 ## Requirements
 
-The package requires PHP 5.4 or later.
+The package requires PHP 5.5 or later.
 
 
 

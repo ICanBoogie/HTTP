@@ -30,7 +30,7 @@ class BeforeDispatchEventTest extends \PHPUnit_Framework_TestCase
 	public function setUp()
 	{
 		$this->dispatcher = $this
-			->getMockBuilder('ICanBoogie\HTTP\Dispatcher')
+			->getMockBuilder(Dispatcher::class)
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -44,7 +44,7 @@ class BeforeDispatchEventTest extends \PHPUnit_Framework_TestCase
 			$this->markTestSkipped("Fatal error in PHP7");
 		}
 
-		$this->setExpectedException('PHPUnit_Framework_Error');
+		$this->setExpectedException(\PHPUnit_Framework_Error::class);
 
 		#
 
@@ -60,19 +60,39 @@ class BeforeDispatchEventTest extends \PHPUnit_Framework_TestCase
 			$this->markTestSkipped("Fatal error in PHP7");
 		}
 
-		$this->setExpectedException('PHPUnit_Framework_Error');
+		$this->setExpectedException(\PHPUnit_Framework_Error::class);
 
 		#
 
 		$response = null;
-		$event = new BeforeDispatchEvent($this->dispatcher, $this->request, $response);
+
+		/* @var $event BeforeDispatchEvent */
+
+		$event = BeforeDispatchEvent::from([
+
+			'target' => $this->dispatcher,
+			'request' => $this->request,
+			'response' => &$response
+
+		]);
+
 		$event->response = new \StdClass;
 	}
 
 	public function test_should_accept_null()
 	{
 		$response = null;
-		$event = new BeforeDispatchEvent($this->dispatcher, $this->request, $response);
+
+		/* @var $event BeforeDispatchEvent */
+
+		$event = BeforeDispatchEvent::from([
+
+			'target' => $this->dispatcher,
+			'request' => $this->request,
+			'response' => &$response
+
+		]);
+
 		$this->assertNull($event->response);
 		$event->response = null;
 	}
@@ -81,8 +101,17 @@ class BeforeDispatchEventTest extends \PHPUnit_Framework_TestCase
 	{
 		$response = new Response;
 		$response_replacement = new Response;
-		$event = new BeforeDispatchEvent($this->dispatcher, $this->request, $response);
-		$this->assertInstanceOf('ICanBoogie\HTTP\Response', $event->response);
+
+		/* @var $event BeforeDispatchEvent */
+		$event = BeforeDispatchEvent::from([
+
+			'target' => $this->dispatcher,
+			'request' => $this->request,
+			'response' => &$response
+
+		]);
+
+		$this->assertInstanceOf(Response::class, $event->response);
 		$this->assertSame($response, $event->response);
 		$event->response = $response_replacement;
 		$this->assertSame($response_replacement, $event->response);
@@ -92,7 +121,17 @@ class BeforeDispatchEventTest extends \PHPUnit_Framework_TestCase
 	public function test_should_read_request()
 	{
 		$response = null;
-		$event = new BeforeDispatchEvent($this->dispatcher, $this->request, $response);
+
+		/* @var $event BeforeDispatchEvent */
+
+		$event = BeforeDispatchEvent::from([
+
+			'target' => $this->dispatcher,
+			'request' => $this->request,
+			'response' => &$response
+
+		]);
+
 		$this->assertSame($this->request, $event->request);
 	}
 
@@ -102,7 +141,17 @@ class BeforeDispatchEventTest extends \PHPUnit_Framework_TestCase
 	public function test_should_throw_exception_on_write_request()
 	{
 		$response = null;
-		$event = new BeforeDispatchEvent($this->dispatcher, $this->request, $response);
+
+		/* @var $event BeforeDispatchEvent */
+
+		$event = BeforeDispatchEvent::from([
+
+			'target' => $this->dispatcher,
+			'request' => $this->request,
+			'response' => &$response
+
+		]);
+
 		$event->request = null;
 	}
 }

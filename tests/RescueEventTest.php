@@ -97,7 +97,7 @@ class RescueEventTest extends \PHPUnit_Framework_TestCase
 		$response = new Response;
 		$response_replacement = new Response;
 		$event = new RescueEvent(new \Exception, Request::from('/'), $response);
-		$this->assertInstanceOf('ICanBoogie\HTTP\Response', $event->response);
+		$this->assertInstanceOf(Response::class, $event->response);
 		$this->assertSame($response, $event->response);
 		$event->response = $response_replacement;
 		$this->assertSame($response_replacement, $event->response);

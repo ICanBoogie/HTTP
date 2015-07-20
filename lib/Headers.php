@@ -25,14 +25,14 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 {
 	static private $mapping = [
 
-		'Cache-Control'       => 'ICanBoogie\HTTP\Headers\CacheControl',
-		'Content-Disposition' => 'ICanBoogie\HTTP\Headers\ContentDisposition',
-		'Content-Type'        => 'ICanBoogie\HTTP\Headers\ContentType',
-		'Date'                => 'ICanBoogie\HTTP\Headers\Date',
-		'Expires'             => 'ICanBoogie\HTTP\Headers\Date',
-		'If-Modified-Since'   => 'ICanBoogie\HTTP\Headers\Date',
-		'If-Unmodified-Since' => 'ICanBoogie\HTTP\Headers\Date',
-		'Last-Modified'       => 'ICanBoogie\HTTP\Headers\Date'
+		'Cache-Control'       => Headers\CacheControl::class,
+		'Content-Disposition' => Headers\ContentDisposition::class,
+		'Content-Type'        => Headers\ContentType::class,
+		'Date'                => Headers\Date::class,
+		'Expires'             => Headers\Date::class,
+		'If-Modified-Since'   => Headers\Date::class,
+		'If-Unmodified-Since' => Headers\Date::class,
+		'Last-Modified'       => Headers\Date::class
 
 	];
 

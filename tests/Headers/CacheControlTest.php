@@ -104,7 +104,7 @@ class CacheControlTest extends \PHPUnit_Framework_TestCase
 	{
 		$instance = CacheControl::from('public, no-store, max-age=0');
 
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\CacheControl', $instance);
+		$this->assertInstanceOf(CacheControl::class, $instance);
 		$this->assertSame($instance, CacheControl::from($instance));
 	}
 

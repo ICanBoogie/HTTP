@@ -11,20 +11,24 @@
 
 namespace ICanBoogie\HTTP;
 
-use ICanBoogie\Events;
+use ICanBoogie\EventCollection;
 
 class DispatcherTest extends \PHPUnit_Framework_TestCase
 {
 	/**
 	 * @var Events
 	 */
-	static private $events;
+	private $events;
 
-	static public function setUpBeforeClass()
+	public function setUp()
 	{
-		self::$events = $events = new Events;
+		$this->events = $events = new EventCollection;
 
-		Events::patch('get', function() use($events) { return $events; });
+		$events->set_instance_provider(function() use ($events) {
+
+			return $events;
+
+		});
 	}
 
 	/**
@@ -37,13 +41,13 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 		$before_done = null;
 		$done = null;
 
-		$beh = self::$events->attach(function(Dispatcher\BeforeDispatchEvent $event, Dispatcher $target) use(&$before_done) {
+		$this->events->attach(function(Dispatcher\BeforeDispatchEvent $event, Dispatcher $target) use(&$before_done) {
 
 			$before_done = true;
 
 		});
 
-		$eh = self::$events->attach(function(Dispatcher\DispatchEvent $event, Dispatcher $target) use(&$done) {
+		$this->events->attach(function(Dispatcher\DispatchEvent $event, Dispatcher $target) use(&$done) {
 
 			$done = true;
 
@@ -57,9 +61,6 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 		$this->assertTrue($before_done);
 		$this->assertTrue($done);
 		$this->assertEquals('Ok', $response->body);
-
-		$beh->detach();
-		$eh->detach();
 	}
 
 	/**
@@ -67,7 +68,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testDispatcherRescueEvent()
 	{
-		$eh = self::$events->attach(function(\ICanBoogie\Exception\RescueEvent $event, \Exception $target) {
+		$this->events->attach(function(\ICanBoogie\Exception\RescueEvent $event, \Exception $target) {
 
 			$event->response = new Response("Rescued: " . $event->exception->getMessage());
 
@@ -85,10 +86,8 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
 		$response = $dispatcher(Request::from($_SERVER));
 
-		$this->assertInstanceOf('ICanBoogie\HTTP\Response', $response);
+		$this->assertInstanceOf(Response::class, $response);
 		$this->assertEquals('Rescued: Damned!', $response->body);
-
-		$eh->detach();
 	}
 
 	/**
@@ -161,8 +160,8 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
 		$response = $dispatcher($request);
 
-		$this->assertInstanceOf('ICanBoogie\HTTP\Response', $response);
-		$this->assertInstanceOf('ICanBoogie\HTTP\Status', $response->status);
+		$this->assertInstanceOf(Response::class, $response);
+		$this->assertInstanceOf(Status::class, $response->status);
 		$this->assertEquals(200, $response->status->code);
 		$this->assertEquals(strlen($message), $response->content_length);
 		$this->assertEquals('yes', $response->headers['X-Was-Get']);
@@ -200,7 +199,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 		$response = $dispatcher($request);
 		$expected = "HTTP/1.0 200 OK\r\nDate: {$response->date}\r\n\r\n";
 
-		$this->assertInstanceOf('ICanBoogie\HTTP\Response', $response);
+		$this->assertInstanceOf(Response::class, $response);
 		$this->assertNotSame($response, $original_response);
 		$this->assertEquals($expected, (string) $response);
 	}
@@ -226,7 +225,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 		}
 		catch (\Exception $e)
 		{
-			$this->assertInstanceOf('ICanBoogie\HTTP\DispatcherNotDefined', $e);
+			$this->assertInstanceOf(DispatcherNotDefined::class, $e);
 		}
 	}
 }

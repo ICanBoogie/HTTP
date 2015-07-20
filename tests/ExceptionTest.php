@@ -21,7 +21,7 @@ class ExceptionTest extends \PHPUnit_Framework_TestCase
 		$reflection = new \ReflectionClass(__NAMESPACE__ . '\\' . $class);
 		$e = $reflection->newInstanceArgs($args);
 
-		$this->assertInstanceOf('ICanBoogie\HTTP\Exception', $e);
+		$this->assertInstanceOf(Exception::class, $e);
 	}
 
 	public function provide_test_implements()

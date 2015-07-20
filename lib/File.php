@@ -89,12 +89,12 @@ class File implements ToArray
 	 */
 	static private function format($format, array $args = [], array $options = [])
 	{
-		if (class_exists('ICanBoogie\I18n\FormattedString', true))
+		if (class_exists(\ICanBoogie\I18n\FormattedString::class, true))
 		{
 			return new \ICanBoogie\I18n\FormattedString($format, $args, $options); // @codeCoverageIgnore
 		}
 
-		if (class_exists('ICanBoogie\FormattedString', true))
+		if (class_exists(\ICanBoogie\FormattedString::class, true))
 		{
 			return new \ICanBoogie\FormattedString($format, $args, $options);
 		}
@@ -449,13 +449,12 @@ class File implements ToArray
 				throw new \Exception("Unable to move file to destination: $destination.");  // @codeCoverageIgnore
 			}
 		}
-		else
+		// @codeCoverageIgnoreStart
+		elseif (!move_uploaded_file($this->tmp_name, $destination))
 		{
-			if (!move_uploaded_file($this->tmp_name, $destination))
-			{
-				throw new \Exception("Unable to move file to destination: $destination.");
-			}
+			throw new \Exception("Unable to move file to destination: $destination.");
 		}
+		// @codeCoverageIgnoreEnd
 
 		$this->pathname = $destination;
 	}

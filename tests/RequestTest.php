@@ -55,7 +55,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$v = "public, must-revalidate";
 		$r = Request::from([ 'cache_control' => $v ]);
 		$this->assertObjectNotHasAttribute('cache_control', $r);
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\CacheControl', $r->cache_control);
+		$this->assertInstanceOf(Headers\CacheControl::class, $r->cache_control);
 		$this->assertEquals('public', $r->cache_control->cacheable);
 		$this->assertTrue($r->cache_control->must_revalidate);
 	}
@@ -342,7 +342,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	public function test_from_with_files()
 	{
 		$r = Request::from('/path/to/file');
-		$this->assertInstanceOf('ICanBoogie\HTTP\FileList', $r->files);
+		$this->assertInstanceOf(FileList::class, $r->files);
 		$this->assertEquals(0, $r->files->count());
 
 		$r = Request::from([
@@ -356,12 +356,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 		]);
 
-		$this->assertInstanceOf('ICanBoogie\HTTP\FileList', $r->files);
+		$this->assertInstanceOf(FileList::class, $r->files);
 		$this->assertEquals(2, $r->files->count());
 
 		foreach ([ 'one', 'two' ] as $id)
 		{
-			$this->assertInstanceOf('ICanBoogie\HTTP\File', $r->files[$id]);
+			$this->assertInstanceOf(File::class, $r->files[$id]);
 			$this->assertEquals(__FILE__, $r->files[$id]->pathname);
 		}
 	}
@@ -380,7 +380,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 		]);
 
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers', $r->headers);
+		$this->assertInstanceOf(Headers::class, $r->headers);
 		$this->assertEquals("max-age=0", (string) $r->headers['Cache-Control']);
 		$this->assertEquals("application/json", (string) $r->headers['Accept']);
 
@@ -650,7 +650,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	public function test_send()
 	{
 		$response = $this
-			->getMockBuilder('ICanBoogie\HTTP\Response')
+			->getMockBuilder(Response::class)
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -671,13 +671,13 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		];
 
 		$r1 = $this
-			->getMockBuilder('ICanBoogie\HTTP\Request')
+			->getMockBuilder(Request::class)
 			->disableOriginalConstructor()
 			->setMethods([ 'with' ])
 			->getMock();
 
 		$r2 = $this
-			->getMockBuilder('ICanBoogie\HTTP\Request')
+			->getMockBuilder(Request::class)
 			->disableOriginalConstructor()
 			->setMethods([ 'dispatch' ])
 			->getMock();
@@ -708,7 +708,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$response = new Response;
 
 		$r = $this
-			->getMockBuilder('ICanBoogie\HTTP\Request')
+			->getMockBuilder(Request::class)
 			->disableOriginalConstructor()
 			->setMethods([ 'dispatch' ])
 			->getMock();
@@ -727,7 +727,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$exception = new \Exception;
 
 		$r = $this
-			->getMockBuilder('ICanBoogie\HTTP\Request')
+			->getMockBuilder(Request::class)
 			->disableOriginalConstructor()
 			->setMethods([ 'dispatch' ])
 			->getMock();
@@ -756,13 +756,13 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$response = new Response;
 
 		$r1 = $this
-			->getMockBuilder('ICanBoogie\HTTP\Request')
+			->getMockBuilder(Request::class)
 			->disableOriginalConstructor()
 			->setMethods([ 'dispatch' ])
 			->getMock();
 
 		$r2 = $this
-			->getMockBuilder('ICanBoogie\HTTP\Request')
+			->getMockBuilder(Request::class)
 			->disableOriginalConstructor()
 			->setMethods([ 'dispatch' ])
 			->getMock();

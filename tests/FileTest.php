@@ -11,6 +11,8 @@
 
 namespace ICanBoogie\HTTP;
 
+use ICanBoogie\FormattedString;
+
 class FileTest extends \PHPUnit_Framework_TestCase
 {
 	/**
@@ -89,7 +91,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 		{
 			$message = $file->error_message;
 
-			$this->assertInstanceOf('ICanBoogie\FormattedString', $message);
+			$this->assertInstanceOf(FormattedString::class, $message);
 			$this->assertStringStartsWith($expected, (string) $message);
 		}
 	}

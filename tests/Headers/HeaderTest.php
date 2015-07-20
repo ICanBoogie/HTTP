@@ -45,8 +45,8 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
 	public function test_attributes()
 	{
 		$a = new A;
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\HeaderParameter', $a['p']);
-		$this->assertNotInstanceOf('ICanBoogie\HTTP\Headers\HeaderParameter', $a->p);
+		$this->assertInstanceOf(HeaderParameter::class, $a['p']);
+		$this->assertNotInstanceOf(HeaderParameter::class, $a->p);
 
 		$a->type = 'inline';
 		$this->assertEquals('inline', (string) $a);
@@ -55,8 +55,8 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals('inline; p=madonna.mp3', (string) $a);
 		unset($a['p']);
 		$this->assertNull($a->p);
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\HeaderParameter', $a['p']);
-		$this->assertNotInstanceOf('ICanBoogie\HTTP\Headers\HeaderParameter', $a->p);
+		$this->assertInstanceOf(HeaderParameter::class, $a['p']);
+		$this->assertNotInstanceOf(HeaderParameter::class, $a->p);
 		$this->assertEquals('inline', (string) $a);
 
 		$a->p = 'madonna.mp3';
@@ -65,8 +65,8 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals('inline; p=madonna.ogg', (string) $a);
 		unset($a->p);
 		$this->assertNull($a->p);
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\HeaderParameter', $a['p']);
-		$this->assertNotInstanceOf('ICanBoogie\HTTP\Headers\HeaderParameter', $a->p);
+		$this->assertInstanceOf(HeaderParameter::class, $a['p']);
+		$this->assertNotInstanceOf(HeaderParameter::class, $a->p);
 		$this->assertEquals('inline', (string) $a);
 	}
 
@@ -141,7 +141,7 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
 	{
 		$h = A::from(new FormattedString('madonna; p=music'));
 
-		$this->assertInstanceOf('ICanBoogie\HTTP\Headers\Header', $h);
+		$this->assertInstanceOf(Header::class, $h);
 		$this->assertEquals("madonna", $h->value);
 		$this->assertEquals("music", $h->p);
 	}

@@ -9,7 +9,7 @@ class FileListTest extends \PHPUnit_Framework_TestCase
 		$i1 = new FileList;
 		$i2 = FileList::from($i1);
 
-		$this->assertInstanceOf('ICanBoogie\HTTP\FileList', $i2);
+		$this->assertInstanceOf(FileList::class, $i2);
 		$this->assertNotSame($i1, $i2);
 	}
 
@@ -24,7 +24,7 @@ class FileListTest extends \PHPUnit_Framework_TestCase
 		$i = new FileList;
 		$i['one'] = [ 'pathname' => __FILE__ ];
 
-		$this->assertInstanceOf('ICanBoogie\HTTP\File', $i['one']);
+		$this->assertInstanceOf(File::class, $i['one']);
 		$this->assertEquals(__FILE__, $i['one']->pathname);
 	}
 
@@ -52,7 +52,7 @@ class FileListTest extends \PHPUnit_Framework_TestCase
 
 		foreach ($i as $file)
 		{
-			$this->assertInstanceOf('ICanBoogie\HTTP\File', $file);
+			$this->assertInstanceOf(File::class, $file);
 			$list[] = [ 'pathname' => $file->pathname ];
 		}
 
