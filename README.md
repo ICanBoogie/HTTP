@@ -15,9 +15,7 @@ The HTTP package provides an API to handle HTTP requests.
 
 ## Request
 
-A request is represented by a [Request][] instance.
-The initial request is usually created from the `$_SERVER` array, while sub requests are created
-from arrays of properties.
+A request is represented by a [Request][] instance. The initial request is usually created from the `$_SERVER` array, while sub requests are created from arrays of properties.
 
 ```php
 <?php
@@ -53,10 +51,12 @@ $request = Request::from([
 
 ### A request with changed properties
 
-Requests are for the most part immutable, the `with()` method is used to create an instance with changed properties from another instance.
+Requests are for the most part immutable, the `with()` method creates an instance copy with changed properties.
 
 ```php
 <?php
+
+use ICanBoogie\HTTP\Request;
 
 $request = Request::from($_SERVER)->with([
 
@@ -71,9 +71,7 @@ $request = Request::from($_SERVER)->with([
 
 ### Request parameters
 
-Parameters sent along the request are collected in arrays, whether they are sent as part of the
-query string, the post body or the path info. The `query_params`, `request_params` and
-`path_params` give you access to these parameters.
+Whether they are sent as part of the query string, the post body or the path info, parameters sent along a request are collected in arrays. The `query_params`, `request_params` and `path_params` properties give you access to these parameters.
 
 You can access each type of parameter as follows:
 
@@ -85,8 +83,7 @@ $method = $request->request_params['method'];
 $info = $request->path_params['info'];
 ```
 
-All the request parameters are also available through the `params` property, which is a merge of
-the _query_, _request_ and _path_ parameters:
+All the request parameters are also available through the `params` property, which merges the _query_, _request_ and _path_ parameters:
 
 ```php
 <?php
@@ -96,8 +93,7 @@ $method = $request->params['method'];
 $info = $request->params['info'];
 ```
 
-The request parameters are also available by using the request as an array, in which case
-accessing undefined parameters simply returns `null`:
+Used as an array, the [Request][] instance provides these parameters as well, but returns `null` when a parameter is not defined:
 
 ```php
 <?php
@@ -223,9 +219,9 @@ $file->to_array();
 
 
 
-### Dispatching requests
+### Obtaining a response
 
-Requests are handled by a dispatcher, which returns a [Response][] instance, or throws a `NotFound` exception if the request cannot be satisfied. Requests are usually dispatched simply by invoking them, or by using one of the HTTP methods available:
+A response is obtained from a request simply by invoking the request, or by invoking one of the available HTTP methods. The `dispatch()` helper is used to dispatch the request. A [Response][] instance is returned if the dispatching is successful, a [NotFound][] exception is  thrown otherwise.
 
 ```php
 <?php
@@ -243,7 +239,7 @@ $response = $request->post([ 'param' => 'value' ]);
 
 ## Response
 
-The response to a request is represented by a [Response][] instance. The response body can either be a `null`, a string or an object implementing `__toString()`, or a closure.
+The response to a request is represented by a [Response][] instance. The response body can either be a `null`, a string, an object implementing `__toString()`, or a closure.
 
 **Note:** Contrary to [Request][] instances, [Response][] instances or completely mutable.
 
@@ -269,6 +265,8 @@ The response status is represented by a [Status][] instance. It can be defined a
 
 ```php
 <?php
+
+use ICanBoogie\HTTP\Response;
 
 $response = new Response;
 
@@ -298,7 +296,7 @@ When large response body needs to be issued, it is recommended to use a closure 
 
 use ICanBoogie\HTTP\Response;
 
-$fh = fopen('/path/to/my/huge/file', 'rb);
+$fh = fopen('/path/to/my/huge/file', 'rb');
 $output = function() use ($fh)
 {
 	fseek($fh, 0);
@@ -463,42 +461,35 @@ $response = new Response('{ "message": "Ok" }', 200, [
 
 
 
-## Dispatcher
+## Request dispatcher
 
-Requests are handled using a [Dispatcher][] instance, but despite the many features of the
-dispatcher, it is incapable of resolving the request into a response by itself, instead it
-relies on dispatcher plugins and events.
+A [RequestDispatcher][] instance dispatches the requests using a collection of _domain dispatchers_, for which The _request dispatcher_ provides a nice framework. The _request dispatcher_ sorts _domain dispatchers_ according to their weight, fire events, and tries to rescue exceptions should they occur.
 
 
 
 
 
-### Dispatcher plugins
+### Domain dispatchers
 
-Wrapped in the comfort of the dispatcher, dispatcher plugins are the ones who really handle the
-requests. They may be instances of classes implementing the [DispatcherInterface][] interface or
-callables, and they usually handle a very specific type of request.
+A _domain dispatcher_ handles a very specific type of request. It may be an instance implementing the [Dispatcher][] interface, or simple callable.
 
-As an example, the following dispatcher plugins are used by the CMS Icybee:
+The following example demonstrates how a [RequestDispatcher][] instance may be created with several _domain dispatchers_:
 
-- `operation`: Defined by the `icanboogie/operation` package, it handles operations.
-- `routes`: Defined by the `icanboogie/routing` package, it handles routes defined using
+- `operation`: Defined by the `icanboogie/operation` package, handles operations.
+- `routes`: Defined by the `icanboogie/routing` package, handles routes defined using
 the `routes` configuration.
-- `pages`: Defined by the `icybee/pages` package, it handles managed pages.
-
-The following code demonstrates how a [Dispatcher][] instance can be created with these dispatcher
-plugins.
+- `pages`: Defined by the `icybee/pages` package, handles managed pages.
 
 ```php
 <?php
 
-use ICanBoogie\HTTP\Dispatcher;
+use ICanBoogie\HTTP\RequestDispatcher;
 
-$dispatcher = new Dispatcher([
+$dispatcher = new RequestDispatcher([
 
-	'operation' => 'ICanBoogie\Operation\Dispatcher',
-	'route' => 'ICanBoogie\Routing\Dispatcher',
-	'page' => 'Icybee\Modules\Pages\PageController'
+	'operation' => 'ICanBoogie\Operation\OperationDispatcher',
+	'route' => 'ICanBoogie\Routing\RouteDispatcher',
+	'page' => 'Icybee\Modules\Pages\PageDisptacher'
 
 ]);
 ```
@@ -507,7 +498,7 @@ $dispatcher = new Dispatcher([
 
 
 
-### Weighted dispatcher plugins
+### Weighted domain dispatchers
 
 The order in which the dispatcher plugins are defined is important because each one of them is
 invoked in turn until one returns a response or throws an exception. Some dispatcher plugins
@@ -520,7 +511,9 @@ to a target. Consider the following example:
 ```php
 <?php
 
-$dispatcher = new Dispatcher([
+use ICanBoogie\HTTP\RequestDispatcher;
+
+$dispatcher = new RequestDispatcher([
 
 	'two' => 'dummy',
 	'three' => 'dummy'
@@ -555,11 +548,11 @@ should be ordered relatively to the specified targets.
 
 ## Dispatching requests
 
-When a dispatcher is asked to handle a request, it invokes each of its dispatcher plugins in turn
+When the _request dispatcher_ is asked to handle a request, it invokes each of its _domain dispatchers_ in turn
 until one returns a [Response][] instance or throws an exception. If an exception is thrown during
-the dispatch, the dispatcher tries to _rescue_ it using either the dispatcher plugin's `rescue()`
-method or the event system. Around that, events are fired to allow third parties to alter the
-request and alter or replace the response. Finally, if the request could not be resolved into a
+the dispatch, the _request dispatcher_ tries to _rescue_ it using either the _domain dispatcher's_ `rescue()`
+method or the event system. Around that, events are fired to allow event hooks to alter the
+request, or alter or replace the response. Finally, if the request could not be resolved into a
 response a [NotFound][] exception is thrown, otherwise the response is returned.
 
 ```php
@@ -584,7 +577,7 @@ catch (NotFound $e)
 
 ### Before a request is dispatched
 
-The `ICanBoogie\HTTP\Dispatcher::dispatch:before` event of class [BeforeDispatchEvent][]
+The `ICanBoogie\HTTP\RequestDispatcher::dispatch:before` event of class [BeforeDispatchEvent][]
 is fired before a request is dispatched.
 
 Third parties may use this event to provide a response to the request before the dispatcher plugins
@@ -597,10 +590,10 @@ request for "/index.html" would be redirected to "/".
 ```php
 <?php
 
-use ICanBoogie\HTTP\Dispatcher;
+use ICanBoogie\HTTP\RequestDispatcher;
 use ICanBoogie\HTTP\RedirectResponse;
 
-$events->attach(function(Dispatcher\BeforeDispatchEvent $event, Dispatcher $dispatcher) {
+$events->attach(function(RequestDispatcher\BeforeDispatchEvent $event, RequestDispatcher $dispatcher) {
 
 	$path = $event->request->path;
 	$normalized_path = $event->request->normalized_path;
@@ -625,7 +618,7 @@ prevent other event hooks from altering the response.
 
 ### After a request was dispatched
 
-The `ICanBoogie\HTTP\Dispatcher::dispatch` event of class [DispatchEvent][] is fired after a
+The `ICanBoogie\HTTP\RequestDispatcher::dispatch` event of class [DispatchEvent][] is fired after a
 request was dispatched, even if no response was provided by dispatcher plugins.
 
 Third parties may use this event to alter or replace the response before it is returned by the
@@ -635,9 +628,9 @@ the content type "text/html" was found for a request.
 ```php
 <?php
 
-use ICanBoogie\HTTP\Dispatcher;
+use ICanBoogie\HTTP\RequestDispatcher;
 
-$events->attach(function(Dispatcher\DispatchEvent $event, Dispatcher $target) use($cache) {
+$events->attach(function(RequestDispatcher\DispatchEvent $event, RequestDispatcher $target) use($cache) {
 
 	$response = $event->response;
 
@@ -781,7 +774,7 @@ The following helpers are available:
 
 ### Altering the dispatcher
 
-The `ICanBoogie\HTTP\Dispatcher::alter` event of class [ICanBoogie\HTTP\Dispatcher\AlterEvent][] is fired after the dispatcher has been created. Third parties may use this event to register or alter dispatchers, or replace the dispatcher altogether.
+The `ICanBoogie\HTTP\RequestDispatcher::alter` event of class [ICanBoogie\HTTP\RequestDispatcher\AlterEvent][] is fired after the dispatcher has been created. Third parties may use this event to register or alter dispatchers, or replace the dispatcher altogether.
 
 The following code illustrate how a `hello` dispatcher, that returns
 "Hello world!" when the request matches the path "/hello", can be registered.
@@ -789,11 +782,11 @@ The following code illustrate how a `hello` dispatcher, that returns
 ```php
 <?php
 
-use ICanBoogie\HTTP\Dispatcher;
+use ICanBoogie\HTTP\RequestDispatcher;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
 
-$app->events->attach(function(Dispatcher\AlterEvent $event, Dispatcher $target) {
+$app->events->attach(function(RequestDispatcher\AlterEvent $event, RequestDispatcher $target) {
 
 	$target['hello'] = function(Request $request) {
 
@@ -824,7 +817,7 @@ dispatcher plugins:
 
 namespace ICanBoogie;
 
-use ICanBoogie\HTTP\Dispatcher;
+use ICanBoogie\HTTP\RequestDispatcher;
 
 ICanBoogie\HTTP\Helpers::patch('get_dispatcher', function() {
 
@@ -832,26 +825,26 @@ ICanBoogie\HTTP\Helpers::patch('get_dispatcher', function() {
 
 	if (!$dispatcher)
 	{
-		$dispatcher = new Dispatcher([
+		$dispatcher = new RequestDispatcher([
 
-			'operation' => 'ICanBoogie\Operation\Dispatcher',
-			'route' => 'ICanBoogie\Routing\Dispatcher'
+			'operation' => 'ICanBoogie\Operation\RequestDispatcher',
+			'route' => 'ICanBoogie\Routing\RequestDispatcher'
 
 		]);
 
-		new Dispatcher\AlterEvent($dispatcher);
+		new RequestDispatcher\AlterEvent($dispatcher);
 	}
 
 	return $dispatcher;
 
 });
 
-namespace ICanBoogie\HTTP\Dispatcher;
+namespace ICanBoogie\HTTP\RequestDispatcher;
 
-use ICanBoogie\HTTP\Dispatcher;
+use ICanBoogie\HTTP\RequestDispatcher;
 
 /**
- * Event class for the `ICanBoogie\HTTP\Dispatcher::alter` event.
+ * Event class for the `ICanBoogie\HTTP\RequestDispatcher::alter` event.
  *
  * Third parties may use this event to register additional dispatchers.
  */
@@ -860,9 +853,9 @@ class AlterEvent extends \ICanBoogie\Event
 	/**
 	 * The event is constructed with the type `alter`.
 	 *
-	 * @param Dispatcher $target
+	 * @param RequestDispatcher $target
 	 */
-	public function __construct(Dispatcher $target)
+	public function __construct(RequestDispatcher $target)
 	{
 		parent::__construct($target, 'alter');
 	}
@@ -946,13 +939,13 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
 
 
-[BeforeDispatchEvent]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Dispatcher.BeforeDispatchEvent.html
+[BeforeDispatchEvent]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.RequestDispatcher.BeforeDispatchEvent.html
 [CacheControl]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Headers.CacheControl.html
 [ContentDisposition]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Headers.ContentDisposition.html
 [ContentType]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Headers.ContentType.html
-[DispatchEvent]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Dispatcher.DispatchEvent.html
+[DispatchEvent]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.RequestDispatcher.DispatchEvent.html
+[RequestDispatcher]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.RequestDispatcher.html
 [Dispatcher]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Dispatcher.html
-[DispatcherInterface]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.DispatcherInterface.html
 [Headers]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Headers.html
 [Response]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Response.html
 [RedirectResponse]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.RedirectResponse.html

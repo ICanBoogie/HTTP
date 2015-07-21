@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP\Request;
 
-use ICanBoogie\HTTP\Dispatcher;
+use ICanBoogie\HTTP\RequestDispatcher;
 use ICanBoogie\HTTP\Request;
 
 class ContextTest extends \PHPUnit_Framework_TestCase
@@ -26,7 +26,7 @@ class ContextTest extends \PHPUnit_Framework_TestCase
 	public function test_set_dispatcher()
 	{
 		$c = new Context(Request::from('/'));
-		$dispatcher = new Dispatcher;
+		$dispatcher = new RequestDispatcher;
 		$c->dispatcher = $dispatcher;
 		$this->assertSame($dispatcher, $c->dispatcher);
 	}

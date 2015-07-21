@@ -16,7 +16,7 @@ use ICanBoogie\EventCollection;
 class DispatcherTest extends \PHPUnit_Framework_TestCase
 {
 	/**
-	 * @var Events
+	 * @var EventCollection
 	 */
 	private $events;
 
@@ -32,8 +32,8 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * The event hooks for the `ICanBoogie\HTTP\Dispatcher::dispatch:before` and
-	 * `ICanBoogie\HTTP\Dispatcher::dispatch` events must be called and a response must be
+	 * The event hooks for the `ICanBoogie\HTTP\RequestDispatcher::dispatch:before` and
+	 * `ICanBoogie\HTTP\RequestDispatcher::dispatch` events must be called and a response must be
 	 * provided with the body 'Ok'.
 	 */
 	public function testDispatchEvent()
@@ -41,13 +41,13 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 		$before_done = null;
 		$done = null;
 
-		$this->events->attach(function(Dispatcher\BeforeDispatchEvent $event, Dispatcher $target) use(&$before_done) {
+		$this->events->attach(function(RequestDispatcher\BeforeDispatchEvent $event, RequestDispatcher $target) use(&$before_done) {
 
 			$before_done = true;
 
 		});
 
-		$this->events->attach(function(Dispatcher\DispatchEvent $event, Dispatcher $target) use(&$done) {
+		$this->events->attach(function(RequestDispatcher\DispatchEvent $event, RequestDispatcher $target) use(&$done) {
 
 			$done = true;
 
@@ -55,7 +55,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
 		});
 
-		$dispatcher = new Dispatcher;
+		$dispatcher = new RequestDispatcher;
 		$response = $dispatcher(Request::from($_SERVER));
 
 		$this->assertTrue($before_done);
@@ -74,7 +74,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
 		});
 
-		$dispatcher = new Dispatcher([
+		$dispatcher = new RequestDispatcher([
 
 			'exception' => function() {
 
@@ -95,13 +95,13 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testNotFound()
 	{
-		$dispatcher = new Dispatcher;
+		$dispatcher = new RequestDispatcher;
 		$dispatcher(Request::from($_SERVER));
 	}
 
 	public function testSetDispatchersWeight()
 	{
-		$dispatcher = new Dispatcher([
+		$dispatcher = new RequestDispatcher([
 
 			'two' => 'dummy',
 			'three' => 'dummy'
@@ -131,7 +131,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 	{
 		$message = "Astonishing success!";
 
-		$dispatcher = new Dispatcher([
+		$dispatcher = new RequestDispatcher([
 
 			'primary' => function(Request $request) use($message) {
 
@@ -180,7 +180,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 	public function test_head_strip_body()
 	{
 		$original_response = null;
-		$dispatcher = new Dispatcher([
+		$dispatcher = new RequestDispatcher([
 
 			'primary' => function(Request $request) use(&$original_response) {
 
@@ -206,7 +206,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
 	public function test_array_access_interface()
 	{
-		$dispatcher = new Dispatcher;
+		$dispatcher = new RequestDispatcher;
 		$d1 = function() {};
 		$k1 = 'd' . uniqid();
 

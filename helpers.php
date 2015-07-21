@@ -30,7 +30,7 @@ function dispatch(Request $request)
 /**
  * Returns a shared request dispatcher.
  *
- * {@link Dispatcher\AlterEvent} is fired when the instance is first created.
+ * {@link RequestDispatcher\AlterEvent} is fired when the instance is first created.
  *
  * @return Dispatcher
  */
@@ -40,9 +40,9 @@ function get_dispatcher()
 
 	if (!$dispatcher)
 	{
-		$dispatcher = new Dispatcher;
+		$dispatcher = new RequestDispatcher;
 
-		new Dispatcher\AlterEvent($dispatcher);
+		new RequestDispatcher\AlterEvent($dispatcher);
 	}
 
 	return $dispatcher;

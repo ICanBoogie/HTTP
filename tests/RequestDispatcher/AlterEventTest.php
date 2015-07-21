@@ -9,27 +9,27 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP\Dispatcher;
+namespace ICanBoogie\HTTP\RequestDispatcher;
 
 use ICanBoogie\EventReflection;
-use ICanBoogie\HTTP\Dispatcher;
+use ICanBoogie\HTTP\RequestDispatcher;
 
 class AlterEventTest extends \PHPUnit_Framework_TestCase
 {
 	public function test_instance()
 	{
 		$dispatcher = $this
-			->getMockBuilder(Dispatcher::class)
+			->getMockBuilder(RequestDispatcher::class)
 			->disableOriginalConstructor()
 			->getMock();
 
 		$other_dispatcher = $this
-			->getMockBuilder(Dispatcher::class)
+			->getMockBuilder(RequestDispatcher::class)
 			->disableOriginalConstructor()
 			->getMock();
 
-		/* @var $dispatcher Dispatcher */
-		/* @var $other_dispatcher Dispatcher */
+		/* @var $dispatcher RequestDispatcher */
+		/* @var $other_dispatcher RequestDispatcher */
 		/* @var $event AlterEvent */
 
 		$event = AlterEvent::from([
@@ -48,12 +48,12 @@ class AlterEventTest extends \PHPUnit_Framework_TestCase
 		$id = uniqid();
 		$reference = uniqid();
 		$inserted_dispatcher = $this
-			->getMockBuilder(Dispatcher::class)
+			->getMockBuilder(RequestDispatcher::class)
 			->disableOriginalConstructor()
 			->getMock();
 
 		$dispatcher = $this
-			->getMockBuilder(Dispatcher::class)
+			->getMockBuilder(RequestDispatcher::class)
 			->disableOriginalConstructor()
 			->setMethods([ 'offsetSet' ])
 			->getMock();
@@ -77,12 +77,12 @@ class AlterEventTest extends \PHPUnit_Framework_TestCase
 		$id = uniqid();
 		$reference = uniqid();
 		$inserted_dispatcher = $this
-			->getMockBuilder(Dispatcher::class)
+			->getMockBuilder(RequestDispatcher::class)
 			->disableOriginalConstructor()
 			->getMock();
 
 		$dispatcher = $this
-			->getMockBuilder(Dispatcher::class)
+			->getMockBuilder(RequestDispatcher::class)
 			->disableOriginalConstructor()
 			->setMethods([ 'offsetSet' ])
 			->getMock();

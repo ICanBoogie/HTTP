@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP\Request;
 
-use ICanBoogie\HTTP\DispatcherInterface;
+use ICanBoogie\HTTP\Dispatcher;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\PrototypeTrait;
 
@@ -22,7 +22,7 @@ use ICanBoogie\PrototypeTrait;
  * request.
  *
  * @property-read Request $request The request associated with the context.
- * @property DispatcherInterface $dispatcher The dispatcher currently dispatching the request.
+ * @property Dispatcher $dispatcher The dispatcher currently dispatching the request.
  */
 class Context
 {
@@ -43,20 +43,20 @@ class Context
 	/**
 	 * The dispatcher currently dispatching the request.
 	 *
-	 * @var DispatcherInterface|null
+	 * @var Dispatcher|null
 	 */
 	private $dispatcher;
 
 	/**
 	 * Sets the dispatcher currently dispatching the request.
 	 *
-	 * @param DispatcherInterface|null $dispatcher
+	 * @param Dispatcher|null $dispatcher
 	 *
-	 * @throws \InvalidArgumentException if the value is not null and does not implements {@link DispatcherInterface}.
+	 * @throws \InvalidArgumentException if the value is not null and does not implements {@link Dispatcher}.
 	 */
 	protected function set_dispatcher($dispatcher)
 	{
-		if ($dispatcher !== null && !($dispatcher instanceof DispatcherInterface))
+		if ($dispatcher !== null && !($dispatcher instanceof Dispatcher))
 		{
 			throw new \InvalidArgumentException('$dispatcher must be an instance of ICanBoogie\HTTP\DispatcherInterface. Given: ' . get_class($dispatcher) . '.');
 		}

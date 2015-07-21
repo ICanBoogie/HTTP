@@ -9,16 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP\Dispatcher;
+namespace ICanBoogie\HTTP\RequestDispatcher;
 
 use ICanBoogie\Event;
-use ICanBoogie\HTTP\Dispatcher;
+use ICanBoogie\HTTP\RequestDispatcher;
 use ICanBoogie\HTTP\WeightedDispatcher;
 
 /**
- * Event class for the `ICanBoogie\HTTP\Dispatcher::alter` event.
+ * Event class for the `ICanBoogie\HTTP\RequestDispatcher::alter` event.
  *
- * Third parties may use this event to register additional dispatchers.
+ * Event hooks may use this event to register domain dispatchers.
  *
  * @property Dispatcher $instance
  */
@@ -27,12 +27,12 @@ class AlterEvent extends Event
 	/**
 	 * Reference to the target instance.
 	 *
-	 * @var Dispatcher
+	 * @var RequestDispatcher
 	 */
 	private $instance;
 
 	/**
-	 * @return Dispatcher
+	 * @return RequestDispatcher
 	 */
 	protected function get_instance()
 	{
@@ -40,9 +40,9 @@ class AlterEvent extends Event
 	}
 
 	/**
-	 * @param Dispatcher $dispatcher
+	 * @param RequestDispatcher $dispatcher
 	 */
-	protected function set_instance(Dispatcher $dispatcher)
+	protected function set_instance(RequestDispatcher $dispatcher)
 	{
 		$this->instance = $dispatcher;
 	}
@@ -50,9 +50,9 @@ class AlterEvent extends Event
 	/**
 	 * The event is constructed with the type `alter`.
 	 *
-	 * @param Dispatcher $target
+	 * @param RequestDispatcher $target
 	 */
-	public function __construct(Dispatcher &$target)
+	public function __construct(RequestDispatcher &$target)
 	{
 		$this->instance = &$target;
 
@@ -62,8 +62,8 @@ class AlterEvent extends Event
 	/**
 	 * Inserts a dispatcher.
 	 *
-	 * @param string $id Dispatcher identifier.
-	 * @param mixed $dispatcher Dispatcher.
+	 * @param string $id RequestDispatcher identifier.
+	 * @param mixed $dispatcher RequestDispatcher.
 	 * @param int $weight
 	 */
 	public function insert($id, $dispatcher, $weight = 0)
@@ -74,8 +74,8 @@ class AlterEvent extends Event
 	/**
 	 * Inserts a dispatcher before another.
 	 *
-	 * @param string $id Dispatcher identifier.
-	 * @param mixed $dispatcher Dispatcher.
+	 * @param string $id RequestDispatcher identifier.
+	 * @param mixed $dispatcher RequestDispatcher.
 	 * @param string $reference Reference dispatcher identifier.
 	 */
 	public function insert_before($id, $dispatcher, $reference)
@@ -86,8 +86,8 @@ class AlterEvent extends Event
 	/**
 	 * Inserts a dispatcher after another.
 	 *
-	 * @param string $id Dispatcher identifier.
-	 * @param mixed $dispatcher Dispatcher.
+	 * @param string $id RequestDispatcher identifier.
+	 * @param mixed $dispatcher RequestDispatcher.
 	 * @param string $reference Reference dispatcher identifier.
 	 */
 	public function insert_after($id, $dispatcher, $reference)

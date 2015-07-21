@@ -1,15 +1,15 @@
 <?php
 
-namespace ICanBoogie\HTTP\Dispatcher;
+namespace ICanBoogie\HTTP\RequestDispatcher;
 
-use ICanBoogie\HTTP\Dispatcher;
+use ICanBoogie\HTTP\RequestDispatcher;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
 
 class DispatchEventTest extends \PHPUnit_Framework_TestCase
 {
 	/**
-	 * @var Dispatcher
+	 * @var RequestDispatcher
 	 */
 	private $dispatcher;
 
@@ -21,7 +21,7 @@ class DispatchEventTest extends \PHPUnit_Framework_TestCase
 	public function setUp()
 	{
 		$this->dispatcher = $this
-			->getMockBuilder(Dispatcher::class)
+			->getMockBuilder(RequestDispatcher::class)
 			->disableOriginalConstructor()
 			->getMock();
 

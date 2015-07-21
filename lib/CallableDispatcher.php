@@ -14,7 +14,7 @@ namespace ICanBoogie\HTTP;
 /**
  * Wrapper for callable dispatchers.
  */
-class CallableDispatcher implements DispatcherInterface
+class CallableDispatcher implements Dispatcher
 {
 	private $callable;
 

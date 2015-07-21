@@ -22,7 +22,7 @@ use ICanBoogie\Accessor\AccessorTrait;
  * $dispatcher['my'] = new WeightedDispatcher('callback', 'before:that_other_dispatcher');
  * </pre>
  *
- * @property-read string|DispatcherInterface $dispatcher
+ * @property-read string|Dispatcher $dispatcher
  * @property-read int|string $weight
  */
 class WeightedDispatcher
@@ -36,12 +36,12 @@ class WeightedDispatcher
 	const WEIGHT_DEFAULT = 0;
 
 	/**
-	 * @var DispatcherInterface|string
+	 * @var Dispatcher|string
 	 */
 	private $dispatcher;
 
 	/**
-	 * @return DispatcherInterface|string
+	 * @return Dispatcher|string
 	 */
 	protected function get_dispatcher()
 	{
@@ -64,7 +64,7 @@ class WeightedDispatcher
 	/**
 	 * Initializes the {@link $dispatcher} and {@link $weight} properties.
 	 *
-	 * @param DispatcherInterface|string $dispatcher
+	 * @param Dispatcher|string $dispatcher
 	 * @param int|string $weight
 	 */
 	public function __construct($dispatcher, $weight = self::WEIGHT_DEFAULT)

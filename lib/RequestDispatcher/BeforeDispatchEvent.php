@@ -9,22 +9,24 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP\Dispatcher;
+namespace ICanBoogie\HTTP\RequestDispatcher;
 
 use ICanBoogie\Event;
-use ICanBoogie\HTTP\Dispatcher;
+use ICanBoogie\HTTP\RequestDispatcher;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
 
 /**
- * Event class for the `ICanBoogie\HTTP\Dispatcher::dispatch` event.
+ * Event class for the `ICanBoogie\HTTP\RequestDispatcher::dispatch:before` event.
  *
- * Third parties may use this event to alter the response before it is returned by the dispatcher.
+ * Event hooks may use this event to provide a response to the request before the
+ * domain dispatchers are invoked. The event is usually used by event hooks to redirect requests
+ * or provide cached responses.
  *
  * @property-read Request $request
  * @property Response $response
  */
-class DispatchEvent extends Event
+class BeforeDispatchEvent extends Event
 {
 	/**
 	 * The request.
@@ -56,17 +58,17 @@ class DispatchEvent extends Event
 	}
 
 	/**
-	 * The event is constructed with the type `dispatch`.
+	 * The event is constructed with the type `dispatch:before`.
 	 *
-	 * @param Dispatcher $target
+	 * @param RequestDispatcher $target
 	 * @param Request $request
 	 * @param Response|null $response Reference to the response.
 	 */
-	public function __construct(Dispatcher $target, Request $request, Response &$response = null)
+	public function __construct(RequestDispatcher $target, Request $request, Response &$response = null)
 	{
 		$this->request = $request;
 		$this->response = &$response;
 
-		parent::__construct($target, 'dispatch');
+		parent::__construct($target, 'dispatch:before');
 	}
 }
