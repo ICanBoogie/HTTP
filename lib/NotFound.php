@@ -14,8 +14,11 @@ namespace ICanBoogie\HTTP;
 /**
  * Exception thrown when a resource is not found.
  */
-class NotFound extends \Exception implements Exception
+class NotFound extends ClientError implements Exception
 {
+	/**
+	 * @inheritdoc
+	 */
 	public function __construct($message = 'The requested URL was not found on this server.', $code = 404, \Exception $previous = null)
 	{
 		parent::__construct($message, $code, $previous);

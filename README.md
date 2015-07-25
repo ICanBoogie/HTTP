@@ -15,7 +15,8 @@ The HTTP package provides an API to handle HTTP requests.
 
 ## Request
 
-A request is represented by a [Request][] instance. The initial request is usually created from the `$_SERVER` array, while sub requests are created from arrays of properties.
+A request is represented by a [Request][] instance. The initial request is usually created from
+the `$_SERVER` array, while sub requests are created from arrays of properties.
 
 ```php
 <?php
@@ -51,7 +52,8 @@ $request = Request::from([
 
 ### A request with changed properties
 
-Requests are for the most part immutable, the `with()` method creates an instance copy with changed properties.
+Requests are for the most part immutable, the `with()` method creates an instance copy with
+changed properties.
 
 ```php
 <?php
@@ -71,7 +73,9 @@ $request = Request::from($_SERVER)->with([
 
 ### Request parameters
 
-Whether they are sent as part of the query string, the post body or the path info, parameters sent along a request are collected in arrays. The `query_params`, `request_params` and `path_params` properties give you access to these parameters.
+Whether they are sent as part of the query string, the post body or the path info, parameters
+sent along a request are collected in arrays. The `query_params`, `request_params`
+and `path_params` properties give you access to these parameters.
 
 You can access each type of parameter as follows:
 
@@ -83,7 +87,8 @@ $method = $request->request_params['method'];
 $info = $request->path_params['info'];
 ```
 
-All the request parameters are also available through the `params` property, which merges the _query_, _request_ and _path_ parameters:
+All the request parameters are also available through the `params` property, which merges the
+_query_, _request_ and _path_ parameters:
 
 ```php
 <?php
@@ -93,7 +98,8 @@ $method = $request->params['method'];
 $info = $request->params['info'];
 ```
 
-Used as an array, the [Request][] instance provides these parameters as well, but returns `null` when a parameter is not defined:
+Used as an array, the [Request][] instance provides these parameters as well, but returns `null`
+when a parameter is not defined:
 
 ```php
 <?php
@@ -463,7 +469,10 @@ $response = new Response('{ "message": "Ok" }', 200, [
 
 ## Request dispatcher
 
-A [RequestDispatcher][] instance dispatches the requests using a collection of _domain dispatchers_, for which The _request dispatcher_ provides a nice framework. The _request dispatcher_ sorts _domain dispatchers_ according to their weight, fire events, and tries to rescue exceptions should they occur.
+A [RequestDispatcher][] instance dispatches the requests using a collection of
+_domain dispatchers_, for which The _request dispatcher_ provides a nice framework.
+The _request dispatcher_ sorts _domain dispatchers_ according to their weight, fire events,
+and tries to rescue exceptions should they occur.
 
 
 
@@ -471,9 +480,11 @@ A [RequestDispatcher][] instance dispatches the requests using a collection of _
 
 ### Domain dispatchers
 
-A _domain dispatcher_ handles a very specific type of request. It may be an instance implementing the [Dispatcher][] interface, or simple callable.
+A _domain dispatcher_ handles a very specific type of request. It may be an instance implementing
+the [Dispatcher][] interface, or simple callable.
 
-The following example demonstrates how a [RequestDispatcher][] instance may be created with several _domain dispatchers_:
+The following example demonstrates how a [RequestDispatcher][] instance may be created with
+several _domain dispatchers_:
 
 - `operation`: Defined by the `icanboogie/operation` package, handles operations.
 - `routes`: Defined by the `icanboogie/routing` package, handles routes defined using
@@ -728,13 +739,15 @@ before returning them.
 
 The following exceptions are defined by the HTTP package:
 
+* [ClientError][]: throw when a client error occurs.
 * [NotFound][]: thrown when a resource is not found. For instance, this exception is
 thrown by the dispatcher when it fails to resolve a request into a response.
 * [ForceRedirect][]: thrown when a redirect is absolutely required.
-* [ServiceUnavailable](http://api.icanboogie.org/http/class-ICanBoogie.HTTP.ServiceUnavailable.html): thrown when a server is currently unavailable
+* [ServerError][]: throw when a server error occurs.
+* [ServiceUnavailable][]: thrown when a server is currently unavailable
 (because it is overloaded or down for maintenance).
-* [MethodNotSupported](http://api.icanboogie.org/http/class-ICanBoogie.HTTP.MethodNotSupported.html): thrown when a HTTP method is not supported.
-* [StatusCodeNotValid](http://api.icanboogie.org/http/class-ICanBoogie.HTTP.StatusCodeNotValid.html): thrown when a HTTP status code is not valid.
+* [MethodNotSupported][]: thrown when a HTTP method is not supported.
+* [StatusCodeNotValid][]: thrown when a HTTP status code is not valid.
 
 All the exceptions defined by the package implement the `ICanBoogie\HTTP\Exception` interface.
 Using this interface one can easily catch HTTP related exceptions:
@@ -764,9 +777,9 @@ catch (\Exception $e)
 
 The following helpers are available:
 
-* [dispatch](http://api.icanboogie.org/http/function-ICanBoogie.HTTP.dispatch.html): Dispatches a request using the dispatcher returned by `get_dispatcher()`.
-* [get_dispatcher](http://api.icanboogie.org/http/function-ICanBoogie.HTTP.get_dispatcher.html): Returns the main dispatcher.
-* [get_initial_request](http://api.icanboogie.org/http/function-ICanBoogie.HTTP.get_initial_request.html): Returns the initial request.
+* [dispatch](http://api.icanboogie.org/http/2.5/function-ICanBoogie.HTTP.dispatch.html): Dispatches a request using the dispatcher returned by `get_dispatcher()`.
+* [get_dispatcher](http://api.icanboogie.org/http/2.5/function-ICanBoogie.HTTP.get_dispatcher.html): Returns the main dispatcher.
+* [get_initial_request](http://api.icanboogie.org/http/2.5/function-ICanBoogie.HTTP.get_initial_request.html): Returns the initial request.
 
 
 
@@ -774,7 +787,7 @@ The following helpers are available:
 
 ### Altering the dispatcher
 
-The `ICanBoogie\HTTP\RequestDispatcher::alter` event of class [ICanBoogie\HTTP\RequestDispatcher\AlterEvent][] is fired after the dispatcher has been created. Third parties may use this event to register or alter dispatchers, or replace the dispatcher altogether.
+The `ICanBoogie\HTTP\RequestDispatcher::alter` event of class [RequestDispatcher\AlterEvent][] is fired after the dispatcher has been created. Third parties may use this event to register or alter dispatchers, or replace the dispatcher altogether.
 
 The following code illustrate how a `hello` dispatcher, that returns
 "Hello world!" when the request matches the path "/hello", can be registered.
@@ -912,7 +925,10 @@ cloned with the following command line:
 ## Documentation
 
 The package is documented as part of the [ICanBoogie][] framework
-[documentation](http://api.icanboogie.org/http/). You can generate the documentation for the package and its dependencies with the `make doc` command. The documentation is generated in the `build/docs` directory. [ApiGen](http://apigen.org/) is required. The directory can later be cleaned with the `make clean` command.
+[documentation][]. You can generate the documentation for the package and its dependencies with
+the `make doc` command. The documentation is generated in the `build/docs` directory.
+[ApiGen](http://apigen.org/) is required. The directory can later be cleaned with the
+`make clean` command.
 
 
 
@@ -920,7 +936,11 @@ The package is documented as part of the [ICanBoogie][] framework
 
 ## Testing
 
-The test suite is ran with the `make test` command. [PHPUnit](https://phpunit.de/) and [Composer](http://getcomposer.org/) need to be globally available to run the suite. The command installs dependencies as required. The `make test-coverage` command runs test suite and also creates an HTML coverage report in `build/coverage`. The directory can later be cleaned with the `make clean` command.
+The test suite is ran with the `make test` command. [PHPUnit](https://phpunit.de/) and
+[Composer](http://getcomposer.org/) need to be globally available to run the suite. The command
+installs dependencies as required. The `make test-coverage` command runs test suite and also
+creates an HTML coverage report in `build/coverage`. The directory can later be cleaned with
+the `make clean` command.
 
 The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
@@ -939,22 +959,29 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
 
 
-[BeforeDispatchEvent]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.RequestDispatcher.BeforeDispatchEvent.html
-[CacheControl]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Headers.CacheControl.html
-[ContentDisposition]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Headers.ContentDisposition.html
-[ContentType]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Headers.ContentType.html
-[DispatchEvent]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.RequestDispatcher.DispatchEvent.html
-[RequestDispatcher]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.RequestDispatcher.html
-[Dispatcher]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Dispatcher.html
-[Headers]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Headers.html
-[Response]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Response.html
-[RedirectResponse]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.RedirectResponse.html
-[NotFound]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.NotFound.html
-[File]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.File.html
-[FileList]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.FileList.html
-[ForceRedirect]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.ForceRedirect.html
-[Request]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Request.html
-[RescueEvent]: http://api.icanboogie.org/http/class-ICanBoogie.Exception.RescueEvent.html
-[Status]: http://api.icanboogie.org/http/class-ICanBoogie.HTTP.Status.html
-[ToArray]: http://api.icanboogie.org/common/class-ICanBoogie.ToArray.html
-[AuthenticationRequired]: http://api.icanboogie.org/icanboogie/class-ICanBoogie.AuthenticationRequired.html
+[ToArray]:                      http://api.icanboogie.org/common/1.2/class-ICanBoogie.ToArray.html
+[documentation]:                http://api.icanboogie.org/http/2.5/
+[BeforeDispatchEvent]:          http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.RequestDispatcher.BeforeDispatchEvent.html
+[CacheControl]:                 http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Headers.CacheControl.html
+[ClientError]:                  http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.ClientError.html
+[ContentDisposition]:           http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Headers.ContentDisposition.html
+[ContentType]:                  http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Headers.ContentType.html
+[DispatchEvent]:                http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.RequestDispatcher.DispatchEvent.html
+[Dispatcher]:                   http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Dispatcher.html
+[Headers]:                      http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Headers.html
+[File]:                         http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.File.html
+[FileList]:                     http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.FileList.html
+[ForceRedirect]:                http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.ForceRedirect.html
+[MethodNotSupported]:           http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.MethodNotSupported.html
+[NotFound]:                     http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.NotFound.html
+[RedirectResponse]:             http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.RedirectResponse.html
+[Request]:                      http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Request.html
+[RequestDispatcher]:            http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.RequestDispatcher.html
+[RequestDispatcher\AlterEvent]: http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.RequestDispatcher.AlterEvent.html
+[Response]:                     http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Response.html
+[RescueEvent]:                  http://api.icanboogie.org/http/2.5/class-ICanBoogie.Exception.RescueEvent.html
+[ServerError]:                  http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.ServerError.html
+[ServiceUnavailable]:           http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.ServiceUnavailable.html
+[StatusCodeNotValid]:           http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.StatusCodeNotValid.html
+[Status]:                       http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Status.html
+[AuthenticationRequired]:       http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.AuthenticationRequired.html

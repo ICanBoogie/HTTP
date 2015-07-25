@@ -18,12 +18,18 @@ use ICanBoogie\Accessor\AccessorTrait;
  *
  * @property-read string $method The unsupported HTTP method.
  */
-class MethodNotSupported extends \Exception implements Exception
+class MethodNotSupported extends ClientError implements Exception
 {
 	use AccessorTrait;
 
+	/**
+	 * @var string
+	 */
 	private $method;
 
+	/**
+	 * @return string
+	 */
 	protected function get_method()
 	{
 		return $this->method;

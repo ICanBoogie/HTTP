@@ -12,15 +12,16 @@
 namespace ICanBoogie\HTTP;
 
 /**
- * Exception thrown when the server is currently unavailable (because it is overloaded or
- * down for maintenance).
+ * Exception thrown when a client error occurs.
+ *
+ * @codeCoverageIgnore
  */
-class ServiceUnavailable extends ServerError implements Exception
+class ClientError extends \Exception implements Exception
 {
 	/**
 	 * @inheritdoc
 	 */
-	public function __construct($message = "The server is currently unavailable (because it is overloaded or down for maintenance).", $code = 503, \Exception $previous = null)
+	public function __construct($message = null, $code = 400, \Exception $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 	}

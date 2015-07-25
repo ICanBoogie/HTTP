@@ -17,11 +17,12 @@
 		"issues": "https://github.com/ICanBoogie/HTTP/issues",
 		"source": "https://github.com/ICanBoogie/HTTP"
 	},
+	"minimum-stability": "dev",
 	"require": {
 		"php": ">=5.5.0",
-		"icanboogie/prototype": "2.3.x-dev",
-		"icanboogie/event": "1.4.x-dev",
-		"icanboogie/datetime": "~1.1.1"
+		"icanboogie/prototype": "^2.3.0",
+		"icanboogie/event": "^1.4.0",
+		"icanboogie/datetime": "^1.1.1"
 	},
 	"autoload": {
 		"psr-4": {
