@@ -228,4 +228,24 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 			$this->assertInstanceOf(DispatcherNotDefined::class, $e);
 		}
 	}
+
+	public function test_rescue_force_redirect()
+	{
+		$location = '/path/to/location/' . uniqid();
+
+		$dispatcher = $this
+			->getMockBuilder(RequestDispatcher::class)
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+
+		$force_redirect = new ForceRedirect($location);
+
+		/* @var $dispatcher RequestDispatcher */
+
+		$response = $dispatcher->rescue($force_redirect, Request::from('/'));
+
+		$this->assertInstanceOf(RedirectResponse::class, $response);
+		$this->assertSame($location, $response->location);
+	}
 }
