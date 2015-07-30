@@ -676,9 +676,10 @@ when a [AuthenticationRequired][] exception is thrown.
 <?php
 
 use ICanBoogie\Event;
+use ICanBoogie\HTTP\AuthenticationRequired;
 use ICanBoogie\HTTP\Response;
 
-$events->attach(function(ICanBoogie\Exception\RescueEvent $event, ICanBoogie\AuthenticationRequired $target) {
+$events->attach(function(ICanBoogie\Exception\RescueEvent $event, AuthenticationRequired $target) {
 
 	ICanBoogie\log_error($target->getMessage());
 
@@ -740,13 +741,15 @@ before returning them.
 The following exceptions are defined by the HTTP package:
 
 * [ClientError][]: throw when a client error occurs.
-* [NotFound][]: thrown when a resource is not found. For instance, this exception is
-thrown by the dispatcher when it fails to resolve a request into a response.
-* [ForceRedirect][]: thrown when a redirect is absolutely required.
+	* [NotFound][]: thrown when a resource is not found. For instance, this exception is
+	thrown by the dispatcher when it fails to resolve a request into a response.
+	* [AuthenticationRequired][]: thrown when the authentication of the client is required. Implements [SecurityError][].
+	* [PermissionRequired][]: thrown when the client lacks a required permission. Implements [SecurityError][].
+	* [MethodNotSupported][]: thrown when a HTTP method is not supported.
 * [ServerError][]: throw when a server error occurs.
-* [ServiceUnavailable][]: thrown when a server is currently unavailable
-(because it is overloaded or down for maintenance).
-* [MethodNotSupported][]: thrown when a HTTP method is not supported.
+	* [ServiceUnavailable][]: thrown when a server is currently unavailable
+	(because it is overloaded or down for maintenance).
+* [ForceRedirect][]: thrown when a redirect is absolutely required.
 * [StatusCodeNotValid][]: thrown when a HTTP status code is not valid.
 
 All the exceptions defined by the package implement the `ICanBoogie\HTTP\Exception` interface.
@@ -961,6 +964,7 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
 [ToArray]:                      http://api.icanboogie.org/common/1.2/class-ICanBoogie.ToArray.html
 [documentation]:                http://api.icanboogie.org/http/2.5/
+[AuthenticationRequired]:       http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.AuthenticationRequired.html
 [BeforeDispatchEvent]:          http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.RequestDispatcher.BeforeDispatchEvent.html
 [CacheControl]:                 http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Headers.CacheControl.html
 [ClientError]:                  http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.ClientError.html
@@ -974,14 +978,15 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [ForceRedirect]:                http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.ForceRedirect.html
 [MethodNotSupported]:           http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.MethodNotSupported.html
 [NotFound]:                     http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.NotFound.html
+[PermissionRequired]:           http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.PemissionRequired.html
 [RedirectResponse]:             http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.RedirectResponse.html
 [Request]:                      http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Request.html
 [RequestDispatcher]:            http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.RequestDispatcher.html
 [RequestDispatcher\AlterEvent]: http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.RequestDispatcher.AlterEvent.html
 [Response]:                     http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Response.html
 [RescueEvent]:                  http://api.icanboogie.org/http/2.5/class-ICanBoogie.Exception.RescueEvent.html
+[SecurityError]:                http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.SecurityError.html
 [ServerError]:                  http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.ServerError.html
 [ServiceUnavailable]:           http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.ServiceUnavailable.html
 [StatusCodeNotValid]:           http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.StatusCodeNotValid.html
 [Status]:                       http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Status.html
-[AuthenticationRequired]:       http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.AuthenticationRequired.html
