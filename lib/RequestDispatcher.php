@@ -337,6 +337,22 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 			throw $exception;
 		}
 
+		$this->alter_response_with_exception($response, $exception);
+
+		return $response;
+	}
+
+	/**
+	 * Alters a response with an exception.
+	 *
+	 * The methods adds the `X-ICanBoogie-Rescued-Exception` header to the response, which
+	 * describes the filename and the line where the exception occurred.
+	 *
+	 * @param Response $response
+	 * @param \Exception $exception
+	 */
+	protected function alter_response_with_exception(Response $response, \Exception $exception)
+	{
 		$pathname = $exception->getFile();
 		$root = $_SERVER['DOCUMENT_ROOT'];
 
@@ -346,7 +362,5 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 		}
 
 		$response->headers['X-ICanBoogie-Rescued-Exception'] = $pathname . '@' . $exception->getLine();
-
-		return $response;
 	}
 }
