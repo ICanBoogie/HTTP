@@ -94,6 +94,17 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 		return $response;
 	}
 
+	/**
+	 * Dispatches the request and try to rescue it if it fails.
+	 *
+	 * If a {@link NotFound} exception is caught and the request method is `HEAD`, the request
+	 * is passed to {@link handle_head()}.
+	 *
+	 * @param Request $request
+	 *
+	 * @return Response
+	 * @throws \Exception
+	 */
 	private function handle(Request $request)
 	{
 		try
@@ -104,7 +115,16 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 		{
 			if ($e instanceof NotFound && $request->is_head)
 			{
-				return $this->handle_head($request);
+				try
+				{
+					return $this->handle_head($request);
+				}
+				catch (\Exception $head_exception)
+				{
+					#
+					# We don't care about this one, let's rescue the original exception.
+					#
+				}
 			}
 
 			return $this->rescue($e, $request);
@@ -199,6 +219,9 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 		unset($this->dispatchers[$dispatcher_id]);
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function getIterator()
 	{
 		if (!$this->dispatchers_order)
