@@ -20,7 +20,7 @@ use ICanBoogie\HTTP\WeightedDispatcher;
  *
  * Event hooks may use this event to register domain dispatchers.
  *
- * @property Dispatcher $instance
+ * @property RequestDispatcher $instance
  */
 class AlterEvent extends Event
 {

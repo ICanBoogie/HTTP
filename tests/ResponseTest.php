@@ -62,8 +62,8 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 		$r = new Response;
 		$r->location = $location;
 		$this->assertEquals($location, $r->location);
-		$this->location = null;
-		$this->assertNull($this->location);
+		$r->location = null;
+		$this->assertNull($r->location);
 	}
 
 	public function test_should_set_content_type()

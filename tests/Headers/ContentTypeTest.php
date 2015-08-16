@@ -18,6 +18,7 @@ class ContentTypeTest extends \PHPUnit_Framework_TestCase
      */
 	public function test_from($source, $values)
 	{
+		/* @var $h ContentType */
 		$h = ContentType::from($source);
 
 		$this->assertInstanceOf(ContentType::class, $h);

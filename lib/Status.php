@@ -16,8 +16,6 @@ use ICanBoogie\Accessor\AccessorTrait;
 /**
  * Class Status
  *
- * @package ICanBoogie\HTTP
- *
  * @property int $code
  * @property string $message
  *

@@ -403,6 +403,9 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @dataProvider provide_test_get_is_local
+	 *
+	 * @param string $ip
+	 * @param bool $expected
 	 */
 	public function test_get_is_local($ip, $expected)
 	{
@@ -433,6 +436,9 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @dataProvider provide_test_get_authorization
+	 *
+	 * @param array $env
+	 * @param string $expected
 	 */
 	public function test_get_authorization($env, $expected)
 	{
@@ -564,6 +570,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @dataProvider provide_test_change
+	 *
+	 * @param array $properties
 	 */
 	public function test_change(array $properties)
 	{
@@ -691,6 +699,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 			->with($properties)
 			->willReturn($r2);
 
+		/* @var $r1 Request */
+
 		$this->assertSame($response, $r1->post($request_params));
 	}
 
@@ -700,7 +710,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	public function test_should_throw_exception_when_invoking_undefined_method()
 	{
 		$r = Request::from();
-		$r->undefined();
+		$m = 'undefined' . uniqid();
+		$r->$m();
 	}
 
 	public function test_invoke()
@@ -771,6 +782,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 			->method('dispatch')
 			->willReturnCallback(function() use ($r2) {
 
+				/* @var $r2 Request */
+
 				return $r2();
 
 			});
@@ -779,11 +792,15 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 			->method('dispatch')
 			->willReturnCallback(function() use ($response, $r1, $r2) {
 
+				/* @var $r2 Request */
+
 				$this->assertEquals($r2->parent, $r1);
 
 				return $response;
 
 			});
+
+		/* @var $r1 Request */
 
 		$this->assertSame($response, $r1());
 	}
