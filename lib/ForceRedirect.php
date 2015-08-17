@@ -29,7 +29,7 @@ class ForceRedirect extends \Exception implements Exception
 		return $this->location;
 	}
 
-	public function __construct($location, $code = 302, \Exception $previous = null)
+	public function __construct($location, $code = Status::FOUND, \Exception $previous = null)
 	{
 		$this->location = $location;
 

@@ -139,11 +139,11 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 				{
 					if ($request->uri == '/with-message')
 					{
-						return new Response($message, 200, [ 'X-Was-Get' => 'yes' ]);
+						return new Response($message, Status::OK, [ 'X-Was-Get' => 'yes' ]);
 					}
 					else
 					{
-						return new Response(null, 200, [ 'X-Was-Get' => 'yes', 'Content-Length' => 1234 ]);
+						return new Response(null, Status::OK, [ 'X-Was-Get' => 'yes', 'Content-Length' => 1234 ]);
 					}
 				}
 
@@ -162,7 +162,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
 		$this->assertInstanceOf(Response::class, $response);
 		$this->assertInstanceOf(Status::class, $response->status);
-		$this->assertEquals(200, $response->status->code);
+		$this->assertEquals(Status::OK, $response->status->code);
 		$this->assertEquals(strlen($message), $response->content_length);
 		$this->assertEquals('yes', $response->headers['X-Was-Get']);
 		$this->assertNull($response->body);

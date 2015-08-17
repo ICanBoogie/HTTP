@@ -19,7 +19,7 @@ class PermissionRequired extends ClientError implements SecurityError
 	/**
 	 * @inheritdoc
 	 */
-	public function __construct($message = "You don't have the required permission.", $code = 401, \Exception $previous = null)
+	public function __construct($message = "You don't have the required permission.", $code = Status::UNAUTHORIZED, \Exception $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 	}

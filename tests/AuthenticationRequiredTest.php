@@ -18,6 +18,6 @@ class AuthenticationRequiredTest extends \PHPUnit_Framework_TestCase
 		$exception = new AuthenticationRequired;
 
 		$this->assertEquals("The requested URL requires authentication.", $exception->getMessage());
-		$this->assertEquals(401, $exception->getCode());
+		$this->assertEquals(Status::UNAUTHORIZED, $exception->getCode());
 	}
 }

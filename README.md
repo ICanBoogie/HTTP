@@ -273,6 +273,7 @@ The response status is represented by a [Status][] instance. It can be defined a
 <?php
 
 use ICanBoogie\HTTP\Response;
+use ICanBoogie\HTTP\Status;
 
 $response = new Response;
 
@@ -281,7 +282,7 @@ echo $response->status->code;         // 200
 echo $response->status->message;      // Ok
 $response->status->is_valid;          // true
 
-$response->status = 404;
+$response->status = Status::NOT_FOUND;
 echo $response->status->code;         // 404
 echo $response->status->message;      // Not Found
 $response->status->is_valid;          // false
@@ -301,6 +302,7 @@ When large response body needs to be issued, it is recommended to use a closure 
 <?php
 
 use ICanBoogie\HTTP\Response;
+use ICanBoogie\HTTP\Status;
 
 $fh = fopen('/path/to/my/huge/file', 'rb');
 $output = function() use ($fh)
@@ -322,7 +324,7 @@ $output = function() use ($fh)
 	fclose($fh);
 };
 
-return new Response($output, 200);
+return new Response($output, Status::OK);
 ```
 
 
@@ -454,8 +456,9 @@ All date related headers can be specified as Unix timestamp, strings or `DateTim
 <?php
 
 use ICanBoogie\HTTP\Response;
+use ICanBoogie\HTTP\Status;
 
-$response = new Response('{ "message": "Ok" }', 200, [
+$response = new Response('{ "message": "Ok" }', Status::OK, [
 
 	'Content-Type' => 'application/json',
 	'Date' => 'now',

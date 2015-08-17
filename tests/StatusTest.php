@@ -15,9 +15,9 @@ class StatusTest extends \PHPUnit_Framework_TestCase
 {
 	public function test_constructor()
 	{
-		$status = new Status(301, "Over the rainbow");
+		$status = new Status(Status::MOVED_PERMANENTLY, "Over the rainbow");
 
-		$this->assertEquals(301, $status->code);
+		$this->assertEquals(Status::MOVED_PERMANENTLY, $status->code);
 		$this->assertEquals("Over the rainbow", $status->message);
 		$this->assertEquals("301 Over the rainbow", (string) $status);
 
@@ -28,6 +28,9 @@ class StatusTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @dataProvider provide_test_from
+	 *
+	 * @param mixed $source
+	 * @param string $expected
 	 */
 	public function test_from($source, $expected)
 	{
@@ -39,8 +42,8 @@ class StatusTest extends \PHPUnit_Framework_TestCase
 	{
 		return [
 
-			[ 200 , "200 OK" ],
-			[ [ 200, "Madonna" ], "200 Madonna" ],
+			[ Status::OK , "200 OK" ],
+			[ [ Status::OK, "Madonna" ], "200 Madonna" ],
 			[ "200 Madonna", "200 Madonna" ]
 
 		];
@@ -71,26 +74,6 @@ class StatusTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @dataProvider provide_test_write_readonly_properties
-	 * @expectedException \ICanBoogie\PropertyNotWritable
-	 *
-	 * @param string $property Property name.
-	 */
-	public function test_write_readonly_properties($property)
-	{
-		$status = new Status;
-		$status->$property = null;
-	}
-
-	public function provide_test_write_readonly_properties()
-	{
-		$properties = 'is_valid is_informational is_successful is_redirect is_client_error'
-			. ' is_server_error is_ok is_forbidden is_not_found is_empty';
-
-		return array_map(function($v) { return (array) $v; }, explode(' ', $properties));
-	}
-
-	/**
 	 * @expectedException \ICanBoogie\HTTP\StatusCodeNotValid
 	 */
 	public function test_set_code_invalid()
@@ -102,19 +85,19 @@ class StatusTest extends \PHPUnit_Framework_TestCase
 	public function test_set_code()
 	{
 		$status = new Status;
-		$status->code = 404;
-		$this->assertEquals(404, $status->code);
+		$status->code = Status::NOT_FOUND;
+		$this->assertEquals(Status::NOT_FOUND, $status->code);
 	}
 
 	public function test_is_valid()
 	{
-		$status = new Status(200);
+		$status = new Status(Status::OK);
 		$this->assertTrue($status->is_valid);
 	}
 
 	public function test_is_informational()
 	{
-		$status = new Status(200);
+		$status = new Status(Status::OK);
 		$this->assertFalse($status->is_informational);
 		$status->code = 100;
 		$this->assertTrue($status->is_informational);
@@ -157,7 +140,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
 		$this->assertTrue($status->is_client_error);
 		$status->code = 499;
 		$this->assertTrue($status->is_client_error);
-		$status->code = 500;
+		$status->code = Status::INTERNAL_SERVER_ERROR;
 		$this->assertFalse($status->is_client_error);
 	}
 
@@ -166,7 +149,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
 		$status = new Status;
 		$status->code = 499;
 		$this->assertFalse($status->is_server_error);
-		$status->code = 500;
+		$status->code = Status::INTERNAL_SERVER_ERROR;
 		$this->assertTrue($status->is_server_error);
 		$status->code = 599;
 		$this->assertTrue($status->is_server_error);
@@ -176,7 +159,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
 	{
 		$status = new Status;
 		$this->assertTrue($status->is_ok);
-		$status->code = 404;
+		$status->code = Status::NOT_FOUND;
 		$this->assertFalse($status->is_ok);
 	}
 
@@ -184,7 +167,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
 	{
 		$status = new Status;
 		$this->assertFalse($status->is_forbidden);
-		$status->code = 403;
+		$status->code = Status::FORBIDDEN;
 		$this->assertTrue($status->is_forbidden);
 	}
 
@@ -192,7 +175,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
 	{
 		$status = new Status;
 		$this->assertFalse($status->is_not_found);
-		$status->code = 404;
+		$status->code = Status::NOT_FOUND;
 		$this->assertTrue($status->is_not_found);
 	}
 
@@ -200,16 +183,19 @@ class StatusTest extends \PHPUnit_Framework_TestCase
 	{
 		$status = new Status;
 		$this->assertFalse($status->is_empty);
-		$status->code = 201;
+		$status->code = Status::CREATED;
 		$this->assertTrue($status->is_empty);
-		$status->code = 204;
+		$status->code = Status::NO_CONTENT;
 		$this->assertTrue($status->is_empty);
-		$status->code = 304;
+		$status->code = Status::NOT_MODIFIED;
 		$this->assertTrue($status->is_empty);
 	}
 
 	/**
 	 * @dataProvider provide_test_is_cacheable
+	 *
+	 * @param int $code
+	 * @param bool $expected
 	 */
 	public function test_is_cacheable($code, $expected)
 	{
@@ -221,17 +207,17 @@ class StatusTest extends \PHPUnit_Framework_TestCase
 	{
 		return [
 
-			[ 200, true ],
-			[ 201, false ],
-			[ 202, false ],
-			[ 203, true ],
-			[ 300, true ],
-			[ 301, true ],
-			[ 302, true ],
-			[ 303, false ],
-			[ 404, true ],
-			[ 405, false ],
-			[ 410, true ]
+			[ Status::OK, true ],
+			[ Status::CREATED, false ],
+			[ Status::ACCEPTED, false ],
+			[ Status::NON_AUTHORITATIVE_INFORMATION, true ],
+			[ Status::MULTIPLE_CHOICES, true ],
+			[ Status::MOVED_PERMANENTLY, true ],
+			[ Status::FOUND, true ],
+			[ Status::SEE_OTHER, false ],
+			[ Status::NOT_FOUND, true ],
+			[ Status::METHOD_NOT_ALLOWED, false ],
+			[ Status::GONE, true ]
 
 		];
 	}

@@ -40,7 +40,7 @@ class MethodNotSupported extends ClientError implements Exception
 	 * @param int $code
 	 * @param \Exception $previous
 	 */
-	public function __construct($method, $code = 500, \Exception $previous = null)
+	public function __construct($method, $code = Status::INTERNAL_SERVER_ERROR, \Exception $previous = null)
 	{
 		$this->method = $method;
 

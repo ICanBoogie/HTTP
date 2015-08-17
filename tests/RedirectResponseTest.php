@@ -12,7 +12,7 @@ class RedirectResponseTest extends \PHPUnit_Framework_TestCase
 		$p = "/go/to/there";
 		$r = new RedirectResponse($p);
 		$this->assertTrue($r->status->is_redirect);
-		$this->assertEquals(302, $r->status->code);
+		$this->assertEquals(Status::FOUND, $r->status->code);
 		$this->assertEquals($p, $r->location);
 
 		$body = (string) $r;
@@ -32,6 +32,6 @@ class RedirectResponseTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_construct_with_not_redirect_code()
 	{
-		new RedirectResponse("/go/to/there", 404);
+		new RedirectResponse("/go/to/there", Status::NOT_FOUND);
 	}
 }

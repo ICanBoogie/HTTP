@@ -53,7 +53,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_invalid_headers_should_throw_exception()
 	{
-		new Response(null, 200, (object) []);
+		new Response(null, Status::OK, (object) []);
 	}
 
 	public function test_should_remove_location_with_null()
@@ -159,7 +159,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
 	public function test_preserve_content_length()
 	{
-		$r = new Response(null, 200, [
+		$r = new Response(null, Status::OK, [
 
 			'Content-Length' => 123
 
@@ -199,14 +199,14 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	{
 		return [
 
-			[ new Response('A', 200), false ],
-			[ new Response('A', 200, [ 'Cache-Control' => "public" ]), false ],
-			[ new Response('A', 200, [ 'Cache-Control' => "private" ]), false ],
+			[ new Response('A', Status::OK), false ],
+			[ new Response('A', Status::OK, [ 'Cache-Control' => "public" ]), false ],
+			[ new Response('A', Status::OK, [ 'Cache-Control' => "private" ]), false ],
 			[ new Response('A', 405), false ],
 
-			[ new Response('A', 200, [ 'Last-Modified' => 'yesterday' ]), true ],
-			[ new Response('A', 200, [ 'Last-Modified' => 'yesterday', 'Cache-Control' => "public" ]), true ],
-			[ new Response('A', 200, [ 'Last-Modified' => 'yesterday', 'Cache-Control' => "private" ]), false ],
+			[ new Response('A', Status::OK, [ 'Last-Modified' => 'yesterday' ]), true ],
+			[ new Response('A', Status::OK, [ 'Last-Modified' => 'yesterday', 'Cache-Control' => "public" ]), true ],
+			[ new Response('A', Status::OK, [ 'Last-Modified' => 'yesterday', 'Cache-Control' => "private" ]), false ],
 			[ new Response('A', 405, [ 'Last-Modified' => 'yesterday' ]), false ]
 
 		];
@@ -224,7 +224,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
 		$response = $this
 			->getMockBuilder(Response::class)
-			->setConstructorArgs([ $body, 200, $headers ])
+			->setConstructorArgs([ $body, Status::OK, $headers ])
 			->setMethods([ 'finalize', 'send_headers', 'send_body' ])
 			->getMock();
 		$response
@@ -258,7 +258,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
 		$response = $this
 			->getMockBuilder(Response::class)
-			->setConstructorArgs([ $body, 200, $headers ])
+			->setConstructorArgs([ $body, Status::OK, $headers ])
 			->setMethods([ 'finalize', 'send_headers', 'send_body' ])
 			->getMock();
 		$response

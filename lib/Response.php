@@ -63,7 +63,7 @@ class Response
 	 * @param int|Status $status The status code of the response.
 	 * @param Headers|array $headers The initial header fields of the response.
 	 */
-	public function __construct($body = null, $status = 200, $headers = [])
+	public function __construct($body = null, $status = Status::OK, $headers = [])
 	{
 		if (is_array($headers))
 		{

@@ -19,7 +19,7 @@ class NotFound extends ClientError implements Exception
 	/**
 	 * @inheritdoc
 	 */
-	public function __construct($message = 'The requested URL was not found on this server.', $code = 404, \Exception $previous = null)
+	public function __construct($message = 'The requested URL was not found on this server.', $code = Status::NOT_FOUND, \Exception $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 	}

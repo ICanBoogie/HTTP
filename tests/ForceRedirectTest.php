@@ -17,6 +17,7 @@ class ForceRedirectTest extends \PHPUnit_Framework_TestCase
 	{
 		$location = '/to/location.html';
 		$e = new ForceRedirect($location);
+		$this->assertEquals(Status::FOUND, $e->getCode());
 		$this->assertEquals($location, $e->location);
 	}
 }
