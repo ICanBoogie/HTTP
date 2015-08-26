@@ -272,14 +272,16 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 		{
 			foreach ($this as $id => $dispatcher)
 			{
-				#
-				# If the dispatcher is not a callable then it is considered as a class name, which
-				# is used to instantiate a dispatcher.
-				#
-
-				if (!($dispatcher instanceof CallableDispatcher))
+				if (!$dispatcher instanceof Dispatcher)
 				{
-					$this->dispatchers[$id] = $dispatcher = is_callable($dispatcher) ? new CallableDispatcher($dispatcher) : new $dispatcher;
+					#
+					# If the dispatcher is not a callable then it is considered as a class name, which
+					# is used to instantiate a dispatcher.
+					#
+
+					$this->dispatchers[$id] = $dispatcher = is_callable($dispatcher)
+						? new CallableDispatcher($dispatcher)
+						: new $dispatcher;
 				}
 
 				$response = $this->dispatch_with_dispatcher($dispatcher, $request);
