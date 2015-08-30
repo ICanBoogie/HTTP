@@ -12,6 +12,7 @@
 namespace ICanBoogie\HTTP;
 
 use ICanBoogie\EventCollection;
+use ICanBoogie\EventCollectionProvider;
 
 class DispatcherTest extends \PHPUnit_Framework_TestCase
 {
@@ -24,7 +25,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 	{
 		$this->events = $events = new EventCollection;
 
-		$events->set_instance_provider(function() use ($events) {
+		EventCollectionProvider::using(function() use ($events) {
 
 			return $events;
 
