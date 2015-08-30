@@ -25,7 +25,7 @@ use ICanBoogie\Accessor\AccessorTrait;
  * @property int $content_length Shortcut to the `Content-Length` header field definition.
  * @property Headers\ContentType $content_type Shortcut to the `Content-Type` header field definition.
  * @property Headers\Date $date Shortcut to the `Date` header field definition.
- * @property string $etag Shortcut to the `Etag` header field definition.
+ * @property string $etag Shortcut to the `ETag` header field definition.
  * @property Headers\Date $expires Shortcut to the `Expires` header field definition.
  * @property Headers\Date $last_modified Shortcut to the `Last-Modified` header field definition.
  * @property string $location Shortcut to the `Location` header field definition.
@@ -481,23 +481,23 @@ class Response
 	}
 
 	/**
-	 * Sets the value of the `Etag` header field.
+	 * Sets the value of the `ETag` header field.
 	 *
 	 * @param string $value
 	 */
 	protected function set_etag($value)
 	{
-		$this->headers['Etag'] = $value;
+		$this->headers['ETag'] = $value;
 	}
 
 	/**
-	 * Returns the value of the `Etag` header field.
+	 * Returns the value of the `ETag` header field.
 	 *
 	 * @return string
 	 */
 	protected function get_etag()
 	{
-		return $this->headers['Etag'];
+		return $this->headers['ETag'];
 	}
 
 	/**
