@@ -227,7 +227,10 @@ $file->to_array();
 
 ### Obtaining a response
 
-A response is obtained from a request simply by invoking the request, or by invoking one of the available HTTP methods. The `dispatch()` helper is used to dispatch the request. A [Response][] instance is returned if the dispatching is successful, a [NotFound][] exception is  thrown otherwise.
+A response is obtained from a request simply by invoking the request, or by invoking one of the
+available HTTP methods. The `dispatch()` helper is used to dispatch the request. A [Response][]
+instance is returned if the dispatching is successful, a [NotFound][] exception is
+thrown otherwise.
 
 ```php
 <?php
@@ -245,29 +248,42 @@ $response = $request->post([ 'param' => 'value' ]);
 
 ## Response
 
-The response to a request is represented by a [Response][] instance. The response body can either be a `null`, a string, an object implementing `__toString()`, or a closure.
+The response to a request is represented by a [Response][] instance. The response body can
+either be a `null`, a string, an object implementing `__toString()`, or a closure.
 
-**Note:** Contrary to [Request][] instances, [Response][] instances or completely mutable.
+> **Note:** Contrary to [Request][] instances, [Response][] instances or completely mutable.
 
 ```php
 <?php
 
 use ICanBoogie\HTTP\Response;
+use ICanBoogie\HTTP\Status;
 
-$response = new Response('<!DOCTYPE html><html><body><h1>Hello world!</h1></body></html>', 200, [
+$response = new Response('<!DOCTYPE html><html><body><h1>Hello world!</h1></body></html>', Status::OK, [
 
 	'Content-Type' => 'text/html',
 	'Cache-Control' => 'public, max-age=3600'
 
 ]);
+
 ```
+
+The header and body are sent by invoking the response:
+
+```php
+<?php
+
+$response();
+```
+
 
 
 
 
 ### Response status
 
-The response status is represented by a [Status][] instance. It can be defined as a HTTP response code such as `200`, an array such as `[ 200, "Ok" ]`, or a string such as `"200 Ok"`.
+The response status is represented by a [Status][] instance. It can be defined as a HTTP response
+code such as `200`, an array such as `[ 200, "Ok" ]`, or a string such as `"200 Ok"`.
 
 ```php
 <?php
@@ -296,7 +312,8 @@ $response->status->is_not_found;      // true
 
 ### Streaming the response body
 
-When large response body needs to be issued, it is recommended to use a closure as response body instead of a huge string that will consume a lot of memory.
+When a large response body needs to be issued, it is recommended to use a closure as response
+body instead of a huge string that would consume a lot of memory.
 
 ```php
 <?php
@@ -304,50 +321,37 @@ When large response body needs to be issued, it is recommended to use a closure 
 use ICanBoogie\HTTP\Response;
 use ICanBoogie\HTTP\Status;
 
-$fh = fopen('/path/to/my/huge/file', 'rb');
-$output = function() use ($fh)
-{
-	fseek($fh, 0);
+$records = $app->models->order('created_at DESC');
 
-	if (!ini_get('safe_mode'))
+$output = function() use ($records) {
+
+	$out = fopen('php://output', 'w');
+
+	foreach ($records as $record)
 	{
-		set_time_limit(0);
+		fputcsv($out, [ $record->title, $record->created_at ]);
 	}
-
-	while (!feof($fh) && !connection_aborted())
-	{
-		echo fread($fh, 1024 * 8);
-
-		flush();
-	}
-
-	fclose($fh);
+	
+	fclose($out);
+	
 };
 
-return new Response($output, Status::OK);
+$response = new Response($output, Status::OK, [ 'Content-Type' => 'text/csv' ]);
 ```
 
 
 
 
 
-### About `Content-Length` header field
+### About the `Content-Length` header field
 
-Before v2.3.2 the `Content-Length` header field was added automatically when it was computable, for instance when the body was a string or an instance implementing `__toString()`. Starting v2.3.2 this is no longer the case and the header field has to be defined when required. This was decided to prevent a bug with Apache+FastCGI+DEFLATE where the `Content-Length` field was not adjusted although the body was compressed. Also, in most cases it's not such a good idea to define that field for generated content because it prevents the response to be send as [compressed chunks](http://en.wikipedia.org/wiki/Chunked_transfer_encoding).
-
-
-
-
-
-### Returning a response
-
-A response is returned simply by invoking it:
-
-```php
-<?php
-
-$response();
-```
+Before v2.3.2 the `Content-Length` header field was added automatically when it was computable,
+for instance when the body was a string or an instance implementing `__toString()`.
+Starting v2.3.2 this is no longer the case and the header field has to be defined when required.
+This was decided to prevent a bug with Apache+FastCGI+DEFLATE where the `Content-Length` field
+was not adjusted although the body was compressed. Also, in most cases it's not such a good idea
+to define that field for generated content because it prevents the response to be send as
+[compressed chunks](http://en.wikipedia.org/wiki/Chunked_transfer_encoding).
 
 
 
@@ -366,6 +370,61 @@ $response = new RedirectResponse('/to/redirect/location');
 $response->status->code;        // 302
 $response->status->is_redirect; // true
 ```
+
+
+
+
+
+### Delivering a file
+
+A file may be delivered using a [FileResponse][] instance. Cache control is handled automatically,
+you just have to provide the pathname of the file to transfer (or a `SplFileInfo` instance) and
+a request.
+
+```php
+<?php
+
+use ICanBoogie\HTTP\FileResponse;
+
+$response = new FileResponse("/absolute/path/to/my/file", $request);
+$response();
+```
+
+The `OPTION_FILENAME` option may be used to force downloading. Of course, accentuated file names
+are supported:
+
+```php
+<?php
+use ICanBoogie\HTTP\FileResponse;
+
+$response = new FileResponse("/absolute/path/to/my/file", $request, [
+
+	FileResponse::OPTION_FILENAME => "Vidéo d'un été à la mer.mp4"
+
+]);
+$response();
+```
+
+The following options are also available:
+
+- `OPTION_ETAG`: Specifies the `ETag` header field of the response. If it is not defined the
+SHA-1 of the file is used instead.
+
+- `OPTION_EXPIRES`: Specifies the expiration date as a `DateTime` instance or a relative date
+such as "+3 month", which maps to the `Expires` header field. The `max-age` directive of the
+`Cache-Control` header field is computed from the current time. If it is not defined
+`DEFAULT_EXPIRES` is used instead ("+1 month").
+
+- `OPTION_MIME`: Specifies the MIME of the file, which maps to the `Content-Type` header field.
+If it is not defined the MIME is guessed using `finfo::file()`.
+
+The following properties are added:
+
+- `modified_time`: Returns the last modified timestamp of the file.
+
+- `is_modified`: Whether the file was modified since the last response. The value is computed
+using the request header fields `If-None-Match` and `If-Modified-Since`, and the properties
+`modified_time` and `etag`.
 
 
 
@@ -472,7 +531,7 @@ $response = new Response('{ "message": "Ok" }', Status::OK, [
 
 ## Request dispatcher
 
-A [RequestDispatcher][] instance dispatches the requests using a collection of
+A [RequestDispatcher][] instance dispatches requests using a collection of
 _domain dispatchers_, for which The _request dispatcher_ provides a nice framework.
 The _request dispatcher_ sorts _domain dispatchers_ according to their weight, fire events,
 and tries to rescue exceptions should they occur.
@@ -562,12 +621,13 @@ should be ordered relatively to the specified targets.
 
 ## Dispatching requests
 
-When the _request dispatcher_ is asked to handle a request, it invokes each of its _domain dispatchers_ in turn
-until one returns a [Response][] instance or throws an exception. If an exception is thrown during
-the dispatch, the _request dispatcher_ tries to _rescue_ it using either the _domain dispatcher's_ `rescue()`
-method or the event system. Around that, events are fired to allow event hooks to alter the
-request, or alter or replace the response. Finally, if the request could not be resolved into a
-response a [NotFound][] exception is thrown, otherwise the response is returned.
+When the _request dispatcher_ is asked to handle a request, it invokes each of its
+_domain dispatchers_ in turn until one returns a [Response][] instance or throws an exception.
+If an exception is thrown during the dispatch, the _request dispatcher_ tries to _rescue_ it
+using either the _domain dispatcher's_ `rescue()` method or the event system. Around that,
+events are fired to allow event hooks to alter the request, or alter or replace the response.
+Finally, if the request could not be resolved into a response a [NotFound][] exception is thrown,
+otherwise the response is returned.
 
 ```php
 <?php
@@ -793,7 +853,9 @@ The following helpers are available:
 
 ### Altering the dispatcher
 
-The `ICanBoogie\HTTP\RequestDispatcher::alter` event of class [RequestDispatcher\AlterEvent][] is fired after the dispatcher has been created. Third parties may use this event to register or alter dispatchers, or replace the dispatcher altogether.
+The `ICanBoogie\HTTP\RequestDispatcher::alter` event of class [RequestDispatcher\AlterEvent][] is
+fired after the dispatcher has been created. Third parties may use this event to register or
+alter dispatchers, or replace the dispatcher altogether.
 
 The following code illustrate how a `hello` dispatcher, that returns
 "Hello world!" when the request matches the path "/hello", can be registered.
@@ -978,6 +1040,7 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [Headers]:                      http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Headers.html
 [File]:                         http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.File.html
 [FileList]:                     http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.FileList.html
+[FileResponse]:                 http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.FileResponse.html
 [ForceRedirect]:                http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.ForceRedirect.html
 [MethodNotSupported]:           http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.MethodNotSupported.html
 [NotFound]:                     http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.NotFound.html

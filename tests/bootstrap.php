@@ -13,6 +13,8 @@ namespace ICanBoogie\HTTP;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+//date_default_timezone_set('Asia/Tokyo');
+
 #
 # Cleanup sandbox
 #
@@ -24,6 +26,11 @@ foreach ($di as $file)
 	unlink($file->getPathname());
 }
 
+function generate_pathname()
+{
+	return __DIR__ . '/sandbox/bytes-' . uniqid();
+}
+
 /**
  * Creates a file with random bytes.
  *
@@ -33,8 +40,18 @@ foreach ($di as $file)
  */
 function create_file($extension = '')
 {
-	$pathname = __DIR__ . '/sandbox/bytes-' . uniqid() . $extension;
+	$pathname = generate_pathname() . $extension;
 	file_put_contents($pathname, openssl_random_pseudo_bytes(2048));
+
+	return $pathname;
+}
+
+function create_image($extension = '.png')
+{
+	$im = imagecreatetruecolor(200, 200);
+	$pathname = generate_pathname() . $extension;
+
+	imagepng($im, $pathname);
 
 	return $pathname;
 }

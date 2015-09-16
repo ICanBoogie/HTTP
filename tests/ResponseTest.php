@@ -98,12 +98,12 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	{
 		$r = new Response;
 		$this->assertInstanceOf(Headers\Date::class, $r->date);
-		$this->assertTrue(DateTime::now() == $r->date);
+		$this->assertTrue(DateTime::right_now() == $r->date);
 
 		$r->date = 'now';
 		$this->assertInstanceOf(Headers\Date::class, $r->date);
 		$this->assertEquals('UTC', $r->date->zone->name);
-		$this->assertTrue(DateTime::now() == $r->date);
+		$this->assertTrue(DateTime::right_now() == $r->date);
 	}
 
 	public function test_age()
