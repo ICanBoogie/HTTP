@@ -188,14 +188,11 @@ class Response
 	{
 		if (headers_sent($file, $line))
 		{
-			trigger_error(\ICanBoogie\format
-			(
-				"Cannot modify header information because it was already sent. Output started at !at.", [
+			trigger_error(\ICanBoogie\format("Cannot modify header information because it was already sent. Output started at !at.", [
 
-					'at' => $file . ':' . $line
+				'at' => $file . ':' . $line
 
-				]
-			));
+			]));
 
 			return false;
 		}
@@ -299,14 +296,12 @@ class Response
 			return;
 		}
 
-		throw new \UnexpectedValueException(\ICanBoogie\format
-		(
-			'The Response body must be a string, an object implementing the __toString() method or be callable, %type given. !value', array
-			(
-				'type' => gettype($body),
-				'value' => $body
-			)
-		));
+		throw new \UnexpectedValueException(\ICanBoogie\format('The Response body must be a string, an object implementing the __toString() method or be callable, %type given. !value', [
+
+			'type' => gettype($body),
+			'value' => $body
+
+		]));
 	}
 
 	/**
@@ -466,8 +461,6 @@ class Response
 	protected function set_expires($time)
 	{
 		$this->headers['Expires'] = $time;
-
-		session_cache_expire($time); // TODO-20120831: Is this required now that we have an awesome response system ?
 	}
 
 	/**
