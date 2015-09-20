@@ -13,7 +13,10 @@ namespace ICanBoogie\HTTP;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-//date_default_timezone_set('Asia/Tokyo');
+/*
+ * The expected value for file size
+ */
+const CREATE_FILE_SIZE = 10000;
 
 #
 # Cleanup sandbox
@@ -41,7 +44,7 @@ function generate_pathname()
 function create_file($extension = '')
 {
 	$pathname = generate_pathname() . $extension;
-	file_put_contents($pathname, openssl_random_pseudo_bytes(2048));
+	file_put_contents($pathname, openssl_random_pseudo_bytes(CREATE_FILE_SIZE));
 
 	return $pathname;
 }

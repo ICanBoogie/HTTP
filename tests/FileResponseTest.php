@@ -16,6 +16,45 @@ use ICanBoogie\DateTime;
 class FileResponseTest extends \PHPUnit_Framework_TestCase
 {
 	/**
+	 * @dataProvider provide_test_closure_body
+	 */
+	public function test_closure_body($status, $expected)
+	{
+		$response = $this
+			->getMockBuilder(FileResponse::class)
+			->setConstructorArgs([ __FILE__, Request::from()])
+			->setMethods([ 'send_file', 'send_headers' ])
+			->getMock();
+		$response
+			->expects($expected)
+			->method('send_file');
+
+		/* @var $response FileResponse */
+
+		$response->status = $status;
+		$response();
+	}
+
+	public function provide_test_closure_body()
+	{
+		return [
+
+			[ Status::OK, $this->once() ],
+			[ Status::NOT_MODIFIED, $this->never() ],
+			[ Status::REQUESTED_RANGE_NOT_SATISFIABLE, $this->never() ]
+
+		];
+	}
+
+	public function test_get_file()
+	{
+		$response = new FileResponse(__FILE__, Request::from());
+
+		$this->assertInstanceOf(\SplFileInfo::class, $response->file);
+		$this->assertEquals(__FILE__, $response->file->getPathname());
+	}
+
+	/**
 	 * @dataProvider provide_test_invoke
 	 *
 	 * @param string $cache_control
@@ -47,6 +86,67 @@ class FileResponseTest extends \PHPUnit_Framework_TestCase
 		$response();
 
 		$this->assertEquals($expected, $response->status->code);
+	}
+
+	/**
+	 * @dataProvider provide_test_invoke_with_range
+	 *
+	 * @param string $cache_control
+	 * @param bool $is_modified
+	 * @param bool $is_satisfiable
+	 * @param bool $is_total
+	 * @param int $expected
+	 */
+	public function test_invoke_with_range($cache_control, $is_modified, $is_satisfiable, $is_total, $expected)
+	{
+		$range = $this
+			->getMockBuilder(RequestRange::class)
+			->disableOriginalConstructor()
+			->setMethods([ 'get_is_satisfiable', 'get_is_total' ])
+			->getMock();
+		$range
+			->expects($this->any())
+			->method('get_is_satisfiable')
+			->willReturn($is_satisfiable);
+		$range
+			->expects($this->any())
+			->method('get_is_total')
+			->willReturn($is_total);
+
+		$request = Request::from([ 'headers' => [ 'Cache-Control' => $cache_control ] ]);
+
+		$response = $this
+			->getMockBuilder(FileResponse::class)
+			->setConstructorArgs([ create_file(), $request ])
+			->setMethods([ 'get_is_modified', 'get_range', 'send_headers', 'send_body' ])
+			->getMock();
+		$response
+			->expects($this->any())
+			->method('get_is_modified')
+			->willReturn($is_modified);
+		$response
+			->expects($this->any())
+			->method('get_range')
+			->willReturn($range);
+
+		/* @var $response FileResponse */
+
+		$response();
+
+		$this->assertEquals($expected, $response->status->code);
+	}
+
+	public function provide_test_invoke_with_range()
+	{
+		return [
+
+			[ 'no-cache', false, false, true, Status::REQUESTED_RANGE_NOT_SATISFIABLE ],
+			[ 'no-cache', false, true, false, Status::PARTIAL_CONTENT ],
+			[ 'no-cache', false, true, true, Status::OK ],
+			[ '', false, true, true, Status::NOT_MODIFIED ],
+			[ '', true, true, true, Status::OK ]
+
+		];
 	}
 
 	public function provide_test_invoke()
@@ -110,6 +210,11 @@ class FileResponseTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @dataProvider provide_test_get_etag
+	 *
+	 * @param string $expected
+	 * @param string $file
+	 * @param array $options
+	 * @param array $headers
 	 */
 	public function test_get_etag($expected, $file, $options = [], $headers = [])
 	{
@@ -134,6 +239,11 @@ class FileResponseTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @dataProvider provide_test_get_expires
+	 *
+	 * @param DateTime $expected
+	 * @param string $file
+	 * @param array $options
+	 * @param array $headers
 	 */
 	public function test_get_expires(DateTime $expected, $file, $options = [], $headers = [])
 	{
@@ -242,6 +352,95 @@ class FileResponseTest extends \PHPUnit_Framework_TestCase
 
 			[ $file, true, basename($file) ],
 			[ $file, $filename, $filename ]
+
+		];
+	}
+
+	/**
+	 * @dataProvider provide_test_accept_ranges
+	 *
+	 * @param string $method
+	 * @param string $type
+	 */
+	public function test_accept_ranges($method, $type)
+	{
+		$request = Request::from([ 'uri' => '/', 'method' => $method ]);
+
+		$response = $this
+			->getMockBuilder(FileResponse::class)
+			->setConstructorArgs([ __FILE__, $request ])
+			->setMethods([ 'send_body' ])
+			->getMock();
+
+		/* @var $response FileResponse */
+
+		$this->assertContains("Accept-Ranges: $type", (string) $response);
+	}
+
+	public function provide_test_accept_ranges()
+	{
+		return [
+
+			[ Request::METHOD_GET, 'bytes' ],
+			[ Request::METHOD_HEAD, 'bytes' ],
+			[ Request::METHOD_POST, 'none' ],
+			[ Request::METHOD_PUT, 'none' ]
+
+		];
+	}
+
+	/**
+	 * @dataProvider provide_test_range_response
+	 *
+	 * @param string $bytes
+	 * @param string $pathname
+	 * @param string $expected
+	 */
+	public function test_range_response($bytes, $pathname, $expected)
+	{
+		$etag = sha1_file($pathname);
+
+		$request = Request::from([
+
+			'headers' => [
+
+				'Range' => "bytes=$bytes",
+				'If-Range' => $etag
+
+			]
+
+		]);
+
+		$response = $this
+			->getMockBuilder(FileResponse::class)
+			->setConstructorArgs([ $pathname, $request, [ FileResponse::OPTION_ETAG => $etag ] ])
+			->setMethods([ 'send_headers' ])
+			->getMock();
+
+		/* @var $response FileResponse */
+
+		ob_start();
+
+		$response();
+
+		$content = ob_get_clean();
+
+		$this->assertSame($expected, $content);
+	}
+
+	public function provide_test_range_response()
+	{
+		$pathname = create_file();
+		$data = file_get_contents($pathname);
+
+		return [
+
+			[ '0-499', $pathname, substr($data, 0, 500) ],
+			[ '500-999', $pathname, substr($data, 500, 500) ],
+			[ '-500', $pathname, substr($data, -500) ],
+			[ '-500', $pathname, substr($data, -500) ],
+			[ '9500-', $pathname, substr($data, -500) ],
+			[ 'bytes=0-9999', $pathname, $data ]
 
 		];
 	}

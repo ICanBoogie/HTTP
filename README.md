@@ -377,9 +377,9 @@ $response->status->is_redirect; // true
 
 ### Delivering a file
 
-A file may be delivered using a [FileResponse][] instance. Cache control is handled automatically,
-you just have to provide the pathname of the file to transfer (or a `SplFileInfo` instance) and
-a request.
+A file may be delivered using a [FileResponse][] instance. Cache control and _range_ requests
+are handled automatically, you just have to provide the pathname of the file to transfer
+(or a `SplFileInfo` instance) and a request.
 
 ```php
 <?php

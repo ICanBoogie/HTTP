@@ -18,6 +18,7 @@ use ICanBoogie\DateTime;
  *
  * @property-read \SplFileInfo $file
  * @property-read int $modified_time
+ * @property-read RequestRange $range
  * @property-read bool $is_modified
  */
 class FileResponse extends Response
@@ -88,6 +89,11 @@ class FileResponse extends Response
 
 		parent::__construct(function() {
 
+			if (!$this->status->is_successful)
+			{
+				return;
+			}
+
 			$this->send_file($this->file);
 
 		}, Status::OK, $headers);
@@ -99,6 +105,20 @@ class FileResponse extends Response
 	 */
 	public function __invoke()
 	{
+		$range = $this->range;
+
+		if ($range)
+		{
+			if (!$range->is_satisfiable)
+			{
+				$this->status = Status::REQUESTED_RANGE_NOT_SATISFIABLE;
+			}
+			else if (!$range->is_total)
+			{
+				$this->status = Status::PARTIAL_CONTENT;
+			}
+		}
+
 		if ($this->request->cache_control->cacheable != 'no-cache' && !$this->is_modified)
 		{
 			$this->status = Status::NOT_MODIFIED;
@@ -128,21 +148,74 @@ class FileResponse extends Response
 	{
 		parent::finalize($headers, $body);
 
+		$status = $this->status->code;
 		$expires = $this->expires;
+
 		$headers['Expires'] = $expires;
 		$headers['Cache-Control']->cacheable = 'public';
 		$headers['Cache-Control']->max_age = $expires->timestamp - DateTime::now()->timestamp;
 		$headers['Content-Type'] = $this->content_type;
+		$headers['Etag'] = $this->etag;
 
-		if ($this->status->code === Status::NOT_MODIFIED)
+		if ($status === Status::NOT_MODIFIED)
 		{
-			unset($headers['Content-Length']);
+			$this->finalize_for_not_modified($headers);
 
 			return;
 		}
 
-		$headers['Content-Length'] = $this->file->getSize();
+		if ($status === Status::PARTIAL_CONTENT)
+		{
+			$this->finalize_for_partial_content($headers);
+
+			return;
+		}
+
+		$this->finalize_for_other($headers);
+	}
+
+	/**
+	 * Finalizes the response for {@link Status::NOT_MODIFIED}.
+	 *
+	 * @param Headers $headers
+	 */
+	protected function finalize_for_not_modified(Headers &$headers)
+	{
+		unset($headers['Content-Length']);
+	}
+
+	/**
+	 * Finalizes the response for {@link Status::PARTIAL_CONTENT}.
+	 *
+	 * @param Headers $headers
+	 */
+	protected function finalize_for_partial_content(Headers &$headers)
+	{
+		$range = $this->range;
+
 		$headers['Last-Modified'] = $this->modified_time;
+		$headers['Content-Range'] = (string) $range;
+		$headers['Content-Length'] = $range->length;
+	}
+
+	/**
+	 * Finalizes the response for status other than {@link Status::NOT_MODIFIED} or
+	 * {@link Status::PARTIAL_CONTENT}.
+	 *
+	 * @param Headers $headers
+	 */
+	protected function finalize_for_other(Headers &$headers)
+	{
+		$headers['Last-Modified'] = $this->modified_time;
+
+		if (!$headers['Accept-Ranges'])
+		{
+			$request = $this->request;
+
+			$headers['Accept-Ranges'] = $request->is_get || $request->is_head ? 'bytes' : 'none';
+		}
+
+		$headers['Content-Length'] = $this->file->getSize();
 	}
 
 	/**
@@ -154,13 +227,32 @@ class FileResponse extends Response
 	 */
 	protected function send_file(\SplFileInfo $file)
 	{
+		list($max_length, $offset) = $this->resolve_max_length_and_offset();
+
 		$out = fopen('php://output', 'wb');
 		$fh = fopen($file->getPathname(), 'rb');
 
-		stream_copy_to_stream($fh, $out);
+		stream_copy_to_stream($fh, $out, $max_length, $offset);
 
 		fclose($out);
 		fclose($fh);
+	}
+
+	/**
+	 * Resolves `max_length` and `offset` parameters for stream copy.
+	 *
+	 * @return array
+	 */
+	private function resolve_max_length_and_offset()
+	{
+		$range = $this->range;
+
+		if ($range && $range->max_length)
+		{
+			return [ $range->max_length, $range->offset ];
+		}
+
+		return [ -1, 0 ];
 	}
 
 	/**
@@ -242,12 +334,29 @@ class FileResponse extends Response
 		/* @var $if_modified_since \ICanBoogie\DateTime */
 
 		$headers = $this->request->headers;
-		$if_none_match = $headers['If-None-Match'];
+
+		// HTTP/1.1
+
+		if ((string) $headers['If-None-Match'] != $this->etag)
+		{
+			return true;
+		}
+
+		// HTTP/1.0
+
 		$if_modified_since = $headers['If-Modified-Since'];
 
-		return $if_modified_since->is_empty
-		|| $if_modified_since->timestamp < $this->modified_time
-		|| $if_none_match != $this->etag;
+		return $if_modified_since->is_empty || $if_modified_since->timestamp < $this->modified_time;
+	}
+
+	private $_range;
+
+	/**
+	 * @return RequestRange
+	 */
+	protected function get_range()
+	{
+		return $this->_range ?: $this->_range = RequestRange::from($this->request->headers, $this->file->getSize(), $this->etag);
 	}
 
 	/**
