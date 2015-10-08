@@ -73,8 +73,8 @@ $request = Request::from($_SERVER)->with([
 
 ### Request parameters
 
-Whether they are sent as part of the query string, the post body or the path info, parameters
-sent along a request are collected in arrays. The `query_params`, `request_params`
+Whether they are sent as part of the query string, the post body, or the path info, parameters
+sent along a request are collected in arrays. The `query_params`, `request_params`,
 and `path_params` properties give you access to these parameters.
 
 You can access each type of parameter as follows:
@@ -129,7 +129,7 @@ foreach ($request as $parameter => $value)
 ### Request files
 
 Files associated with a request are collected in a [FileList][] instance. The initial request
-created with `$_SERVER` obtain its files from `$_FILES`. For custom requests files are defined
+created with `$_SERVER` obtain its files from `$_FILES`. For custom requests, files are defined
 using the `files` keyword.
 
 ```php
@@ -157,8 +157,8 @@ $file = $files['undefined']; // null
 ```
 
 Uploaded files, and _pretend_ uploaded files, are represented by [File][] instances. The class
-tries its best to provide the same API for both. The `is_uploaded` property lets you distinguish
-uploaded files from _pretend_ uploaded files.
+tries its best to provide the same API for both. The `is_uploaded` property helps you set
+them apart.
 
 The `is_valid` property is a simple way to check if a file is valid. The `move()` method
 let's you move the file out of the temporary folder or around the filesystem.
@@ -249,7 +249,7 @@ $response = $request->post([ 'param' => 'value' ]);
 ## Response
 
 The response to a request is represented by a [Response][] instance. The response body can
-either be a `null`, a string, an object implementing `__toString()`, or a closure.
+either be `null`, a string, an object implementing `__toString()`, or a closure.
 
 > **Note:** Contrary to [Request][] instances, [Response][] instances or completely mutable.
 
@@ -402,13 +402,14 @@ $response = new FileResponse("/absolute/path/to/my/file", $request, [
 	FileResponse::OPTION_FILENAME => "Vidéo d'un été à la mer.mp4"
 
 ]);
+
 $response();
 ```
 
 The following options are also available:
 
 - `OPTION_ETAG`: Specifies the `ETag` header field of the response. If it is not defined the
-SHA-1 of the file is used instead.
+[SHA-384][] of the file is used instead.
 
 - `OPTION_EXPIRES`: Specifies the expiration date as a `DateTime` instance or a relative date
 such as "+3 month", which maps to the `Expires` header field. The `max-age` directive of the
@@ -1056,3 +1057,5 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [ServiceUnavailable]:           http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.ServiceUnavailable.html
 [StatusCodeNotValid]:           http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.StatusCodeNotValid.html
 [Status]:                       http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Status.html
+
+[SHA-384]: https://en.wikipedia.org/wiki/SHA-2

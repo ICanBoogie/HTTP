@@ -225,7 +225,7 @@ class FileResponseTest extends \PHPUnit_Framework_TestCase
 	public function provide_test_get_etag()
 	{
 		$f1 = create_file();
-		$f1_hash = sha1_file($f1);
+		$f1_hash = FileResponse::hash_file($f1);
 		$f1_hash_custom = $f1_hash . '#' . uniqid();
 
 		return [

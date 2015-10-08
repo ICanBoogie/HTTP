@@ -24,8 +24,8 @@ use ICanBoogie\DateTime;
 class FileResponse extends Response
 {
 	/**
-	 * Specifies the `ETag` header field of the response. If it is not defined the SHA-1
-	 * of the file is used instead.
+	 * Specifies the `ETag` header field of the response. If it is not defined the
+	 * SHA-384 of the file is used instead.
 	 */
 	const OPTION_ETAG = 'etag';
 
@@ -51,6 +51,18 @@ class FileResponse extends Response
 
 	const DEFAULT_EXPIRES = '+1 month';
 	const DEFAULT_MIME = 'application/octet-stream';
+
+	/**
+	 * Hashes a file using SHA-348.
+	 *
+	 * @param string $pathname
+	 *
+	 * @return string A base64 string
+	 */
+	static public function hash_file($pathname)
+	{
+		return base64_encode(hash_file('sha384', $pathname, true));
+	}
 
 	/**
 	 * @var \SplFileInfo
@@ -281,13 +293,13 @@ class FileResponse extends Response
 	}
 
 	/**
-	 * If the etag returned by the parent is empty the method returns a SHA-1 of the file.
+	 * If the etag returned by the parent is empty the method returns a SHA-384 of the file.
 	 *
 	 * @return string
 	 */
 	protected function get_etag()
 	{
-		return parent::get_etag() ?: sha1_file($this->file->getPathname());
+		return parent::get_etag() ?: self::hash_file($this->file->getPathname());
 	}
 
 	/**
