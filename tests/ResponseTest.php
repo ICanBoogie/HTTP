@@ -12,6 +12,8 @@
 namespace ICanBoogie\HTTP;
 
 use ICanBoogie\DateTime;
+use ICanBoogie\HTTP\Headers\CacheControl;
+use ICanBoogie\HTTP\Headers\Date;
 
 class ResponseTest extends \PHPUnit_Framework_TestCase
 {
@@ -114,8 +116,66 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 		$r->date = '-3 second';
 		$this->assertEquals(3, $r->age);
 
+		$r->date = null;
+		$this->assertNull($r->age);
+
 		$r->age = 123;
 		$this->assertSame(123, $r->age);
+	}
+
+	public function test_etag()
+	{
+		$response = new Response;
+		$this->assertNull($response->etag);
+
+		$etag = uniqid();
+		$response->etag = $etag;
+		$this->assertSame($etag, $response->etag);
+
+		$response->etag = null;
+		$this->assertNull($response->etag);
+	}
+
+	public function test_cache_control()
+	{
+		$response = new Response;
+		$this->assertInstanceOf(CacheControl::class, $response->cache_control);
+		$this->assertEmpty((string) $response->cache_control);
+
+		$value = "public, max-age=12345";
+		$response->cache_control = $value;
+		$this->assertSame($value, (string) $response->cache_control);
+
+		$response->cache_control = null;
+		$this->assertEmpty((string) $response->cache_control);
+	}
+
+	public function test_last_modified()
+	{
+		$response = new Response;
+		$this->assertInstanceOf(Date::class, $response->last_modified);
+		$this->assertEmpty((string) $response->last_modified);
+
+		$value = DateTime::now();
+		$response->last_modified = $value;
+		$this->assertEquals($value, $response->last_modified);
+
+		$response->last_modified = null;
+		$this->assertEmpty((string) $response->last_modified);
+	}
+
+	public function test_expires()
+	{
+		$response = new Response;
+		$this->assertInstanceOf(Date::class, $response->expires);
+		$this->assertEmpty((string) $response->expires);
+
+		$value = DateTime::now();
+		$response->expires = $value;
+		$this->assertEquals($value, $response->expires);
+
+		$response->expires = null;
+		$this->assertEmpty((string) $response->expires);
 	}
 
 	/**
