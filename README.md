@@ -282,7 +282,7 @@ $response();
 
 ### Response status
 
-The response status is represented by a [Status][] instance. It can be defined as a HTTP response
+The response status is represented by a [Status][] instance. It may be defined as a HTTP response
 code such as `200`, an array such as `[ 200, "Ok" ]`, or a string such as `"200 Ok"`.
 
 ```php
@@ -359,7 +359,7 @@ to define that field for generated content because it prevents the response to b
 
 ### Redirect response
 
-A redirect response can be easily created using a [RedirectResponse][] instance.
+A simple redirect response may be created using a [RedirectResponse][] instance.
 
 ```php
 <?php
@@ -419,7 +419,7 @@ such as "+3 month", which maps to the `Expires` header field. The `max-age` dire
 - `OPTION_MIME`: Specifies the MIME of the file, which maps to the `Content-Type` header field.
 If it is not defined the MIME is guessed using `finfo::file()`.
 
-The following properties are added:
+The following properties are available:
 
 - `modified_time`: Returns the last modified timestamp of the file.
 
@@ -433,8 +433,8 @@ using the request header fields `If-None-Match` and `If-Modified-Since`, and the
 
 ## Headers
 
-HTTP headers are represented by a [Headers][] instance. There are used by requests and
-responses, but can also be used to create the headers string of the `mail()` command.
+HTTP headers are represented by a [Headers][] instance. They are used by requests and
+responses, and may be used to create the headers string of the `mail()` command as well.
 
 
 
@@ -442,7 +442,7 @@ responses, but can also be used to create the headers string of the `mail()` com
 
 ### Content-Type header
 
-The `Content-Type` header is represented by a [ContentType][] instance making it easily manipulate.
+The `Content-Type` header is represented by a [ContentType][] instance making it easily to manipulate.
 
 ```php
 <?php
@@ -464,7 +464,7 @@ echo $response->headers['Content-Type']; // application/xml; charset=utf-8
 ### Content-Disposition header
 
 The `Content-Disposition` header is represented by a [ContentDisposition][] instance making it
-easily manipulate. Accentuated file names are supported.
+easily to manipulate. Of course, accentuated file names are supported.
 
 ```php
 <?php
@@ -484,7 +484,7 @@ echo $response->headers['Content-Disposition']; // attachment; filename="ete.jpg
 ### Cache-Control header
 
 The `Cache-Control` header is represented by a [CacheControl][] instance making it easily
-manipulable. Directives can be set at once using a plain string, or individually using the
+to manipulate. Directives can be set at once using a plain string, or individually using the
 properties of the [CacheControl][] instance. Directives of the
 [rfc2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html) are supported.
 
@@ -633,7 +633,7 @@ otherwise the response is returned.
 ```php
 <?php
 
-$request = Request::from('/api/core/ping');
+$request = Request::from('/path/to/resource.html');
 
 try
 {
@@ -655,8 +655,8 @@ catch (NotFound $e)
 The `ICanBoogie\HTTP\RequestDispatcher::dispatch:before` event of class [BeforeDispatchEvent][]
 is fired before a request is dispatched.
 
-Third parties may use this event to provide a response to the request before the dispatcher plugins
-are invoked. If a response is provided the dispatcher plugins are skipped.
+Third parties may use this event to provide a response to the request before the domain dispatchers
+are invoked. If a response is provided the domain dispatchers are skipped.
 
 The event is usually used to redirect requests or provide cached responses. The following code
 demonstrates how a request could be redirected if its path is not normalized. For instance a
@@ -694,7 +694,7 @@ prevent other event hooks from altering the response.
 ### After a request was dispatched
 
 The `ICanBoogie\HTTP\RequestDispatcher::dispatch` event of class [DispatchEvent][] is fired after a
-request was dispatched, even if no response was provided by dispatcher plugins.
+request was dispatched, even if no response was provided by domain dispatchers.
 
 Third parties may use this event to alter or replace the response before it is returned by the
 dispatcher. The following code demonstrates how a cache could be updated after a response with
@@ -729,8 +729,8 @@ Most likely your application is going to throw exceptions, whether they are caus
 bugs or logic, you might want to handle them. For example, you might want to present a login form
 instead of the default exception message when a [AuthenticationRequired][] exception is thrown.
 
-Exceptions can be rescued at two levels: the dispatcher plugin level, using its `rescue()`
-method; or the main dispatcher level, by listening to the `Exception::rescue` event.
+Exceptions can be rescued at two levels: the domain dispatcher level, using its `rescue()`
+method; or the request dispatcher level, by listening to the `Exception::rescue` event.
 
 Third parties may use the `Exception::rescue` event of class [RescueEvent][] to provide a response
 for an exception. The following example demonstrates how a login form can be returned as response
@@ -804,7 +804,7 @@ before returning them.
 
 The following exceptions are defined by the HTTP package:
 
-* [ClientError][]: throw when a client error occurs.
+* [ClientError][]: thrown when a client error occurs.
 	* [NotFound][]: thrown when a resource is not found. For instance, this exception is
 	thrown by the dispatcher when it fails to resolve a request into a response.
 	* [AuthenticationRequired][]: thrown when the authentication of the client is required. Implements [SecurityError][].
@@ -816,7 +816,7 @@ The following exceptions are defined by the HTTP package:
 * [ForceRedirect][]: thrown when a redirect is absolutely required.
 * [StatusCodeNotValid][]: thrown when a HTTP status code is not valid.
 
-All the exceptions defined by the package implement the `ICanBoogie\HTTP\Exception` interface.
+Exceptions defined by the package implement the `ICanBoogie\HTTP\Exception` interface.
 Using this interface one can easily catch HTTP related exceptions:
 
 ```php
@@ -844,9 +844,18 @@ catch (\Exception $e)
 
 The following helpers are available:
 
-* [dispatch](http://api.icanboogie.org/http/2.5/function-ICanBoogie.HTTP.dispatch.html): Dispatches a request using the dispatcher returned by `get_dispatcher()`.
-* [get_dispatcher](http://api.icanboogie.org/http/2.5/function-ICanBoogie.HTTP.get_dispatcher.html): Returns the main dispatcher.
-* [get_initial_request](http://api.icanboogie.org/http/2.5/function-ICanBoogie.HTTP.get_initial_request.html): Returns the initial request.
+* [`dispatch`](http://api.icanboogie.org/http/2.5/function-ICanBoogie.HTTP.dispatch.html): Dispatches a request using the dispatcher returned by `get_dispatcher()`.
+* [`get_dispatcher`](http://api.icanboogie.org/http/2.5/function-ICanBoogie.HTTP.get_dispatcher.html): Returns the request dispatcher.
+* [`get_initial_request`](http://api.icanboogie.org/http/2.5/function-ICanBoogie.HTTP.get_initial_request.html): Returns the initial request.
+
+```php
+<?php
+
+namespace ICanBoogie\HTTP;
+
+$request = get_initial_request();
+$response = dispatch($request);
+```
 
 
 
@@ -880,68 +889,6 @@ $app->events->attach(function(RequestDispatcher\AlterEvent $event, RequestDispat
 	}
 
 });
-```
-
-
-
-
-
-### Patching helpers
-
-Helpers can be patched using the `Helpers::patch()` method.
-
-The following code demonstrates how [ICanBoogie](http://icanboogie.org) patches the
-`get_dispatcher()` helper to provide its own dispatcher, which is initialized with some
-dispatcher plugins:
-
-```php
-<?php
-
-namespace ICanBoogie;
-
-use ICanBoogie\HTTP\RequestDispatcher;
-
-ICanBoogie\HTTP\Helpers::patch('get_dispatcher', function() {
-
-	static $dispatcher;
-
-	if (!$dispatcher)
-	{
-		$dispatcher = new RequestDispatcher([
-
-			'operation' => 'ICanBoogie\Operation\RequestDispatcher',
-			'route' => 'ICanBoogie\Routing\RequestDispatcher'
-
-		]);
-
-		new RequestDispatcher\AlterEvent($dispatcher);
-	}
-
-	return $dispatcher;
-
-});
-
-namespace ICanBoogie\HTTP\RequestDispatcher;
-
-use ICanBoogie\HTTP\RequestDispatcher;
-
-/**
- * Event class for the `ICanBoogie\HTTP\RequestDispatcher::alter` event.
- *
- * Third parties may use this event to register additional dispatchers.
- */
-class AlterEvent extends \ICanBoogie\Event
-{
-	/**
-	 * The event is constructed with the type `alter`.
-	 *
-	 * @param RequestDispatcher $target
-	 */
-	public function __construct(RequestDispatcher $target)
-	{
-		parent::__construct($target, 'alter');
-	}
-}
 ```
 
 
