@@ -142,7 +142,7 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	{
 		$response = $this->handle($request->with([ 'is_get' => true ]));
 
-		if ($response->content_length === null)
+		if ($response->content_length === null && !$response->body instanceof \Closure)
 		{
 			try
 			{
