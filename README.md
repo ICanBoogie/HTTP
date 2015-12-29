@@ -1,10 +1,10 @@
 # HTTP
 
 [![Release](https://img.shields.io/packagist/v/icanboogie/http.svg)](https://packagist.org/packages/icanboogie/http)
-[![Build Status](https://img.shields.io/travis/ICanBoogie/HTTP/2.5.svg)](http://travis-ci.org/ICanBoogie/HTTP)
+[![Build Status](https://img.shields.io/travis/ICanBoogie/HTTP/2.6.svg)](http://travis-ci.org/ICanBoogie/HTTP)
 [![HHVM](https://img.shields.io/hhvm/icanboogie/http.svg)](http://hhvm.h4cc.de/package/icanboogie/http)
-[![Code Quality](https://img.shields.io/scrutinizer/g/ICanBoogie/HTTP/2.5.svg)](https://scrutinizer-ci.com/g/ICanBoogie/HTTP/?branch=2.5)
-[![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/HTTP/2.5.svg)](https://coveralls.io/r/ICanBoogie/HTTP)
+[![Code Quality](https://img.shields.io/scrutinizer/g/ICanBoogie/HTTP/2.6.svg)](https://scrutinizer-ci.com/g/ICanBoogie/HTTP/?branch=2.5)
+[![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/HTTP/2.6.svg)](https://coveralls.io/r/ICanBoogie/HTTP)
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/http.svg)](https://packagist.org/packages/icanboogie/http)
 
 The HTTP package provides an API to handle HTTP requests.
@@ -331,9 +331,9 @@ $output = function() use ($records) {
 	{
 		fputcsv($out, [ $record->title, $record->created_at ]);
 	}
-	
+
 	fclose($out);
-	
+
 };
 
 $response = new Response($output, Status::OK, [ 'Content-Type' => 'text/csv' ]);
@@ -620,6 +620,80 @@ should be ordered relatively to the specified targets.
 
 
 
+## Dispatcher provider
+
+The `get_dispatcher()` helper is used to retrieve the dispatcher to use to dispatch requests
+executed with `$request()`, `$request->send()`, `$request->post()`, … The helper uses
+`DispatcherProvider::provide()` to obtain a dispatcher, and if no provider is defined it defines a
+new instance of [ProvideDispatcher][] as provider.
+
+The following example demonstrates how you can define your own dispatcher by defining its provider:
+
+```php
+
+use ICanBoogie\HTTP\DispatcherProvider;
+use ICanBoogie\HTTP\RequestDispatcher;
+use function ICanBoogie\HTTP\get_dispatcher();
+
+// …
+
+DispatcherProvider::define(function() use ($domain_dispatchers) {
+
+	static $dispatcher;
+
+	if (!$dispatcher)
+	{
+		$dispatcher = new RequestDispatcher($domain_dispatchers);
+
+		new RequestDispatcher\AlterEvent($dispatcher);
+	}
+
+	return $dispatcher;
+
+});
+
+get_dispatcher() === DispatcherProvider::provider();   // true
+```
+
+
+
+
+
+### Altering the dispatcher
+
+The `ICanBoogie\HTTP\RequestDispatcher::alter` event of class [RequestDispatcher\AlterEvent][] is
+fired after the dispatcher has been created by an instance of [ProvideDispatcher][]. Event hooks
+may use this event to register or alter domain dispatchers, or replace the request dispatcher
+altogether.
+
+The following code illustrate how a `hello` dispatcher, that returns
+"Hello world!" when the request matches the path "/hello", can be registered.
+
+```php
+<?php
+
+use ICanBoogie\HTTP\RequestDispatcher;
+use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\Response;
+
+$app->events->attach(function(RequestDispatcher\AlterEvent $event, RequestDispatcher $target) {
+
+	$target['hello'] = function(Request $request) {
+
+		if ($request->path === '/hello')
+		{
+			return new Response('Hello world!');
+		}
+
+	}
+
+});
+```
+
+
+
+
+
 ## Dispatching requests
 
 When the _request dispatcher_ is asked to handle a request, it invokes each of its
@@ -844,9 +918,11 @@ catch (\Exception $e)
 
 The following helpers are available:
 
-* [`dispatch`](http://api.icanboogie.org/http/2.5/function-ICanBoogie.HTTP.dispatch.html): Dispatches a request using the dispatcher returned by `get_dispatcher()`.
-* [`get_dispatcher`](http://api.icanboogie.org/http/2.5/function-ICanBoogie.HTTP.get_dispatcher.html): Returns the request dispatcher.
-* [`get_initial_request`](http://api.icanboogie.org/http/2.5/function-ICanBoogie.HTTP.get_initial_request.html): Returns the initial request.
+* [`dispatch()`][]: Dispatches a request using the dispatcher returned by [`get_dispatcher()`][].
+* [`get_dispatcher()`][]: Returns the request dispatcher. If no dispatcher provider is defined,
+the method defines a new instance of [ProviderDispatcher][] as provider and use it to retrieve the
+dispatcher.
+* [`get_initial_request()`][]: Returns the initial request.
 
 ```php
 <?php
@@ -855,40 +931,6 @@ namespace ICanBoogie\HTTP;
 
 $request = get_initial_request();
 $response = dispatch($request);
-```
-
-
-
-
-
-### Altering the dispatcher
-
-The `ICanBoogie\HTTP\RequestDispatcher::alter` event of class [RequestDispatcher\AlterEvent][] is
-fired after the dispatcher has been created. Third parties may use this event to register or
-alter dispatchers, or replace the dispatcher altogether.
-
-The following code illustrate how a `hello` dispatcher, that returns
-"Hello world!" when the request matches the path "/hello", can be registered.
-
-```php
-<?php
-
-use ICanBoogie\HTTP\RequestDispatcher;
-use ICanBoogie\HTTP\Request;
-use ICanBoogie\HTTP\Response;
-
-$app->events->attach(function(RequestDispatcher\AlterEvent $event, RequestDispatcher $target) {
-
-	$target['hello'] = function(Request $request) {
-
-		if ($request->path === '/hello')
-		{
-			return new Response('Hello world!');
-		}
-		
-	}
-
-});
 ```
 
 
@@ -960,8 +1002,8 @@ the `make clean` command.
 
 The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
-[![Build Status](https://img.shields.io/travis/ICanBoogie/HTTP/2.5.svg)](https://travis-ci.org/ICanBoogie/HTTP)
-[![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/HTTP/2.5.svg)](https://coveralls.io/r/ICanBoogie/HTTP)
+[![Build Status](https://img.shields.io/travis/ICanBoogie/HTTP/2.6.svg)](https://travis-ci.org/ICanBoogie/HTTP)
+[![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/HTTP/2.6.svg)](https://coveralls.io/r/ICanBoogie/HTTP)
 
 
 
@@ -975,34 +1017,40 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
 
 
-[ToArray]:                      http://api.icanboogie.org/common/1.2/class-ICanBoogie.ToArray.html
-[documentation]:                http://api.icanboogie.org/http/2.5/
-[AuthenticationRequired]:       http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.AuthenticationRequired.html
-[BeforeDispatchEvent]:          http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.RequestDispatcher.BeforeDispatchEvent.html
-[CacheControl]:                 http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Headers.CacheControl.html
-[ClientError]:                  http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.ClientError.html
-[ContentDisposition]:           http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Headers.ContentDisposition.html
-[ContentType]:                  http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Headers.ContentType.html
-[DispatchEvent]:                http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.RequestDispatcher.DispatchEvent.html
-[Dispatcher]:                   http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Dispatcher.html
-[Headers]:                      http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Headers.html
-[File]:                         http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.File.html
-[FileList]:                     http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.FileList.html
-[FileResponse]:                 http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.FileResponse.html
-[ForceRedirect]:                http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.ForceRedirect.html
-[MethodNotSupported]:           http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.MethodNotSupported.html
-[NotFound]:                     http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.NotFound.html
-[PermissionRequired]:           http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.PemissionRequired.html
-[RedirectResponse]:             http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.RedirectResponse.html
-[Request]:                      http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Request.html
-[RequestDispatcher]:            http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.RequestDispatcher.html
-[RequestDispatcher\AlterEvent]: http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.RequestDispatcher.AlterEvent.html
-[Response]:                     http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Response.html
-[RescueEvent]:                  http://api.icanboogie.org/http/2.5/class-ICanBoogie.Exception.RescueEvent.html
-[SecurityError]:                http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.SecurityError.html
-[ServerError]:                  http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.ServerError.html
-[ServiceUnavailable]:           http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.ServiceUnavailable.html
-[StatusCodeNotValid]:           http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.StatusCodeNotValid.html
-[Status]:                       http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Status.html
+[ToArray]:                       http://api.icanboogie.org/common/1.2/class-ICanBoogie.ToArray.html
+[documentation]:                 http://api.icanboogie.org/http/2.6/
+[AuthenticationRequired]:        http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.AuthenticationRequired.html
+[ProvideDispatcher]:             http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.ProvideDispatcher.html
+[BeforeDispatchEvent]:           http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.RequestDispatcher.BeforeDispatchEvent.html
+[CacheControl]:                  http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.Headers.CacheControl.html
+[ClientError]:                   http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.ClientError.html
+[ContentDisposition]:            http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.Headers.ContentDisposition.html
+[ContentType]:                   http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.Headers.ContentType.html
+[DispatchEvent]:                 http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.RequestDispatcher.DispatchEvent.html
+[Dispatcher]:                    http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.Dispatcher.html
+[DispatcherProvider::provide()]: http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.DispatcherProvider.html#_provide
+[Headers]:                       http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.Headers.html
+[File]:                          http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.File.html
+[FileList]:                      http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.FileList.html
+[FileResponse]:                  http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.FileResponse.html
+[ForceRedirect]:                 http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.ForceRedirect.html
+[MethodNotSupported]:            http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.MethodNotSupported.html
+[NotFound]:                      http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.NotFound.html
+[PermissionRequired]:            http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.PemissionRequired.html
+[ProvideDispatcher]:             http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.ProvideDispatcher.html
+[RedirectResponse]:              http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.RedirectResponse.html
+[Request]:                       http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.Request.html
+[RequestDispatcher]:             http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.RequestDispatcher.html
+[RequestDispatcher\AlterEvent]:  http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.RequestDispatcher.AlterEvent.html
+[Response]:                      http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.Response.html
+[RescueEvent]:                   http://api.icanboogie.org/http/2.6/class-ICanBoogie.Exception.RescueEvent.html
+[SecurityError]:                 http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.SecurityError.html
+[ServerError]:                   http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.ServerError.html
+[ServiceUnavailable]:            http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.ServiceUnavailable.html
+[StatusCodeNotValid]:            http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.StatusCodeNotValid.html
+[Status]:                        http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.Status.html
+[`dispatch()`]:                  http://api.icanboogie.org/http/2.6/function-ICanBoogie.HTTP.dispatch.html
+[`get_dispatcher()`]:            http://api.icanboogie.org/http/2.6/function-ICanBoogie.HTTP.get_dispatcher.html
+[`get_initial_request`]:         http://api.icanboogie.org/http/2.6/function-ICanBoogie.HTTP.get_initial_request.html
 
 [SHA-384]: https://en.wikipedia.org/wiki/SHA-2

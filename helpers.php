@@ -30,22 +30,16 @@ function dispatch(Request $request)
 /**
  * Returns a shared request dispatcher.
  *
- * {@link RequestDispatcher\AlterEvent} is fired when the instance is first created.
- *
  * @return Dispatcher
  */
 function get_dispatcher()
 {
-	static $dispatcher;
-
-	if (!$dispatcher)
+	if (!DispatcherProvider::defined())
 	{
-		$dispatcher = new RequestDispatcher;
-
-		new RequestDispatcher\AlterEvent($dispatcher);
+		DispatcherProvider::define(new ProvideDispatcher);
 	}
 
-	return $dispatcher;
+	return DispatcherProvider::provide();
 }
 
 /**

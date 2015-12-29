@@ -1,7 +1,7 @@
 # customization
 
 PACKAGE_NAME = icanboogie/http
-PACKAGE_VERSION = 2.5.0
+PACKAGE_VERSION = 2.6.0
 
 # do not edit the following lines
 
