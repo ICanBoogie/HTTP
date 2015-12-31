@@ -37,7 +37,7 @@ use ICanBoogie\Accessor\AccessorTrait;
  *
  * @see http://tools.ietf.org/html/rfc2616
  */
-class Response
+class Response implements ResponseStatus
 {
 	use AccessorTrait;
 
@@ -63,7 +63,7 @@ class Response
 	 * @param int|Status $status The status code of the response.
 	 * @param Headers|array $headers The initial header fields of the response.
 	 */
-	public function __construct($body = null, $status = Status::OK, $headers = [])
+	public function __construct($body = null, $status = self::STATUS_OK, $headers = [])
 	{
 		if (is_array($headers))
 		{

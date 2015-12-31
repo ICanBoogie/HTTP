@@ -17,7 +17,6 @@ The following example demonstrates how you can simply use a closure to create a 
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\RequestDispatcher;
 use ICanBoogie\HTTP\Response;
-use ICanBoogie\HTTP\Status;
 
 require 'vendor/autoload.php';
 
@@ -27,7 +26,7 @@ $dispatcher = new RequestDispatcher([
 
 		$who = $request['name'] ?: 'world';
 
-		return new Response("Hello $who!", Status::OK, [
+		return new Response("Hello $who!", Request::STATUS_OK, [
 
 			'Content-Type' => 'text/plain'
 
@@ -291,9 +290,8 @@ either be `null`, a string, an object implementing `__toString()`, or a closure.
 <?php
 
 use ICanBoogie\HTTP\Response;
-use ICanBoogie\HTTP\Status;
 
-$response = new Response('<!DOCTYPE html><html><body><h1>Hello world!</h1></body></html>', Status::OK, [
+$response = new Response('<!DOCTYPE html><html><body><h1>Hello world!</h1></body></html>', Response::STATUS_OK, [
 
 	'Content-Type' => 'text/html',
 	'Cache-Control' => 'public, max-age=3600'
@@ -332,7 +330,7 @@ echo $response->status->code;         // 200
 echo $response->status->message;      // Ok
 $response->status->is_valid;          // true
 
-$response->status = Status::NOT_FOUND;
+$response->status = Response::STATUS_NOT_FOUND;
 echo $response->status->code;         // 404
 echo $response->status->message;      // Not Found
 $response->status->is_valid;          // false
@@ -370,7 +368,7 @@ $output = function() use ($records) {
 
 };
 
-$response = new Response($output, Status::OK, [ 'Content-Type' => 'text/csv' ]);
+$response = new Response($output, Response::STATUS_OK, [ 'Content-Type' => 'text/csv' ]);
 ```
 
 
@@ -550,9 +548,8 @@ All date related headers can be specified as Unix timestamp, strings or `DateTim
 <?php
 
 use ICanBoogie\HTTP\Response;
-use ICanBoogie\HTTP\Status;
 
-$response = new Response('{ "message": "Ok" }', Status::OK, [
+$response = new Response('{ "message": "Ok" }', Request::STATUS_OK, [
 
 	'Content-Type' => 'application/json',
 	'Date' => 'now',
