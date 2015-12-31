@@ -99,62 +99,6 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 
 	];
 
-	static private $properties_mappers;
-
-	/**
-	 * Returns request properties mappers.
-	 *
-	 * @return \Closure[]
-	 */
-	static protected function get_options_mappers()
-	{
-		if (self::$properties_mappers)
-		{
-			return self::$properties_mappers;
-		}
-
-		return self::$properties_mappers = static::create_properties_mappers();
-	}
-
-	/**
-	 * Returns request properties mappers.
-	 *
-	 * @return \Closure[]
-	 */
-	static protected function create_properties_mappers()
-	{
-		return [
-
-			self::OPTION_PATH_PARAMS =>    function($value) { return $value; },
-			self::OPTION_QUERY_PARAMS =>   function($value) { return $value; },
-			self::OPTION_REQUEST_PARAMS => function($value) { return $value; },
-			self::OPTION_COOKIE =>         function($value) { return $value; },
-			self::OPTION_FILES =>          function($value) { return $value; },
-			self::OPTION_HEADERS =>        function($value) { return ($value instanceof Headers) ? $value : new Headers($value); },
-
-			self::OPTION_CACHE_CONTROL =>  function($value, array &$env) { $env['HTTP_CACHE_CONTROL'] = $value; },
-			self::OPTION_CONTENT_LENGTH => function($value, array &$env) { $env['CONTENT_LENGTH'] = $value; },
-			self::OPTION_IP =>             function($value, array &$env) { if ($value) $env['REMOTE_ADDR'] = $value; },
-			self::OPTION_IS_LOCAL =>       function($value, array &$env) { if ($value) $env['REMOTE_ADDR'] = '::1'; },
-			self::OPTION_IS_DELETE =>      function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_DELETE; },
-			self::OPTION_IS_CONNECT =>     function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_CONNECT; },
-			self::OPTION_IS_GET =>         function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_GET; },
-			self::OPTION_IS_HEAD =>        function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_HEAD; },
-			self::OPTION_IS_OPTIONS =>     function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_OPTIONS; },
-			self::OPTION_IS_PATCH =>       function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_PATCH; },
-			self::OPTION_IS_POST =>        function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_POST; },
-			self::OPTION_IS_PUT =>         function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_PUT; },
-			self::OPTION_IS_TRACE =>       function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_TRACE; },
-			self::OPTION_IS_XHR =>         function($value, array &$env) { if ($value) $env['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'; else unset($env['HTTP_X_REQUESTED_WITH']); },
-			self::OPTION_METHOD =>         function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = $value; },
-			self::OPTION_PATH =>           function($value, array &$env) { $env['REQUEST_URI'] = $value; }, // TODO-20130521: handle query string
-			self::OPTION_REFERER =>        function($value, array &$env) { $env['HTTP_REFERER'] = $value; },
-			self::OPTION_URI =>            function($value, array &$env) { $env['REQUEST_URI'] = $value; $qs = strpos($value, '?'); $env['QUERY_STRING'] = $qs === false ? '' : substr($value, $qs + 1); },
-			self::OPTION_USER_AGENT =>     function($value, array &$env) { $env['HTTP_USER_AGENT'] = $value; }
-
-		];
-	}
-
 	/**
 	 * Current request.
 	 *
@@ -337,23 +281,9 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 */
 	static protected function from_options(array $options, array $env)
 	{
-		$options = $options ?: [];
-
-		$mappers = static::get_options_mappers();
-
-		foreach ($options as $option => &$value)
+		if ($options)
 		{
-			if (empty($mappers[$option]))
-			{
-				throw new \InvalidArgumentException("Option not supported: <q>$option</q>.");
-			}
-
-			$value = $mappers[$option]($value, $env);
-
-			if ($value === null)
-			{
-				unset($options[$option]);
-			}
+			static::get_options_mapper()->map($options, $env);
 		}
 
 		if (!empty($env['QUERY_STRING']))
@@ -362,6 +292,19 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 		}
 
 		return new static($options, $env);
+	}
+
+	/**
+	 * @var RequestOptionsMapper
+	 */
+	static private $options_mapper;
+
+	/**
+	 * @return RequestOptionsMapper
+	 */
+	static protected function get_options_mapper()
+	{
+		return self::$options_mapper ?: self::$options_mapper = new RequestOptionsMapper;
 	}
 
 	/**
@@ -497,24 +440,15 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	public function with(array $options)
 	{
 		$changed = clone $this;
-		$mappers = static::get_options_mappers();
-		$env = &$changed->env;
 
-		foreach ($options as $option => $value)
+		if ($options)
 		{
-			if (empty($mappers[$option]))
+			static::get_options_mapper()->map($options, $changed->env);
+
+			foreach ($options as $option => &$value)
 			{
-				throw new \InvalidArgumentException("Option not supported: <q>$option</q>.");
+				$changed->$option = $value;
 			}
-
-			$value = $mappers[$option]($value, $env);
-
-			if ($value === null)
-			{
-				continue;
-			}
-
-			$changed->$option = $value;
 		}
 
 		return $changed;
