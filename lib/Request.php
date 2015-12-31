@@ -30,11 +30,11 @@ use ICanBoogie\Prototype\MethodNotDefined;
  *
  * $request = Request::from([
  *
- *     'uri' => '/path/to/my/page.html?page=2',
- *     'user_agent' => 'Mozilla'
- *     'is_get' => true,
- *     'is_xhr' => true,
- *     'is_local' => true
+ *     Request::OPTION_URI => '/path/to/my/page.html?page=2',
+ *     Request::OPTION_USER_AGENT => 'Mozilla'
+ *     Request::OPTION_IS_GET => true,
+ *     Request::OPTION_IS_XHR => true,
+ *     Request::OPTION_IS_LOCAL => true
  *
  * ], $_SERVER);
  * </pre>
@@ -49,7 +49,7 @@ use ICanBoogie\Prototype\MethodNotDefined;
  * @method Response patch() patch(array $params=null)
  * @method Response trace() trace(array $params=null)
  *
- * @property-read \ICanBoogie\HTTP\Request\Context $context the request's context.
+ * @property-read Request\Context $context the request's context.
  * @property-read Request $parent Parent request.
  * @property-read FileList $files The files associated with the request.
  *
@@ -106,7 +106,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @return \Closure[]
 	 */
-	static protected function get_properties_mappers()
+	static protected function get_options_mappers()
 	{
 		if (self::$properties_mappers)
 		{
@@ -248,7 +248,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	protected $parent;
 
 	/**
-	 * A request can be created from the `$_SERVER` super global array. In that case `$_SERVER` is
+	 * A request may be created from the `$_SERVER` super global array. In that case `$_SERVER` is
 	 * used as environment the request is created with the following properties:
 	 *
 	 * - {@link $cookie}: a reference to the `$_COOKIE` super global array.
@@ -257,23 +257,22 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 * - {@link $request_params}: a reference to the `$_POST` super global array.
 	 * - {@link $files}: a reference to the `$_FILES` super global array.
 	 *
-	 * A request can also be created from an array of properties, in which case most of them are
+	 * A request may also be created from an array of properties, in which case most of them are
 	 * mapped to the `$env` constructor param. For instance, `is_xhr` set the
 	 * `HTTP_X_REQUESTED_WITH` environment property to 'XMLHttpRequest'. In fact, only the
-	 * following parameters are preserved:
+	 * following options are preserved:
 	 *
-	 * - `path_params`
-	 * - `query_params`
-	 * - `request_params`
-	 * - `files`: The files associated with the request.
-	 * - `headers`: The header fields of the request. If specified, the headers available in the
-	 * environment are ignored.
+	 * - Request::OPTION_PATH_PARAMS
+	 * - Request::OPTION_QUERY_PARAMS
+	 * - Request::OPTION_REQUEST_PARAMS
+	 * - Request::OPTION_FILES: The files associated with the request.
+	 * - Request::OPTION_HEADERS: The header fields of the request. If specified, the headers
+	 * available in the environment are ignored.
 	 *
 	 * @param array $properties Properties of the request.
 	 * @param array $env Environment, usually the `$_SERVER` array.
 	 *
-	 * @throws \InvalidArgumentException in attempt to use a property that is not mapped to an
-	 * environment property.
+	 * @throws \InvalidArgumentException in attempt to use an unsupported option.
 	 *
 	 * @return Request
 	 */
@@ -294,7 +293,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 			return static::from_uri((string) $properties, $env);
 		}
 
-		return static::from_properties($properties, $env);
+		return static::from_options($properties, $env);
 	}
 
 	/**
@@ -306,11 +305,11 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	{
 		return static::from([
 
-			'cookie' => &$_COOKIE,
-			'path_params' => [],
-			'query_params' => &$_GET,
-			'request_params' => &$_POST,
-			'files' => &$_FILES // @codeCoverageIgnore
+			self::OPTION_COOKIE => &$_COOKIE,
+			self::OPTION_PATH_PARAMS => [],
+			self::OPTION_QUERY_PARAMS => &$_GET,
+			self::OPTION_REQUEST_PARAMS => &$_POST,
+			self::OPTION_FILES => &$_FILES // @codeCoverageIgnore
 
 		], $_SERVER);
 	}
@@ -325,44 +324,44 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 */
 	static protected function from_uri($uri, array $env)
 	{
-		return static::from([ 'uri' => $uri ], $env);
+		return static::from([ self::OPTION_URI => $uri ], $env);
 	}
 
 	/**
 	 * Creates an instance from an array of properties.
 	 *
-	 * @param array $properties
+	 * @param array $options
 	 * @param array $env
 	 *
 	 * @return Request
 	 */
-	static protected function from_properties(array $properties, array $env)
+	static protected function from_options(array $options, array $env)
 	{
-		$properties = $properties ?: [];
+		$options = $options ?: [];
 
-		$mappers = static::get_properties_mappers();
+		$mappers = static::get_options_mappers();
 
-		foreach ($properties as $property => &$value)
+		foreach ($options as $option => &$value)
 		{
-			if (empty($mappers[$property]))
+			if (empty($mappers[$option]))
 			{
-				throw new \InvalidArgumentException("Unsupported property: <q>$property</q>.");
+				throw new \InvalidArgumentException("Option not supported: <q>$option</q>.");
 			}
 
-			$value = $mappers[$property]($value, $env);
+			$value = $mappers[$option]($value, $env);
 
 			if ($value === null)
 			{
-				unset($properties[$property]);
+				unset($options[$option]);
 			}
 		}
 
 		if (!empty($env['QUERY_STRING']))
 		{
-			parse_str($env['QUERY_STRING'], $properties['query_params']);
+			parse_str($env['QUERY_STRING'], $options[self::OPTION_QUERY_PARAMS]);
 		}
 
-		return new static($properties, $env);
+		return new static($options, $env);
 	}
 
 	/**
@@ -489,33 +488,33 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	/**
 	 * Returns a new instance with the specified changed properties.
 	 *
-	 * @param array $properties
+	 * @param array $options
 	 *
 	 * @throws \InvalidArgumentException
 	 *
 	 * @return Request
 	 */
-	public function with(array $properties)
+	public function with(array $options)
 	{
 		$changed = clone $this;
-		$mappers = static::get_properties_mappers();
+		$mappers = static::get_options_mappers();
 		$env = &$changed->env;
 
-		foreach ($properties as $property => $value)
+		foreach ($options as $option => $value)
 		{
-			if (empty($mappers[$property]))
+			if (empty($mappers[$option]))
 			{
-				throw new \InvalidArgumentException("Unsupported property: <q>$property</q>.");
+				throw new \InvalidArgumentException("Option not supported: <q>$option</q>.");
 			}
 
-			$value = $mappers[$property]($value, $env);
+			$value = $mappers[$option]($value, $env);
 
 			if ($value === null)
 			{
 				continue;
 			}
 
-			$changed->$property = $value;
+			$changed->$option = $value;
 		}
 
 		return $changed;
@@ -541,14 +540,14 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 
 		if ($method)
 		{
-			$properties = [ 'method' => $method ];
+			$properties = [ self::OPTION_METHOD => $method ];
 		}
 
 		if ($params !== null)
 		{
-			$properties['request_params'] = $params;
-			$properties['path_params'] = [];
-			$properties['query_params'] = [];
+			$properties[self::OPTION_REQUEST_PARAMS] = $params;
+			$properties[self::OPTION_PATH_PARAMS] = [];
+			$properties[self::OPTION_QUERY_PARAMS] = [];
 		}
 
 		return $this->with($properties);

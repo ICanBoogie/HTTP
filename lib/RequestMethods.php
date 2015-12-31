@@ -13,12 +13,11 @@ namespace ICanBoogie\HTTP;
 
 /**
  * HTTP request methods.
+ *
+ * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html
  */
 interface RequestMethods
 {
-	/*
-	 * HTTP methods as defined by the {@link http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html Hypertext Transfer protocol 1.1}.
-	 */
 	const METHOD_ANY = 'ANY';
 	const METHOD_CONNECT = 'CONNECT';
 	const METHOD_DELETE = 'DELETE';
