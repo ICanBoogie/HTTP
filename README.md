@@ -26,7 +26,7 @@ $dispatcher = new RequestDispatcher([
 
 		$who = $request['name'] ?: 'world';
 
-		return new Response("Hello $who!", Request::STATUS_OK, [
+		return new Response("Hello $who!", Response::STATUS_OK, [
 
 			'Content-Type' => 'text/plain'
 
@@ -50,7 +50,8 @@ $response();
 ## Request
 
 A request is represented by a [Request][] instance. The initial request is usually created from
-the `$_SERVER` array, while sub requests are created from arrays of properties.
+the `$_SERVER` array, while sub requests are created from arrays of `Request::OPTION_*` or 
+`RequestOptions::OPTION_*` options.
 
 ```php
 <?php
@@ -59,7 +60,7 @@ use ICanBoogie\HTTP\Request;
 
 $initial_request = Request::from($_SERVER);
 
-# a fake request in the same environment
+# a custom request in the same environment
 
 $request = Request::from('path/to/file.html', $_SERVER);
 
@@ -344,7 +345,7 @@ $response->status->is_not_found;      // true
 
 ### Streaming the response body
 
-When a large response body needs to be issued, it is recommended to use a closure as response
+When a large response body needs to be streamed, it is recommended to use a closure as response
 body instead of a huge string that would consume a lot of memory.
 
 ```php
@@ -391,7 +392,7 @@ to define that field for generated content because it prevents the response to b
 
 ### Redirect response
 
-A simple redirect response may be created using a [RedirectResponse][] instance.
+A redirect response may be created using a [RedirectResponse][] instance.
 
 ```php
 <?php
@@ -410,8 +411,8 @@ $response->status->is_redirect; // true
 ### Delivering a file
 
 A file may be delivered using a [FileResponse][] instance. Cache control and _range_ requests
-are handled automatically, you just have to provide the pathname of the file to transfer
-(or a `SplFileInfo` instance) and a request.
+are handled automatically, you just need to provide the pathname of the file, or a `SplFileInfo`
+instance, and a request.
 
 ```php
 <?php
@@ -422,11 +423,12 @@ $response = new FileResponse("/absolute/path/to/my/file", $request);
 $response();
 ```
 
-The `OPTION_FILENAME` option may be used to force downloading. Of course, accentuated file names
-are supported:
+The `OPTION_FILENAME` option may be used to force downloading. Of course, utf-8 string are
+supported:
 
 ```php
 <?php
+
 use ICanBoogie\HTTP\FileResponse;
 
 $response = new FileResponse("/absolute/path/to/my/file", $request, [
@@ -474,7 +476,7 @@ responses, and may be used to create the headers string of the `mail()` command 
 
 ### Content-Type header
 
-The `Content-Type` header is represented by a [ContentType][] instance making it easily to manipulate.
+The `Content-Type` header is represented by a [ContentType][] instance.
 
 ```php
 <?php
@@ -495,8 +497,8 @@ echo $response->headers['Content-Type']; // application/xml; charset=utf-8
 
 ### Content-Disposition header
 
-The `Content-Disposition` header is represented by a [ContentDisposition][] instance making it
-easily to manipulate. Of course, accentuated file names are supported.
+The `Content-Disposition` header is represented by a [ContentDisposition][] instance. Of course,
+utf-8 file names are supported.
 
 ```php
 <?php
@@ -515,10 +517,9 @@ echo $response->headers['Content-Disposition']; // attachment; filename="ete.jpg
 
 ### Cache-Control header
 
-The `Cache-Control` header is represented by a [CacheControl][] instance making it easily
-to manipulate. Directives can be set at once using a plain string, or individually using the
-properties of the [CacheControl][] instance. Directives of the
-[rfc2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html) are supported.
+The `Cache-Control` header is represented by a [CacheControl][] instance. Directives can be set at
+once using a plain string, or individually using the properties of the [CacheControl][] instance.
+Directives of the [rfc2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html) are supported.
 
 ```php
 <?php
@@ -549,7 +550,7 @@ All date related headers can be specified as Unix timestamp, strings or `DateTim
 
 use ICanBoogie\HTTP\Response;
 
-$response = new Response('{ "message": "Ok" }', Request::STATUS_OK, [
+$response = new Response('{ "message": "Ok" }', Response::STATUS_OK, [
 
 	'Content-Type' => 'application/json',
 	'Date' => 'now',
@@ -592,9 +593,9 @@ use ICanBoogie\HTTP\RequestDispatcher;
 
 $dispatcher = new RequestDispatcher([
 
-	'operation' => 'ICanBoogie\Operation\OperationDispatcher',
-	'route' => 'ICanBoogie\Routing\RouteDispatcher',
-	'page' => 'Icybee\Modules\Pages\PageDisptacher'
+	'operation' => \ICanBoogie\Operation\OperationDispatcher::class,
+	'route' => \ICanBoogie\Routing\RouteDispatcher::class,
+	'page' => \Icybee\Modules\Pages\PageDisptacher::class
 
 ]);
 ```
@@ -1084,5 +1085,6 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [`get_dispatcher()`]:            http://api.icanboogie.org/http/2.6/function-ICanBoogie.HTTP.get_dispatcher.html
 [`get_initial_request()`]:       http://api.icanboogie.org/http/2.6/function-ICanBoogie.HTTP.get_initial_request.html
 
+[ICanBoogie]:         https://github.com/ICanBoogie/ICanBoogie
 [icanboogie/routing]: https://github.com/ICanBoogie/Routing
 [SHA-384]:            https://en.wikipedia.org/wiki/SHA-2
