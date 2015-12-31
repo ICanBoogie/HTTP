@@ -7,7 +7,42 @@
 [![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/HTTP/2.6.svg)](https://coveralls.io/r/ICanBoogie/HTTP)
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/http.svg)](https://packagist.org/packages/icanboogie/http)
 
-The HTTP package provides an API to handle HTTP requests.
+The **icanboogie/http** package provides an API to handle HTTP requests. It provides representations for requests, request files, responses, and headers. A request dispatcher is also provided, that can be used with your favorite routing solution with very little effort.
+
+The following example demonstrates how you can simply use a closure to create a _Hello world!_ application:
+
+```php
+<?php
+
+use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\RequestDispatcher;
+use ICanBoogie\HTTP\Response;
+use ICanBoogie\HTTP\Status;
+
+require 'vendor/autoload.php';
+
+$dispatcher = new RequestDispatcher([
+
+	'hello world' => function(Request $request) {
+
+		$who = $request['name'] ?: 'world';
+
+		return new Response("Hello $who!", Status::OK, [
+
+			'Content-Type' => 'text/plain'
+
+		]);
+
+	}
+
+]);
+
+$request = Request::from($_SERVER);
+$response = $dispatcher($request);
+$response();
+```
+
+> You might want to check the [icanboogie/routing][] package if you require a nice router.
 
 
 
@@ -920,7 +955,7 @@ The following helpers are available:
 
 * [`dispatch()`][]: Dispatches a request using the dispatcher returned by [`get_dispatcher()`][].
 * [`get_dispatcher()`][]: Returns the request dispatcher. If no dispatcher provider is defined,
-the method defines a new instance of [ProviderDispatcher][] as provider and use it to retrieve the
+the method defines a new instance of [ProvideDispatcher][] as provider and use it to retrieve the
 dispatcher.
 * [`get_initial_request()`][]: Returns the initial request.
 
@@ -1051,6 +1086,7 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [Status]:                        http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.Status.html
 [`dispatch()`]:                  http://api.icanboogie.org/http/2.6/function-ICanBoogie.HTTP.dispatch.html
 [`get_dispatcher()`]:            http://api.icanboogie.org/http/2.6/function-ICanBoogie.HTTP.get_dispatcher.html
-[`get_initial_request`]:         http://api.icanboogie.org/http/2.6/function-ICanBoogie.HTTP.get_initial_request.html
+[`get_initial_request()`]:       http://api.icanboogie.org/http/2.6/function-ICanBoogie.HTTP.get_initial_request.html
 
-[SHA-384]: https://en.wikipedia.org/wiki/SHA-2
+[icanboogie/routing]: https://github.com/ICanBoogie/Routing
+[SHA-384]:            https://en.wikipedia.org/wiki/SHA-2
