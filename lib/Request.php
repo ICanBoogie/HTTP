@@ -81,7 +81,7 @@ use ICanBoogie\Prototype\MethodNotDefined;
  *
  * @see http://en.wikipedia.org/wiki/Uniform_resource_locator
  */
-class Request implements \ArrayAccess, \IteratorAggregate
+class Request implements \ArrayAccess, \IteratorAggregate, RequestOptions
 {
 	use AccessorTrait;
 
@@ -139,32 +139,32 @@ class Request implements \ArrayAccess, \IteratorAggregate
 	{
 		return [
 
-			'path_params' =>    function($value) { return $value; },
-			'query_params' =>   function($value) { return $value; },
-			'request_params' => function($value) { return $value; },
-			'cookie' =>         function($value) { return $value; },
-			'files' =>          function($value) { return $value; },
-			'headers' =>        function($value) { return ($value instanceof Headers) ? $value : new Headers($value); },
+			self::OPTION_PATH_PARAMS =>    function($value) { return $value; },
+			self::OPTION_QUERY_PARAMS =>   function($value) { return $value; },
+			self::OPTION_REQUEST_PARAMS => function($value) { return $value; },
+			self::OPTION_COOKIE =>         function($value) { return $value; },
+			self::OPTION_FILES =>          function($value) { return $value; },
+			self::OPTION_HEADERS =>        function($value) { return ($value instanceof Headers) ? $value : new Headers($value); },
 
-			'cache_control' =>  function($value, array &$env) { $env['HTTP_CACHE_CONTROL'] = $value; },
-			'content_length' => function($value, array &$env) { $env['CONTENT_LENGTH'] = $value; },
-			'ip' =>             function($value, array &$env) { if ($value) $env['REMOTE_ADDR'] = $value; },
-			'is_local' =>       function($value, array &$env) { if ($value) $env['REMOTE_ADDR'] = '::1'; },
-			'is_delete' =>      function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_DELETE; },
-			'is_connect' =>     function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_CONNECT; },
-			'is_get' =>         function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_GET; },
-			'is_head' =>        function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_HEAD; },
-			'is_options' =>     function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_OPTIONS; },
-			'is_patch' =>       function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_PATCH; },
-			'is_post' =>        function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_POST; },
-			'is_put' =>         function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_PUT; },
-			'is_trace' =>       function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_TRACE; },
-			'is_xhr' =>         function($value, array &$env) { if ($value) $env['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'; else unset($env['HTTP_X_REQUESTED_WITH']); },
-			'method' =>         function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = $value; },
-			'path' =>           function($value, array &$env) { $env['REQUEST_URI'] = $value; }, // TODO-20130521: handle query string
-			'referer' =>        function($value, array &$env) { $env['HTTP_REFERER'] = $value; },
-			'uri' =>            function($value, array &$env) { $env['REQUEST_URI'] = $value; $qs = strpos($value, '?'); $env['QUERY_STRING'] = $qs === false ? '' : substr($value, $qs + 1); },
-			'user_agent' =>     function($value, array &$env) { $env['HTTP_USER_AGENT'] = $value; }
+			self::OPTION_CACHE_CONTROL =>  function($value, array &$env) { $env['HTTP_CACHE_CONTROL'] = $value; },
+			self::OPTION_CONTENT_LENGTH => function($value, array &$env) { $env['CONTENT_LENGTH'] = $value; },
+			self::OPTION_IP =>             function($value, array &$env) { if ($value) $env['REMOTE_ADDR'] = $value; },
+			self::OPTION_IS_LOCAL =>       function($value, array &$env) { if ($value) $env['REMOTE_ADDR'] = '::1'; },
+			self::OPTION_IS_DELETE =>      function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_DELETE; },
+			self::OPTION_IS_CONNECT =>     function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_CONNECT; },
+			self::OPTION_IS_GET =>         function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_GET; },
+			self::OPTION_IS_HEAD =>        function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_HEAD; },
+			self::OPTION_IS_OPTIONS =>     function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_OPTIONS; },
+			self::OPTION_IS_PATCH =>       function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_PATCH; },
+			self::OPTION_IS_POST =>        function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_POST; },
+			self::OPTION_IS_PUT =>         function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_PUT; },
+			self::OPTION_IS_TRACE =>       function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = Request::METHOD_TRACE; },
+			self::OPTION_IS_XHR =>         function($value, array &$env) { if ($value) $env['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'; else unset($env['HTTP_X_REQUESTED_WITH']); },
+			self::OPTION_METHOD =>         function($value, array &$env) { if ($value) $env['REQUEST_METHOD'] = $value; },
+			self::OPTION_PATH =>           function($value, array &$env) { $env['REQUEST_URI'] = $value; }, // TODO-20130521: handle query string
+			self::OPTION_REFERER =>        function($value, array &$env) { $env['HTTP_REFERER'] = $value; },
+			self::OPTION_URI =>            function($value, array &$env) { $env['REQUEST_URI'] = $value; $qs = strpos($value, '?'); $env['QUERY_STRING'] = $qs === false ? '' : substr($value, $qs + 1); },
+			self::OPTION_USER_AGENT =>     function($value, array &$env) { $env['HTTP_USER_AGENT'] = $value; }
 
 		];
 	}

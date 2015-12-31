@@ -53,7 +53,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	public function test_from_with_cache_control()
 	{
 		$v = "public, must-revalidate";
-		$r = Request::from([ 'cache_control' => $v ]);
+		$r = Request::from([ Request::OPTION_CACHE_CONTROL => $v ]);
 		$this->assertObjectNotHasAttribute('cache_control', $r);
 		$this->assertInstanceOf(Headers\CacheControl::class, $r->cache_control);
 		$this->assertEquals('public', $r->cache_control->cacheable);
@@ -63,7 +63,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	public function test_from_with_content_length()
 	{
 		$v = 123456789;
-		$r = Request::from([ 'content_length' => $v ]);
+		$r = Request::from([ Request::OPTION_CONTENT_LENGTH => $v ]);
 		$this->assertObjectNotHasAttribute('content_length', $r);
 		$this->assertEquals($v, $r->content_length);
 	}
@@ -79,7 +79,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	public function test_from_with_ip()
 	{
 		$v = '192.168.13.69';
-		$r = Request::from([ 'ip' => $v ]);
+		$r = Request::from([ Request::OPTION_IP => $v ]);
 		$this->assertObjectNotHasAttribute('ip', $r);
 		$this->assertEquals($v, $r->ip);
 	}
@@ -87,7 +87,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	public function test_from_with_forwarded_ip()
 	{
 		$v = '192.168.13.69';
-		$r = Request::from([ 'headers' => [
+		$r = Request::from([ Request::OPTION_HEADERS => [
 
 			'X-Forwarded-For' => "$v,::1"
 
@@ -98,12 +98,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	public function test_from_with_is_delete()
 	{
-		$r = Request::from([ 'is_delete' => true ]);
+		$r = Request::from([ Request::OPTION_IS_DELETE => true ]);
 		$this->assertObjectNotHasAttribute('is_delete', $r);
 		$this->assertEquals(Request::METHOD_DELETE, $r->method);
 		$this->assertTrue($r->is_delete);
 
-		$r = Request::from([ 'is_delete' => false ]);
+		$r = Request::from([ Request::OPTION_IS_DELETE => false ]);
 		$this->assertObjectNotHasAttribute('is_delete', $r);
 		$this->assertEquals(Request::METHOD_GET, $r->method);
 		$this->assertFalse($r->is_delete);
@@ -111,12 +111,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	public function test_from_with_is_get()
 	{
-		$r = Request::from([ 'is_get' => true ]);
+		$r = Request::from([ Request::OPTION_IS_GET => true ]);
 		$this->assertObjectNotHasAttribute('is_get', $r);
 		$this->assertEquals(Request::METHOD_GET, $r->method);
 		$this->assertTrue($r->is_get);
 
-		$r = Request::from([ 'is_get' => false ]);
+		$r = Request::from([ Request::OPTION_IS_GET => false ]);
 		$this->assertObjectNotHasAttribute('is_get', $r);
 		$this->assertEquals(Request::METHOD_GET, $r->method);
 		$this->assertTrue($r->is_get);
@@ -124,12 +124,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	public function test_from_with_is_head()
 	{
-		$r = Request::from([ 'is_head' => true ]);
+		$r = Request::from([ Request::OPTION_IS_HEAD => true ]);
 		$this->assertObjectNotHasAttribute('is_head', $r);
 		$this->assertEquals(Request::METHOD_HEAD, $r->method);
 		$this->assertTrue($r->is_head);
 
-		$r = Request::from([ 'is_head' => false ]);
+		$r = Request::from([ Request::OPTION_IS_HEAD => false ]);
 		$this->assertObjectNotHasAttribute('is_head', $r);
 		$this->assertEquals(Request::METHOD_GET, $r->method);
 		$this->assertFalse($r->is_head);
@@ -137,23 +137,23 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	public function test_from_with_is_local()
 	{
-		$r = Request::from([ 'is_local' => true ]);
+		$r = Request::from([ Request::OPTION_IS_LOCAL => true ]);
 		$this->assertObjectNotHasAttribute('is_local', $r);
 		$this->assertTrue($r->is_local);
 
-		$r = Request::from([ 'is_local' => false ]);
+		$r = Request::from([ Request::OPTION_IS_LOCAL => false ]);
 		$this->assertObjectNotHasAttribute('is_local', $r);
 		$this->assertTrue($r->is_local); // yes is_local is `true` even if it was defined as `false`, that's because IP is not defined.
 	}
 
 	public function test_from_with_is_options()
 	{
-		$r = Request::from([ 'is_options' => true ]);
+		$r = Request::from([ Request::OPTION_IS_OPTIONS => true ]);
 		$this->assertObjectNotHasAttribute('is_options', $r);
 		$this->assertEquals(Request::METHOD_OPTIONS, $r->method);
 		$this->assertTrue($r->is_options);
 
-		$r = Request::from([ 'is_options' => false ]);
+		$r = Request::from([ Request::OPTION_IS_OPTIONS => false ]);
 		$this->assertObjectNotHasAttribute('is_options', $r);
 		$this->assertEquals(Request::METHOD_GET, $r->method);
 		$this->assertFalse($r->is_options);
@@ -161,12 +161,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	public function test_from_with_is_patch()
 	{
-		$r = Request::from([ 'is_patch' => true ]);
+		$r = Request::from([ Request::OPTION_IS_PATCH => true ]);
 		$this->assertObjectNotHasAttribute('is_patch', $r);
 		$this->assertEquals(Request::METHOD_PATCH, $r->method);
 		$this->assertTrue($r->is_patch);
 
-		$r = Request::from([ 'is_patch' => false ]);
+		$r = Request::from([ Request::OPTION_IS_PATCH => false ]);
 		$this->assertObjectNotHasAttribute('is_patch', $r);
 		$this->assertEquals(Request::METHOD_GET, $r->method);
 		$this->assertFalse($r->is_patch);
@@ -174,12 +174,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	public function test_from_with_is_post()
 	{
-		$r = Request::from([ 'is_post' => true ]);
+		$r = Request::from([ Request::OPTION_IS_POST => true ]);
 		$this->assertObjectNotHasAttribute('is_post', $r);
 		$this->assertEquals(Request::METHOD_POST, $r->method);
 		$this->assertTrue($r->is_post);
 
-		$r = Request::from([ 'is_post' => false ]);
+		$r = Request::from([ Request::OPTION_IS_POST => false ]);
 		$this->assertObjectNotHasAttribute('is_post', $r);
 		$this->assertEquals(Request::METHOD_GET, $r->method);
 		$this->assertFalse($r->is_post);
@@ -187,12 +187,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	public function test_from_with_is_put()
 	{
-		$r = Request::from([ 'is_put' => true ]);
+		$r = Request::from([ Request::OPTION_IS_PUT => true ]);
 		$this->assertObjectNotHasAttribute('is_put', $r);
 		$this->assertEquals(Request::METHOD_PUT, $r->method);
 		$this->assertTrue($r->is_put);
 
-		$r = Request::from([ 'is_put' => false ]);
+		$r = Request::from([ Request::OPTION_IS_PUT => false ]);
 		$this->assertObjectNotHasAttribute('is_put', $r);
 		$this->assertEquals(Request::METHOD_GET, $r->method);
 		$this->assertFalse($r->is_put);
@@ -200,12 +200,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	public function test_from_with_is_trace()
 	{
-		$r = Request::from([ 'is_trace' => true ]);
+		$r = Request::from([ Request::OPTION_IS_TRACE => true ]);
 		$this->assertObjectNotHasAttribute('is_trace', $r);
 		$this->assertEquals(Request::METHOD_TRACE, $r->method);
 		$this->assertTrue($r->is_trace);
 
-		$r = Request::from([ 'is_trace' => false ]);
+		$r = Request::from([ Request::OPTION_IS_TRACE => false ]);
 		$this->assertObjectNotHasAttribute('is_trace', $r);
 		$this->assertEquals(Request::METHOD_GET, $r->method);
 		$this->assertFalse($r->is_trace);
@@ -213,18 +213,18 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	public function test_from_with_is_xhr()
 	{
-		$r = Request::from([ 'is_xhr' => true ]);
+		$r = Request::from([ Request::OPTION_IS_XHR => true ]);
 		$this->assertObjectNotHasAttribute('is_xhr', $r);
 		$this->assertTrue($r->is_xhr);
 
-		$r = Request::from([ 'is_xhr' => false ]);
+		$r = Request::from([ Request::OPTION_IS_XHR => false ]);
 		$this->assertObjectNotHasAttribute('is_xhr', $r);
 		$this->assertFalse($r->is_xhr);
 	}
 
 	public function test_from_with_method()
 	{
-		$r = Request::from([ 'method' => Request::METHOD_OPTIONS ]);
+		$r = Request::from([ Request::OPTION_METHOD => Request::METHOD_OPTIONS ]);
 		$this->assertObjectNotHasAttribute('method', $r);
 		$this->assertEquals(Request::METHOD_OPTIONS, $r->method);
 	}
@@ -233,8 +233,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	{
 		$r = Request::from([
 
-			'method' => Request::METHOD_POST,
-			'request_params' => [ '_method' => Request::METHOD_DELETE ]
+			Request::OPTION_METHOD => Request::METHOD_POST,
+			Request::OPTION_REQUEST_PARAMS => [ '_method' => Request::METHOD_DELETE ]
 
 		]);
 
@@ -246,12 +246,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_from_with_invalid_method()
 	{
-		Request::from([ 'method' => uniqid() ]);
+		Request::from([ Request::OPTION_METHOD => uniqid() ]);
 	}
 
 	public function test_from_with_path()
 	{
-		$r = Request::from([ 'path' => '/path/' ]);
+		$r = Request::from([ Request::OPTION_PATH => '/path/' ]);
 		$this->assertObjectNotHasAttribute('path', $r);
 		$this->assertEquals('/path/', $r->path);
 
@@ -279,7 +279,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	public function test_from_with_referer()
 	{
 		$v = 'http://example.org/referer/';
-		$r = Request::from([ 'referer' => $v ]);
+		$r = Request::from([ Request::OPTION_REFERER => $v ]);
 		$this->assertObjectNotHasAttribute('referer', $r);
 		$this->assertEquals($v, $r->referer);
 	}
@@ -295,7 +295,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	public function test_from_with_uri()
 	{
 		$v = '/uri/';
-		$r = Request::from([ 'uri' => $v ]);
+		$r = Request::from([ Request::OPTION_URI => $v ]);
 		$this->assertObjectNotHasAttribute('uri', $r);
 		$this->assertEquals($v, $r->uri);
 
@@ -334,7 +334,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 	public function test_from_with_user_agent()
 	{
-		$r = Request::from([ 'user_agent' => 'Madonna' ]);
+		$r = Request::from([ Request::OPTION_USER_AGENT => 'Madonna' ]);
 		$this->assertObjectNotHasAttribute('user_agent', $r);
 		$this->assertEquals('Madonna', $r->user_agent);
 	}
@@ -347,7 +347,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 		$r = Request::from([
 
-			'files' => [
+			Request::OPTION_FILES => [
 
 				'one' => [ 'pathname' => __FILE__ ],
 				'two' => [ 'pathname' => __FILE__ ]
@@ -370,8 +370,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	{
 		$r = Request::from([
 
-			'uri' => '/path/to/file',
-			'headers' => [
+			Request::OPTION_URI => '/path/to/file',
+			Request::OPTION_HEADERS => [
 
 				"Cache-Control" => "max-age=0",
 				"Accept" => "application/json"
@@ -393,8 +393,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 		$r = Request::from([
 
-			'uri' => '/path/to/file',
-			'headers' => $headers
+			Request::OPTION_URI => '/path/to/file',
+			Request::OPTION_HEADERS => $headers
 
 		]);
 
@@ -409,7 +409,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_get_is_local($ip, $expected)
 	{
-		$r = Request::from([ 'ip' => $ip ]);
+		$r = Request::from([ Request::OPTION_IP => $ip ]);
 		$this->assertEquals($expected, $r->is_local);
 	}
 
@@ -516,14 +516,14 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	{
 		$r = Request::from([
 
-			'path_params' => [
+			Request::OPTION_PATH_PARAMS => [
 
 				'p1' => 1,
 				'p2' => 2
 
 			],
 
-			'request_params' => [
+			Request::OPTION_REQUEST_PARAMS => [
 
 				'p1' => 10,
 				'p2' => 20,
@@ -531,7 +531,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 			],
 
-			'query_params' => [
+			Request::OPTION_QUERY_PARAMS => [
 
 				'p1' => 100,
 				'p2' => 200,
@@ -579,7 +579,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 		if (!$iterated)
 		{
-			$iterated = Request::from([]);
+			$iterated = Request::from();
 		}
 
 		$changed = $iterated->with($properties);
@@ -596,16 +596,16 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	{
 		return [
 
-			[ [ 'is_get' => true ] ],
-			[ [ 'is_head' => true ] ],
-			[ [ 'is_post' => true ] ],
-			[ [ 'is_put' => true ] ],
-			[ [ 'is_delete' => true ] ],
-			[ [ 'is_post' => true, 'is_xhr' => true ] ],
-			[ [ 'is_post' => true, 'is_xhr' => false ] ],
-			[ [ 'method' => Request::METHOD_CONNECT ] ],
-			[ [ 'uri' => '/path/to/something' ] ],
-			[ [ 'uri' => '/path/to/something-else' ] ],
+			[ [ Request::OPTION_IS_GET => true ] ],
+			[ [ Request::OPTION_IS_HEAD => true ] ],
+			[ [ Request::OPTION_IS_POST => true ] ],
+			[ [ Request::OPTION_IS_PUT => true ] ],
+			[ [ Request::OPTION_IS_DELETE => true ] ],
+			[ [ Request::OPTION_IS_POST => true, Request::OPTION_IS_XHR => true ] ],
+			[ [ Request::OPTION_IS_POST => true, Request::OPTION_IS_XHR => false ] ],
+			[ [ Request::OPTION_METHOD => Request::METHOD_CONNECT ] ],
+			[ [ Request::OPTION_URI => '/path/to/something' ] ],
+			[ [ Request::OPTION_URI => '/path/to/something-else' ] ],
 
 		];
 	}
@@ -614,9 +614,9 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	{
 		$r1 = Request::from([
 
-			'request_params' => [ 'rp1' => 'one', 'rp2' => 'two' ],
-			'query_params' => [ 'qp1' => 'one' ],
-			'path_params' => [ 'pp1' => 'one' ]
+			Request::OPTION_REQUEST_PARAMS => [ 'rp1' => 'one', 'rp2' => 'two' ],
+			Request::OPTION_QUERY_PARAMS => [ 'qp1' => 'one' ],
+			Request::OPTION_PATH_PARAMS => [ 'pp1' => 'one' ]
 
 		]);
 
@@ -624,8 +624,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 		$r2 = $r1->with([
 
-			'request_params' => [],
-			'path_params' => [ 'pp2' => 'two' ]
+			Request::OPTION_REQUEST_PARAMS => [],
+			Request::OPTION_PATH_PARAMS => [ 'pp2' => 'two' ]
 
 		]);
 
@@ -635,8 +635,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 		$r3 = $r2->with([
 
-			'query_params' => [],
-			'path_params' => []
+			Request::OPTION_QUERY_PARAMS => [],
+			Request::OPTION_PATH_PARAMS => []
 
 		]);
 
@@ -671,10 +671,10 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
 		$properties = [
 
-			'method' => Request::METHOD_POST,
-			'request_params' => $request_params,
-			'path_params' => [],
-			'query_params' => []
+			Request::OPTION_METHOD => Request::METHOD_POST,
+			Request::OPTION_REQUEST_PARAMS => $request_params,
+			Request::OPTION_PATH_PARAMS => [],
+			Request::OPTION_QUERY_PARAMS => []
 
 		];
 

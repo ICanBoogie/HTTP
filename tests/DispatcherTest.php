@@ -154,8 +154,8 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
 		$request = Request::from([
 
-			'uri' => '/with-message',
-			'is_head' => true
+			Request::OPTION_URI => '/with-message',
+			Request::OPTION_IS_HEAD => true
 
 		]);
 
@@ -170,7 +170,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
 		$request = Request::from([
 
-			'is_head' => true
+			Request::OPTION_IS_HEAD => true
 
 		]);
 
@@ -193,7 +193,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
 		$request = Request::from([
 
-			'is_head' => true
+			Request::OPTION_IS_HEAD => true
 
 		]);
 

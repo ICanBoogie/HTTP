@@ -68,11 +68,10 @@ $request = Request::from('path/to/file.html', $_SERVER);
 
 $request = Request::from([
 
-	'path' => 'path/to/file.html',
-	'is_local' => true,            // or 'ip' => '::1'
-	'is_post' => true,             // or 'method' => Request::METHOD_POST
-	'content_length' => 123,
-	'headers' => [
+	Request::OPTION_PATH => 'path/to/file.html',
+	Request::OPTION_IS_LOCAL => true,            // or 'ip' => '::1'
+	Request::OPTION_IS_POST => true,             // or 'method' => Request::METHOD_POST
+	Request::OPTION_HEADERS => [
 
 		'Cache-Control' => 'no-cache'
 
@@ -97,8 +96,8 @@ use ICanBoogie\HTTP\Request;
 
 $request = Request::from($_SERVER)->with([
 
-	'is_head' => true,
-	'is_xhr' => true
+	Request::OPTION_IS_HEAD => true,
+	Request::OPTION_IS_XHR => true
 
 ]);
 ```
@@ -176,7 +175,7 @@ $request = Request::from($_SERVER);
 
 $request = Request::from([
 
-	'files' => [
+	Request::OPTION_FILES => [
 
 		'uploaded' => [ 'pathname' => '/path/to/my/example.zip' ]
 

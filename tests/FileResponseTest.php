@@ -63,7 +63,7 @@ class FileResponseTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_invoke($cache_control, $is_modified, $expected)
 	{
-		$request = Request::from([ 'headers' => [ 'Cache-Control' => $cache_control ] ]);
+		$request = Request::from([ Request::OPTION_HEADERS => [ 'Cache-Control' => $cache_control ] ]);
 
 		$response = $this
 			->getMockBuilder(FileResponse::class)
@@ -113,7 +113,7 @@ class FileResponseTest extends \PHPUnit_Framework_TestCase
 			->method('get_is_total')
 			->willReturn($is_total);
 
-		$request = Request::from([ 'headers' => [ 'Cache-Control' => $cache_control ] ]);
+		$request = Request::from([ Request::OPTION_HEADERS => [ 'Cache-Control' => $cache_control ] ]);
 
 		$response = $this
 			->getMockBuilder(FileResponse::class)
@@ -286,7 +286,7 @@ class FileResponseTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_get_is_modified($expected, $request_headers, $modified_time = null, $etag = null)
 	{
-		$request = Request::from([ 'headers' => $request_headers ]);
+		$request = Request::from([ Request::OPTION_HEADERS => $request_headers ]);
 		$response = $this
 			->getMockBuilder(FileResponse::class)
 			->setConstructorArgs([ create_file(), $request ])
@@ -364,7 +364,7 @@ class FileResponseTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_accept_ranges($method, $type)
 	{
-		$request = Request::from([ 'uri' => '/', 'method' => $method ]);
+		$request = Request::from([ Request::OPTION_URI => '/', 'method' => $method ]);
 
 		$response = $this
 			->getMockBuilder(FileResponse::class)
@@ -402,7 +402,7 @@ class FileResponseTest extends \PHPUnit_Framework_TestCase
 
 		$request = Request::from([
 
-			'headers' => [
+			Request::OPTION_HEADERS => [
 
 				'Range' => "bytes=$bytes",
 				'If-Range' => $etag
