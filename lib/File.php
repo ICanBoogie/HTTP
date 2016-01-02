@@ -30,7 +30,7 @@ use ICanBoogie\ToArray;
  * @property-read bool $is_valid `true` if the file is valid, `false` otherwise.
  * See: {@link is_valid()}.
  */
-class File implements ToArray
+class File implements ToArray, FileOptions
 {
 	use AccessorTrait;
 
@@ -52,7 +52,7 @@ class File implements ToArray
 		{
 			$properties = isset($_FILES[$properties_or_name])
 			? $_FILES[$properties_or_name]
-			: [ 'name' => basename($properties_or_name) ];
+			: [ self::OPTION_NAME => basename($properties_or_name) ];
 		}
 		else if (is_array($properties_or_name))
 		{
@@ -73,9 +73,18 @@ class File implements ToArray
 	 */
 	static private function filter_initial_properties(array $properties)
 	{
-		static $initial_properties = [ 'name', 'type', 'size', 'tmp_name', 'error', 'pathname' ];
+		static $initial_properties = [
 
-		return array_intersect_key($properties, array_combine($initial_properties, $initial_properties));
+			self::OPTION_NAME,
+			self::OPTION_TYPE,
+			self::OPTION_SIZE,
+			self::OPTION_TMP_NAME,
+			self::OPTION_ERROR,
+			self::OPTION_PATHNAME
+
+		];
+
+		return array_intersect_key($properties, array_fill_keys($initial_properties, true));
 	}
 
 	/**

@@ -20,7 +20,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_get_extension($expected, $pathname)
 	{
-		$file = File::from([ 'pathname' => $pathname ]);
+		$file = File::from([ File::OPTION_PATHNAME => $pathname ]);
 
 		$this->assertEquals($expected, $file->extension);
 	}
@@ -44,7 +44,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_match($expected, $against)
 	{
-		$file = File::from([ 'pathname' => '/path/to/example.zip' ]);
+		$file = File::from([ File::OPTION_PATHNAME => '/path/to/example.zip' ]);
 
 		$this->assertEquals($expected, $file->match($against));
 	}
@@ -79,7 +79,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_error_message($error, $expected)
 	{
-		$file = File::from([ 'error' => $error ]);
+		$file = File::from([ File::OPTION_ERROR => $error ]);
 
 		$this->assertEquals($error, $file->error);
 
@@ -129,7 +129,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 
 				[
 
-					'pathname' => __FILE__
+					File::OPTION_PATHNAME => __FILE__
 
 				],
 
@@ -152,8 +152,8 @@ class FileTest extends \PHPUnit_Framework_TestCase
 
 				[
 
-					'pathname' => '/path/to/image.png',
-					'size' => 1234
+					File::OPTION_PATHNAME => '/path/to/image.png',
+					File::OPTION_SIZE => 1234
 
 				],
 
@@ -176,7 +176,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 
 				[
 
-					'error' => UPLOAD_ERR_NO_FILE
+					File::OPTION_ERROR => UPLOAD_ERR_NO_FILE
 
 				],
 
@@ -204,7 +204,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_write_readonly_properties($property)
 	{
-		$file = File::from([ 'pathname' => __FILE__ ]);
+		$file = File::from([ File::OPTION_PATHNAME => __FILE__ ]);
 		$file->$property = null;
 	}
 
@@ -213,7 +213,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_read_readonly_properties($property)
 	{
-		$file = File::from([ 'pathname' => __FILE__ ]);
+		$file = File::from([ File::OPTION_PATHNAME => __FILE__ ]);
 		$file->$property;
 	}
 
@@ -233,7 +233,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 
 		copy(__FILE__, $pathname);
 
-		$file = File::from([ 'pathname' => $pathname ]);
+		$file = File::from([ File::OPTION_PATHNAME => $pathname ]);
 
 		$this->assertEquals($pathname, $file->pathname);
 		$this->assertEquals(basename($pathname), $file->name);
@@ -271,8 +271,8 @@ class FileTest extends \PHPUnit_Framework_TestCase
 
 		$file = File::from([
 
-			'pathname' => create_file(),
-			'type' => $expected
+			File::OPTION_PATHNAME => create_file(),
+			File::OPTION_TYPE => $expected
 
 		]);
 
@@ -285,8 +285,8 @@ class FileTest extends \PHPUnit_Framework_TestCase
 
 		$file = File::from([
 
-			'pathname' => create_file(),
-			'size' => $expected
+			File::OPTION_PATHNAME => create_file(),
+			File::OPTION_SIZE => $expected
 
 		]);
 
@@ -312,7 +312,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 
 		$expected = file_get_contents($p1);
 
-		$file = File::from([ 'pathname' => $p1 ]);
+		$file = File::from([ File::OPTION_PATHNAME => $p1 ]);
 		$file->move($p2, File::MOVE_OVERWRITE);
 
 		$this->assertFileNotExists($p1);

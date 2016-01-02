@@ -41,7 +41,7 @@ $response = $dispatcher($request);
 $response();
 ```
 
-> You might want to check the [icanboogie/routing][] package if you require a nice router.
+> **Note:** You might want to check the [icanboogie/routing][] package if you require a nice router.
 
 
 
@@ -69,8 +69,8 @@ $request = Request::from('path/to/file.html', $_SERVER);
 $request = Request::from([
 
 	Request::OPTION_PATH => 'path/to/file.html',
-	Request::OPTION_IS_LOCAL => true,            // or 'ip' => '::1'
-	Request::OPTION_IS_POST => true,             // or 'method' => Request::METHOD_POST
+	Request::OPTION_IS_LOCAL => true,            // or OPTION_IP => '::1'
+	Request::OPTION_IS_POST => true,             // or OPTION_METHOD => Request::METHOD_POST
 	Request::OPTION_HEADERS => [
 
 		'Cache-Control' => 'no-cache'
@@ -164,10 +164,13 @@ foreach ($request as $parameter => $value)
 
 Files associated with a request are collected in a [FileList][] instance. The initial request
 created with `$_SERVER` obtain its files from `$_FILES`. For custom requests, files are defined
-using the `files` keyword.
+using `OPTION_FILES`.
 
 ```php
 <?php
+
+use ICanBoogie\HTTP\FileOptions as File;
+use ICanBoogie\HTTP\Request;
 
 $request = Request::from($_SERVER);
 
@@ -177,7 +180,7 @@ $request = Request::from([
 
 	Request::OPTION_FILES => [
 
-		'uploaded' => [ 'pathname' => '/path/to/my/example.zip' ]
+		'uploaded' => [ File::OPTION_PATHNAME => '/path/to/my/example.zip' ]
 
 	]
 
