@@ -22,7 +22,7 @@ class ProvideDispatcherTest extends \PHPUnit_Framework_TestCase
 	{
 		$this->events = new EventCollection;
 
-		EventCollectionProvider::using(function() {
+		EventCollectionProvider::define(function() {
 
 			return $this->events;
 

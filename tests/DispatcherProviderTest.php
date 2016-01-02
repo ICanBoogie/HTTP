@@ -15,7 +15,7 @@ class DispatcherProviderTest extends \PHPUnit_Framework_TestCase
 {
 	public function tearDown()
 	{
-		DispatcherProvider::clear();
+		DispatcherProvider::undefine();
 	}
 
 	/**
@@ -31,12 +31,12 @@ class DispatcherProviderTest extends \PHPUnit_Framework_TestCase
 		$provider1 = function() { };
 		$provider2 = function() { };
 
-		$this->assertFalse(DispatcherProvider::defined());
+		$this->assertNull(DispatcherProvider::defined());
 		$this->assertNull(DispatcherProvider::define($provider1));
 		$this->assertSame($provider1, DispatcherProvider::define($provider2));
-		$this->assertTrue(DispatcherProvider::defined());
+		$this->assertSame($provider2, DispatcherProvider::defined());
 
-		DispatcherProvider::clear();
+		DispatcherProvider::undefine();
 		$this->assertNull(DispatcherProvider::define($provider1));
 	}
 

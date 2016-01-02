@@ -1,10 +1,10 @@
 # HTTP
 
 [![Release](https://img.shields.io/packagist/v/icanboogie/http.svg)](https://packagist.org/packages/icanboogie/http)
-[![Build Status](https://img.shields.io/travis/ICanBoogie/HTTP/2.6.svg)](http://travis-ci.org/ICanBoogie/HTTP)
+[![Build Status](https://img.shields.io/travis/ICanBoogie/HTTP/master.svg)](http://travis-ci.org/ICanBoogie/HTTP)
 [![HHVM](https://img.shields.io/hhvm/icanboogie/http.svg)](http://hhvm.h4cc.de/package/icanboogie/http)
-[![Code Quality](https://img.shields.io/scrutinizer/g/ICanBoogie/HTTP/2.6.svg)](https://scrutinizer-ci.com/g/ICanBoogie/HTTP/?branch=2.5)
-[![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/HTTP/2.6.svg)](https://coveralls.io/r/ICanBoogie/HTTP)
+[![Code Quality](https://img.shields.io/scrutinizer/g/icanboogie/http.svg)](https://scrutinizer-ci.com/g/ICanBoogie/HTTP)
+[![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/HTTP.svg)](https://coveralls.io/r/ICanBoogie/HTTP)
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/http.svg)](https://packagist.org/packages/icanboogie/http)
 
 The **icanboogie/http** package provides an API to handle HTTP requests. It provides representations for requests, request files, responses, and headers. A request dispatcher is also provided, that can be used with your favorite routing solution with very little effort.
@@ -687,7 +687,7 @@ DispatcherProvider::define(function() use ($domain_dispatchers) {
 
 });
 
-get_dispatcher() === DispatcherProvider::provider();   // true
+get_dispatcher() === DispatcherProvider::provide();   // true
 ```
 
 
@@ -1037,8 +1037,8 @@ the `make clean` command.
 
 The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
-[![Build Status](https://img.shields.io/travis/ICanBoogie/HTTP/2.6.svg)](https://travis-ci.org/ICanBoogie/HTTP)
-[![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/HTTP/2.6.svg)](https://coveralls.io/r/ICanBoogie/HTTP)
+[![Build Status](https://img.shields.io/travis/ICanBoogie/HTTP/master.svg)](https://travis-ci.org/ICanBoogie/HTTP)
+[![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/HTTP.svg)](https://coveralls.io/r/ICanBoogie/HTTP)
 
 
 

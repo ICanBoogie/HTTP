@@ -29,6 +29,6 @@ class HelpersTest extends \PHPUnit_Framework_TestCase
 
 		$this->assertSame($other_dispatcher, get_dispatcher());
 
-		DispatcherProvider::clear();
+		DispatcherProvider::undefine();
 	}
 }

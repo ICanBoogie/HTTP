@@ -28,6 +28,7 @@ doc: vendor
 	@mkdir -p build/docs
 	@apigen generate \
 	--source lib \
+	--source helpers.php \
 	--destination build/docs/ \
 	--title "$(PACKAGE_NAME) v$(PACKAGE_VERSION)" \
 	--template-theme "bootstrap"

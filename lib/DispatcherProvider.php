@@ -24,11 +24,11 @@ class DispatcherProvider
 	/**
 	 * Whether a provider if defined.
 	 *
-	 * @return bool
+	 * @return callable|null
 	 */
 	static public function defined()
 	{
-		return isset(self::$provider);
+		return self::$provider;
 	}
 
 	/**
@@ -48,6 +48,14 @@ class DispatcherProvider
 	}
 
 	/**
+	 * Undefine the {@link Dispatcher} provider.
+	 */
+	static public function undefine()
+	{
+		self::$provider = null;
+	}
+
+	/**
 	 * Returns a {@link Dispatcher} instance using the provider.
 	 *
 	 * @return Dispatcher
@@ -64,13 +72,5 @@ class DispatcherProvider
 		}
 
 		return $provider();
-	}
-
-	/**
-	 * Clears the provider.
-	 */
-	static public function clear()
-	{
-		self::$provider = null;
 	}
 }
