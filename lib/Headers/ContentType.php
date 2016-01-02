@@ -27,10 +27,17 @@ namespace ICanBoogie\HTTP\Headers;
  * $ct = ContentType::from("text/plain; charset=iso-8859-1");
  * echo $ct->type;           // text/plain
  * echo $ct->charset;        // iso-8859-1
+ *
+ * $ct = new ContentType;
+ * $ct->type = "text/html";
+ * $ct->charset = "utf-8";
+ * $ct->boundary = "---123";
+ * echo $ct;                 // text/html; charset=utf-8; boundary=---123
  * </pre>
  *
  * @property $type string Media type of the entity-body.
  * @property $charset string Charset of the entity-body.
+ * @property $boundary string Boundary used to separate multipart content.
  *
  * @see http://tools.ietf.org/html/rfc2616#section-14.17
  */
@@ -46,6 +53,7 @@ class ContentType extends Header
 	public function __construct($value=null, array $attributes=[])
 	{
 		$this->parameters['charset'] = new HeaderParameter('charset');
+		$this->parameters['boundary'] = new HeaderParameter('boundary');
 
 		parent::__construct($value, $attributes);
 	}

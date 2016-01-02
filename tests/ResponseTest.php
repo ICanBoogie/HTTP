@@ -183,6 +183,8 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	 * instance.
 	 *
 	 * @dataProvider provide_test_no_content_length
+	 *
+	 * @param mixed $body
 	 */
 	public function test_no_content_length($body)
 	{
@@ -357,5 +359,32 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 			->willThrowException($exception);
 
 		$this->assertEquals($exception->getMessage(), (string) $response);
+	}
+
+	public function test_to_string()
+	{
+		$r = new Response(function() {
+
+			echo file_get_contents(__FILE__);
+
+		}, 200, [
+
+			'Content-Type' => 'application/x-php',
+			'Content-Length' => filesize(__FILE__)
+
+		]);
+
+		$expected = "HTTP/1.0 200 OK\r\nContent-Type: application/x-php\r\nContent-Length: "
+		. filesize(__FILE__) . "\r\n\r\n"
+		. file_get_contents(__FILE__);
+
+		$this->assertEquals($expected, (string) $r);
+	}
+
+	public function test_to_string_without_header()
+	{
+		$r = new Response("BODY", Response::STATUS_OK);
+
+		$this->assertEquals("HTTP/1.0 200 OK\r\n\r\nBODY", (string) $r);
 	}
 }

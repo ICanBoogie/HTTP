@@ -25,6 +25,7 @@ class ContentTypeTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals($values[0], $h->value);
 		$this->assertEquals($values[0], $h->type);
 		$this->assertEquals($values[1], $h->charset);
+		$this->assertEquals($values[2], $h->boundary);
 
 		$this->assertEquals($source, (string) $h);
 	}
@@ -36,6 +37,7 @@ class ContentTypeTest extends \PHPUnit_Framework_TestCase
 			[ 'text/html', [
 
 				'text/html',
+				null,
 				null
 
 			] ],
@@ -43,16 +45,26 @@ class ContentTypeTest extends \PHPUnit_Framework_TestCase
 			[ 'text/html; charset=utf-8', [
 
 				'text/html',
-				'utf-8'
+				'utf-8',
+				null
 
 			] ],
 
 			[ 'text/plain; charset=iso-8859-1', [
 
 				'text/plain',
-				'iso-8859-1'
+				'iso-8859-1',
+				null
 
-			] ]
+			] ],
+
+			[ 'text/plain; charset=utf-8; boundary=-----123456789', [
+
+				'text/plain',
+				'utf-8',
+				'-----123456789'
+
+			] ],
 		];
 	}
 
