@@ -7,9 +7,12 @@
 [![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/HTTP.svg)](https://coveralls.io/r/ICanBoogie/HTTP)
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/http.svg)](https://packagist.org/packages/icanboogie/http)
 
-The **icanboogie/http** package provides an API to handle HTTP requests. It provides representations for requests, request files, responses, and headers. A request dispatcher is also provided, that can be used with your favorite routing solution with very little effort.
+The **icanboogie/http** package provides an API to handle HTTP requests. It provides representations
+for requests, request files, responses, and headers. A request dispatcher is also provided, that can
+be used with your favorite routing solution with very little effort.
 
-The following example demonstrates how you can simply use a closure to create a _Hello world!_ application:
+The following example demonstrates how you can simply use a closure to create a _Hello world!_
+application:
 
 ```php
 <?php
@@ -256,6 +259,39 @@ $file->to_array();
 	'error_message' => null
 ]
 */
+```
+
+
+
+
+
+### Safe and idempotent requests
+
+Safe methods are HTTP methods that do not modify resources. For instance, using `GET` or `HEAD` on a
+resource URL, should NEVER change the resource.
+
+The `is_safe` property may be used to check if a request is safe or not.
+
+```php
+<?php
+
+Request::from([ Request::OPTION_METHOD => Request::METHOD_GET ])->is_safe; // true
+Request::from([ Request::OPTION_METHOD => Request::METHOD_POST ])->is_safe; // false
+Request::from([ Request::OPTION_METHOD => Request::METHOD_DELETE ])->is_safe; // false
+```
+
+An idempotent HTTP method is a HTTP method that can be called many times without different outcomes.
+It would not matter if the method is called only once, or ten times over. The result should be the
+same.
+
+The `is_idempotent` property may be used to check if a request is idempotent or not.
+
+```php
+<?php
+
+Request::from([ Request::OPTION_METHOD => Request::METHOD_GET ])->is_idempotent; // true
+Request::from([ Request::OPTION_METHOD => Request::METHOD_POST ])->is_idempotent; // false
+Request::from([ Request::OPTION_METHOD => Request::METHOD_DELETE ])->is_idempotent; // true
 ```
 
 

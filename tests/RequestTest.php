@@ -402,6 +402,62 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
+	 * @dataProvider provide_test_get_is_safe
+	 *
+	 * @param string $method
+	 * @param bool $expected
+	 */
+	public function test_get_is_safe($method, $expected)
+	{
+		$this->assertSame($expected, Request::from([ Request::OPTION_METHOD => $method ])->is_safe);
+	}
+
+	public function provide_test_get_is_safe()
+	{
+		return [
+
+			[ Request::METHOD_CONNECT, true ],
+			[ Request::METHOD_DELETE,  false ],
+			[ Request::METHOD_GET,     true ],
+			[ Request::METHOD_HEAD,    true ],
+			[ Request::METHOD_OPTIONS, true ],
+			[ Request::METHOD_PATCH,   false ],
+			[ Request::METHOD_POST,    false ],
+			[ Request::METHOD_PUT,     false ],
+			[ Request::METHOD_TRACE,   true ],
+
+		];
+	}
+
+	/**
+	 * @dataProvider provide_test_get_is_idempotent
+	 *
+	 * @param string $method
+	 * @param bool $expected
+	 */
+	public function test_get_is_idempotent($method, $expected)
+	{
+		$this->assertSame($expected, Request::from([ Request::OPTION_METHOD => $method ])->is_idempotent);
+	}
+
+	public function provide_test_get_is_idempotent()
+	{
+		return [
+
+			[ Request::METHOD_CONNECT, true ],
+			[ Request::METHOD_DELETE,  true ],
+			[ Request::METHOD_GET,     true ],
+			[ Request::METHOD_HEAD,    true ],
+			[ Request::METHOD_OPTIONS, true ],
+			[ Request::METHOD_PATCH,   false ],
+			[ Request::METHOD_POST,    false ],
+			[ Request::METHOD_PUT,     true ],
+			[ Request::METHOD_TRACE,   true ],
+
+		];
+	}
+
+	/**
 	 * @dataProvider provide_test_get_is_local
 	 *
 	 * @param string $ip

@@ -65,6 +65,8 @@ use ICanBoogie\Prototype\MethodNotDefined;
  * @property-read boolean $is_post Is this a `POST` request?
  * @property-read boolean $is_put Is this a `PUT` request?
  * @property-read boolean $is_trace Is this a `TRACE` request?
+ * @property-read boolean $is_safe Is the request method considered safe?
+ * @property-read boolean $is_idempotent Is the request method considered idempotent?
  * @property-read boolean $is_local Is this a local request?
  * @property-read boolean $is_xhr Is this an Ajax request?
  * @property-read string $method Method of the request.
@@ -764,6 +766,42 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	protected function get_is_trace()
 	{
 		return $this->method == self::METHOD_TRACE;
+	}
+
+	/**
+	 * Whether the request method is idempotent.
+	 *
+	 * @return bool
+	 *
+	 * @see http://restcookbook.com/HTTP%20Methods/idempotency/
+	 */
+	protected function get_is_idempotent()
+	{
+		return !in_array($this->method, [
+
+			self::METHOD_PATCH,
+			self::METHOD_POST
+
+		]);
+	}
+
+	/**
+	 * Whether the request method is safe.
+	 *
+	 * @return bool
+	 *
+	 * @see http://restcookbook.com/HTTP%20Methods/idempotency/
+	 */
+	protected function get_is_safe()
+	{
+		return !in_array($this->method, [
+
+			self::METHOD_DELETE,
+			self::METHOD_PATCH,
+			self::METHOD_POST,
+			self::METHOD_PUT
+
+		]);
 	}
 
 	/**
