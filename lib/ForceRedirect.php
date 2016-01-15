@@ -33,6 +33,18 @@ class ForceRedirect extends \Exception implements Exception
 	{
 		$this->location = $location;
 
-		parent::__construct(\ICanBoogie\format("Location: %location", [ 'location' => $location ]), $code, $previous);
+		parent::__construct($this->format_message($location), $code, $previous);
+	}
+
+	/**
+	 * Formats exception message.
+	 *
+	 * @param string $location
+	 *
+	 * @return string
+	 */
+	protected function format_message($location)
+	{
+		return \ICanBoogie\format("Location: %location", [ 'location' => $location ]);
 	}
 }
