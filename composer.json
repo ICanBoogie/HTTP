@@ -19,13 +19,13 @@
 	},
 	"minimum-stability": "dev",
 	"require": {
-		"php": ">=5.5.0",
-		"icanboogie/prototype": "^2.3.0",
-		"icanboogie/event": "^1.4.0|^2.0.0",
-		"icanboogie/datetime": "^1.2.0"
+		"php": ">=5.5",
+		"icanboogie/prototype": "^2.3",
+		"icanboogie/event": "^1.4|^2.0",
+		"icanboogie/datetime": "^1.2"
 	},
 	"require-dev": {
-		"icanboogie/event": "^2.0.0"
+		"icanboogie/event": "^2.0"
 	},
 	"autoload": {
 		"psr-4": {
