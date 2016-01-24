@@ -60,3 +60,51 @@ function get_initial_request()
 
 	return $initial_request;
 }
+
+/**
+ * Flattens a nested parameters array.
+ *
+ * @param $array
+ */
+function array_flatten(&$array)
+{
+	do
+	{
+		$has_array = false;
+
+		foreach ($array as $key => $value)
+		{
+			if (is_array($value))
+			{
+				$has_array = true;
+
+				foreach ($value as $k => $v)
+				{
+					unset($array[$key]);
+
+					$array[$key . "[$k]"] = $v;
+				}
+			}
+		}
+	}
+	while ($has_array);
+}
+
+/**
+ * Normalizes a parameters array.
+ *
+ * String values which once trimmed are empty are replaced by `null`.
+ *
+ * @param $array
+ */
+function array_normalize(&$array)
+{
+	array_walk_recursive($array, function(&$value) {
+
+		if (is_string($value) && trim($value) === '')
+		{
+			$value = null;
+		}
+
+	});
+}

@@ -695,6 +695,27 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 		$this->assertSame([ ], $request3->params);
 	}
 
+	public function test_transform_params()
+	{
+		$request = Request::from([ Request::OPTION_REQUEST_PARAMS => [
+
+			'a' => [ 'aa' => [ 1 ] ],
+			'b' => '',
+			'c' => '   ',
+			'd' => "123"
+
+		] ]);
+
+		$this->assertEquals([
+
+			'a[aa][0]' => 1,
+			'b' => null,
+			'c' => null,
+			'd' => "123",
+
+		], $request->transform_params(Request::TRANSFORM_NORMALIZE | Request::TRANSFORM_FLATTEN));
+	}
+
 	/**
 	 * @expectedException \InvalidArgumentException
 	 */

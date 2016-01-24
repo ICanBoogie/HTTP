@@ -192,8 +192,35 @@ foreach ($request as $parameter => $value)
 }
 ```
 
+Finally, the `transform_params()` method returns a flattened and/or normalized parameters array:
 
+```php
+<?php
 
+$request = Request::from([ Request::OPTION_REQUEST_PARAMS => [
+
+	'a' => [ 'aa' => [ 1 ] ],
+	'b' => '',
+	'c' => '   ',
+	'd' => "123"
+
+] ]);
+
+var_dump($request->transform_params(Request::TRANSFORM_NORMALIZE | Request::TRANSFORM_FLATTEN));
+```
+
+```
+array(4) {
+  'a[aa][0]' =>
+  int(1)
+  'b' =>
+  NULL
+  'c' =>
+  NULL
+  'd' =>
+  string(3) "123"
+}
+```
 
 
 ### Request files
@@ -1037,6 +1064,10 @@ The following helpers are available:
 the method defines a new instance of [ProvideDispatcher][] as provider and use it to retrieve the
 dispatcher.
 * [`get_initial_request()`][]: Returns the initial request.
+* [`array_flatten()`][]: Flattens a nested parameters array to match how it would be defined in
+a form markup.
+* [`array_normalize()`][]: Normalizes a parameters array. String values which once trimmed are empty
+* are replaced by `null`.
 
 ```php
 <?php
@@ -1163,6 +1194,8 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [ServiceUnavailable]:            http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.ServiceUnavailable.html
 [StatusCodeNotValid]:            http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.StatusCodeNotValid.html
 [Status]:                        http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.Status.html
+[`array_flatten()`]:             http://api.icanboogie.org/http/2.7/function-ICanBoogie.HTTP.array_flatten.html
+[`array_normalize()`]:           http://api.icanboogie.org/http/2.7/function-ICanBoogie.HTTP.array_normalize.html
 [`dispatch()`]:                  http://api.icanboogie.org/http/2.7/function-ICanBoogie.HTTP.dispatch.html
 [`get_dispatcher()`]:            http://api.icanboogie.org/http/2.7/function-ICanBoogie.HTTP.get_dispatcher.html
 [`get_initial_request()`]:       http://api.icanboogie.org/http/2.7/function-ICanBoogie.HTTP.get_initial_request.html

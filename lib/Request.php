@@ -87,6 +87,9 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 {
 	use AccessorTrait;
 
+	const TRANSFORM_NORMALIZE = 1;
+	const TRANSFORM_FLATTEN = 2;
+
 	static public $methods = [
 
 		self::METHOD_CONNECT,
@@ -339,7 +342,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 
 		if ($this->params === null)
 		{
-			$this->params = $this->path_params + $this->request_params + $this->query_params;
+			$this->params = $this->lazy_get_params();
 		}
 	}
 
@@ -953,5 +956,29 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	protected function lazy_get_params()
 	{
 		return $this->path_params + $this->request_params + $this->query_params;
+	}
+
+	/**
+	 * Transform params.
+	 *
+	 * @param int $flags A combination of `Request::TRANSFORM_*` flags.
+	 *
+	 * @return array
+	 */
+	public function transform_params($flags = 0)
+	{
+		$params = $this->params;
+
+		if ($flags & self::TRANSFORM_FLATTEN)
+		{
+			array_flatten($params);
+		}
+
+		if ($flags & self::TRANSFORM_NORMALIZE)
+		{
+			array_normalize($params);
+		}
+
+		return $params;
 	}
 }
