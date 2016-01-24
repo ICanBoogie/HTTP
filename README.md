@@ -319,6 +319,49 @@ $response = $request->post([ 'param' => 'value' ]);
 
 
 
+## Request context
+
+Because requests may be nested the request context offers a safe place where you can store the state
+of your application that is relative to a request, for instance a request relative site, page,
+route, dispatcher… The context may be used as an array, but is also a prototyped instance.
+
+The following example demonstrates how to store a value in a request context:
+
+```php
+<?php
+
+use ICanBoogie\HTTP\Request;
+
+$request = Request::from($_SERVER);
+$request->context['site'] = $app->models['sites']->one;
+```
+
+The following example demonstrates how to use the prototype feature to provide a value when it is
+requested from the context:
+
+```php
+<?php
+
+use ICanBoogie\HTTP\Request\Context;
+use ICanBoogie\Prototype;
+
+Prototype::from(Context::class)['lazy_get_site'] = function(Context $context) use ($site_model) {
+
+	return $site_model->resolve_from_request($context->request);
+
+};
+
+$request = Request::from($_SERVER);
+
+$site = $request->context['site'];
+# or
+$site = $request->context->site;
+```
+
+
+
+
+
 ## Response
 
 The response to a request is represented by a [Response][] instance. The response body can

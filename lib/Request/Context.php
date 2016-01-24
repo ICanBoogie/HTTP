@@ -13,6 +13,7 @@ namespace ICanBoogie\HTTP\Request;
 
 use ICanBoogie\HTTP\Dispatcher;
 use ICanBoogie\HTTP\Request;
+use ICanBoogie\PropertyNotDefined;
 use ICanBoogie\PrototypeTrait;
 
 /**
@@ -24,7 +25,7 @@ use ICanBoogie\PrototypeTrait;
  * @property-read Request $request The request associated with the context.
  * @property Dispatcher $dispatcher The dispatcher currently dispatching the request.
  */
-class Context
+class Context implements \ArrayAccess
 {
 	use PrototypeTrait;
 
@@ -75,5 +76,46 @@ class Context
 	public function __construct(Request $request)
 	{
 		$this->request = $request;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function offsetExists($property)
+	{
+		try
+		{
+			$this->$property;
+
+			return true;
+		}
+		catch (PropertyNotDefined $e)
+		{
+			return false;
+		}
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function offsetGet($property)
+	{
+		return $this->$property;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function offsetSet($property, $value)
+	{
+		$this->$property = $value;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function offsetUnset($property)
+	{
+		unset($this->$property);
 	}
 }
