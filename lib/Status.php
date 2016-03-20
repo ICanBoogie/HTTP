@@ -14,8 +14,6 @@ namespace ICanBoogie\HTTP;
 use ICanBoogie\Accessor\AccessorTrait;
 
 /**
- * Class Status
- *
  * @property int $code
  * @property string $message
  *
@@ -135,13 +133,13 @@ class Status
 	/**
 	 * Creates a new instance from the provided status.
 	 *
-	 * @param $status
+	 * @param mixed $status
 	 *
 	 * @return Status
 	 *
 	 * @throws \InvalidArgumentException When the HTTP status code is not valid.
 	 */
-	static public function from($status)
+	static public function from($status): Status
 	{
 		if ($status instanceof self)
 		{
@@ -174,11 +172,11 @@ class Status
 	/**
 	 * Asserts that a status code is valid.
 	 *
-	 * @param $code
+	 * @param int $code
 	 *
 	 * @throws StatusCodeNotValid if the status code is not valid.
 	 */
-	static private function assert_code_is_valid($code)
+	static private function assert_code_is_valid(int $code)
 	{
 		if ($code >= 100 && $code < 600)
 		{
@@ -195,7 +193,7 @@ class Status
 	 */
 	private $code;
 
-	protected function set_code($code)
+	protected function set_code(int $code)
 	{
 		self::assert_code_is_valid($code);
 
@@ -214,7 +212,7 @@ class Status
 	 *
 	 * @return bool
 	 */
-	protected function get_is_valid()
+	protected function get_is_valid(): bool
 	{
 		return $this->code >= 100 && $this->code < 600;
 	}
@@ -226,7 +224,7 @@ class Status
 	 *
 	 * @return bool
 	 */
-	protected function get_is_informational()
+	protected function get_is_informational(): bool
 	{
 		return $this->code >= 100 && $this->code < 200;
 	}
@@ -238,7 +236,7 @@ class Status
 	 *
 	 * @return bool
 	 */
-	protected function get_is_successful()
+	protected function get_is_successful(): bool
 	{
 		return $this->code >= 200 && $this->code < 300;
 	}
@@ -251,7 +249,7 @@ class Status
 	 *
 	 * @return bool
 	 */
-	protected function get_is_redirect()
+	protected function get_is_redirect(): bool
 	{
 		return $this->code >= 300 && $this->code < 400;
 	}
@@ -264,7 +262,7 @@ class Status
 	 *
 	 * @return bool
 	 */
-	protected function get_is_client_error()
+	protected function get_is_client_error(): bool
 	{
 		return $this->code >= 400 && $this->code < 500;
 	}
@@ -277,7 +275,7 @@ class Status
 	 *
 	 * @return bool
 	 */
-	protected function get_is_server_error()
+	protected function get_is_server_error(): bool
 	{
 		return $this->code >= 500 && $this->code < 600;
 	}
@@ -289,7 +287,7 @@ class Status
 	 *
 	 * @return bool
 	 */
-	protected function get_is_ok()
+	protected function get_is_ok(): bool
 	{
 		return $this->code == self::OK;
 	}
@@ -301,7 +299,7 @@ class Status
 	 *
 	 * @return bool
 	 */
-	protected function get_is_forbidden()
+	protected function get_is_forbidden(): bool
 	{
 		return $this->code == self::FORBIDDEN;
 	}
@@ -313,7 +311,7 @@ class Status
 	 *
 	 * @return bool
 	 */
-	protected function get_is_not_found()
+	protected function get_is_not_found(): bool
 	{
 		return $this->code == self::NOT_FOUND;
 	}
@@ -326,7 +324,7 @@ class Status
 	 *
 	 * @return bool
 	 */
-	protected function get_is_empty()
+	protected function get_is_empty(): bool
 	{
 		static $range = [
 
@@ -344,7 +342,7 @@ class Status
 	 *
 	 * @return bool
 	 */
-	protected function get_is_cacheable()
+	protected function get_is_cacheable(): bool
 	{
 		static $range = [
 
@@ -364,7 +362,7 @@ class Status
 	/**
 	 * Message describing the status code.
 	 *
-	 * @var string
+	 * @var string|null
 	 */
 	private $message;
 
@@ -373,7 +371,7 @@ class Status
 		$this->message = $message;
 	}
 
-	protected function get_message()
+	protected function get_message(): string
 	{
 		$message = $this->message;
 		$code = $this->code;
@@ -390,7 +388,7 @@ class Status
 	 * @param int $code
 	 * @param string|null $message
 	 */
-	public function __construct($code = self::OK, $message = null)
+	public function __construct(int $code = self::OK, string $message = null)
 	{
 		self::assert_code_is_valid($code);
 

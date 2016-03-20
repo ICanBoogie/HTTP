@@ -113,7 +113,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	/**
 	 * Returns the current request.
 	 *
-	 * @return Request
+	 * @return Request|null
 	 */
 	static public function get_current_request()
 	{
@@ -176,7 +176,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 */
 	protected $files;
 
-	protected function get_files()
+	protected function get_files(): FileList
 	{
 		if ($this->files instanceof FileList)
 		{
@@ -249,7 +249,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @return Request
 	 */
-	static protected function from_server()
+	static protected function from_server(): Request
 	{
 		return static::from([
 
@@ -270,7 +270,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @return Request
 	 */
-	static protected function from_uri($uri, array $env)
+	static protected function from_uri($uri, array $env): Request
 	{
 		return static::from([ self::OPTION_URI => $uri ], $env);
 	}
@@ -283,7 +283,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @return Request
 	 */
-	static protected function from_options(array $options, array $env)
+	static protected function from_options(array $options, array $env): Request
 	{
 		if ($options)
 		{
@@ -306,7 +306,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	/**
 	 * @return RequestOptionsMapper
 	 */
-	static protected function get_options_mapper()
+	static protected function get_options_mapper(): RequestOptionsMapper
 	{
 		return self::$options_mapper ?: self::$options_mapper = new RequestOptionsMapper;
 	}
@@ -360,7 +360,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @return Response The response to the request.
 	 */
-	public function __invoke()
+	public function __invoke(): Response
 	{
 		return $this->send();
 	}
@@ -383,7 +383,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @throws \Exception re-throws exception raised during dispatch.
 	 */
-	public function send($method = null, array $params = null)
+	public function send(string $method = null, array $params = null): Response
 	{
 		$request = $this->adapt($method, $params);
 
@@ -412,7 +412,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @return Response
 	 */
-	protected function dispatch()
+	protected function dispatch(): Response
 	{
 		return dispatch($this); // @codeCoverageIgnore
 	}
@@ -424,7 +424,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @throws MethodNotSupported
 	 */
-	private function assert_method($method)
+	private function assert_method(string $method)
 	{
 		if (!in_array($method, self::$methods))
 		{
@@ -441,7 +441,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @return Request
 	 */
-	public function with(array $options)
+	public function with(array $options): Request
 	{
 		$changed = clone $this;
 
@@ -461,13 +461,13 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	/**
 	 * Adapts the request to the specified method and params.
 	 *
-	 * @param string $method The method.
-	 * @param array $params The params.
+	 * @param string|null $method The method.
+	 * @param array|null $params The params.
 	 *
 	 * @return Request The same instance is returned if the method is the same and the params
 	 * are `null`. Otherwise a _changed_ request is returned.
 	 */
-	protected function adapt($method, array $params = null)
+	protected function adapt(string $method = null, array $params = null): Request
 	{
 		if ((!$method || $method == $this->method) && !$params)
 		{
@@ -581,7 +581,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	/**
 	 * Returns the parent request.
 	 *
-	 * @return Request
+	 * @return Request|null
 	 */
 	protected function get_parent()
 	{
@@ -593,7 +593,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @return Request\Context
 	 */
-	protected function get_context()
+	protected function get_context(): Request\Context
 	{
 		return $this->context;
 	}
@@ -603,7 +603,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @return Headers\CacheControl
 	 */
-	protected function get_cache_control()
+	protected function get_cache_control(): Headers\CacheControl
 	{
 		return $this->headers['Cache-Control'];
 	}
@@ -615,7 +615,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @return string
 	 */
-	protected function get_script_name()
+	protected function get_script_name(): string
 	{
 		return $this->env['SCRIPT_NAME'];
 	}
@@ -630,7 +630,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @return string
 	 */
-	protected function get_method()
+	protected function get_method(): string
 	{
 		$method = isset($this->env['REQUEST_METHOD']) ? $this->env['REQUEST_METHOD'] : self::METHOD_GET;
 
@@ -693,9 +693,9 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	/**
 	 * Checks if the request method is `DELETE`.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	protected function get_is_delete()
+	protected function get_is_delete(): bool
 	{
 		return $this->method == self::METHOD_DELETE;
 	}
@@ -703,9 +703,9 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	/**
 	 * Checks if the request method is `GET`.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	protected function get_is_get()
+	protected function get_is_get(): bool
 	{
 		return $this->method == self::METHOD_GET;
 	}
@@ -713,9 +713,9 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	/**
 	 * Checks if the request method is `HEAD`.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	protected function get_is_head()
+	protected function get_is_head(): bool
 	{
 		return $this->method == self::METHOD_HEAD;
 	}
@@ -723,9 +723,9 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	/**
 	 * Checks if the request method is `OPTIONS`.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	protected function get_is_options()
+	protected function get_is_options(): bool
 	{
 		return $this->method == self::METHOD_OPTIONS;
 	}
@@ -733,9 +733,9 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	/**
 	 * Checks if the request method is `PATCH`.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	protected function get_is_patch()
+	protected function get_is_patch(): bool
 	{
 		return $this->method == self::METHOD_PATCH;
 	}
@@ -743,9 +743,9 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	/**
 	 * Checks if the request method is `POST`.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	protected function get_is_post()
+	protected function get_is_post(): bool
 	{
 		return $this->method == self::METHOD_POST;
 	}
@@ -753,9 +753,9 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	/**
 	 * Checks if the request method is `PUT`.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	protected function get_is_put()
+	protected function get_is_put(): bool
 	{
 		return $this->method == self::METHOD_PUT;
 	}
@@ -763,9 +763,9 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	/**
 	 * Checks if the request method is `TRACE`.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	protected function get_is_trace()
+	protected function get_is_trace(): bool
 	{
 		return $this->method == self::METHOD_TRACE;
 	}
@@ -777,7 +777,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @see http://restcookbook.com/HTTP%20Methods/idempotency/
 	 */
-	protected function get_is_idempotent()
+	protected function get_is_idempotent(): bool
 	{
 		return !in_array($this->method, [
 
@@ -794,7 +794,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @see http://restcookbook.com/HTTP%20Methods/idempotency/
 	 */
-	protected function get_is_safe()
+	protected function get_is_safe(): bool
 	{
 		return !in_array($this->method, [
 
@@ -809,9 +809,9 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	/**
 	 * Checks if the request is a `XMLHTTPRequest`.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	protected function get_is_xhr()
+	protected function get_is_xhr(): bool
 	{
 		return !empty($this->env['HTTP_X_REQUESTED_WITH']) && preg_match('/XMLHttpRequest/', $this->env['HTTP_X_REQUESTED_WITH']);
 	}
@@ -819,9 +819,9 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	/**
 	 * Checks if the request is local.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	protected function get_is_local()
+	protected function get_is_local(): bool
 	{
 		$ip = $this->ip;
 
@@ -844,7 +844,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @return string
 	 */
-	protected function get_ip()
+	protected function get_ip(): string
 	{
 		$forwarded_for = $this->headers['X-Forwarded-For'];
 
@@ -858,6 +858,9 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 		return (isset($this->env['REMOTE_ADDR']) ? $this->env['REMOTE_ADDR'] : null) ?: '::1';
 	}
 
+	/**
+	 * @return string|null
+	 */
 	protected function get_authorization()
 	{
 		if (isset($this->env['HTTP_AUTHORIZATION']))
@@ -886,7 +889,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 * If the `REQUEST_URI` key is not defined by the environment, the value is fetched from
 	 * the `$_SERVER` array. If the key is not defined in the `$_SERVER` array `null` is returned.
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	protected function get_uri()
 	{
@@ -900,7 +903,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @return int
 	 */
-	protected function get_port()
+	protected function get_port(): int
 	{
 		return $this->env['REQUEST_PORT'];
 	}
@@ -910,7 +913,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @return string
 	 */
-	protected function get_path()
+	protected function get_path(): string
 	{
 		$uri = $this->uri;
 		$qs_pos = strpos($uri, '?');
@@ -924,7 +927,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @return string
 	 */
-	protected function get_normalized_path()
+	protected function get_normalized_path(): string
 	{
 		return normalize_url_path($this->path);
 	}
@@ -932,14 +935,14 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	/**
 	 * Returns the extension of the path info.
 	 *
-	 * @return mixed
+	 * @return string
 	 */
-	protected function get_extension()
+	protected function get_extension(): string
 	{
 		return pathinfo($this->path, PATHINFO_EXTENSION);
 	}
 
-	protected function lazy_set_params($params)
+	protected function lazy_set_params(array $params): array
 	{
 		return $params;
 	}
@@ -952,7 +955,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @return array
 	 */
-	protected function lazy_get_params()
+	protected function lazy_get_params(): array
 	{
 		return $this->path_params + $this->request_params + $this->query_params;
 	}

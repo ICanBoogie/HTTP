@@ -59,7 +59,7 @@ class FileResponse extends Response
 	 *
 	 * @return string A base64 string
 	 */
-	static public function hash_file($pathname)
+	static public function hash_file(string $pathname): string
 	{
 		return base64_encode(hash_file('sha384', $pathname, true));
 	}
@@ -72,7 +72,7 @@ class FileResponse extends Response
 	/**
 	 * @return \SplFileInfo
 	 */
-	protected function get_file()
+	protected function get_file(): \SplFileInfo
 	{
 		return $this->file;
 	}
@@ -93,7 +93,7 @@ class FileResponse extends Response
 	 * @param array $options
 	 * @param array $headers
 	 */
-	public function __construct($file, Request $request, array $options = [], $headers = [])
+	public function __construct($file, Request $request, array $options = [], array $headers = [])
 	{
 		$this->file = $file instanceof \SplFileInfo ? $file : new \SplFileInfo($file);
 		$this->request = $request;
@@ -255,7 +255,7 @@ class FileResponse extends Response
 	 *
 	 * @return array
 	 */
-	private function resolve_max_length_and_offset()
+	private function resolve_max_length_and_offset(): array
 	{
 		$range = $this->range;
 
@@ -273,7 +273,7 @@ class FileResponse extends Response
 	 *
 	 * @inheritdoc
 	 */
-	protected function get_content_type()
+	protected function get_content_type(): Headers\ContentType
 	{
 		$content_type = parent::get_content_type();
 
@@ -297,7 +297,7 @@ class FileResponse extends Response
 	 *
 	 * @return string
 	 */
-	protected function get_etag()
+	protected function get_etag(): string
 	{
 		return parent::get_etag() ?: self::hash_file($this->file->getPathname());
 	}
@@ -306,9 +306,9 @@ class FileResponse extends Response
 	 * If the date returned by the parent is empty the method returns a date created from
 	 * {@link DEFAULT_EXPIRES}.
 	 *
-	 * @return DateTime|Headers\Date
+	 * @inheritdoc
 	 */
-	protected function get_expires()
+	protected function get_expires(): DateTime
 	{
 		$expires = parent::get_expires();
 
@@ -325,7 +325,7 @@ class FileResponse extends Response
 	 *
 	 * @return int
 	 */
-	protected function get_modified_time()
+	protected function get_modified_time(): int
 	{
 		return $this->file->getMTime();
 	}
@@ -341,7 +341,7 @@ class FileResponse extends Response
 	 *
 	 * @return bool
 	 */
-	protected function get_is_modified()
+	protected function get_is_modified(): bool
 	{
 		/* @var $if_modified_since \ICanBoogie\DateTime */
 
@@ -364,7 +364,7 @@ class FileResponse extends Response
 	private $_range;
 
 	/**
-	 * @return RequestRange
+	 * @return RequestRange|null
 	 */
 	protected function get_range()
 	{

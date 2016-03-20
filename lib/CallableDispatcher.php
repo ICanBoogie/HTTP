@@ -16,12 +16,15 @@ namespace ICanBoogie\HTTP;
  */
 class CallableDispatcher implements Dispatcher
 {
+	/**
+	 * @var callable
+	 */
 	private $callable;
 
 	/**
 	 * @param callable $callable
 	 */
-	public function __construct($callable)
+	public function __construct(callable $callable)
 	{
 		$this->callable = $callable;
 	}
@@ -33,7 +36,7 @@ class CallableDispatcher implements Dispatcher
 	{
 		$callable = $this->callable;
 
-		return $callable instanceof \Closure ? $callable($request) : call_user_func($callable, $request);
+		return $callable($request);
 	}
 
 	/**

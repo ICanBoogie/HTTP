@@ -46,7 +46,7 @@ class File implements ToArray, FileOptions
 	 *
 	 * @return File
 	 */
-	static public function from($properties_or_name)
+	static public function from($properties_or_name): File
 	{
 		$properties = [];
 
@@ -73,7 +73,7 @@ class File implements ToArray, FileOptions
 	 *
 	 * @return array
 	 */
-	static private function filter_initial_properties(array $properties)
+	static private function filter_initial_properties(array $properties): array
 	{
 		static $initial_properties = [
 
@@ -137,7 +137,7 @@ class File implements ToArray, FileOptions
 	/**
 	 * Returns the name of the file, without its extension.
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	protected function get_unsuffixed_name()
 	{
@@ -178,7 +178,7 @@ class File implements ToArray, FileOptions
 	 * is guessed using the pathname of the file. If the pathname is not available the method
 	 * returns `null`.
 	 *
-	 * @return int|false The size of the file or `false` if it cannot be determined.
+	 * @return int|false|null The size of the file or `false` if it cannot be determined.
 	 */
 	protected function get_size()
 	{
@@ -205,9 +205,9 @@ class File implements ToArray, FileOptions
 	 * A file is considered valid if it has no error code, if it has a size,
 	 * if it has either a temporary name or a pathname and that the file actually exists.
 	 *
-	 * @return boolean `true` if the file is valid, `false` otherwise.
+	 * @return bool `true` if the file is valid, `false` otherwise.
 	 */
-	protected function get_is_valid()
+	protected function get_is_valid(): bool
 	{
 		return !$this->error
 		&& $this->size
@@ -268,7 +268,7 @@ class File implements ToArray, FileOptions
 	 *
 	 * @return array
 	 */
-	public function to_array()
+	public function to_array(): array
 	{
 		$error_message = $this->error_message;
 
@@ -294,7 +294,7 @@ class File implements ToArray, FileOptions
 	/**
 	 * Returns the error code.
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	protected function get_error()
 	{
@@ -370,9 +370,9 @@ class File implements ToArray, FileOptions
 	/**
 	 * Checks if a file is uploaded.
 	 *
-	 * @return boolean `true` if the file is uploaded, `false` otherwise.
+	 * @return bool `true` if the file is uploaded, `false` otherwise.
 	 */
-	protected function get_is_uploaded()
+	protected function get_is_uploaded(): bool
 	{
 		return $this->tmp_name && is_uploaded_file($this->tmp_name);
 	}
@@ -387,7 +387,7 @@ class File implements ToArray, FileOptions
 	 *
 	 * @return bool `true` if the file matches (or `$type` is empty), `false` otherwise.
 	 */
-	public function match($type)
+	public function match($type): bool
 	{
 		if (!$type)
 		{
@@ -419,7 +419,7 @@ class File implements ToArray, FileOptions
 	 *
 	 * @return bool `true` if the file matches, `false` otherwise.
 	 */
-	private function match_multiple(array $type_list)
+	private function match_multiple(array $type_list): bool
 	{
 		foreach ($type_list as $type)
 		{
@@ -441,7 +441,7 @@ class File implements ToArray, FileOptions
 	 *
 	 * @throws \Exception if the file failed to be moved.
 	 */
-	public function move($destination, $overwrite = self::MOVE_NO_OVERWRITE)
+	public function move(string $destination, $overwrite = self::MOVE_NO_OVERWRITE)
 	{
 		if (file_exists($destination))
 		{

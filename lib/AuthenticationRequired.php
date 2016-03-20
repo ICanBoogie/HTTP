@@ -21,7 +21,7 @@ class AuthenticationRequired extends ClientError implements SecurityError
 	/**
 	 * @inheritdoc
 	 */
-	public function __construct($message = "The requested URL requires authentication.", $code = Status::UNAUTHORIZED, \Exception $previous = null)
+	public function __construct(string $message = "The requested URL requires authentication.", int $code = Status::UNAUTHORIZED, \Exception $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 	}

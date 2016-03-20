@@ -23,7 +23,7 @@ class FileList implements \ArrayAccess, \IteratorAggregate, \Countable
 	 *
 	 * @return FileList
 	 */
-	static public function from($files)
+	static public function from($files): FileList
 	{
 		if ($files instanceof self)
 		{

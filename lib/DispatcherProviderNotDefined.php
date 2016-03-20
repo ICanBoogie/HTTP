@@ -18,7 +18,7 @@ class DispatcherProviderNotDefined extends \LogicException implements Exception
 {
 	const DEFAULT_MESSAGE = "No provider is defined yet. Please define one with `DispatcherProvider::define(\$provider)`.";
 
-	public function __construct($message = self::DEFAULT_MESSAGE, $code = Status::INTERNAL_SERVER_ERROR, \Exception $previous = null)
+	public function __construct(string $message = self::DEFAULT_MESSAGE, int $code = Status::INTERNAL_SERVER_ERROR, \Exception $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 	}

@@ -35,7 +35,7 @@ class BeforeDispatchEvent extends Event
 	 */
 	private $request;
 
-	protected function get_request()
+	protected function get_request(): Request
 	{
 		return $this->request;
 	}
@@ -43,7 +43,7 @@ class BeforeDispatchEvent extends Event
 	/**
 	 * Reference to the response.
 	 *
-	 * @var Response
+	 * @var Response|null
 	 */
 	private $response;
 

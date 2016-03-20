@@ -71,7 +71,7 @@ class CacheControl
 	 *
 	 * @return array
 	 */
-	static protected function get_default_values()
+	static protected function get_default_values(): array
 	{
 		return [
 
@@ -96,7 +96,7 @@ class CacheControl
 	 *
 	 * @return array Returns an array made of the properties and extensions.
 	 */
-	static protected function parse($cache_directive)
+	static protected function parse(string $cache_directive): array
 	{
 		$directives = explode(',', $cache_directive);
 		$directives = array_map('trim', $directives);
@@ -143,11 +143,11 @@ class CacheControl
 	/**
 	 * Create an instance from the provided source.
 	 *
-	 * @param string $source
+	 * @param mixed $source
 	 *
 	 * @return CacheControl
 	 */
-	static public function from($source)
+	static public function from($source): CacheControl
 	{
 		if ($source instanceof self)
 		{
@@ -166,12 +166,12 @@ class CacheControl
 	 *
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.1
 	 *
-	 * @var string
+	 * @var string|null
 	 */
 	private $cacheable;
 
 	/**
-	 * @return string
+	 * @return string|null
 	 */
 	protected function get_cacheable()
 	{
@@ -179,7 +179,7 @@ class CacheControl
 	}
 
 	/**
-	 * @param $value
+	 * @param string|false $value
 	 */
 	protected function set_cacheable($value)
 	{
@@ -314,7 +314,7 @@ class CacheControl
 	 *
 	 * @param string $cache_directives Cache directives.
 	 */
-	public function __construct($cache_directives=null)
+	public function __construct(string $cache_directives = null)
 	{
 		if ($cache_directives)
 		{
@@ -375,7 +375,7 @@ class CacheControl
 	 *
 	 * @param string $cache_directive
 	 */
-	public function modify($cache_directive)
+	public function modify(string $cache_directive)
 	{
 		list($properties, $extensions) = static::parse($cache_directive);
 

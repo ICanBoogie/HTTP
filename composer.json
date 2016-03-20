@@ -19,9 +19,9 @@
 	},
 	"minimum-stability": "dev",
 	"require": {
-		"php": ">=5.6",
-		"icanboogie/accessor": "dev-php56 as 1.0",
-		"icanboogie/prototype": "dev-php56 as 2.3",
+		"php": ">=7.0",
+		"icanboogie/accessor": "dev-php70 as 1.0",
+		"icanboogie/prototype": "dev-php70 as 2.3",
 		"icanboogie/event": "^1.4|^2.0",
 		"icanboogie/datetime": "^1.2"
 	},

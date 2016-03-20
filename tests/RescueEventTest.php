@@ -6,34 +6,22 @@ use ICanBoogie\Exception\RescueEvent;
 
 class RescueEventTest extends \PHPUnit_Framework_TestCase
 {
+	/**
+	 * @expectedException \TypeError
+	 */
 	public function test_error_on_invalid_exception_type()
 	{
-		if (version_compare(PHP_VERSION, 7, '>='))
-		{
-			$this->markTestSkipped("Fatal error in PHP7");
-		}
-
-		$this->setExpectedException('PHPUnit_Framework_Error');
-
-		#
-
 		$exception = new \StdClass;
 		$response = null;
 
 		new RescueEvent($exception, Request::from('/'), $response);
 	}
 
+	/**
+	 * @expectedException \TypeError
+	 */
 	public function test_error_on_setting_invalid_exception_type()
 	{
-		if (version_compare(PHP_VERSION, 7, '>='))
-		{
-			$this->markTestSkipped("Fatal error in PHP7");
-		}
-
-		$this->setExpectedException('PHPUnit_Framework_Error');
-
-		#
-
 		$exception = new \Exception;
 		$response = null;
 		$event = new RescueEvent($exception, Request::from('/'), $response);
@@ -52,33 +40,21 @@ class RescueEventTest extends \PHPUnit_Framework_TestCase
 		$this->assertSame($exception_replacement, $exception);
 	}
 
+	/**
+	 * @expectedException \TypeError
+	 */
 	public function test_error_on_invalid_response_type()
 	{
-		if (version_compare(PHP_VERSION, 7, '>='))
-		{
-			$this->markTestSkipped("Fatal error in PHP7");
-		}
-
-		$this->setExpectedException('PHPUnit_Framework_Error');
-
-		#
-
 		$response = new \StdClass;
 
 		new RescueEvent(new \Exception, Request::from('/'), $response);
 	}
 
+	/**
+	 * @expectedException \TypeError
+	 */
 	public function test_error_on_setting_invalid_response_type()
 	{
-		if (version_compare(PHP_VERSION, 7, '>='))
-		{
-			$this->markTestSkipped("Fatal error in PHP7");
-		}
-
-		$this->setExpectedException('PHPUnit_Framework_Error');
-
-		#
-
 		$response = null;
 		$event = new RescueEvent(new \Exception, Request::from('/'), $response);
 		$event->response = new \StdClass;

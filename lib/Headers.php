@@ -43,7 +43,7 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return string
 	 */
-	static private function normalize_field_name($name)
+	static private function normalize_field_name(string $name): string
 	{
 		return mb_convert_case(strtr(substr($name, 5), '_', '-'), MB_CASE_TITLE);
 	}
@@ -164,7 +164,7 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	 * @param string $value
 	 */
 	// @codeCoverageIgnoreStart
-	protected function send_header($field, $value)
+	protected function send_header(string $field, string $value)
 	{
 		header("$field: $value");
 	}

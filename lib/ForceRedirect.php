@@ -24,14 +24,22 @@ class ForceRedirect extends \Exception implements Exception
 {
 	use AccessorTrait;
 
+	/**
+	 * @var string
+	 */
 	private $location;
 
-	protected function get_location()
+	protected function get_location(): string
 	{
 		return $this->location;
 	}
 
-	public function __construct($location, $code = Status::FOUND, \Exception $previous = null)
+	/**
+	 * @param string $location
+	 * @param int $code
+	 * @param \Exception|null $previous
+	 */
+	public function __construct(string $location, int $code = Status::FOUND, \Exception $previous = null)
 	{
 		$this->location = $location;
 
@@ -45,7 +53,7 @@ class ForceRedirect extends \Exception implements Exception
 	 *
 	 * @return string
 	 */
-	protected function format_message($location)
+	protected function format_message(string $location): string
 	{
 		return format("Location: %location", [ 'location' => $location ]);
 	}

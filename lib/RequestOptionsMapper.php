@@ -51,7 +51,7 @@ class RequestOptionsMapper implements RequestOptions
 	 *
 	 * @return \Closure[]
 	 */
-	protected function get_mappers()
+	protected function get_mappers(): array
 	{
 		return [
 

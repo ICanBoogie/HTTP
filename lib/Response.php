@@ -12,6 +12,7 @@
 namespace ICanBoogie\HTTP;
 
 use ICanBoogie\Accessor\AccessorTrait;
+use ICanBoogie\DateTime;
 
 use function ICanBoogie\format;
 
@@ -186,7 +187,7 @@ class Response implements ResponseStatus
 	 * @return bool `true` is the headers were sent, `false` otherwise.
 	 */
 	// @codeCoverageIgnoreStart
-	protected function send_headers(Headers $headers)
+	protected function send_headers(Headers $headers): bool
 	{
 		if (headers_sent($file, $line))
 		{
@@ -249,7 +250,7 @@ class Response implements ResponseStatus
 	 *
 	 * @return Status
 	 */
-	protected function get_status()
+	protected function get_status(): Status
 	{
 		return $this->status;
 	}
@@ -283,7 +284,7 @@ class Response implements ResponseStatus
 	/**
 	 * Asserts that the a body is valid.
 	 *
-	 * @param $body
+	 * @param mixed $body
 	 *
 	 * @throws \UnexpectedValueException if the specified body doesn't meet the requirements.
 	 */
@@ -309,7 +310,7 @@ class Response implements ResponseStatus
 	/**
 	 * Returns the response body.
 	 *
-	 * @return string
+	 * @return mixed
 	 */
 	protected function get_body()
 	{
@@ -334,7 +335,7 @@ class Response implements ResponseStatus
 	/**
 	 * Returns the value of the `Location` header field.
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	protected function get_location()
 	{
@@ -344,7 +345,7 @@ class Response implements ResponseStatus
 	/**
 	 * Sets the value of the `Content-Type` header field.
 	 *
-	 * @param string $content_type
+	 * @param string|null $content_type
 	 */
 	protected function set_content_type($content_type)
 	{
@@ -356,7 +357,7 @@ class Response implements ResponseStatus
 	 *
 	 * @return Headers\ContentType
 	 */
-	protected function get_content_type()
+	protected function get_content_type(): Headers\ContentType
 	{
 		return $this->headers['Content-Type'];
 	}
@@ -364,7 +365,7 @@ class Response implements ResponseStatus
 	/**
 	 * Sets the value of the `Content-Length` header field.
 	 *
-	 * @param int $length
+	 * @param int|null $length
 	 */
 	protected function set_content_length($length)
 	{
@@ -374,7 +375,7 @@ class Response implements ResponseStatus
 	/**
 	 * Returns the value of the `Content-Length` header field.
 	 *
-	 * @return int
+	 * @return int|null
 	 */
 	protected function get_content_length()
 	{
@@ -396,7 +397,7 @@ class Response implements ResponseStatus
 	 *
 	 * @return Headers\Date
 	 */
-	protected function get_date()
+	protected function get_date(): Headers\Date
 	{
 		return $this->headers['Date'];
 	}
@@ -404,7 +405,7 @@ class Response implements ResponseStatus
 	/**
 	 * Sets the value of the `Age` header field.
 	 *
-	 * @param int $age
+	 * @param int|null $age
 	 */
 	protected function set_age($age)
 	{
@@ -414,7 +415,7 @@ class Response implements ResponseStatus
 	/**
 	 * Returns the age of the response.
 	 *
-	 * @return int
+	 * @return int|null
 	 */
 	protected function get_age()
 	{
@@ -436,7 +437,7 @@ class Response implements ResponseStatus
 	/**
 	 * Sets the value of the `Last-Modified` header field.
 	 *
-	 * @param mixed $time
+	 * @param mixed|null $time
 	 */
 	protected function set_last_modified($time)
 	{
@@ -448,7 +449,7 @@ class Response implements ResponseStatus
 	 *
 	 * @return Headers\Date
 	 */
-	protected function get_last_modified()
+	protected function get_last_modified(): Headers\Date
 	{
 		return $this->headers['Last-Modified'];
 	}
@@ -458,7 +459,7 @@ class Response implements ResponseStatus
 	 *
 	 * The method also calls the {@link session_cache_expire()} function.
 	 *
-	 * @param mixed $time
+	 * @param mixed|null $time
 	 */
 	protected function set_expires($time)
 	{
@@ -468,9 +469,9 @@ class Response implements ResponseStatus
 	/**
 	 * Returns the value of the `Expires` header field.
 	 *
-	 * @return Headers\Date
+	 * @return DateTime|Headers\Date
 	 */
-	protected function get_expires()
+	protected function get_expires(): DateTime
 	{
 		return $this->headers['Expires'];
 	}
@@ -478,7 +479,7 @@ class Response implements ResponseStatus
 	/**
 	 * Sets the value of the `ETag` header field.
 	 *
-	 * @param string $value
+	 * @param string|null $value
 	 */
 	protected function set_etag($value)
 	{
@@ -488,7 +489,7 @@ class Response implements ResponseStatus
 	/**
 	 * Returns the value of the `ETag` header field.
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	protected function get_etag()
 	{
@@ -498,7 +499,7 @@ class Response implements ResponseStatus
 	/**
 	 * Sets the directives of the `Cache-Control` header field.
 	 *
-	 * @param string $cache_directives
+	 * @param string|null $cache_directives
 	 */
 	protected function set_cache_control($cache_directives)
 	{
@@ -510,7 +511,7 @@ class Response implements ResponseStatus
 	 *
 	 * @return Headers\CacheControl
 	 */
-	protected function get_cache_control()
+	protected function get_cache_control(): Headers\CacheControl
 	{
 		return $this->headers['Cache-Control'];
 	}
@@ -522,7 +523,7 @@ class Response implements ResponseStatus
 	 *
 	 * @param int $seconds The number of seconds.
 	 */
-	protected function set_ttl($seconds)
+	protected function set_ttl(int $seconds)
 	{
 		$this->cache_control->s_maxage = $this->age + $seconds;
 	}
@@ -552,9 +553,9 @@ class Response implements ResponseStatus
 	 * Checks that the response includes header fields that can be used to validate the response
 	 * with the origin server using a conditional GET request.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	protected function get_is_validateable()
+	protected function get_is_validateable(): bool
 	{
 		return !$this->headers['Last-Modified']->is_empty || $this->headers['ETag'];
 	}
@@ -568,9 +569,9 @@ class Response implements ResponseStatus
 	 * Responses with neither a freshness lifetime (Expires, max-age) nor cache validator
 	 * (`Last-Modified`, `ETag`) are considered not cacheable.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	protected function get_is_cacheable()
+	protected function get_is_cacheable(): bool
 	{
 		if (!$this->status->is_cacheable || $this->cache_control->no_store || $this->cache_control->cacheable == 'private')
 		{
@@ -583,9 +584,9 @@ class Response implements ResponseStatus
 	/**
 	 * Checks if the response is fresh.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	protected function get_is_fresh()
+	protected function get_is_fresh(): bool
 	{
 		return $this->ttl > 0;
 	}

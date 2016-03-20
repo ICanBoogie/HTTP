@@ -37,33 +37,21 @@ class BeforeDispatchEventTest extends \PHPUnit_Framework_TestCase
 		$this->request = Request::from('/');
 	}
 
+	/**
+	 * @expectedException \TypeError
+	 */
 	public function test_error_on_invalid_response_type()
 	{
-		if (version_compare(PHP_VERSION, 7, '>='))
-		{
-			$this->markTestSkipped("Fatal error in PHP7");
-		}
-
-		$this->setExpectedException(\PHPUnit_Framework_Error::class);
-
-		#
-
 		$response = new \StdClass;
 
 		new BeforeDispatchEvent($this->dispatcher, $this->request, $response);
 	}
 
+	/**
+	 * @expectedException \TypeError
+	 */
 	public function test_error_on_setting_invalid_response_type()
 	{
-		if (version_compare(PHP_VERSION, 7, '>='))
-		{
-			$this->markTestSkipped("Fatal error in PHP7");
-		}
-
-		$this->setExpectedException(\PHPUnit_Framework_Error::class);
-
-		#
-
 		$response = null;
 
 		/* @var $event BeforeDispatchEvent */

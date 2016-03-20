@@ -22,14 +22,14 @@ use ICanBoogie\HTTP\Response;
  *
  * @property \Exception $exception
  * @property-read Request $request
- * @property Response $response
+ * @property Response|null $response
  */
 class RescueEvent extends Event
 {
 	/**
 	 * Reference to the response.
 	 *
-	 * @var Response
+	 * @var Response|null
 	 */
 	private $response;
 
@@ -46,16 +46,16 @@ class RescueEvent extends Event
 	/**
 	 * Reference to the exception.
 	 *
-	 * @var \Exception
+	 * @var \Throwable
 	 */
 	private $exception;
 
-	protected function get_exception()
+	protected function get_exception(): \Throwable
 	{
 		return $this->exception;
 	}
 
-	protected function set_exception(\Exception $exception)
+	protected function set_exception(\Throwable $exception)
 	{
 		$this->exception = $exception;
 	}
@@ -67,7 +67,7 @@ class RescueEvent extends Event
 	 */
 	private $request;
 
-	protected function get_request()
+	protected function get_request(): Request
 	{
 		return $this->request;
 	}
@@ -75,11 +75,11 @@ class RescueEvent extends Event
 	/**
 	 * The event is constructed with the type `rescue`.
 	 *
-	 * @param \Exception $target
+	 * @param \Throwable $target
 	 * @param Request $request The request.
 	 * @param Response|null $response Reference to the response.
 	 */
-	public function __construct(\Exception &$target, Request $request, Response &$response = null)
+	public function __construct(\Throwable &$target, Request $request, Response &$response = null)
 	{
 		$this->response = &$response;
 		$this->exception = &$target;

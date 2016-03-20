@@ -33,7 +33,7 @@ class ContextTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException \InvalidArgumentException
+	 * @expectedException \TypeError
 	 */
 	public function test_set_dispatcher_invalid()
 	{

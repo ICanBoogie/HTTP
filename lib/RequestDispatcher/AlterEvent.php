@@ -34,7 +34,7 @@ class AlterEvent extends Event
 	/**
 	 * @return RequestDispatcher
 	 */
-	protected function get_instance()
+	protected function get_instance(): RequestDispatcher
 	{
 		return $this->instance;
 	}
@@ -64,9 +64,9 @@ class AlterEvent extends Event
 	 *
 	 * @param string $id RequestDispatcher identifier.
 	 * @param mixed $dispatcher RequestDispatcher.
-	 * @param int $weight
+	 * @param string|int $weight
 	 */
-	public function insert($id, $dispatcher, $weight = 0)
+	public function insert(string $id, $dispatcher, $weight = 0)
 	{
 		$this->instance[$id] = new WeightedDispatcher($dispatcher, $weight);
 	}
@@ -78,7 +78,7 @@ class AlterEvent extends Event
 	 * @param mixed $dispatcher RequestDispatcher.
 	 * @param string $reference Reference dispatcher identifier.
 	 */
-	public function insert_before($id, $dispatcher, $reference)
+	public function insert_before(string $id, $dispatcher, string $reference)
 	{
 		$this->insert($id, $dispatcher, WeightedDispatcher::WEIGHT_BEFORE_PREFIX . $reference);
 	}
@@ -90,7 +90,7 @@ class AlterEvent extends Event
 	 * @param mixed $dispatcher RequestDispatcher.
 	 * @param string $reference Reference dispatcher identifier.
 	 */
-	public function insert_after($id, $dispatcher, $reference)
+	public function insert_after(string $id, $dispatcher, string $reference)
 	{
 		$this->insert($id, $dispatcher, WeightedDispatcher::WEIGHT_AFTER_PREFIX . $reference);
 	}

@@ -84,7 +84,7 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	 *
 	 * @return Response
 	 */
-	public function __invoke(Request $request)
+	public function __invoke(Request $request): Response
 	{
 		$response = $this->handle($request);
 
@@ -107,7 +107,7 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	 * @return Response
 	 * @throws \Exception
 	 */
-	private function handle(Request $request)
+	private function handle(Request $request): Response
 	{
 		try
 		{
@@ -140,9 +140,9 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	 *
 	 * @return Response
 	 */
-	private function handle_head(Request $request)
+	private function handle_head(Request $request): Response
 	{
-		$response = $this->handle($request->with([ 'is_get' => true ]));
+		$response = $this->handle($request->with([ Request::OPTION_IS_GET => true ]));
 
 		if ($response->content_length === null && !$response->body instanceof \Closure)
 		{
@@ -264,7 +264,7 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	 * @throws NotFound when neither the events nor the dispatchers were able to provide
 	 * a {@link Response}.
 	 */
-	protected function dispatch(Request $request)
+	protected function dispatch(Request $request): Response
 	{
 		$response = null;
 
@@ -308,7 +308,7 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	 * @param Dispatcher $dispatcher
 	 * @param Request $request
 	 *
-	 * @return Response
+	 * @return Response|null
 	 *
 	 * @throws \Exception
 	 */
@@ -343,7 +343,7 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	 * @param \Exception $exception The exception to rescue.
 	 * @param Request $request The current request.
 	 *
-	 * @return Response
+	 * @return Response|null
 	 *
 	 * @throws \Exception The exception is re-thrown if it could not be rescued.
 	 */
