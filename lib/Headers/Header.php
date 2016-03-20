@@ -14,6 +14,8 @@ namespace ICanBoogie\HTTP\Headers;
 use ICanBoogie\OffsetNotDefined;
 use ICanBoogie\PropertyNotDefined;
 
+use function ICanBoogie\format;
+
 /**
  * Base class for header fields.
  *
@@ -131,7 +133,7 @@ abstract class Header implements \ArrayAccess
 
 		if (!is_string($source))
 		{
-			throw new \InvalidArgumentException(\ICanBoogie\format
+			throw new \InvalidArgumentException(format
 			(
 				"%var must be a string or an object implementing __toString(). Given: !data", [
 

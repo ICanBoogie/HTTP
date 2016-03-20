@@ -13,6 +13,8 @@ namespace ICanBoogie\HTTP\Headers;
 
 use ICanBoogie\Accessor\AccessorTrait;
 
+use function ICanBoogie\remove_accents;
+
 /**
  * Representation of a header parameter.
  *
@@ -149,7 +151,7 @@ class HeaderParameter
 	 */
 	static public function to_ascii($str)
 	{
-		$str = \ICanBoogie\remove_accents($str);
+		$str = remove_accents($str);
 		$str = preg_replace('/[^\x20-\x7F]+/', '', $str);
 
 		return $str;

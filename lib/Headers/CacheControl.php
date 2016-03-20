@@ -13,6 +13,8 @@ namespace ICanBoogie\HTTP\Headers;
 
 use ICanBoogie\Accessor\AccessorTrait;
 
+use function ICanBoogie\format;
+
 /**
  * Representation of the `Cache-Control` header field.
  *
@@ -188,7 +190,7 @@ class CacheControl
 
 		if ($value !== null && !in_array($value, self::$cacheable_values))
 		{
-			throw new \InvalidArgumentException(\ICanBoogie\format
+			throw new \InvalidArgumentException(format
 			(
 				"%var must be one of: public, private, no-cache. Give: %value", [
 

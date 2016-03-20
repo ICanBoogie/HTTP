@@ -15,6 +15,8 @@ use ICanBoogie\Exception\RescueEvent;
 use ICanBoogie\HTTP\RequestDispatcher\BeforeDispatchEvent;
 use ICanBoogie\HTTP\RequestDispatcher\DispatchEvent;
 
+use function ICanBoogie\sort_by_weight;
+
 /**
  * Dispatches HTTP requests.
  *
@@ -228,7 +230,7 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 		{
 			$weights = $this->dispatchers_weight;
 
-			$this->dispatchers_order = \ICanBoogie\sort_by_weight($this->dispatchers, function($v, $k) use ($weights) {
+			$this->dispatchers_order = sort_by_weight($this->dispatchers, function($v, $k) use ($weights) {
 
 				return $weights[$k];
 
