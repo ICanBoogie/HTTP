@@ -22,6 +22,9 @@ class DispatcherNotDefined extends \LogicException implements Exception
 {
 	use AccessorTrait;
 
+	/**
+	 * @var string
+	 */
 	private $dispatcher_id;
 
 	protected function get_dispatcher_id()
@@ -33,15 +36,22 @@ class DispatcherNotDefined extends \LogicException implements Exception
 	{
 		$this->dispatcher_id = $dispatcher_id;
 
-		if (!$message)
-		{
-			$message = \ICanBoogie\format("The dispatcher %dispatcher_id is not defined.", [
+		parent::__construct($message ?: $this->format_message($dispatcher_id), $code, $previous);
+	}
 
-				'dispatcher_id' => $dispatcher_id
+	/**
+	 * Formats exception message.
+	 *
+	 * @param string $dispatcher_id
+	 *
+	 * @return string
+	 */
+	protected function format_message($dispatcher_id)
+	{
+		return \ICanBoogie\format("The dispatcher %dispatcher_id is not defined.", [
 
-			]);
-		}
+			'dispatcher_id' => $dispatcher_id
 
-		parent::__construct($message, $code, $previous);
+		]);
 	}
 }
