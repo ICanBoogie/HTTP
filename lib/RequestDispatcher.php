@@ -140,7 +140,7 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	 */
 	private function handle_head(Request $request)
 	{
-		$response = $this->handle($request->with([ 'is_get' => true ]));
+		$response = $this->handle($request->with([ Request::OPTION_IS_GET => true ]));
 
 		if ($response->content_length === null && !$response->body instanceof \Closure)
 		{
