@@ -87,6 +87,39 @@ $request = Request::from([
 
 
 
+### Safe and idempotent requests
+
+Safe methods are HTTP methods that do not modify resources. For instance, using `GET` or `HEAD` on a
+resource URL, should NEVER change the resource.
+
+The `is_safe` property may be used to check if a request is safe or not.
+
+```php
+<?php
+
+Request::from([ Request::OPTION_METHOD => Request::METHOD_GET ])->is_safe; // true
+Request::from([ Request::OPTION_METHOD => Request::METHOD_POST ])->is_safe; // false
+Request::from([ Request::OPTION_METHOD => Request::METHOD_DELETE ])->is_safe; // false
+```
+
+An idempotent HTTP method is a HTTP method that can be called many times without different outcomes.
+It would not matter if the method is called only once, or ten times over. The result should be the
+same.
+
+The `is_idempotent` property may be used to check if a request is idempotent or not.
+
+```php
+<?php
+
+Request::from([ Request::OPTION_METHOD => Request::METHOD_GET ])->is_idempotent; // true
+Request::from([ Request::OPTION_METHOD => Request::METHOD_POST ])->is_idempotent; // false
+Request::from([ Request::OPTION_METHOD => Request::METHOD_DELETE ])->is_idempotent; // true
+```
+
+
+
+
+
 ### A request with changed properties
 
 Requests are for the most part immutable, the `with()` method creates an instance copy with
@@ -265,61 +298,7 @@ $file->to_array();
 
 
 
-### Safe and idempotent requests
-
-Safe methods are HTTP methods that do not modify resources. For instance, using `GET` or `HEAD` on a
-resource URL, should NEVER change the resource.
-
-The `is_safe` property may be used to check if a request is safe or not.
-
-```php
-<?php
-
-Request::from([ Request::OPTION_METHOD => Request::METHOD_GET ])->is_safe; // true
-Request::from([ Request::OPTION_METHOD => Request::METHOD_POST ])->is_safe; // false
-Request::from([ Request::OPTION_METHOD => Request::METHOD_DELETE ])->is_safe; // false
-```
-
-An idempotent HTTP method is a HTTP method that can be called many times without different outcomes.
-It would not matter if the method is called only once, or ten times over. The result should be the
-same.
-
-The `is_idempotent` property may be used to check if a request is idempotent or not.
-
-```php
-<?php
-
-Request::from([ Request::OPTION_METHOD => Request::METHOD_GET ])->is_idempotent; // true
-Request::from([ Request::OPTION_METHOD => Request::METHOD_POST ])->is_idempotent; // false
-Request::from([ Request::OPTION_METHOD => Request::METHOD_DELETE ])->is_idempotent; // true
-```
-
-
-
-
-
-### Obtaining a response
-
-A response is obtained from a request simply by invoking the request, or by invoking one of the
-available HTTP methods. The `dispatch()` helper is used to dispatch the request. A [Response][]
-instance is returned if the dispatching is successful, a [NotFound][] exception is
-thrown otherwise.
-
-```php
-<?php
-
-$response = $request();
-
-# using the POST method and additional parameters
-
-$response = $request->post([ 'param' => 'value' ]);
-```
-
-
-
-
-
-## Request context
+### Request context
 
 Because requests may be nested the request context offers a safe place where you can store the state
 of your application that is relative to a request, for instance a request relative site, page,
@@ -356,6 +335,27 @@ $request = Request::from($_SERVER);
 $site = $request->context['site'];
 # or
 $site = $request->context->site;
+```
+
+
+
+
+
+### Obtaining a response
+
+A response is obtained from a request simply by invoking the request, or by invoking one of the
+available HTTP methods. The `dispatch()` helper is used to dispatch the request. A [Response][]
+instance is returned if the dispatching is successful, a [NotFound][] exception is
+thrown otherwise.
+
+```php
+<?php
+
+$response = $request();
+
+# using the POST method and additional parameters
+
+$response = $request->post([ 'param' => 'value' ]);
 ```
 
 
