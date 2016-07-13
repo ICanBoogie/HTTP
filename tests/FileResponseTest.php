@@ -15,9 +15,12 @@ use ICanBoogie\DateTime;
 
 class FileResponseTest extends \PHPUnit_Framework_TestCase
 {
-	/**
-	 * @dataProvider provide_test_closure_body
-	 */
+    /**
+     * @dataProvider provide_test_closure_body
+     *
+     * @param int $status
+     * @param \PHPUnit_Framework_MockObject_Matcher_InvokedCount $expected
+     */
 	public function test_closure_body($status, $expected)
 	{
 		$response = $this
@@ -224,15 +227,15 @@ class FileResponseTest extends \PHPUnit_Framework_TestCase
 
 	public function provide_test_get_etag()
 	{
-		$f1 = create_file();
-		$f1_hash = FileResponse::hash_file($f1);
-		$f1_hash_custom = $f1_hash . '#' . uniqid();
+		$file = create_file();
+		$file_hash = FileResponse::hash_file($file);
+		$file_hash_custom = $file_hash . '#' . uniqid();
 
 		return [
 
-			[ $f1_hash, $f1 ],
-			[ $f1_hash_custom, $f1, [ FileResponse::OPTION_ETAG => $f1_hash_custom ] ],
-			[ $f1_hash_custom, $f1, [ ], [ 'ETag' => $f1_hash_custom ] ],
+			[ $file_hash, $file ],
+			[ $file_hash_custom, $file, [ FileResponse::OPTION_ETAG => $file_hash_custom ] ],
+			[ $file_hash_custom, $file, [ ], [ 'ETag' => $file_hash_custom ] ],
 
 		];
 	}

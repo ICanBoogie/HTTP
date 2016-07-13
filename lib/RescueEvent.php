@@ -26,18 +26,26 @@ use ICanBoogie\HTTP\Response;
  */
 class RescueEvent extends Event
 {
+    const TYPE = 'rescue';
+
 	/**
 	 * Reference to the response.
 	 *
-	 * @var Response
+	 * @var Response|null
 	 */
 	private $response;
 
+    /**
+     * @return Response|null
+     */
 	protected function get_response()
 	{
 		return $this->response;
 	}
 
+    /**
+     * @param Response|null $response
+     */
 	protected function set_response(Response $response = null)
 	{
 		$this->response = $response;
@@ -50,11 +58,17 @@ class RescueEvent extends Event
 	 */
 	private $exception;
 
+    /**
+     * @return \Exception
+     */
 	protected function get_exception()
 	{
 		return $this->exception;
 	}
 
+    /**
+     * @param \Exception $exception
+     */
 	protected function set_exception(\Exception $exception)
 	{
 		$this->exception = $exception;
@@ -67,6 +81,9 @@ class RescueEvent extends Event
 	 */
 	private $request;
 
+    /**
+     * @return Request
+     */
 	protected function get_request()
 	{
 		return $this->request;
@@ -85,6 +102,6 @@ class RescueEvent extends Event
 		$this->exception = &$target;
 		$this->request = $request;
 
-		parent::__construct($target, 'rescue');
+		parent::__construct($target, self::TYPE);
 	}
 }

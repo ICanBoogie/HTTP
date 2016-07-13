@@ -43,7 +43,7 @@ class ContentType extends Header
 	 *
 	 * @inheritdoc
 	 */
-	public function __construct($value=null, array $attributes=[])
+	public function __construct($value = null, array $attributes = [])
 	{
 		$this->parameters['charset'] = new HeaderParameter('charset');
 

@@ -69,7 +69,7 @@ class Response implements ResponseStatus
 		{
 			$headers = new Headers($headers);
 		}
-		else if (!$headers instanceof Headers)
+		elseif (!$headers instanceof Headers)
 		{
 			throw new \InvalidArgumentException("\$headers must be an array or a ICanBoogie\\HTTP\\Headers instance. Given: " . gettype($headers));
 		}

@@ -18,10 +18,12 @@ namespace ICanBoogie\HTTP;
  */
 class AuthenticationRequired extends ClientError implements SecurityError
 {
+    const DEFAULT_MESSAGE = "The requested URL requires authentication.";
+
 	/**
 	 * @inheritdoc
 	 */
-	public function __construct($message = "The requested URL requires authentication.", $code = Status::UNAUTHORIZED, \Exception $previous = null)
+	public function __construct($message = self::DEFAULT_MESSAGE, $code = Status::UNAUTHORIZED, \Exception $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 	}

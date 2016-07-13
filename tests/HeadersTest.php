@@ -70,9 +70,13 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals('iso-8859-1', $headers['Content-Type']->charset);
 	}
 
-	/**
-	 * @dataProvider provide_test_date_header
-	 */
+    /**
+     * @dataProvider provide_test_date_header
+     *
+     * @param string $field
+     * @param mixed $value
+     * @param string $expected
+     */
 	public function test_date_header($field, $value, $expected)
 	{
 		$headers = new Headers;
@@ -90,46 +94,48 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 
 	public function provide_test_date_header()
 	{
-		$v1 = new \ICanBoogie\DateTime;
-		$v2 = new \DateTime;
-		$v3 = (string) $v1;
-		$expected = $v1->utc->as_rfc1123;
+		$value1 = new \ICanBoogie\DateTime;
+		$value2 = new \DateTime;
+		$value3 = (string) $value1;
+		$expected = $value1->utc->as_rfc1123;
 
 		return [
 
-			[ 'Date', $v1, $expected ],
-			[ 'Date', $v2, $expected ],
-			[ 'Date', $v3, $expected ],
+			[ 'Date', $value1, $expected ],
+			[ 'Date', $value2, $expected ],
+			[ 'Date', $value3, $expected ],
 
-			[ 'Expires', $v1, $expected ],
-			[ 'Expires', $v2, $expected ],
-			[ 'Expires', $v3, $expected ],
+			[ 'Expires', $value1, $expected ],
+			[ 'Expires', $value2, $expected ],
+			[ 'Expires', $value3, $expected ],
 
-			[ 'If-Modified-Since', $v1, $expected ],
-			[ 'If-Modified-Since', $v2, $expected ],
-			[ 'If-Modified-Since', $v3, $expected ],
-			[ 'If-Modified-Since', $v3 . ";length=xxxx", $expected ],
+			[ 'If-Modified-Since', $value1, $expected ],
+			[ 'If-Modified-Since', $value2, $expected ],
+			[ 'If-Modified-Since', $value3, $expected ],
+			[ 'If-Modified-Since', $value3 . ";length=xxxx", $expected ],
 
-			[ 'If-Unmodified-Since', $v1, $expected ],
-			[ 'If-Unmodified-Since', $v2, $expected ],
-			[ 'If-Unmodified-Since', $v3, $expected ],
+			[ 'If-Unmodified-Since', $value1, $expected ],
+			[ 'If-Unmodified-Since', $value2, $expected ],
+			[ 'If-Unmodified-Since', $value3, $expected ],
 
-			[ 'Retry-After', $v1, $expected ],
-			[ 'Retry-After', $v2, $expected ],
-			[ 'Retry-After', $v3, $expected ]
+			[ 'Retry-After', $value1, $expected ],
+			[ 'Retry-After', $value2, $expected ],
+			[ 'Retry-After', $value3, $expected ]
 
 		];
 	}
 
-	/**
-	 * @dataProvider provide_test_empty_date
-	 */
+    /**
+     * @dataProvider provide_test_empty_date
+     *
+     * @param string $field
+     */
 	public function test_empty_date($field)
 	{
-		$h = new Headers;
+		$headers = new Headers;
 
-		$this->assertInstanceOf(Headers\Date::class, $h[$field]);
-		$this->assertTrue($h[$field]->is_empty);
+		$this->assertInstanceOf(Headers\Date::class, $headers[$field]);
+		$this->assertTrue($headers[$field]->is_empty);
 	}
 
 	public function provide_test_empty_date()
@@ -146,33 +152,33 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 
 	public function test_to_string_with_empty_dates()
 	{
-		$h = new Headers([
+		$headers = new Headers([
 
 			'Content-Type' => 'text/plain'
 
 		]);
 
-		$this->assertTrue($h['Date']->is_empty);
-		$this->assertTrue($h['Expires']->is_empty);
-		$this->assertTrue($h['If-Modified-Since']->is_empty);
-		$this->assertTrue($h['If-Unmodified-Since']->is_empty);
+		$this->assertTrue($headers['Date']->is_empty);
+		$this->assertTrue($headers['Expires']->is_empty);
+		$this->assertTrue($headers['If-Modified-Since']->is_empty);
+		$this->assertTrue($headers['If-Unmodified-Since']->is_empty);
 
-		$this->assertEquals("Content-Type: text/plain\r\n", (string) $h);
+		$this->assertEquals("Content-Type: text/plain\r\n", (string) $headers);
 	}
 
 	public function test_clone()
 	{
-		$h1 = new Headers;
-		$cc1 = $h1['Cache-Control'];
-		$h2 = clone $h1;
-		$cc2 = $h2['Cache-Control'];
+		$headers = new Headers;
+		$headers_cache_control = $headers['Cache-Control'];
+		$clone = clone $headers;
+		$clone_cache_control = $clone['Cache-Control'];
 
-		$this->assertNotSame($cc2, $cc1);
+		$this->assertNotSame($clone_cache_control, $headers_cache_control);
 	}
 
 	public function test_should_iterate()
 	{
-		$h = new Headers([
+		$headers = new Headers([
 
 			'REQUEST_URI' => '/',
 			'HTTP_CACHE_CONTROL' => 'public',
@@ -183,7 +189,7 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 
 		$names = [];
 
-		foreach ($h as $field => $v)
+		foreach (array_keys(iterator_to_array($headers)) as $field)
 		{
 			$names[] = $field;
 		}
@@ -196,12 +202,12 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 		$now = new DateTime('now', 'utc');
 		$in_one_month = new DateTime('+1 month', 'utc');
 
-		$h = $this
+		$headers = $this
 			->getMockBuilder(Headers::class)
 			->setMethods([ 'send_header' ])
 			->getMock();
 
-		$h->expects($this->exactly(4))
+		$headers->expects($this->exactly(4))
 			->method('send_header')
 			->withConsecutive(
 
@@ -212,13 +218,15 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 
 			);
 
-		$h['Cache-Control'] = 'public';
-		$h['X-Empty-1'] = null;
-		$h['X-Empty-2'] = '';
-		$h['X-Empty-3'] = 0;
-		$h['Date'] = $now;
-		$h['Expires'] = $in_one_month;
+        /* @var $headers Headers */
 
-		$h();
+		$headers['Cache-Control'] = 'public';
+		$headers['X-Empty-1'] = null;
+		$headers['X-Empty-2'] = '';
+		$headers['X-Empty-3'] = 0;
+		$headers['Date'] = $now;
+		$headers['Expires'] = $in_one_month;
+
+		$headers();
 	}
 }

@@ -24,6 +24,8 @@ use ICanBoogie\HTTP\WeightedDispatcher;
  */
 class AlterEvent extends Event
 {
+    const TYPE = 'alter';
+
 	/**
 	 * Reference to the target instance.
 	 *
@@ -48,7 +50,7 @@ class AlterEvent extends Event
 	}
 
 	/**
-	 * The event is constructed with the type `alter`.
+	 * The event is constructed with the type {@link self::TYPE}.
 	 *
 	 * @param RequestDispatcher $target
 	 */
@@ -56,7 +58,7 @@ class AlterEvent extends Event
 	{
 		$this->instance = &$target;
 
-		parent::__construct($target, 'alter');
+		parent::__construct($target, self::TYPE);
 	}
 
 	/**

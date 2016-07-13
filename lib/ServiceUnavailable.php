@@ -17,10 +17,12 @@ namespace ICanBoogie\HTTP;
  */
 class ServiceUnavailable extends ServerError implements Exception
 {
+    const DEFAULT_MESSAGE = "The server is currently unavailable (because it is overloaded or down for maintenance).";
+
 	/**
 	 * @inheritdoc
 	 */
-	public function __construct($message = "The server is currently unavailable (because it is overloaded or down for maintenance).", $code = Status::SERVICE_UNAVAILABLE, \Exception $previous = null)
+	public function __construct($message = self::DEFAULT_MESSAGE, $code = Status::SERVICE_UNAVAILABLE, \Exception $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 	}

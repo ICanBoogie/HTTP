@@ -36,6 +36,9 @@ class Context implements \ArrayAccess
 	 */
 	private $request;
 
+    /**
+     * @return Request
+     */
 	protected function get_request()
 	{
 		return $this->request;
@@ -57,7 +60,7 @@ class Context implements \ArrayAccess
 	 */
 	protected function set_dispatcher($dispatcher)
 	{
-		if ($dispatcher !== null && !($dispatcher instanceof Dispatcher))
+		if ($dispatcher !== null && !$dispatcher instanceof Dispatcher)
 		{
 			throw new \InvalidArgumentException('$dispatcher must be an instance of ICanBoogie\HTTP\DispatcherInterface. Given: ' . get_class($dispatcher) . '.');
 		}
@@ -65,6 +68,9 @@ class Context implements \ArrayAccess
 		$this->dispatcher = $dispatcher;
 	}
 
+    /**
+     * @return Dispatcher|null
+     */
 	protected function get_dispatcher()
 	{
 		return $this->dispatcher;

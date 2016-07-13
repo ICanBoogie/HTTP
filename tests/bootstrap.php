@@ -22,9 +22,9 @@ const CREATE_FILE_SIZE = 10000;
 # Cleanup sandbox
 #
 
-$di = new \RegexIterator(new \DirectoryIterator(__DIR__ . '/sandbox'), '/^bytes/');
+$iterator = new \RegexIterator(new \DirectoryIterator(__DIR__ . '/sandbox'), '/^bytes/');
 
-foreach ($di as $file)
+foreach ($iterator as $file)
 {
 	unlink($file->getPathname());
 }
@@ -51,10 +51,10 @@ function create_file($extension = '')
 
 function create_image($extension = '.png')
 {
-	$im = imagecreatetruecolor(200, 200);
+	$image = imagecreatetruecolor(200, 200);
 	$pathname = generate_pathname() . $extension;
 
-	imagepng($im, $pathname);
+	imagepng($image, $pathname);
 
 	return $pathname;
 }

@@ -16,7 +16,7 @@ class StatusCodeNotValidTest extends \PHPUnit_Framework_TestCase
 	public function test_get_status_code()
 	{
 		$status_code = 123;
-		$e = new StatusCodeNotValid($status_code);
-		$this->assertEquals($status_code, $e->status_code);
+		$exception = new StatusCodeNotValid($status_code);
+		$this->assertEquals($status_code, $exception->status_code);
 	}
 }

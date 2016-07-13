@@ -26,11 +26,11 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
 	public function test_clone()
 	{
-		$r1 = new Response;
-		$r2 = clone $r1;
+		$response = new Response;
+		$clone = clone $response;
 
-		$this->assertNotSame($r2->headers, $r1->headers);
-		$this->assertNotSame($r2->status, $r1->status);
+		$this->assertNotSame($clone->headers, $response->headers);
+		$this->assertNotSame($clone->status, $response->status);
 	}
 
 	/**
@@ -38,7 +38,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_invalid_body_should_throw_exception()
 	{
-		new Response(new \Stdclass);
+		new Response(new \stdClass);
 	}
 
 	/**
@@ -46,8 +46,8 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_should_throw_exception_setting_empty_string_location()
 	{
-		$r = new Response;
-		$r->location = '';
+		$response = new Response;
+		$response->location = '';
 	}
 
 	/**
@@ -61,21 +61,21 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	public function test_should_remove_location_with_null()
 	{
 		$location = '/path/to/resource';
-		$r = new Response;
-		$r->location = $location;
-		$this->assertEquals($location, $r->location);
-		$r->location = null;
-		$this->assertNull($r->location);
+		$response = new Response;
+		$response->location = $location;
+		$this->assertEquals($location, $response->location);
+		$response->location = null;
+		$this->assertNull($response->location);
 	}
 
 	public function test_should_set_content_type()
 	{
 		$expected = 'application/json';
-		$r = new Response;
-		$r->content_type = $expected;
-		$this->assertEquals($expected, $r->content_type);
-		$r->content_type = null;
-		$this->assertNull($r->content_type->value);
+		$response = new Response;
+		$response->content_type = $expected;
+		$this->assertEquals($expected, $response->content_type);
+		$response->content_type = null;
+		$this->assertNull($response->content_type->value);
 	}
 
 	/**
@@ -93,34 +93,34 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	{
 		$properties = 'is_validateable is_cacheable is_fresh';
 
-		return array_map(function($v) { return (array) $v; }, explode(' ', $properties));
+		return array_map(function($name) { return (array) $name; }, explode(' ', $properties));
 	}
 
 	public function test_date()
 	{
-		$r = new Response;
-		$this->assertInstanceOf(Headers\Date::class, $r->date);
-		$this->assertTrue(DateTime::right_now() == $r->date);
+		$response = new Response;
+		$this->assertInstanceOf(Headers\Date::class, $response->date);
+		$this->assertTrue(DateTime::right_now() == $response->date);
 
-		$r->date = 'now';
-		$this->assertInstanceOf(Headers\Date::class, $r->date);
-		$this->assertEquals('UTC', $r->date->zone->name);
-		$this->assertTrue(DateTime::right_now() == $r->date);
+		$response->date = 'now';
+		$this->assertInstanceOf(Headers\Date::class, $response->date);
+		$this->assertEquals('UTC', $response->date->zone->name);
+		$this->assertTrue(DateTime::right_now() == $response->date);
 	}
 
 	public function test_age()
 	{
-		$r = new Response;
-		$this->assertEquals(0, $r->age);
+		$response = new Response;
+		$this->assertEquals(0, $response->age);
 
-		$r->date = '-3 second';
-		$this->assertEquals(3, $r->age);
+		$response->date = '-3 second';
+		$this->assertEquals(3, $response->age);
 
-		$r->date = null;
-		$this->assertNull($r->age);
+		$response->date = null;
+		$this->assertNull($response->age);
 
-		$r->age = 123;
-		$this->assertSame(123, $r->age);
+		$response->age = 123;
+		$this->assertSame(123, $response->age);
 	}
 
 	public function test_etag()
@@ -178,20 +178,22 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 		$this->assertEmpty((string) $response->expires);
 	}
 
-	/**
-	 * The `Content-Length` header field MUST NOT be present, and MUST NOT be added to the header
-	 * instance.
-	 *
-	 * @dataProvider provide_test_no_content_length
-	 */
+    /**
+     * The `Content-Length` header field MUST NOT be present, and MUST NOT be added to the header
+     * instance.
+     *
+     * @dataProvider provide_test_no_content_length
+     *
+     * @param mixed $body
+     */
 	public function test_no_content_length($body)
 	{
-		$r = new Response($body);
-		$s = (string) $r;
+		$response = new Response($body);
+		$response_string = (string) $response;
 
-		$this->assertStringStartsWith("HTTP/1.0 200 OK\r\nDate: {$r->date}\r\n", $s);
-		$this->assertNotContains("Content-Length", $s);
-		$this->assertNull($r->content_length);
+		$this->assertStringStartsWith("HTTP/1.0 200 OK\r\nDate: {$response->date}\r\n", $response_string);
+		$this->assertNotContains("Content-Length", $response_string);
+		$this->assertNull($response->content_length);
 	}
 
 	public function provide_test_no_content_length()
@@ -211,22 +213,22 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
 	public function test_auto_content_length_with_null()
 	{
-		$r = new Response;
+		$response = new Response;
 
-		$this->assertEquals("HTTP/1.0 200 OK\r\nDate: {$r->date}\r\n\r\n", (string) $r);
-		$this->assertNull($r->content_length);
+		$this->assertEquals("HTTP/1.0 200 OK\r\nDate: {$response->date}\r\n\r\n", (string) $response);
+		$this->assertNull($response->content_length);
 	}
 
 	public function test_preserve_content_length()
 	{
-		$r = new Response(null, Response::STATUS_OK, [
+		$response = new Response(null, Response::STATUS_OK, [
 
 			'Content-Length' => 123
 
 		]);
 
-		$this->assertEquals(123, $r->content_length);
-		$this->assertEquals("HTTP/1.0 200 OK\r\nContent-Length: 123\r\nDate: {$r->date}\r\n\r\n", (string) $r);
+		$this->assertEquals(123, $response->content_length);
+		$this->assertEquals("HTTP/1.0 200 OK\r\nContent-Length: 123\r\nDate: {$response->date}\r\n\r\n", (string) $response);
 	}
 
 	public function test_is_validateable()

@@ -21,14 +21,14 @@ class CacheControlTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_properties($expect, $properties)
 	{
-		$f = new CacheControl;
+		$cache_control = new CacheControl;
 
 		foreach ($properties as $property => $value)
 		{
-			$f->$property = $value;
+			$cache_control->$property = $value;
 		}
 
-		$this->assertEquals($expect, (string) $f);
+		$this->assertEquals($expect, (string) $cache_control);
 	}
 
 	/**
@@ -39,7 +39,7 @@ class CacheControlTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_from($from, $properties)
 	{
-		$f = CacheControl::from($from);
+		$cache_control = CacheControl::from($from);
 
 		foreach ($properties as $property => $value)
 		{
@@ -48,7 +48,7 @@ class CacheControlTest extends \PHPUnit_Framework_TestCase
 				continue;
 			}
 
-			$this->assertEquals($value, $f->$property);
+			$this->assertEquals($value, $cache_control->$property);
 		}
 	}
 
@@ -113,13 +113,13 @@ class CacheControlTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_set_invalid_cacheable()
 	{
-		$f = new CacheControl;
-		$f->cacheable = 'madonna';
+		$cache_control = new CacheControl;
+		$cache_control->cacheable = 'madonna';
 	}
 
 	public function test_extensions()
 	{
-		$f = new CacheControl("public, ext1=one, ext2=two");
-		$this->assertEquals([ 'ext1' => "one", 'ext2' => "two" ], $f->extensions);
+		$cache_control = new CacheControl("public, ext1=one, ext2=two");
+		$this->assertEquals([ 'ext1' => "one", 'ext2' => "two" ], $cache_control->extensions);
 	}
 }

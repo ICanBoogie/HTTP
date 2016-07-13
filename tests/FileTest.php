@@ -298,25 +298,25 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_move_overwrite()
 	{
-		$p1 = create_file();
-		$p2 = create_file();
+		$file1 = create_file();
+		$file2 = create_file();
 
-		$file = File::from($p1);
-		$file->move($p2);
+		$file = File::from($file1);
+		$file->move($file2);
 	}
 
 	public function test_move_overwrite_force()
 	{
-		$p1 = create_file();
-		$p2 = create_file();
+		$file1 = create_file();
+		$file2 = create_file();
 
-		$expected = file_get_contents($p1);
+		$expected = file_get_contents($file1);
 
-		$file = File::from([ File::OPTION_PATHNAME => $p1 ]);
-		$file->move($p2, File::MOVE_OVERWRITE);
+		$file = File::from([ File::OPTION_PATHNAME => $file1 ]);
+		$file->move($file2, File::MOVE_OVERWRITE);
 
-		$this->assertFileNotExists($p1);
-		$this->assertFileExists($p2);
-		$this->assertStringEqualsFile($p2, $expected);
+		$this->assertFileNotExists($file1);
+		$this->assertFileExists($file2);
+		$this->assertStringEqualsFile($file2, $expected);
 	}
 }

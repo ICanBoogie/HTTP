@@ -16,10 +16,12 @@ namespace ICanBoogie\HTTP;
  */
 class PermissionRequired extends ClientError implements SecurityError
 {
+    const DEFAULT_MESSAGE = "You don't have the required permission.";
+
 	/**
 	 * @inheritdoc
 	 */
-	public function __construct($message = "You don't have the required permission.", $code = Status::UNAUTHORIZED, \Exception $previous = null)
+	public function __construct($message = self::DEFAULT_MESSAGE, $code = Status::UNAUTHORIZED, \Exception $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 	}

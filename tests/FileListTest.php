@@ -6,35 +6,35 @@ class FileListTest extends \PHPUnit_Framework_TestCase
 {
 	public function test_from_self_should_return_clone()
 	{
-		$i1 = new FileList;
-		$i2 = FileList::from($i1);
+		$files1 = new FileList;
+		$files2 = FileList::from($files1);
 
-		$this->assertInstanceOf(FileList::class, $i2);
-		$this->assertNotSame($i1, $i2);
+		$this->assertInstanceOf(FileList::class, $files2);
+		$this->assertNotSame($files1, $files2);
 	}
 
 	public function test_should_return_null_if_offset_not_defined()
 	{
-		$i = new FileList;
-		$this->assertNull($i['undefined']);
+		$files = new FileList;
+		$this->assertNull($files['undefined']);
 	}
 
 	public function test_should_create_instance_by_setting_offset()
 	{
-		$i = new FileList;
-		$i['one'] = [ 'pathname' => __FILE__ ];
+		$files = new FileList;
+		$files['one'] = [ 'pathname' => __FILE__ ];
 
-		$this->assertInstanceOf(File::class, $i['one']);
-		$this->assertEquals(__FILE__, $i['one']->pathname);
+		$this->assertInstanceOf(File::class, $files['one']);
+		$this->assertEquals(__FILE__, $files['one']->pathname);
 	}
 
 	public function test_should_remove_offset()
 	{
-		$i = new FileList;
-		$i['one'] = [ 'pathname' => __FILE__ ];
-		$this->assertNotNull($i['one']);
-		unset($i['one']);
-		$this->assertNull($i['one']);
+		$files = new FileList;
+		$files['one'] = [ 'pathname' => __FILE__ ];
+		$this->assertNotNull($files['one']);
+		unset($files['one']);
+		$this->assertNull($files['one']);
 	}
 
 	public function test_should_iterate()
@@ -47,10 +47,10 @@ class FileListTest extends \PHPUnit_Framework_TestCase
 
 		];
 
-		$i = new FileList($expected);
+		$files = new FileList($expected);
 		$list = [];
 
-		foreach ($i as $file)
+		foreach ($files as $file)
 		{
 			$this->assertInstanceOf(File::class, $file);
 			$list[] = [ 'pathname' => $file->pathname ];

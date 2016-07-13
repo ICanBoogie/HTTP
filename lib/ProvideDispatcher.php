@@ -16,6 +16,9 @@ namespace ICanBoogie\HTTP;
  */
 class ProvideDispatcher
 {
+    /**
+     * @var RequestDispatcher
+     */
 	private $dispatcher;
 
 	/**
@@ -37,6 +40,9 @@ class ProvideDispatcher
 		return $dispatcher;
 	}
 
+    /**
+     * @return RequestDispatcher
+     */
 	protected function create()
 	{
 		return new RequestDispatcher;

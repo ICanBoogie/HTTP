@@ -27,11 +27,20 @@ class DispatcherNotDefined extends \LogicException implements Exception
 	 */
 	private $dispatcher_id;
 
+    /**
+     * @return string
+     */
 	protected function get_dispatcher_id()
 	{
 		return $this->dispatcher_id;
 	}
 
+    /**
+     * @param string $dispatcher_id
+     * @param string|null $message
+     * @param \Exception|int $code
+     * @param \Exception|null $previous
+     */
 	public function __construct($dispatcher_id, $message = null, $code = Status::INTERNAL_SERVER_ERROR, \Exception $previous = null)
 	{
 		$this->dispatcher_id = $dispatcher_id;

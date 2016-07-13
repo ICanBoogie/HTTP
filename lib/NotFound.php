@@ -16,10 +16,12 @@ namespace ICanBoogie\HTTP;
  */
 class NotFound extends ClientError implements Exception
 {
+    const DEFAULT_MESSAGE = "The requested URL was not found on this server.";
+
 	/**
 	 * @inheritdoc
 	 */
-	public function __construct($message = 'The requested URL was not found on this server.', $code = Status::NOT_FOUND, \Exception $previous = null)
+	public function __construct($message = self::DEFAULT_MESSAGE, $code = Status::NOT_FOUND, \Exception $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 	}

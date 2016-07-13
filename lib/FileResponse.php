@@ -242,12 +242,12 @@ class FileResponse extends Response
 		list($max_length, $offset) = $this->resolve_max_length_and_offset();
 
 		$out = fopen('php://output', 'wb');
-		$fh = fopen($file->getPathname(), 'rb');
+		$source = fopen($file->getPathname(), 'rb');
 
-		stream_copy_to_stream($fh, $out, $max_length, $offset);
+		stream_copy_to_stream($source, $out, $max_length, $offset);
 
 		fclose($out);
-		fclose($fh);
+		fclose($source);
 	}
 
 	/**

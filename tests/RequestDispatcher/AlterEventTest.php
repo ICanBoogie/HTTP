@@ -11,7 +11,6 @@
 
 namespace ICanBoogie\HTTP\RequestDispatcher;
 
-use ICanBoogie\EventReflection;
 use ICanBoogie\HTTP\RequestDispatcher;
 
 class AlterEventTest extends \PHPUnit_Framework_TestCase

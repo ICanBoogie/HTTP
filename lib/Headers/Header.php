@@ -152,10 +152,10 @@ abstract class Header implements \ArrayAccess
 
 			if ($attributes)
 			{
-				$a = explode(';', $attributes);
-				$a = array_map('trim', $a);
+                $attributes = explode(';', $attributes);
+                $attributes = array_map('trim', $attributes);
 
-				foreach ($a as $attribute)
+				foreach ($attributes as $attribute)
 				{
 					$parameter = HeaderParameter::from($attribute);
 					$parameters[$parameter->attribute] = $parameter;

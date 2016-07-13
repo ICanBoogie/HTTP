@@ -28,6 +28,8 @@ use ICanBoogie\HTTP\Response;
  */
 class BeforeDispatchEvent extends Event
 {
+    const TYPE = 'dispatch:before';
+
 	/**
 	 * The request.
 	 *
@@ -35,6 +37,9 @@ class BeforeDispatchEvent extends Event
 	 */
 	private $request;
 
+    /**
+     * @return Request
+     */
 	protected function get_request()
 	{
 		return $this->request;
@@ -43,15 +48,21 @@ class BeforeDispatchEvent extends Event
 	/**
 	 * Reference to the response.
 	 *
-	 * @var Response
+	 * @var Response|null
 	 */
 	private $response;
 
+    /**
+     * @return Response|null
+     */
 	protected function get_response()
 	{
 		return $this->response;
 	}
 
+    /**
+     * @param Response|null $response
+     */
 	protected function set_response(Response $response = null)
 	{
 		$this->response = $response;
@@ -69,6 +80,6 @@ class BeforeDispatchEvent extends Event
 		$this->request = $request;
 		$this->response = &$response;
 
-		parent::__construct($target, 'dispatch:before');
+		parent::__construct($target, self::TYPE);
 	}
 }

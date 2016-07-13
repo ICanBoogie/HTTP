@@ -19,9 +19,9 @@ class ExceptionTest extends \PHPUnit_Framework_TestCase
 	public function test_implements($class, $args)
 	{
 		$reflection = new \ReflectionClass(__NAMESPACE__ . '\\' . $class);
-		$e = $reflection->newInstanceArgs($args);
+		$exception = $reflection->newInstanceArgs($args);
 
-		$this->assertInstanceOf(Exception::class, $e);
+		$this->assertInstanceOf(Exception::class, $exception);
 	}
 
 	public function provide_test_implements()

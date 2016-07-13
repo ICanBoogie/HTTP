@@ -34,6 +34,9 @@ class HeaderParameter
 	 */
 	protected $attribute;
 
+    /**
+     * @return string
+     */
 	protected function get_attribute()
 	{
 		return $this->attribute;
@@ -46,6 +49,9 @@ class HeaderParameter
 	 */
 	public $value;
 
+    /**
+     * @return string
+     */
 	protected function get_charset()
 	{
 		return mb_detect_encoding($this->value) ?: 'ISO-8859-1';

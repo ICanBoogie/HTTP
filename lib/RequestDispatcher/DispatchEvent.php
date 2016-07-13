@@ -27,6 +27,8 @@ use ICanBoogie\HTTP\Response;
  */
 class DispatchEvent extends Event
 {
+    const TYPE = 'dispatch';
+
 	/**
 	 * The request.
 	 *
@@ -34,6 +36,9 @@ class DispatchEvent extends Event
 	 */
 	private $request;
 
+    /**
+     * @return Request
+     */
 	protected function get_request()
 	{
 		return $this->request;
@@ -42,15 +47,21 @@ class DispatchEvent extends Event
 	/**
 	 * Reference to the response.
 	 *
-	 * @var Response
+	 * @var Response|null
 	 */
 	private $response;
 
+    /**
+     * @return Response|null
+     */
 	protected function get_response()
 	{
 		return $this->response;
 	}
 
+    /**
+     * @param Response|null $response
+     */
 	protected function set_response(Response $response = null)
 	{
 		$this->response = $response;
@@ -68,6 +79,6 @@ class DispatchEvent extends Event
 		$this->request = $request;
 		$this->response = &$response;
 
-		parent::__construct($target, 'dispatch');
+		parent::__construct($target, self::TYPE);
 	}
 }

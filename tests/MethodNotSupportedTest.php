@@ -15,8 +15,8 @@ class MethodNotSupportedTest extends \PHPUnit_Framework_TestCase
 {
 	public function test_get_method()
 	{
-		$method = 'UNSUPORTED';
-		$e = new MethodNotSupported($method);
-		$this->assertEquals($method, $e->method);
+		$method = 'UNSUPPORTED';
+		$exception = new MethodNotSupported($method);
+		$this->assertEquals($method, $exception->method);
 	}
 }

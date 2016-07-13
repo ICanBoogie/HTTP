@@ -195,6 +195,9 @@ class Status
 	 */
 	private $code;
 
+    /**
+     * @param int $code
+     */
 	protected function set_code($code)
 	{
 		self::assert_code_is_valid($code);
@@ -202,6 +205,9 @@ class Status
 		$this->code = $code;
 	}
 
+    /**
+     * @return int
+     */
 	protected function get_code()
 	{
 		return $this->code;
@@ -368,11 +374,17 @@ class Status
 	 */
 	private $message;
 
+    /**
+     * @param string $message
+     */
 	protected function set_message($message)
 	{
 		$this->message = $message;
 	}
 
+    /**
+     * @return string
+     */
 	protected function get_message()
 	{
 		$message = $this->message;

@@ -19,17 +19,17 @@ class ContextTest extends \PHPUnit_Framework_TestCase
 {
 	public function test_get_request()
 	{
-		$r = Request::from('/');
-		$c = new Context($r);
-		$this->assertSame($r, $c->request);
+		$request = Request::from('/');
+		$context = new Context($request);
+		$this->assertSame($request, $context->request);
 	}
 
 	public function test_set_dispatcher()
 	{
-		$c = new Context(Request::from('/'));
+		$context = new Context(Request::from('/'));
 		$dispatcher = new RequestDispatcher;
-		$c->dispatcher = $dispatcher;
-		$this->assertSame($dispatcher, $c->dispatcher);
+		$context->dispatcher = $dispatcher;
+		$this->assertSame($dispatcher, $context->dispatcher);
 	}
 
 	/**
@@ -37,8 +37,8 @@ class ContextTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_set_dispatcher_invalid()
 	{
-		$c = new Context(Request::from('/'));
-		$c->dispatcher = new \StdClass;
+		$context = new Context(Request::from('/'));
+		$context->dispatcher = new \stdClass;
 	}
 
 	public function test_prototype()

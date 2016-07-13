@@ -22,8 +22,14 @@ class StatusCodeNotValid extends \InvalidArgumentException implements Exception
 {
 	use AccessorTrait;
 
+    /**
+     * @var int
+     */
 	private $status_code;
 
+    /**
+     * @return int
+     */
 	protected function get_status_code()
 	{
 		return $this->status_code;

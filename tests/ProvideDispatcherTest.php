@@ -16,6 +16,9 @@ use ICanBoogie\EventCollectionProvider;
 
 class ProvideDispatcherTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var EventCollection
+     */
 	private $events;
 
 	public function setUp()

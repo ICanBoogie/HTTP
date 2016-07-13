@@ -25,7 +25,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 	{
 		$this->events = $events = new EventCollection;
 
-		EventCollectionProvider::using(function() use ($events) {
+		EventCollectionProvider::define(function() use ($events) {
 
 			return $events;
 
@@ -118,14 +118,10 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 		$dispatcher['megatop'] = new WeightedDispatcher('dummy', 'top');
 		$dispatcher['hypertop'] = new WeightedDispatcher('dummy', 'top');
 
-		$order = '';
-
-		foreach ($dispatcher as $dispatcher_id => $dummy)
-		{
-			$order .= ' ' . $dispatcher_id;
-		}
-
-		$this->assertSame(' hypertop megatop top one two three four bottom megabottom hyperbottom', $order);
+		$this->assertSame(
+		    'hypertop megatop top one two three four bottom megabottom hyperbottom',
+            implode(' ', array_keys(iterator_to_array($dispatcher)))
+        );
 	}
 
 	public function test_head_fallback()

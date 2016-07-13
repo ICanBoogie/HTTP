@@ -9,14 +9,14 @@ class RedirectResponseTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_construct()
 	{
-		$p = "/go/to/there";
-		$r = new RedirectResponse($p);
-		$this->assertTrue($r->status->is_redirect);
-		$this->assertEquals(Status::FOUND, $r->status->code);
-		$this->assertEquals($p, $r->location);
+		$uri = "/go/to/there";
+		$response = new RedirectResponse($uri);
+		$this->assertTrue($response->status->is_redirect);
+		$this->assertEquals(Status::FOUND, $response->status->code);
+		$this->assertEquals($uri, $response->location);
 
-		$body = (string) $r;
-		$this->assertContains($p, $body);
+		$body = (string) $response;
+		$this->assertContains($uri, $body);
 	}
 
 	/**

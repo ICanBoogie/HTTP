@@ -20,7 +20,13 @@ use ICanBoogie\DateTime;
  */
 class Date extends DateTime
 {
-	static public function from($source, $timezone=null)
+    /**
+     * @param mixed $source
+     * @param string|\DateTimeZone|null $timezone
+     *
+     * @return Date|DateTime
+     */
+	static public function from($source, $timezone = null)
 	{
 		if ($source === null)
 		{
@@ -31,14 +37,12 @@ class Date extends DateTime
 	}
 
 	/**
-	 * Constructor.
-	 *
 	 * @param string|int|\DateTime $time If time is provided as a numeric value it is used as
 	 * "@{$time}" and the time zone is set to UTC.
 	 * @param \DateTimeZone|string $timezone A {@link \DateTimeZone} object representing the desired
 	 * time zone. If the time zone is empty `utc` is used instead.
 	 */
-	public function __construct($time='now', $timezone=null)
+	public function __construct($time = 'now', $timezone = null)
 	{
 		if ($time instanceof \DateTime)
 		{
@@ -56,6 +60,8 @@ class Date extends DateTime
 
 	/**
 	 * Formats the instance according to the RFC 1123.
+     *
+     * @inheritdoc
 	 */
 	public function __toString()
 	{

@@ -17,7 +17,7 @@ class RescueEventTest extends \PHPUnit_Framework_TestCase
 
 		#
 
-		$exception = new \StdClass;
+		$exception = new \stdClass;
 		$response = null;
 
 		new RescueEvent($exception, Request::from('/'), $response);
@@ -37,7 +37,7 @@ class RescueEventTest extends \PHPUnit_Framework_TestCase
 		$exception = new \Exception;
 		$response = null;
 		$event = new RescueEvent($exception, Request::from('/'), $response);
-		$event->exception = new \StdClass;
+		$event->exception = new \stdClass;
 	}
 
 	public function test_exception()
@@ -81,7 +81,7 @@ class RescueEventTest extends \PHPUnit_Framework_TestCase
 
 		$response = null;
 		$event = new RescueEvent(new \Exception, Request::from('/'), $response);
-		$event->response = new \StdClass;
+		$event->response = new \stdClass;
 	}
 
 	public function test_should_accept_null()
