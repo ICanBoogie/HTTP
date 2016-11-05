@@ -124,24 +124,7 @@ abstract class Header implements \ArrayAccess
 	 */
 	static protected function parse($source)
 	{
-		if (is_object($source) && method_exists($source, '__toString'))
-		{
-			$source = (string) $source;
-		}
-
-		if (!is_string($source))
-		{
-			throw new \InvalidArgumentException(\ICanBoogie\format
-			(
-				"%var must be a string or an object implementing __toString(). Given: !data", [
-
-					'var' => 'source',
-					'data' => $source
-
-				]
-			));
-		}
-
+		$source = self::ensure_source_is_a_string($source);
 		$value_end = strpos($source, ';');
 		$parameters = [];
 
@@ -168,6 +151,36 @@ abstract class Header implements \ArrayAccess
 		}
 
 		return [ $value, $parameters ];
+	}
+
+	/**
+	 * @param mixed $source
+	 *
+	 * @return string
+	 *
+	 * @throws \InvalidArgumentException if `$source` cannot be converted into a string.
+	 */
+	static protected function ensure_source_is_a_string($source)
+	{
+		if (is_object($source) && method_exists($source, '__toString'))
+		{
+			$source = (string) $source;
+		}
+
+		if (!is_string($source))
+		{
+			throw new \InvalidArgumentException(\ICanBoogie\format
+			(
+				"%var must be a string or an object implementing __toString(). Given: !data", [
+
+					'var' => 'source',
+					'data' => $source
+
+				]
+			));
+		}
+
+		return $source;
 	}
 
 	/**
