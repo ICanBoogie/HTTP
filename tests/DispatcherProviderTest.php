@@ -42,7 +42,7 @@ class DispatcherProviderTest extends \PHPUnit_Framework_TestCase
 
 	public function test_provide()
 	{
-		$dispatcher = $this->getMock(Dispatcher::class);
+		$dispatcher = $this->createMock(Dispatcher::class);
 
 		DispatcherProvider::define(function() use ($dispatcher) {
 

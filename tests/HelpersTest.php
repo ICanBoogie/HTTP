@@ -19,7 +19,7 @@ class HelpersTest extends \PHPUnit_Framework_TestCase
 		$this->assertInstanceOf(RequestDispatcher::class, $dispatcher);
 		$this->assertSame($dispatcher, get_dispatcher());
 
-		$other_dispatcher = $this->getMock(Dispatcher::class);
+		$other_dispatcher = $this->createMock(Dispatcher::class);
 
 		DispatcherProvider::define(function() use ($other_dispatcher) {
 
