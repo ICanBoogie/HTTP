@@ -193,7 +193,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
 		$response = new Response($body);
 		$response_string = (string) $response;
 
-		$this->assertStringStartsWith("HTTP/1.0 200 OK\r\nDate: {$response->date}\r\n", $response_string);
+		$this->assertStringStartsWith("HTTP/1.1 200 OK\r\nDate: {$response->date}\r\n", $response_string);
 		$this->assertNotContains("Content-Length", $response_string);
 		$this->assertNull($response->content_length);
 	}
@@ -217,7 +217,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
 	{
 		$response = new Response;
 
-		$this->assertEquals("HTTP/1.0 200 OK\r\nDate: {$response->date}\r\n\r\n", (string) $response);
+		$this->assertEquals("HTTP/1.1 200 OK\r\nDate: {$response->date}\r\n\r\n", (string) $response);
 		$this->assertNull($response->content_length);
 	}
 
@@ -230,7 +230,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
 		]);
 
 		$this->assertEquals(123, $response->content_length);
-		$this->assertEquals("HTTP/1.0 200 OK\r\nContent-Length: 123\r\nDate: {$response->date}\r\n\r\n", (string) $response);
+		$this->assertEquals("HTTP/1.1 200 OK\r\nContent-Length: 123\r\nDate: {$response->date}\r\n\r\n", (string) $response);
 	}
 
 	public function test_is_validateable()

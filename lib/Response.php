@@ -51,11 +51,11 @@ class Response implements ResponseStatus
 	public $headers;
 
 	/**
-	 * The HTTP protocol version (1.0 or 1.1), defaults to '1.0'
+	 * The HTTP protocol version (1.0 or 1.1), defaults to '1.1'
 	 *
 	 * @var string
 	 */
-	public $version = '1.0';
+	public $version = '1.1';
 
 	/**
 	 * Initializes the `$body`,  `$status`, `$headers`, and `$date` properties.

@@ -144,6 +144,8 @@ class DispatcherTest extends \PHPUnit\Framework\TestCase
 					}
 				}
 
+				return null;
+
 			}
 
 		]);
@@ -194,7 +196,7 @@ class DispatcherTest extends \PHPUnit\Framework\TestCase
 		]);
 
 		$response = $dispatcher($request);
-		$expected = "HTTP/1.0 200 OK\r\nDate: {$response->date}\r\n\r\n";
+		$expected = "HTTP/1.1 200 OK\r\nDate: {$response->date}\r\n\r\n";
 
 		$this->assertInstanceOf(Response::class, $response);
 		$this->assertNotSame($response, $original_response);
