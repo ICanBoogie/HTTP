@@ -17,14 +17,14 @@
 		"issues": "https://github.com/ICanBoogie/HTTP/issues",
 		"source": "https://github.com/ICanBoogie/HTTP"
 	},
-	"minimum-stability": "dev",
 	"require": {
-		"php": ">=5.5",
+		"php": ">=5.6",
 		"icanboogie/prototype": "^2.3",
 		"icanboogie/event": "^1.4|^2.0",
 		"icanboogie/datetime": "^1.2"
 	},
 	"require-dev": {
+		"phpunit/phpunit": "^5.6",
 		"icanboogie/event": "^2.0"
 	},
 	"autoload": {

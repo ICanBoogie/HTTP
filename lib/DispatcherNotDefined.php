@@ -13,6 +13,8 @@ namespace ICanBoogie\HTTP;
 
 use ICanBoogie\Accessor\AccessorTrait;
 
+use function ICanBoogie\format;
+
 /**
  * Exception thrown in attempt to obtain a dispatcher that is not defined.
  *
@@ -57,7 +59,7 @@ class DispatcherNotDefined extends \LogicException implements Exception
 	 */
 	protected function format_message($dispatcher_id)
 	{
-		return \ICanBoogie\format("The dispatcher %dispatcher_id is not defined.", [
+		return format("The dispatcher %dispatcher_id is not defined.", [
 
 			'dispatcher_id' => $dispatcher_id
 

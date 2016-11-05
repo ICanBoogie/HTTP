@@ -13,6 +13,8 @@ namespace ICanBoogie\HTTP\Headers;
 
 use ICanBoogie\Accessor\AccessorTrait;
 
+use function ICanBoogie\remove_accents;
+
 /**
  * Representation of a header parameter.
  *
@@ -155,7 +157,7 @@ class HeaderParameter
 	 */
 	static public function to_ascii($str)
 	{
-		$str = \ICanBoogie\remove_accents($str);
+		$str = remove_accents($str);
 		$str = preg_replace('/[^\x20-\x7F]+/', '', $str);
 
 		return $str;
@@ -165,10 +167,10 @@ class HeaderParameter
 	 * Initializes the {@link $attribute}, {@link $value} and {@link $language} properties.
 	 *
 	 * @param string $attribute
-	 * @param string $value
+	 * @param string|null $value
 	 * @param string|null $language
 	 */
-	public function __construct($attribute, $value=null, $language=null)
+	public function __construct($attribute, $value = null, $language = null)
 	{
 		$this->attribute = $attribute;
 		$this->value = $value;
