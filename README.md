@@ -1121,7 +1121,6 @@ The following packages are required, you might want to check them out:
 
 - [icanboogie/prototype](https://github.com/ICanBoogie/Prototype)
 - [icanboogie/event](https://github.com/ICanBoogie/Event)
-- [icanboogie/datetime](https://github.com/ICanBoogie/DateTime)
 
 
 

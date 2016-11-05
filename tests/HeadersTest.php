@@ -11,8 +11,8 @@
 
 namespace ICanBoogie\HTTP;
 
-use ICanBoogie\DateTime;
 use ICanBoogie\HTTP\Headers\Date as DateHeader;
+use ICanBoogie\HTTP\Headers\Date;
 
 class HeadersTest extends \PHPUnit_Framework_TestCase
 {
@@ -94,10 +94,10 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 
 	public function provide_test_date_header()
 	{
-		$value1 = new \ICanBoogie\DateTime;
+		$value1 = new \DateTimeImmutable;
 		$value2 = new \DateTime;
-		$value3 = (string) $value1;
-		$expected = $value1->utc->as_rfc1123;
+		$value3 = $value1->format(\DateTime::ATOM);
+		$expected = Date::to_rfc1123($value1);
 
 		return [
 
@@ -199,8 +199,8 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 
 	public function test_should_send_headers()
 	{
-		$now = new DateTime('now', 'utc');
-		$in_one_month = new DateTime('+1 month', 'utc');
+		$now = new \DateTime('now', new \DateTimeZone('UTC'));
+		$in_one_month = new \DateTime('+1 month', new \DateTimeZone('UTC'));
 
 		$headers = $this
 			->getMockBuilder(Headers::class)
@@ -213,8 +213,8 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 
 				[ "Cache-Control", "public" ],
 				[ "X-Empty-3", "0" ],
-				[ "Date", $now->as_rfc1123 ],
-				[ "Expires", $in_one_month->as_rfc1123 ]
+				[ "Date", Date::to_rfc1123($now) ],
+				[ "Expires", Date::to_rfc1123($in_one_month) ]
 
 			);
 

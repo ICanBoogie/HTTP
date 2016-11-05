@@ -11,7 +11,6 @@
 
 namespace ICanBoogie\HTTP;
 
-use ICanBoogie\DateTime;
 use ICanBoogie\HTTP\Headers\CacheControl;
 use ICanBoogie\HTTP\Headers\Date;
 
@@ -100,12 +99,12 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	{
 		$response = new Response;
 		$this->assertInstanceOf(Headers\Date::class, $response->date);
-		$this->assertTrue(DateTime::right_now() == $response->date);
+		$this->assertTrue(time() == $response->date->timestamp);
 
 		$response->date = 'now';
 		$this->assertInstanceOf(Headers\Date::class, $response->date);
-		$this->assertEquals('UTC', $response->date->zone->name);
-		$this->assertTrue(DateTime::right_now() == $response->date);
+		$this->assertEquals('UTC', $response->date->getTimezone()->getName());
+		$this->assertTrue(time() == $response->date->timestamp);
 	}
 
 	public function test_age()
@@ -156,7 +155,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 		$this->assertInstanceOf(Date::class, $response->last_modified);
 		$this->assertEmpty((string) $response->last_modified);
 
-		$value = DateTime::now();
+		$value = new \DateTime;
 		$response->last_modified = $value;
 		$this->assertEquals($value, $response->last_modified);
 
@@ -170,7 +169,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 		$this->assertInstanceOf(Date::class, $response->expires);
 		$this->assertEmpty((string) $response->expires);
 
-		$value = DateTime::now();
+		$value = new \DateTime;
 		$response->expires = $value;
 		$this->assertEquals($value, $response->expires);
 
@@ -198,7 +197,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
 	public function provide_test_no_content_length()
 	{
-		$now = DateTime::now();
+		$now = new Headers\Date;
 
 		return [
 

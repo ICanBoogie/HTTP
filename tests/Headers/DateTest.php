@@ -11,12 +11,13 @@
 
 namespace ICanBoogie\HTTP\Headers;
 
-use ICanBoogie\DateTime;
-
 class DateTest extends \PHPUnit_Framework_TestCase
 {
 	/**
 	 * @dataProvider provider_test_to_string
+	 *
+	 * @param string $expected
+	 * @param mixed $datetime
 	 */
 	public function test_to_string($expected, $datetime)
 	{
@@ -27,12 +28,16 @@ class DateTest extends \PHPUnit_Framework_TestCase
 
 	public function provider_test_to_string()
 	{
-		$now = DateTime::now('Europe/Berlin');
+		$berlin = new \DateTimeZone('Europe/Berlin');
+		$now = new \DateTime('now', $berlin);
+		$nowImmutable = new \DateTimeImmutable('now', $berlin);
 
 		return [
 
-			[ $now->utc->as_rfc1123, $now ],
-			[ '', DateTime::none() ],
+			[ Date::to_rfc1123($now), $now ],
+			[ Date::to_rfc1123($nowImmutable), $nowImmutable ],
+			[ '', new \DateTime('0000-00-00') ],
+			[ '', new \DateTimeImmutable('0000-00-00') ],
 			[ '', null ]
 
 		];

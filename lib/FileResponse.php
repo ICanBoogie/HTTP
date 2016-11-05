@@ -11,8 +11,6 @@
 
 namespace ICanBoogie\HTTP;
 
-use ICanBoogie\DateTime;
-
 /**
  * Representation of an HTTP response delivering a file.
  *
@@ -165,7 +163,7 @@ class FileResponse extends Response
 
 		$headers['Expires'] = $expires;
 		$headers['Cache-Control']->cacheable = 'public';
-		$headers['Cache-Control']->max_age = $expires->timestamp - DateTime::now()->timestamp;
+		$headers['Cache-Control']->max_age = $expires->timestamp - time();
 		$headers['Content-Type'] = $this->content_type;
 		$headers['Etag'] = $this->etag;
 
@@ -306,7 +304,7 @@ class FileResponse extends Response
 	 * If the date returned by the parent is empty the method returns a date created from
 	 * {@link DEFAULT_EXPIRES}.
 	 *
-	 * @return DateTime|Headers\Date
+	 * @return Headers\Date
 	 */
 	protected function get_expires()
 	{
@@ -317,7 +315,7 @@ class FileResponse extends Response
 			return $expires;
 		}
 
-		return DateTime::from(self::DEFAULT_EXPIRES);
+		return Headers\Date::from(self::DEFAULT_EXPIRES);
 	}
 
 	/**
@@ -343,7 +341,7 @@ class FileResponse extends Response
 	 */
 	protected function get_is_modified()
 	{
-		/* @var $if_modified_since \ICanBoogie\DateTime */
+		/* @var $if_modified_since Headers\Date */
 
 		$headers = $this->request->headers;
 

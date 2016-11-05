@@ -11,29 +11,71 @@
 
 namespace ICanBoogie\HTTP\Headers;
 
-use ICanBoogie\DateTime;
+use ICanBoogie\PropertyNotDefined;
 
 /**
  * A date time object that renders into a string formatted for HTTP header fields.
  *
  * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3.1
+ *
+ * @property-read bool $is_empty
+ * @property-read int $timestamp
  */
-class Date extends DateTime
+class Date extends \DateTimeImmutable
 {
     /**
      * @param mixed $source
-     * @param string|\DateTimeZone|null $timezone
+     * @param \DateTimeZone|null $timezone
      *
-     * @return Date|DateTime
+     * @return Date
      */
 	static public function from($source, $timezone = null)
 	{
 		if ($source === null)
 		{
-			return static::none();
+			return self::none();
 		}
 
-		return parent::from($source, $timezone);
+		return new static($source, $timezone);
+	}
+
+	/**
+	 * @return Date
+	 */
+	static public function none()
+	{
+		return new static('0000-00-00', self::utc());
+	}
+
+	/**
+	 * @return \DateTimeZone
+	 */
+	static private function utc()
+	{
+		static $utc;
+
+		return $utc ?: $utc = new \DateTimeZone('UTC');
+	}
+
+	/**
+	 * @param \DateTimeInterface $datetime
+	 *
+	 * @return string
+	 */
+	static public function to_rfc1123(\DateTimeInterface $datetime)
+	{
+		$utc = self::utc();
+
+		if ($datetime->getTimezone()->getName() != $utc->getName())
+		{
+			$datetime = new \DateTime($datetime->format(\DateTime::ATOM));
+			$datetime = $datetime->setTimezone($utc);
+		}
+
+		$str = $datetime->format(\DateTime::RFC1123);
+		$str = str_replace(' +0000', ' GMT', $str);
+
+		return $str;
 	}
 
 	/**
@@ -55,7 +97,12 @@ class Date extends DateTime
 			$timezone = null;
 		}
 
-		parent::__construct($time, $timezone ?: 'utc');
+		if (is_string($timezone))
+		{
+			$timezone = new \DateTimeZone($timezone);
+		}
+
+		parent::__construct($time, $timezone ?: self::utc());
 	}
 
 	/**
@@ -65,6 +112,27 @@ class Date extends DateTime
 	 */
 	public function __toString()
 	{
-		return $this->is_empty ? '' : $this->utc->as_rfc1123;
+		if ($this->is_empty)
+		{
+			return '';
+		}
+
+		return self::to_rfc1123($this);
+	}
+
+	public function __get($property)
+	{
+		switch($property)
+		{
+			case 'is_empty':
+				return $this->format('Y') == -1 && $this->format('m') == 11 && $this->format('d') == 30;
+				break;
+
+			case 'timestamp':
+				return $this->getTimestamp();
+				break;
+		}
+
+		throw new PropertyNotDefined([ $property, $this ]);
 	}
 }

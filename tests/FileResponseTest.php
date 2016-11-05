@@ -11,10 +11,18 @@
 
 namespace ICanBoogie\HTTP;
 
-use ICanBoogie\DateTime;
-
 class FileResponseTest extends \PHPUnit_Framework_TestCase
 {
+	/**
+	 * @param mixed $date
+	 *
+	 * @return \DateTime
+	 */
+	static private function date($date)
+	{
+		return new \DateTime($date);
+	}
+
     /**
      * @dataProvider provide_test_closure_body
      *
@@ -243,23 +251,23 @@ class FileResponseTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * @dataProvider provide_test_get_expires
 	 *
-	 * @param DateTime $expected
+	 * @param \DateTime $expected
 	 * @param string $file
 	 * @param array $options
 	 * @param array $headers
 	 */
-	public function test_get_expires(DateTime $expected, $file, $options = [], $headers = [])
+	public function test_get_expires(\DateTime $expected, $file, $options = [], $headers = [])
 	{
 		$response = new FileResponse($file, Request::from(), $options, $headers);
-		$this->assertEquals($expected->utc->format('YmdHi'), $response->expires->utc->format('YmdHi'));
+		$this->assertEquals($expected->format('YmdHi'), $response->expires->format('YmdHi'));
 	}
 
 	public function provide_test_get_expires()
 	{
 		$file = create_file();
-		$expires_default = DateTime::from(FileResponse::DEFAULT_EXPIRES);
+		$expires_default = self::date(FileResponse::DEFAULT_EXPIRES);
 		$expires2_str = "+10 hour";
-		$expires2 = DateTime::from($expires2_str);
+		$expires2 = self::date($expires2_str);
 
 		return [
 
@@ -311,20 +319,20 @@ class FileResponseTest extends \PHPUnit_Framework_TestCase
 
 	public function provide_test_get_is_modified()
 	{
-		$modified_since = DateTime::from('-2 month');
-		$modified_time_older = DateTime::from('-6 month')->timestamp;
-		$modified_time_newer = DateTime::from('-1 month')->timestamp;
+		$modified_since = Headers\Date::to_rfc1123(self::date('-2 month'));
+		$modified_time_older = self::date('-6 month')->getTimestamp();
+		$modified_time_newer = self::date('-1 month')->getTimestamp();
 		$etag = uniqid();
 
 		return [
 
 			[ true, [ ] ],
-			[ true, [ 'If-Modified-Since' => (string) $modified_since ] ],
-			[ true, [ 'If-Modified-Since' => (string) $modified_since ], $modified_time_older ],
-			[ true, [ 'If-Modified-Since' => (string) $modified_since, 'If-None-Match' => uniqid() ], $modified_time_older ],
-			[ true, [ 'If-Modified-Since' => (string) $modified_since, 'If-None-Match' => uniqid() ], $modified_time_older ],
-			[ true, [ 'If-Modified-Since' => (string) $modified_since, 'If-None-Match' => $etag ], $modified_time_newer, $etag ],
-			[ false, [ 'If-Modified-Since' => (string) $modified_since, 'If-None-Match' => $etag ], $modified_time_older, $etag ],
+			[ true, [ 'If-Modified-Since' => $modified_since ] ],
+			[ true, [ 'If-Modified-Since' => $modified_since ], $modified_time_older ],
+			[ true, [ 'If-Modified-Since' => $modified_since, 'If-None-Match' => uniqid() ], $modified_time_older ],
+			[ true, [ 'If-Modified-Since' => $modified_since, 'If-None-Match' => uniqid() ], $modified_time_older ],
+			[ true, [ 'If-Modified-Since' => $modified_since, 'If-None-Match' => $etag ], $modified_time_newer, $etag ],
+			[ false, [ 'If-Modified-Since' => $modified_since, 'If-None-Match' => $etag ], $modified_time_older, $etag ],
 
 		];
 	}

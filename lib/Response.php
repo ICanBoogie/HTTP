@@ -427,7 +427,7 @@ class Response implements ResponseStatus
 
 		if (!$this->date->is_empty)
 		{
-			return max(0, time() - $this->date->utc->timestamp);
+			return max(0, time() - $this->date->timestamp);
 		}
 
 		return null;
