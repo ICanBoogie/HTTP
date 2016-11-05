@@ -4,7 +4,7 @@ namespace ICanBoogie\HTTP;
 
 use ICanBoogie\Exception\RescueEvent;
 
-class RescueEventTest extends \PHPUnit_Framework_TestCase
+class RescueEventTest extends \PHPUnit\Framework\TestCase
 {
 	public function test_error_on_invalid_exception_type()
 	{

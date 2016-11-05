@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP\Headers;
 
-class CacheControlTest extends \PHPUnit_Framework_TestCase
+class CacheControlTest extends \PHPUnit\Framework\TestCase
 {
 	/**
 	 * @dataProvider provide_properties

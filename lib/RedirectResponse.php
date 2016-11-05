@@ -11,6 +11,8 @@
 
 namespace ICanBoogie\HTTP;
 
+use function ICanBoogie\escape;
+
 /**
  * A HTTP response doing a redirect.
  */
@@ -32,7 +34,7 @@ class RedirectResponse extends Response
 			function(Response $response) {
 
 				$location = $response->location;
-				$title = \ICanBoogie\escape($location);
+				$title = escape($location);
 
 				echo <<<EOT
 <!DOCTYPE html>

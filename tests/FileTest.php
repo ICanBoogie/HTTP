@@ -13,7 +13,7 @@ namespace ICanBoogie\HTTP;
 
 use ICanBoogie\FormattedString;
 
-class FileTest extends \PHPUnit_Framework_TestCase
+class FileTest extends \PHPUnit\Framework\TestCase
 {
 	/**
 	 * @dataProvider provide_test_get_extension

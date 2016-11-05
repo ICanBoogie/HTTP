@@ -15,7 +15,7 @@ use ICanBoogie\DateTime;
 use ICanBoogie\HTTP\Headers\CacheControl;
 use ICanBoogie\HTTP\Headers\Date;
 
-class ResponseTest extends \PHPUnit_Framework_TestCase
+class ResponseTest extends \PHPUnit\Framework\TestCase
 {
 	static private $response;
 
@@ -100,12 +100,12 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	{
 		$response = new Response;
 		$this->assertInstanceOf(Headers\Date::class, $response->date);
-		$this->assertTrue(DateTime::right_now() == $response->date);
+		$this->assertTrue(DateTime::right_now()->as_iso8601 == $response->date->as_iso8601);
 
 		$response->date = 'now';
 		$this->assertInstanceOf(Headers\Date::class, $response->date);
 		$this->assertEquals('UTC', $response->date->zone->name);
-		$this->assertTrue(DateTime::right_now() == $response->date);
+		$this->assertTrue(DateTime::right_now()->as_iso8601 == $response->date->as_iso8601);
 	}
 
 	public function test_age()
@@ -172,7 +172,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
 		$value = new DateTime('+1 days');
 		$response->expires = $value;
-		$this->assertEquals($value, $response->expires);
+		$this->assertEquals($value->as_iso8601, $response->expires->as_iso8601);
 		$this->assertSame(86400, $response->cache_control->max_age);
 
 		$response->expires = null;

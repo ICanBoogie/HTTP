@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP;
 
-class FileInfoTest extends \PHPUnit_Framework_TestCase
+class FileInfoTest extends \PHPUnit\Framework\TestCase
 {
 	/**
 	 * @dataProvider provide_test_resolve_type

@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP;
 
-class MethodNotSupportedTest extends \PHPUnit_Framework_TestCase
+class MethodNotSupportedTest extends \PHPUnit\Framework\TestCase
 {
 	public function test_get_method()
 	{

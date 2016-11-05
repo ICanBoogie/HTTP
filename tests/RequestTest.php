@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP;
 
-class RequestTest extends \PHPUnit_Framework_TestCase
+class RequestTest extends \PHPUnit\Framework\TestCase
 {
 	static private $request;
 

@@ -14,6 +14,8 @@ namespace ICanBoogie\HTTP;
 use ICanBoogie\Accessor\AccessorTrait;
 use ICanBoogie\ToArray;
 
+use function ICanBoogie\format;
+
 /**
  * Representation of a POST file.
  *
@@ -108,7 +110,7 @@ class File implements ToArray, FileOptions
 			return new \ICanBoogie\FormattedString($format, $args, $options);
 		}
 
-		return \ICanBoogie\format($format, $args); // @codeCoverageIgnore
+		return format($format, $args); // @codeCoverageIgnore
 	}
 
 	/*

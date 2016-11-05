@@ -13,6 +13,8 @@ namespace ICanBoogie\HTTP;
 
 use ICanBoogie\Accessor\AccessorTrait;
 
+use function ICanBoogie\format;
+
 /**
  * Exception thrown to force the redirect of the response.
  *
@@ -56,6 +58,6 @@ class ForceRedirect extends \Exception implements Exception
 	 */
 	protected function format_message($location)
 	{
-		return \ICanBoogie\format("Location: %location", [ 'location' => $location ]);
+		return format("Location: %location", [ 'location' => $location ]);
 	}
 }

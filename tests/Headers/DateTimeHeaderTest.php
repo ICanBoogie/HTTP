@@ -13,7 +13,7 @@ namespace ICanBoogie\HTTP\Headers;
 
 use ICanBoogie\DateTime;
 
-class DateTest extends \PHPUnit_Framework_TestCase
+class DateTest extends \PHPUnit\Framework\TestCase
 {
 	/**
 	 * @dataProvider provider_test_to_string

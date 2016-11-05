@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP;
 
-class ExceptionTest extends \PHPUnit_Framework_TestCase
+class ExceptionTest extends \PHPUnit\Framework\TestCase
 {
 	/**
 	 * @dataProvider provide_test_implements

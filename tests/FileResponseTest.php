@@ -13,7 +13,7 @@ namespace ICanBoogie\HTTP;
 
 use ICanBoogie\DateTime;
 
-class FileResponseTest extends \PHPUnit_Framework_TestCase
+class FileResponseTest extends \PHPUnit\Framework\TestCase
 {
 	/**
 	 * @expectedException \LogicException

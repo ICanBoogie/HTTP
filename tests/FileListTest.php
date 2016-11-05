@@ -2,7 +2,7 @@
 
 namespace ICanBoogie\HTTP;
 
-class FileListTest extends \PHPUnit_Framework_TestCase
+class FileListTest extends \PHPUnit\Framework\TestCase
 {
 	public function test_from_self_should_return_clone()
 	{

@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP;
 
-class DispatcherProviderTest extends \PHPUnit_Framework_TestCase
+class DispatcherProviderTest extends \PHPUnit\Framework\TestCase
 {
 	public function tearDown()
 	{

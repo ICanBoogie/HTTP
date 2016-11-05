@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP;
 
-class PermissionRequiredTest extends \PHPUnit_Framework_TestCase
+class PermissionRequiredTest extends \PHPUnit\Framework\TestCase
 {
 	public function test_message()
 	{

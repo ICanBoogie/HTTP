@@ -46,7 +46,7 @@ class FileList implements \ArrayAccess, \IteratorAggregate, \Countable
 	/**
 	 * @var File[]
 	 */
-	private $list;
+	private $list = [];
 
 	/**
 	 * @param array $files

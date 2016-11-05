@@ -14,7 +14,7 @@ namespace ICanBoogie\HTTP;
 use ICanBoogie\EventCollection;
 use ICanBoogie\EventCollectionProvider;
 
-class ProvideDispatcherTest extends \PHPUnit_Framework_TestCase
+class ProvideDispatcherTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var EventCollection

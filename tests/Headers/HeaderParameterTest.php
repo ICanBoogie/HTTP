@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP\Headers;
 
-class HeaderParameterTest extends \PHPUnit_Framework_TestCase
+class HeaderParameterTest extends \PHPUnit\Framework\TestCase
 {
 	public function test_is_token()
 	{

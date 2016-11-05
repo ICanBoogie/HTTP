@@ -1103,7 +1103,7 @@ $response = dispatch($request);
 
 ## Requirements
 
-The package requires PHP 5.5 or later.
+The package requires PHP 5.6 or later.
 
 
 

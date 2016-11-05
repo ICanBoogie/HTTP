@@ -15,7 +15,7 @@ use ICanBoogie\HTTP\RequestDispatcher;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
 
-class BeforeDispatchEventTest extends \PHPUnit_Framework_TestCase
+class BeforeDispatchEventTest extends \PHPUnit\Framework\TestCase
 {
 	/**
 	 * @var RequestDispatcher

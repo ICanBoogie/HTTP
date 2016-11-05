@@ -14,7 +14,7 @@ namespace ICanBoogie\HTTP;
 use ICanBoogie\DateTime;
 use ICanBoogie\HTTP\Headers\Date as DateHeader;
 
-class HeadersTest extends \PHPUnit_Framework_TestCase
+class HeadersTest extends \PHPUnit\Framework\TestCase
 {
 	public function testDateTimeFromDateTime()
 	{

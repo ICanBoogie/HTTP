@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP;
 
-class ForceRedirectTest extends \PHPUnit_Framework_TestCase
+class ForceRedirectTest extends \PHPUnit\Framework\TestCase
 {
 	public function test_get_location()
 	{

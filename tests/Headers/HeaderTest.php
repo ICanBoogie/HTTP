@@ -14,7 +14,7 @@ namespace ICanBoogie\HTTP\Headers;
 use ICanBoogie\FormattedString;
 use ICanBoogie\HTTP\Headers\HeaderTest\A;
 
-class HeaderTest extends \PHPUnit_Framework_TestCase
+class HeaderTest extends \PHPUnit\Framework\TestCase
 {
 	public function test_value()
 	{

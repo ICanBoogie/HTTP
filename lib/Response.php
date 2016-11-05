@@ -14,6 +14,8 @@ namespace ICanBoogie\HTTP;
 use ICanBoogie\Accessor\AccessorTrait;
 use ICanBoogie\DateTime;
 
+use function ICanBoogie\format;
+
 /**
  * A response to a HTTP request.
  *
@@ -186,7 +188,7 @@ class Response implements ResponseStatus
 	{
 		if (headers_sent($file, $line))
 		{
-			trigger_error(\ICanBoogie\format("Cannot modify header information because it was already sent. Output started at !at.", [
+			trigger_error(format("Cannot modify header information because it was already sent. Output started at !at.", [
 
 				'at' => $file . ':' . $line
 
@@ -293,7 +295,7 @@ class Response implements ResponseStatus
 			return;
 		}
 
-		throw new \UnexpectedValueException(\ICanBoogie\format('The Response body must be a string, an object implementing the __toString() method or be callable, %type given. !value', [
+		throw new \UnexpectedValueException(format('The Response body must be a string, an object implementing the __toString() method or be callable, %type given. !value', [
 
 			'type' => gettype($body),
 			'value' => $body

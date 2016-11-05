@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP;
 
-class StatusCodeNotValidTest extends \PHPUnit_Framework_TestCase
+class StatusCodeNotValidTest extends \PHPUnit\Framework\TestCase
 {
 	public function test_get_status_code()
 	{

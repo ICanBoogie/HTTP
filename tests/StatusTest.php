@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP;
 
-class StatusTest extends \PHPUnit_Framework_TestCase
+class StatusTest extends \PHPUnit\Framework\TestCase
 {
 	public function test_constructor()
 	{

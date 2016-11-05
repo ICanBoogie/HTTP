@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP;
 
-class HelpersTest extends \PHPUnit_Framework_TestCase
+class HelpersTest extends \PHPUnit\Framework\TestCase
 {
 	public function test_dispatcher()
 	{

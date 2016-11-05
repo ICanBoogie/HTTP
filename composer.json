@@ -26,13 +26,10 @@
 	"prefer-stable": true,
 	"prefer-dist": true,
 	"require": {
-		"php": ">=5.5",
-		"icanboogie/prototype": "^2.3",
-		"icanboogie/event": "^1.4|^2.0",
+		"php": ">=5.6",
+		"icanboogie/prototype": "^3.0",
+		"icanboogie/event": "^3.0",
 		"icanboogie/datetime": "^1.2"
-	},
-	"require-dev": {
-		"icanboogie/event": "^2.0"
 	},
 	"autoload": {
 		"psr-4": {

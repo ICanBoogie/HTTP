@@ -2,7 +2,7 @@
 
 namespace ICanBoogie\HTTP;
 
-class RedirectResponseTest extends \PHPUnit_Framework_TestCase
+class RedirectResponseTest extends \PHPUnit\Framework\TestCase
 {
 	/**
 	 * @covers \ICanBoogie\HTTP\RedirectResponse::__construct

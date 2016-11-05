@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP\Headers;
 
-class ContentDispositionTest extends \PHPUnit_Framework_TestCase
+class ContentDispositionTest extends \PHPUnit\Framework\TestCase
 {
 	/**
      * @dataProvider provider_from

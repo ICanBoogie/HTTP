@@ -14,6 +14,8 @@ namespace ICanBoogie\HTTP;
 use ICanBoogie\Accessor\AccessorTrait;
 use ICanBoogie\Prototype\MethodNotDefined;
 
+use function ICanBoogie\normalize_url_path;
+
 /**
  * An HTTP request.
  *
@@ -522,7 +524,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 		{
 			array_unshift($arguments, $http_method);
 
-			return call_user_func_array([ $this, 'send' ], $arguments);
+			return $this->send(...$arguments);
 		}
 
 		throw new MethodNotDefined($method, $this);
@@ -926,7 +928,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 */
 	protected function get_normalized_path()
 	{
-		return \ICanBoogie\normalize_url_path($this->path);
+		return normalize_url_path($this->path);
 	}
 
 	/**

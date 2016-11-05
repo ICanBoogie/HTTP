@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP;
 
-class RequestRangeTest extends \PHPUnit_Framework_TestCase
+class RequestRangeTest extends \PHPUnit\Framework\TestCase
 {
 	/**
 	 * @dataProvider provide_invalid_range

@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP;
 
-class DispatcherNotDefinedTest extends \PHPUnit_Framework_TestCase
+class DispatcherNotDefinedTest extends \PHPUnit\Framework\TestCase
 {
 	public function test_instance()
 	{

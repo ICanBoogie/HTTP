@@ -37,14 +37,14 @@ class Date extends DateTime
 	}
 
 	/**
-	 * @param string|int|\DateTime $time If time is provided as a numeric value it is used as
+	 * @param string|int|\DateTimeInterface $time If time is provided as a numeric value it is used as
 	 * "@{$time}" and the time zone is set to UTC.
 	 * @param \DateTimeZone|string $timezone A {@link \DateTimeZone} object representing the desired
 	 * time zone. If the time zone is empty `utc` is used instead.
 	 */
 	public function __construct($time = 'now', $timezone = null)
 	{
-		if ($time instanceof \DateTime)
+		if ($time instanceof \DateTimeInterface)
 		{
 			$time = $time->getTimestamp();
 		}

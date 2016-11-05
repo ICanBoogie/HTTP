@@ -16,7 +16,7 @@ namespace ICanBoogie\HTTP;
  */
 class FileInfo
 {
-	static public $types = [
+	const TYPES = [
 
 		'.doc'  => 'application/msword',
 		'.docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -39,7 +39,7 @@ class FileInfo
 
 	];
 
-	static public $forced_types = [
+	const FORCED_TYPES = [
 
 		'.js',
 		'.json',
@@ -48,7 +48,7 @@ class FileInfo
 
 	];
 
-	static public $types_alias = [
+	const TYPES_ALIAS = [
 
 		'text/x-php' => 'application/x-php'
 
@@ -67,10 +67,11 @@ class FileInfo
 	static public function resolve_type($pathname, &$extension = null)
 	{
 		$extension = '.' . strtolower(pathinfo($pathname, PATHINFO_EXTENSION));
+		$types = self::TYPES;
 
-		if (in_array($extension, self::$forced_types))
+		if (in_array($extension, self::FORCED_TYPES))
 		{
-			return self::$types[$extension];
+			return $types[$extension];
 		}
 
 		if (file_exists($pathname) && extension_loaded('fileinfo'))
@@ -80,13 +81,14 @@ class FileInfo
 
 			if ($type)
 			{
-				return isset(self::$types_alias[$type]) ? self::$types_alias[$type] : $type;
+				$alias = self::TYPES_ALIAS;
+				return isset($alias[$type]) ? $alias[$type] : $type;
 			}
 		} // @codeCoverageIgnore
 
-		if (isset(self::$types[$extension]))
+		if (isset($types[$extension]))
 		{
-			return self::$types[$extension];
+			return $types[$extension];
 		}
 
 		return 'application/octet-stream'; // @codeCoverageIgnore

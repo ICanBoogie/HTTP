@@ -13,7 +13,7 @@ namespace ICanBoogie\HTTP\RequestDispatcher;
 
 use ICanBoogie\HTTP\RequestDispatcher;
 
-class AlterEventTest extends \PHPUnit_Framework_TestCase
+class AlterEventTest extends \PHPUnit\Framework\TestCase
 {
 	public function test_instance()
 	{

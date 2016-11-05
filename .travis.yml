@@ -9,13 +9,23 @@ cache:
 language: php
 
 php:
-  - 5.5
   - 5.6
   - 7.0
   - 7.1
+  - hhvm
+
+matrix:
+  allow_failures:
+    - php: 7.1
+    - php: hhvm
 
 before_script:
-  - if [[ $TRAVIS_PHP_VERSION != "5.5" ]]; then phpenv config-rm xdebug.ini; fi
+  - if [[ $TRAVIS_PHP_VERSION != "5.6" ]]; then composer install --prefer-dist; fi
+  - if [[ $TRAVIS_PHP_VERSION = "5.6" ]]; then composer require satooshi/php-coveralls --prefer-dist; fi
 
 script:
-  - if [[ $TRAVIS_PHP_VERSION == "5.5" ]]; then make test-coveralls; else make test; fi
+  - mkdir -p build/logs
+  - phpunit --coverage-clover build/logs/clover.xml
+
+after_success:
+  - if [[ "$TRAVIS_PHP_VERSION" = "5.6" ]]; then php vendor/bin/coveralls -v; fi

@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\HTTP;
 
-class AuthenticationRequiredTest extends \PHPUnit_Framework_TestCase
+class AuthenticationRequiredTest extends \PHPUnit\Framework\TestCase
 {
 	public function test_message()
 	{
