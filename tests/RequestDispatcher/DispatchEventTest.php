@@ -30,12 +30,9 @@ class DispatchEventTest extends \PHPUnit_Framework_TestCase
 
 	public function test_error_on_invalid_response_type()
 	{
-		if (version_compare(PHP_VERSION, 7, '>='))
-		{
-			$this->markTestSkipped("Fatal error in PHP7");
-		}
-
-		$this->setExpectedException(\PHPUnit_Framework_Error::class);
+		$this->expectException(version_compare(PHP_VERSION, 7, '>=')
+			? \Throwable::class
+			: \PHPUnit_Framework_Error::class);
 
 		#
 
@@ -54,12 +51,9 @@ class DispatchEventTest extends \PHPUnit_Framework_TestCase
 
 	public function test_error_on_setting_invalid_response_type()
 	{
-		if (version_compare(PHP_VERSION, 7, '>='))
-		{
-			$this->markTestSkipped("Fatal error in PHP7");
-		}
-
-		$this->setExpectedException(\PHPUnit_Framework_Error::class);
+		$this->expectException(version_compare(PHP_VERSION, 7, '>=')
+			? \Throwable::class
+			: \PHPUnit_Framework_Error::class);
 
 		#
 

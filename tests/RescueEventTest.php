@@ -8,12 +8,9 @@ class RescueEventTest extends \PHPUnit_Framework_TestCase
 {
 	public function test_error_on_invalid_exception_type()
 	{
-		if (version_compare(PHP_VERSION, 7, '>='))
-		{
-			$this->markTestSkipped("Fatal error in PHP7");
-		}
-
-		$this->setExpectedException('PHPUnit_Framework_Error');
+		$this->expectException(version_compare(PHP_VERSION, 7, '>=')
+			? \Throwable::class
+			: \PHPUnit_Framework_Error::class);
 
 		#
 
@@ -25,12 +22,9 @@ class RescueEventTest extends \PHPUnit_Framework_TestCase
 
 	public function test_error_on_setting_invalid_exception_type()
 	{
-		if (version_compare(PHP_VERSION, 7, '>='))
-		{
-			$this->markTestSkipped("Fatal error in PHP7");
-		}
-
-		$this->setExpectedException('PHPUnit_Framework_Error');
+		$this->expectException(version_compare(PHP_VERSION, 7, '>=')
+			? \Throwable::class
+			: \PHPUnit_Framework_Error::class);
 
 		#
 
@@ -54,33 +48,29 @@ class RescueEventTest extends \PHPUnit_Framework_TestCase
 
 	public function test_error_on_invalid_response_type()
 	{
-		if (version_compare(PHP_VERSION, 7, '>='))
-		{
-			$this->markTestSkipped("Fatal error in PHP7");
-		}
-
-		$this->setExpectedException('PHPUnit_Framework_Error');
+		$this->expectException(version_compare(PHP_VERSION, 7, '>=')
+			? \Throwable::class
+			: \PHPUnit_Framework_Error::class);
 
 		#
 
+		$exception = new \Exception;
 		$response = new \StdClass;
 
-		new RescueEvent(new \Exception, Request::from('/'), $response);
+		new RescueEvent($exception, Request::from('/'), $response);
 	}
 
 	public function test_error_on_setting_invalid_response_type()
 	{
-		if (version_compare(PHP_VERSION, 7, '>='))
-		{
-			$this->markTestSkipped("Fatal error in PHP7");
-		}
-
-		$this->setExpectedException('PHPUnit_Framework_Error');
+		$this->expectException(version_compare(PHP_VERSION, 7, '>=')
+			? \Throwable::class
+			: \PHPUnit_Framework_Error::class);
 
 		#
 
+		$exception = new \Exception;
 		$response = null;
-		$event = new RescueEvent(new \Exception, Request::from('/'), $response);
+		$event = new RescueEvent($exception, Request::from('/'), $response);
 		$event->response = new \stdClass;
 	}
 
