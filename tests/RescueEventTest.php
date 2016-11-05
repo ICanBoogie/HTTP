@@ -86,17 +86,19 @@ class RescueEventTest extends \PHPUnit_Framework_TestCase
 
 	public function test_should_accept_null()
 	{
+		$exception = new \Exception;
 		$response = null;
-		$event = new RescueEvent(new \Exception, Request::from('/'), $response);
+		$event = new RescueEvent($exception, Request::from('/'), $response);
 		$this->assertNull($event->response);
 		$event->response = null;
 	}
 
 	public function test_response()
 	{
+		$exception = new \Exception;
 		$response = new Response;
 		$response_replacement = new Response;
-		$event = new RescueEvent(new \Exception, Request::from('/'), $response);
+		$event = new RescueEvent($exception, Request::from('/'), $response);
 		$this->assertInstanceOf(Response::class, $event->response);
 		$this->assertSame($response, $event->response);
 		$event->response = $response_replacement;
@@ -106,9 +108,10 @@ class RescueEventTest extends \PHPUnit_Framework_TestCase
 
 	public function test_should_read_request()
 	{
+		$exception = new \Exception;
 		$request = Request::from('/');
 		$response = null;
-		$event = new RescueEvent(new \Exception, $request, $response);
+		$event = new RescueEvent($exception, $request, $response);
 		$this->assertSame($request, $event->request);
 	}
 
@@ -117,9 +120,10 @@ class RescueEventTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_should_throw_exception_on_write_request()
 	{
+		$exception = new \Exception;
 		$request = Request::from('/');
 		$response = null;
-		$event = new RescueEvent(new \Exception, $request, $response);
+		$event = new RescueEvent($exception, $request, $response);
 		$event->request = null;
 	}
 }
