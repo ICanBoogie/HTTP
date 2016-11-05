@@ -7,11 +7,11 @@
 [![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/HTTP.svg)](https://coveralls.io/r/ICanBoogie/HTTP)
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/http.svg)](https://packagist.org/packages/icanboogie/http)
 
-The **icanboogie/http** package provides an API to handle HTTP requests. It provides representations
-for requests, request files, responses, and headers. A request dispatcher is also provided, that can
-be used with your favorite routing solution with very little effort.
+The **icanboogie/http** package provides an API to handle HTTP requests, with representations for
+requests, request files, responses, and headers. A request dispatcher is also provided, that can be
+used with your favorite routing solution with very little effort.
 
-The following example demonstrates how you can simply use a closure to create a _Hello world!_
+The following example demonstrates how you can use a simple closure to create a _Hello world!_
 application:
 
 ```php
@@ -97,6 +97,8 @@ The `is_safe` property may be used to check if a request is safe or not.
 ```php
 <?php
 
+use ICanBoogie\HTTP\Request;
+
 Request::from([ Request::OPTION_METHOD => Request::METHOD_GET ])->is_safe; // true
 Request::from([ Request::OPTION_METHOD => Request::METHOD_POST ])->is_safe; // false
 Request::from([ Request::OPTION_METHOD => Request::METHOD_DELETE ])->is_safe; // false
@@ -110,6 +112,8 @@ The `is_idempotent` property may be used to check if a request is idempotent or 
 
 ```php
 <?php
+
+use ICanBoogie\HTTP\Request;
 
 Request::from([ Request::OPTION_METHOD => Request::METHOD_GET ])->is_idempotent; // true
 Request::from([ Request::OPTION_METHOD => Request::METHOD_POST ])->is_idempotent; // false
@@ -152,6 +156,8 @@ You can access each type of parameter as follows:
 ```php
 <?php
 
+/* @var $request \ICanBoogie\HTTP\Request */
+
 $id = $request->query_params['id'];
 $method = $request->request_params['method'];
 $info = $request->path_params['info'];
@@ -162,6 +168,8 @@ _query_, _request_ and _path_ parameters:
 
 ```php
 <?php
+
+/* @var $request \ICanBoogie\HTTP\Request */
 
 $id = $request->params['id'];
 $method = $request->params['method'];
@@ -174,6 +182,8 @@ when a parameter is not defined:
 ```php
 <?php
 
+/* @var $request \ICanBoogie\HTTP\Request */
+
 $id = $request['id'];
 $method = $request['method'];
 $info = $request['info'];
@@ -185,6 +195,8 @@ Of course, the request is also an iterator:
 
 ```php
 <?php
+
+/* @var $request \ICanBoogie\HTTP\Request */
 
 foreach ($request as $parameter => $value)
 {
@@ -239,6 +251,10 @@ let's you move the file out of the temporary folder or around the filesystem.
 ```php
 <?php
 
+use ICanBoogie\HTTP\File;
+
+/* @var $file File */
+
 echo $file->name;            // example.zip
 echo $file->unsuffixed_name; // example
 echo $file->extension;       // .zip
@@ -258,12 +274,14 @@ extension:
 ```php
 <?php
 
+/* @var $file \ICanBoogie\HTTP\File */
+
 echo $file->match('application/zip');             // true
 echo $file->match('application');                 // true
 echo $file->match('.zip');                        // true
-echo $file->match('image/png')                    // false
-echo $file->match('image')                        // false
-echo $file->match('.png')                         // false
+echo $file->match('image/png');                   // false
+echo $file->match('image');                       // false
+echo $file->match('.png');                        // false
 ```
 
 The method also handles sets, and returns `true` if there's any match:
@@ -321,6 +339,7 @@ requested from the context:
 ```php
 <?php
 
+use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Request\Context;
 use ICanBoogie\Prototype;
 
@@ -350,6 +369,8 @@ thrown otherwise.
 
 ```php
 <?php
+
+/* @var $request \ICanBoogie\HTTP\Request */
 
 $response = $request();
 
@@ -387,6 +408,8 @@ The header and body are sent by invoking the response:
 
 ```php
 <?php
+
+/* @var $response \ICanBoogie\HTTP\Response */
 
 $response();
 ```
@@ -501,6 +524,8 @@ instance, and a request.
 
 use ICanBoogie\HTTP\FileResponse;
 
+/* @var $request \ICanBoogie\HTTP\Request */
+
 $response = new FileResponse("/absolute/path/to/my/file", $request);
 $response();
 ```
@@ -512,6 +537,8 @@ supported:
 <?php
 
 use ICanBoogie\HTTP\FileResponse;
+
+/* @var $request \ICanBoogie\HTTP\Request */
 
 $response = new FileResponse("/absolute/path/to/my/file", $request, [
 
@@ -563,6 +590,8 @@ The `Content-Type` header is represented by a [ContentType][] instance.
 ```php
 <?php
 
+/* @var $response \ICanBoogie\HTTP\Response */
+
 $response->headers['Content-Type'] = 'text/html; charset=utf-8';
 
 echo $response->headers['Content-Type']->type; // text/html
@@ -585,6 +614,8 @@ utf-8 file names are supported.
 ```php
 <?php
 
+/* @var $response \ICanBoogie\HTTP\Response */
+
 $response->headers['Content-Disposition'] = 'attachment; filename="été.jpg"';
 
 echo $response->headers['Content-Disposition']->type; // attachment
@@ -605,6 +636,8 @@ Directives of the [rfc2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html) ar
 
 ```php
 <?php
+
+/* @var $response \ICanBoogie\HTTP\Response */
 
 $response->headers['Cache-Control'] = 'public, max-age=3600, no-transform';
 
@@ -776,8 +809,8 @@ get_dispatcher() === DispatcherProvider::provide();   // true
 ### Altering the dispatcher
 
 The `ICanBoogie\HTTP\RequestDispatcher::alter` event of class [RequestDispatcher\AlterEvent][] is
-fired after the dispatcher has been created by an instance of [ProvideDispatcher][]. Event hooks
-may use this event to register or alter domain dispatchers, or replace the request dispatcher
+fired after the dispatcher has been created by an instance of [ProvideDispatcher][]. Event hooks may
+attach to this event to register or alter domain dispatchers, or replace the request dispatcher
 altogether.
 
 The following code illustrate how a `hello` dispatcher, that returns
@@ -821,6 +854,11 @@ otherwise the response is returned.
 ```php
 <?php
 
+use ICanBoogie\HTTP\NotFound;
+use ICanBoogie\HTTP\Request;
+
+/* @var $dispatcher \ICanBoogie\HTTP\Dispatcher */
+
 $request = Request::from('/path/to/resource.html');
 
 try
@@ -843,8 +881,8 @@ catch (NotFound $e)
 The `ICanBoogie\HTTP\RequestDispatcher::dispatch:before` event of class [BeforeDispatchEvent][]
 is fired before a request is dispatched.
 
-Third parties may use this event to provide a response to the request before the domain dispatchers
-are invoked. If a response is provided the domain dispatchers are skipped.
+Event hooks may attach to this event to provide a response to the request before the domain
+dispatchers are invoked. If a response is provided the domain dispatchers are skipped.
 
 The event is usually used to redirect requests or provide cached responses. The following code
 demonstrates how a request could be redirected if its path is not normalized. For instance a
@@ -855,6 +893,8 @@ request for "/index.html" would be redirected to "/".
 
 use ICanBoogie\HTTP\RequestDispatcher;
 use ICanBoogie\HTTP\RedirectResponse;
+
+/* @var $events \ICanBoogie\EventCollection */
 
 $events->attach(function(RequestDispatcher\BeforeDispatchEvent $event, RequestDispatcher $dispatcher) {
 
@@ -884,14 +924,16 @@ prevent other event hooks from altering the response.
 The `ICanBoogie\HTTP\RequestDispatcher::dispatch` event of class [DispatchEvent][] is fired after a
 request was dispatched, even if no response was provided by domain dispatchers.
 
-Third parties may use this event to alter or replace the response before it is returned by the
-dispatcher. The following code demonstrates how a cache could be updated after a response with
-the content type "text/html" was found for a request.
+Event hooks may attach to this event to alter or replace the response before it is returned by the
+dispatcher. The following code demonstrates how a cache could be updated after a response with the
+content type "text/html" was found for a request.
 
 ```php
 <?php
 
 use ICanBoogie\HTTP\RequestDispatcher;
+
+/* @var $events \ICanBoogie\EventCollection */
 
 $events->attach(function(RequestDispatcher\DispatchEvent $event, RequestDispatcher $target) use($cache) {
 
@@ -920,9 +962,9 @@ instead of the default exception message when a [AuthenticationRequired][] excep
 Exceptions can be rescued at two levels: the domain dispatcher level, using its `rescue()`
 method; or the request dispatcher level, by listening to the `Exception::rescue` event.
 
-Third parties may use the `Exception::rescue` event of class [RescueEvent][] to provide a response
-for an exception. The following example demonstrates how a login form can be returned as response
-when a [AuthenticationRequired][] exception is thrown.
+Event hooks may attach to the `Exception::rescue` event of class [RescueEvent][] to provide a
+response for an exception. The following example demonstrates how a login form can be returned as
+response when a [AuthenticationRequired][] exception is thrown.
 
 ```php
 <?php
@@ -930,6 +972,8 @@ when a [AuthenticationRequired][] exception is thrown.
 use ICanBoogie\Event;
 use ICanBoogie\HTTP\AuthenticationRequired;
 use ICanBoogie\HTTP\Response;
+
+/* @var $events \ICanBoogie\EventCollection */
 
 $events->attach(function(ICanBoogie\Exception\RescueEvent $event, AuthenticationRequired $target) {
 
@@ -1034,7 +1078,7 @@ The following helpers are available:
 
 * [`dispatch()`][]: Dispatches a request using the dispatcher returned by [`get_dispatcher()`][].
 * [`get_dispatcher()`][]: Returns the request dispatcher. If no dispatcher provider is defined,
-the method defines a new instance of [ProvideDispatcher][] as provider and use it to retrieve the
+the method defines a new instance of [DispatcherProvider][] as provider and use it to retrieve the
 dispatcher.
 * [`get_initial_request()`][]: Returns the initial request.
 
@@ -1132,40 +1176,41 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
 
 [ToArray]:                       http://api.icanboogie.org/common/1.2/class-ICanBoogie.ToArray.html
-[documentation]:                 http://api.icanboogie.org/http/2.7/
-[AuthenticationRequired]:        http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.AuthenticationRequired.html
-[ProvideDispatcher]:             http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.ProvideDispatcher.html
-[BeforeDispatchEvent]:           http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.RequestDispatcher.BeforeDispatchEvent.html
-[CacheControl]:                  http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.Headers.CacheControl.html
-[ClientError]:                   http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.ClientError.html
-[ContentDisposition]:            http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.Headers.ContentDisposition.html
-[ContentType]:                   http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.Headers.ContentType.html
-[DispatchEvent]:                 http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.RequestDispatcher.DispatchEvent.html
-[Dispatcher]:                    http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.Dispatcher.html
-[DispatcherProvider::provide()]: http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.DispatcherProvider.html#_provide
-[Headers]:                       http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.Headers.html
-[File]:                          http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.File.html
-[FileList]:                      http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.FileList.html
-[FileResponse]:                  http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.FileResponse.html
-[ForceRedirect]:                 http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.ForceRedirect.html
-[MethodNotSupported]:            http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.MethodNotSupported.html
-[NotFound]:                      http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.NotFound.html
-[PermissionRequired]:            http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.PemissionRequired.html
-[ProvideDispatcher]:             http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.ProvideDispatcher.html
-[RedirectResponse]:              http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.RedirectResponse.html
-[Request]:                       http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.Request.html
-[RequestDispatcher]:             http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.RequestDispatcher.html
-[RequestDispatcher\AlterEvent]:  http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.RequestDispatcher.AlterEvent.html
-[Response]:                      http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.Response.html
-[RescueEvent]:                   http://api.icanboogie.org/http/2.7/class-ICanBoogie.Exception.RescueEvent.html
-[SecurityError]:                 http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.SecurityError.html
-[ServerError]:                   http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.ServerError.html
-[ServiceUnavailable]:            http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.ServiceUnavailable.html
-[StatusCodeNotValid]:            http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.StatusCodeNotValid.html
-[Status]:                        http://api.icanboogie.org/http/2.7/class-ICanBoogie.HTTP.Status.html
-[`dispatch()`]:                  http://api.icanboogie.org/http/2.7/function-ICanBoogie.HTTP.dispatch.html
-[`get_dispatcher()`]:            http://api.icanboogie.org/http/2.7/function-ICanBoogie.HTTP.get_dispatcher.html
-[`get_initial_request()`]:       http://api.icanboogie.org/http/2.7/function-ICanBoogie.HTTP.get_initial_request.html
+[documentation]:                 http://api.icanboogie.org/http/2.6/
+[AuthenticationRequired]:        http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.AuthenticationRequired.html
+[ProvideDispatcher]:             http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.ProvideDispatcher.html
+[BeforeDispatchEvent]:           http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.RequestDispatcher.BeforeDispatchEvent.html
+[CacheControl]:                  http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.Headers.CacheControl.html
+[ClientError]:                   http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.ClientError.html
+[ContentDisposition]:            http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.Headers.ContentDisposition.html
+[ContentType]:                   http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.Headers.ContentType.html
+[DispatchEvent]:                 http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.RequestDispatcher.DispatchEvent.html
+[Dispatcher]:                    http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.Dispatcher.html
+[DispatcherProvider]:            http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.DispatcherProvider.html
+[DispatcherProvider::provide()]: http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.DispatcherProvider.html#_provide
+[Headers]:                       http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.Headers.html
+[File]:                          http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.File.html
+[FileList]:                      http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.FileList.html
+[FileResponse]:                  http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.FileResponse.html
+[ForceRedirect]:                 http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.ForceRedirect.html
+[MethodNotSupported]:            http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.MethodNotSupported.html
+[NotFound]:                      http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.NotFound.html
+[PermissionRequired]:            http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.PemissionRequired.html
+[ProvideDispatcher]:             http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.ProvideDispatcher.html
+[RedirectResponse]:              http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.RedirectResponse.html
+[Request]:                       http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.Request.html
+[RequestDispatcher]:             http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.RequestDispatcher.html
+[RequestDispatcher\AlterEvent]:  http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.RequestDispatcher.AlterEvent.html
+[Response]:                      http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.Response.html
+[RescueEvent]:                   http://api.icanboogie.org/http/2.6/class-ICanBoogie.Exception.RescueEvent.html
+[SecurityError]:                 http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.SecurityError.html
+[ServerError]:                   http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.ServerError.html
+[ServiceUnavailable]:            http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.ServiceUnavailable.html
+[StatusCodeNotValid]:            http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.StatusCodeNotValid.html
+[Status]:                        http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.Status.html
+[`dispatch()`]:                  http://api.icanboogie.org/http/2.6/function-ICanBoogie.HTTP.dispatch.html
+[`get_dispatcher()`]:            http://api.icanboogie.org/http/2.6/function-ICanBoogie.HTTP.get_dispatcher.html
+[`get_initial_request()`]:       http://api.icanboogie.org/http/2.6/function-ICanBoogie.HTTP.get_initial_request.html
 
 [ICanBoogie]:         https://github.com/ICanBoogie/ICanBoogie
 [icanboogie/routing]: https://github.com/ICanBoogie/Routing
