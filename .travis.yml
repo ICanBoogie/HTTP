@@ -15,7 +15,7 @@ php:
 
 before_script:
   - travis_retry composer self-update
-  - if [[ $TRAVIS_PHP_VERSION != "5.5" ]]; then composer install; fi
+  - if [[ $TRAVIS_PHP_VERSION != "5.5" ]]; then composer install --prefer-dist; fi
   - if [[ $TRAVIS_PHP_VERSION = "5.5" ]]; then composer require satooshi/php-coveralls --prefer-dist; fi
 
 script:
