@@ -12,6 +12,7 @@
 namespace ICanBoogie\HTTP;
 
 use ICanBoogie\Accessor\AccessorTrait;
+use ICanBoogie\DateTime;
 
 /**
  * A response to a HTTP request.
@@ -454,13 +455,16 @@ class Response implements ResponseStatus
 	/**
 	 * Sets the value of the `Expires` header field.
 	 *
-	 * The method also calls the {@link session_cache_expire()} function.
+	 * The method updates the `max-age` the Cache Control directive accordingly.
 	 *
 	 * @param mixed $time
 	 */
 	protected function set_expires($time)
 	{
 		$this->headers['Expires'] = $time;
+		/* @var DateTime $expires */
+		$expires = $this->headers['Expires'];
+		$this->cache_control->max_age = $expires->is_empty ? null : $expires->timestamp - time();
 	}
 
 	/**

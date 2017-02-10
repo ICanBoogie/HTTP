@@ -170,12 +170,14 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 		$this->assertInstanceOf(Date::class, $response->expires);
 		$this->assertEmpty((string) $response->expires);
 
-		$value = DateTime::now();
+		$value = new DateTime('+1 days');
 		$response->expires = $value;
 		$this->assertEquals($value, $response->expires);
+		$this->assertSame(86400, $response->cache_control->max_age);
 
 		$response->expires = null;
 		$this->assertEmpty((string) $response->expires);
+		$this->assertNull($response->cache_control->max_age);
 	}
 
     /**
