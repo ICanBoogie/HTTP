@@ -17,7 +17,7 @@ use ICanBoogie\Prototype\MethodNotDefined;
 /**
  * An HTTP request.
  *
- * <pre>
+ * ```php
  * <?php
  *
  * use ICanBoogie\HTTP\Request;
@@ -37,17 +37,17 @@ use ICanBoogie\Prototype\MethodNotDefined;
  *     Request::OPTION_IS_LOCAL => true
  *
  * ], $_SERVER);
- * </pre>
+ * ```
  *
- * @method Response connect() connect(array $params=null)
- * @method Response delete() delete(array $params=null)
- * @method Response get() get(array $params=null)
- * @method Response head() head(array $params=null)
- * @method Response options() options(array $params=null)
- * @method Response post() post(array $params=null)
- * @method Response put() put(array $params=null)
- * @method Response patch() patch(array $params=null)
- * @method Response trace() trace(array $params=null)
+ * @method Response connect(array $params=null)
+ * @method Response delete(array $params=null)
+ * @method Response get(array $params=null)
+ * @method Response head(array $params=null)
+ * @method Response options(array $params=null)
+ * @method Response post(array $params=null)
+ * @method Response put(array $params=null)
+ * @method Response patch(array $params=null)
+ * @method Response trace(array $params=null)
  *
  * @property-read Request\Context $context the request's context.
  * @property-read Request $parent Parent request.
@@ -70,7 +70,7 @@ use ICanBoogie\Prototype\MethodNotDefined;
  * @property-read boolean $is_local Is this a local request?
  * @property-read boolean $is_xhr Is this an Ajax request?
  * @property-read string $method Method of the request.
- * @property-read string $normalized_path Path of the request normalized using the {@link \ICanBoogie\normalize_url_path()} function.
+ * @property-read string $normalized_path Path of the request normalized using the `\ICanBoogie\normalize_url_path` function.
  * @property-read string $path Path info of the request.
  * @property-read string $extension The extension of the path.
  * @property-read int $port Port of the request.
@@ -79,7 +79,7 @@ use ICanBoogie\Prototype\MethodNotDefined;
  * @property-read string $referer Referer of the request.
  * @property-read string $user_agent User agent of the request.
  * @property-read string $uri URI of the request. The `QUERY_STRING` value of the environment
- * is overwritten when the instance is created with the {@link $uri} property.
+ * is overwritten when the instance is created with the `$uri` property.
  *
  * @see http://en.wikipedia.org/wiki/Uniform_resource_locator
  */
@@ -87,7 +87,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 {
 	use AccessorTrait;
 
-	static public $methods = [
+	const METHODS = [
 
 		self::METHOD_CONNECT,
 		self::METHOD_DELETE,
@@ -101,12 +101,21 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 
 	];
 
+	const SAFE_METHODS = [
+
+		self::METHOD_DELETE,
+		self::METHOD_PATCH,
+		self::METHOD_POST,
+		self::METHOD_PUT
+
+	];
+
 	/**
 	 * Current request.
 	 *
 	 * @var Request
 	 */
-	static protected $current_request;
+	static private $current_request;
 
 	/**
 	 * Returns the current request.
@@ -151,7 +160,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @var Request\Context
 	 */
-	protected $context;
+	private $context;
 
 	/**
 	 * The headers of the request.
@@ -165,14 +174,14 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @var array
 	 */
-	protected $env;
+	private $env;
 
 	/**
 	 * Files associated with the request.
 	 *
 	 * @var FileList
 	 */
-	protected $files;
+	private $files;
 
 	protected function get_files()
 	{
@@ -191,7 +200,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @var Request
 	 */
-	protected $parent;
+	private $parent;
 
 	/**
 	 * A request may be created from the `$_SERVER` super global array. In that case `$_SERVER` is
@@ -424,7 +433,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 */
 	private function assert_method($method)
 	{
-		if (!in_array($method, self::$methods))
+		if (!in_array($method, self::METHODS))
 		{
 			throw new MethodNotSupported($method);
 		}
@@ -494,11 +503,11 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * Example:
 	 *
-	 * <pre>
+	 * ```php
 	 * <?php
 	 *
 	 * Request::from('/api/core/aloha')->get();
-	 * </pre>
+	 * ```
 	 *
 	 * @param $method
 	 * @param $arguments
@@ -509,7 +518,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	{
 		$http_method = strtoupper($method);
 
-		if (in_array($http_method, self::$methods))
+		if (in_array($http_method, self::METHODS))
 		{
 			array_unshift($arguments, $http_method);
 
@@ -794,14 +803,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 */
 	protected function get_is_safe()
 	{
-		return !in_array($this->method, [
-
-			self::METHOD_DELETE,
-			self::METHOD_PATCH,
-			self::METHOD_POST,
-			self::METHOD_PUT
-
-		]);
+		return !in_array($this->method, self::SAFE_METHODS);
 	}
 
 	/**
@@ -918,7 +920,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 
 	/**
 	 * Returns the {@link $path} property normalized using the
-	 * {@link \ICanBoogie\normalize_url_path()} function.
+	 * `ICanBoogie\normalize_url_path()` function.
 	 *
 	 * @return string
 	 */

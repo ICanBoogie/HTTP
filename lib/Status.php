@@ -14,10 +14,10 @@ namespace ICanBoogie\HTTP;
 use ICanBoogie\Accessor\AccessorTrait;
 
 /**
- * Class Status
+ * Representation of a response status.
  *
- * @property int $code
- * @property string $message
+ * @property int $code HTTP Status code.
+ * @property string $message Status message.
  *
  * @property-read bool $is_cacheable Whether the status is cacheable.
  * @property-read bool $is_client_error Whether the status is a client error.
@@ -82,7 +82,7 @@ class Status
 	 *
 	 * @var array
 	 */
-	static public $codes_and_messages = [
+	const CODES_AND_MESSAGES = [
 
 		100 => "Continue",
 		101 => "Switching Protocols",
@@ -392,7 +392,7 @@ class Status
 
 		if (!$message && $code)
 		{
-			$message = self::$codes_and_messages[$code];
+			$message = self::CODES_AND_MESSAGES[$code];
 		}
 
 		return $message;
@@ -407,7 +407,7 @@ class Status
 		self::assert_code_is_valid($code);
 
 		$this->code = $code;
-		$this->message = $message ?: self::$codes_and_messages[$code];
+		$this->message = $message ?: self::CODES_AND_MESSAGES[$code];
 	}
 
 	public function __toString()

@@ -22,7 +22,7 @@ class DispatcherProvider
 	static private $provider;
 
 	/**
-	 * Whether a provider if defined.
+	 * Return the current provider, or `null` if there is none.
 	 *
 	 * @return callable|null
 	 */
@@ -32,11 +32,11 @@ class DispatcherProvider
 	}
 
 	/**
-	 * Defines the {@link Dispatcher} provider.
+	 * Define a {@link Dispatcher} provider.
 	 *
 	 * @param callable $provider
 	 *
-	 * @return callable|null The previous provider, or `null` if none was defined before.
+	 * @return callable|null The previous provider, or `null` if none was defined.
 	 */
 	static public function define(callable $provider)
 	{
@@ -48,7 +48,7 @@ class DispatcherProvider
 	}
 
 	/**
-	 * Undefine the {@link Dispatcher} provider.
+	 * Undefine the current {@link Dispatcher} provider.
 	 */
 	static public function undefine()
 	{
@@ -56,7 +56,7 @@ class DispatcherProvider
 	}
 
 	/**
-	 * Returns a {@link Dispatcher} instance using the provider.
+	 * Return a {@link Dispatcher} instance using the current provider.
 	 *
 	 * @return Dispatcher
 	 *

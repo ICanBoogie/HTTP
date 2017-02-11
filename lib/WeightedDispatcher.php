@@ -16,11 +16,11 @@ use ICanBoogie\Accessor\AccessorTrait;
 /**
  * Used to define a dispatcher and its weight.
  *
- * <pre>
+ * ```php
  * <?php
  *
  * $dispatcher['my'] = new WeightedDispatcher('callback', 'before:that_other_dispatcher');
- * </pre>
+ * ```
  *
  * @property-read string|Dispatcher $dispatcher
  * @property-read int|string $weight

@@ -53,7 +53,7 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @var array
 	 */
-	protected $fields = [];
+	private $fields = [];
 
 	/**
 	 * If the `REQUEST_URI` key is found in the header fields they are considered coming from the
@@ -163,12 +163,10 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	 * @param string $field
 	 * @param string $value
 	 */
-	// @codeCoverageIgnoreStart
-	protected function send_header($field, $value)
+	protected function send_header($field, $value) // @codeCoverageIgnoreStart
 	{
 		header("$field: $value");
-	}
-	// @codeCoverageIgnoreEnd
+	}// @codeCoverageIgnoreEnd
 
 	/**
 	 * Checks if a header field exists.
@@ -209,14 +207,14 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * Sets a header field.
 	 *
-	 * Note: Setting a header field to `null` removes it, just like unset() would.
+	 * > **Note:** Setting a header field to `null` removes it, just like unset() would.
 	 *
-	 * ## Date, Expires, Last-Modified
+	 * **Date, Expires, Last-Modified**
 	 *
 	 * The `Date`, `Expires` and `Last-Modified` header fields can be provided as a Unix
 	 * timestamp, a string or a {@link \DateTime} object.
 	 *
-	 * ## Cache-Control, Content-Disposition and Content-Type
+	 * **Cache-Control, Content-Disposition and Content-Type**
 	 *
 	 * Instances of the {@link Headers\CacheControl}, {@link Headers\ContentDisposition} and
 	 * {@link Headers\ContentType} are used to handle the values of the `Cache-Control`,

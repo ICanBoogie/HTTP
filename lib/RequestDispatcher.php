@@ -18,7 +18,7 @@ use ICanBoogie\HTTP\RequestDispatcher\DispatchEvent;
 /**
  * Dispatches HTTP requests.
  *
- * ## Events
+ * The following events are fired during the dispatching of requests:
  *
  * - `ICanBoogie\HTTP\RequestDispatcher::dispatch:before` of class {@link BeforeDispatchEvent}.
  * - `ICanBoogie\HTTP\RequestDispatcher::dispatch` of class {@link DispatchEvent}.
@@ -27,24 +27,25 @@ use ICanBoogie\HTTP\RequestDispatcher\DispatchEvent;
 class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 {
 	/**
-	 * The dispatchers called during the dispatching of the request.
+	 * Dispatchers called during the dispatching of the request.
 	 *
 	 * @var array
 	 */
-	protected $dispatchers = [];
+	private $dispatchers = [];
 
 	/**
-	 * The weights of the dispatchers.
+	 * Weights of dispatchers.
 	 *
 	 * @var array
 	 */
-	protected $dispatchers_weight = [];
-
-	protected $dispatchers_order;
+	private $dispatchers_weight = [];
 
 	/**
-	 * Initializes the {@link $dispatchers} property.
-	 *
+	 * @var array|null
+	 */
+	private $dispatchers_order;
+
+	/**
 	 * Dispatchers can be defined as callable or class name. If a dispatcher definition is not a
 	 * callable it is used as class name to instantiate a dispatcher.
 	 *
@@ -59,19 +60,19 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	}
 
 	/**
-	 * Dispatches the request to retrieve a {@link Response}.
+	 * Dispatch a request and return a {@link Response}.
 	 *
 	 * The request is dispatched by the {@link dispatch()} method. If an exception is thrown
 	 * during the dispatch the {@link rescue()} method is used to rescue the exception and
 	 * retrieve a {@link Response}.
 	 *
-	 * ## HEAD requests
+	 * **HEAD requests**
 	 *
 	 * If a {@link NotFound} exception is caught during the dispatching of a request with a
-	 * {@link Request::METHOD_HEAD} method the following happens:
+	 * `Request::METHOD_HEAD` method the following happens:
 	 *
 	 * 1. The request is cloned and the method of the cloned request is changed to
-	 * {@link Request::METHOD_GET}.
+	 * `Request::METHOD_GET`.
 	 * 2. The cloned method is dispatched.
 	 * 3. If the result is *not* a {@link Response} instance, the result is returned.
 	 * 4. Otherwise, a new {@link Response} instance is created with a `null` body, but the status
@@ -95,7 +96,7 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	}
 
 	/**
-	 * Dispatches the request and try to rescue it if it fails.
+	 * Dispatch the request and try to rescue it if it fails.
 	 *
 	 * If a {@link NotFound} exception is caught and the request method is `HEAD`, the request
 	 * is passed to {@link handle_head()}.
@@ -160,7 +161,7 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	}
 
 	/**
-	 * Checks if the dispatcher is defined.
+	 * Check if the dispatcher is defined.
 	 *
 	 * @param string $dispatcher_id The identifier of the dispatcher.
 	 *
@@ -172,7 +173,7 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	}
 
 	/**
-	 * Returns a dispatcher.
+	 * Return a dispatcher.
 	 *
 	 * @param string $dispatcher_id The identifier of the dispatcher.
 	 *
@@ -189,7 +190,7 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	}
 
 	/**
-	 * Defines a dispatcher.
+	 * Define a dispatcher.
 	 *
 	 * @param string $dispatcher_id The identifier of the dispatcher.
 	 * @param mixed $dispatcher The dispatcher class or callback.
@@ -210,7 +211,7 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	}
 
 	/**
-	 * Removes a dispatcher.
+	 * Remove a dispatcher.
 	 *
 	 * @param string $dispatcher_id The identifier of the dispatcher.
 	 */
@@ -239,9 +240,9 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	}
 
 	/**
-	 * Dispatches a request using the defined dispatchers.
+	 * Dispatch a request using defined dispatchers.
 	 *
-	 * The method iterates over the defined dispatchers until one of them returns a
+	 * The method iterates over defined dispatchers until one of them returns a
 	 * {@link Response} instance. If an exception is throw during the dispatcher execution and
 	 * the dispatcher implements the {@link Dispatcher} interface then its
 	 * {@link Dispatcher::rescue} method is invoked to rescue the exception, otherwise the
@@ -301,7 +302,7 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	}
 
 	/**
-	 * Dispatches the request using a dispatcher.
+	 * Dispatch the request using a dispatcher.
 	 *
 	 * @param Dispatcher $dispatcher
 	 * @param Request $request
@@ -329,7 +330,7 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	}
 
 	/**
-	 * Tries to get a {@link Response} object from an exception.
+	 * Try to get a {@link Response} object from an exception.
 	 *
 	 * {@link \ICanBoogie\Exception\RescueEvent} is fired with the exception as target.
 	 * The response provided by one of the event hooks is returned. If there is no response the
@@ -368,10 +369,10 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	}
 
 	/**
-	 * Alters a response with an exception.
+	 * Alter a response with an exception.
 	 *
-	 * The methods adds the `X-ICanBoogie-Rescued-Exception` header to the response, which
-	 * describes the filename and the line where the exception occurred.
+	 * The `X-ICanBoogie-Rescued-Exception` header is added to the response. It
+	 * specifies the filename and the line where the exception occurred.
 	 *
 	 * @param Response $response
 	 * @param \Exception $exception

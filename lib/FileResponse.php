@@ -67,7 +67,7 @@ class FileResponse extends Response
 	/**
 	 * @var \SplFileInfo
 	 */
-	protected $file;
+	private $file;
 
 	/**
 	 * @return \SplFileInfo
@@ -80,12 +80,7 @@ class FileResponse extends Response
 	/**
 	 * @var Request
 	 */
-	protected $request;
-
-	/**
-	 * @var array
-	 */
-	protected $options;
+	private $request;
 
 	/**
 	 * @param string|\SplFileInfo $file
@@ -112,8 +107,8 @@ class FileResponse extends Response
 	}
 
 	/**
-	 * Changes the status to {@link Status::NOT_MODIFIED} if the request's Cache-Control has
-	 * 'no-cache' and {@link is_modified} is false.
+	 * Changes the status to `Status::NOT_MODIFIED` if the request's Cache-Control has
+	 * 'no-cache' and `is_modified` is false.
 	 */
 	public function __invoke()
 	{
@@ -145,7 +140,7 @@ class FileResponse extends Response
 	 * - `Cache-Control`: sets _cacheable_ to _public_.
 	 * - `Expires`: is set to "+1 month".
 	 *
-	 * If the status code is {@link Stauts::NOT_MODIFIED} the following headers are unset:
+	 * If the status code is `Stauts::NOT_MODIFIED` the following headers are unset:
 	 *
 	 * - `Content-Type`
 	 * - `Content-Length`
@@ -187,7 +182,7 @@ class FileResponse extends Response
 	}
 
 	/**
-	 * Finalizes the response for {@link Status::NOT_MODIFIED}.
+	 * Finalizes the response for `Status::NOT_MODIFIED`.
 	 *
 	 * @param Headers $headers
 	 */
@@ -197,7 +192,7 @@ class FileResponse extends Response
 	}
 
 	/**
-	 * Finalizes the response for {@link Status::PARTIAL_CONTENT}.
+	 * Finalizes the response for `Status::PARTIAL_CONTENT`.
 	 *
 	 * @param Headers $headers
 	 */
@@ -211,8 +206,8 @@ class FileResponse extends Response
 	}
 
 	/**
-	 * Finalizes the response for status other than {@link Status::NOT_MODIFIED} or
-	 * {@link Status::PARTIAL_CONTENT}.
+	 * Finalizes the response for status other than `Status::NOT_MODIFIED` or
+	 * `Status::PARTIAL_CONTENT`.
 	 *
 	 * @param Headers $headers
 	 */
@@ -336,8 +331,8 @@ class FileResponse extends Response
 	 * The file is considered modified if one of the following conditions is met:
 	 *
 	 * - The `If-Modified-Since` request header is empty.
-	 * - The `If-Modified-Since` value is inferior to {@link $modified_time}.
-	 * - The `If-None-Match` value doesn't match {@link $etag}.
+	 * - The `If-Modified-Since` value is inferior to `$modified_time`.
+	 * - The `If-None-Match` value doesn't match `$etag`.
 	 *
 	 * @return bool
 	 */

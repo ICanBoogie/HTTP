@@ -20,20 +20,19 @@ use ICanBoogie\DateTime;
  * @property Status $status
  * @property mixed $body The body of the response.
  *
- * @property int $ttl Adjusts the `s-maxage` part of the `Cache-Control` header field definition according to the `Age` header field definition.
- * @property int $age Shortcut to the `Age` header field definition.
+ * @property int|null $ttl Adjusts the `s-maxage` part of the `Cache-Control` header field definition according to the `Age` header field definition.
+ * @property int|null $age Shortcut to the `Age` header field definition.
  * @property Headers\CacheControl $cache_control Shortcut to the `Cache-Control` header field definition.
  * @property int $content_length Shortcut to the `Content-Length` header field definition.
  * @property Headers\ContentType $content_type Shortcut to the `Content-Type` header field definition.
  * @property Headers\Date $date Shortcut to the `Date` header field definition.
- * @property string $etag Shortcut to the `ETag` header field definition.
+ * @property string|null $etag Shortcut to the `ETag` header field definition.
  * @property Headers\Date $expires Shortcut to the `Expires` header field definition.
  * @property Headers\Date $last_modified Shortcut to the `Last-Modified` header field definition.
- * @property string $location Shortcut to the `Location` header field definition.
+ * @property string|null $location Shortcut to the `Location` header field definition.
  *
  * @property-read boolean $is_cacheable {@link get_is_cacheable()}
  * @property-read boolean $is_fresh {@link get_is_fresh()}
- * @property-read boolean $is_private {@link get_is_private()}
  * @property-read boolean $is_validateable {@link get_is_validateable()}
  *
  * @see http://tools.ietf.org/html/rfc2616
@@ -57,8 +56,7 @@ class Response implements ResponseStatus
 	public $version = '1.0';
 
 	/**
-	 * Initializes the {@link $body}, {@link $header}, {@link $date} and {@link $status}
-	 * properties.
+	 * Initializes the `$body`,  `$status`, `$headers`, and `$date` properties.
 	 *
 	 * @param mixed $body The body of the response.
 	 * @param int|Status $status The status code of the response.
@@ -91,7 +89,7 @@ class Response implements ResponseStatus
 	}
 
 	/**
-	 * Clones the {@link $headers} and {@link $status} properties.
+	 * Clones the `$headers` and `$status` properties.
 	 */
 	public function __clone()
 	{
@@ -184,8 +182,7 @@ class Response implements ResponseStatus
 	 *
 	 * @return bool `true` is the headers were sent, `false` otherwise.
 	 */
-	// @codeCoverageIgnoreStart
-	protected function send_headers(Headers $headers)
+	protected function send_headers(Headers $headers) 	// @codeCoverageIgnoreStart
 	{
 		if (headers_sent($file, $line))
 		{
@@ -206,8 +203,7 @@ class Response implements ResponseStatus
 		$headers();
 
 		return true;
-	}
-	// @codeCoverageIgnoreEnd
+	} // @codeCoverageIgnoreEnd
 
 	/**
 	 * Sends response body.
@@ -263,7 +259,7 @@ class Response implements ResponseStatus
 	private $body;
 
 	/**
-	 * Sets the response body.
+	 * Set the response body.
 	 *
 	 * The body can be any data type that can be converted into a string. This includes numeric
 	 * and objects implementing the {@link __toString()} method.
@@ -280,7 +276,7 @@ class Response implements ResponseStatus
 	}
 
 	/**
-	 * Asserts that the a body is valid.
+	 * Assert that a body is valid.
 	 *
 	 * @param $body
 	 *
@@ -455,7 +451,7 @@ class Response implements ResponseStatus
 	/**
 	 * Sets the value of the `Expires` header field.
 	 *
-	 * The method updates the `max-age` the Cache Control directive accordingly.
+	 * The method updates the `max-age` Cache Control directive accordingly.
 	 *
 	 * @param mixed $time
 	 */
@@ -480,7 +476,7 @@ class Response implements ResponseStatus
 	/**
 	 * Sets the value of the `ETag` header field.
 	 *
-	 * @param string $value
+	 * @param string|null $value
 	 */
 	protected function set_etag($value)
 	{
@@ -490,7 +486,7 @@ class Response implements ResponseStatus
 	/**
 	 * Returns the value of the `ETag` header field.
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	protected function get_etag()
 	{
@@ -522,7 +518,7 @@ class Response implements ResponseStatus
 	 *
 	 * This method adjusts the Cache-Control/s-maxage directive.
 	 *
-	 * @param int $seconds The number of seconds.
+	 * @param int|null $seconds The number of seconds.
 	 */
 	protected function set_ttl($seconds)
 	{
@@ -551,7 +547,7 @@ class Response implements ResponseStatus
 	}
 
 	/**
-	 * Checks that the response includes header fields that can be used to validate the response
+	 * Whether the response includes header fields that can be used to validate the response
 	 * with the origin server using a conditional GET request.
 	 *
 	 * @return boolean
@@ -562,7 +558,7 @@ class Response implements ResponseStatus
 	}
 
 	/**
-	 * Checks that the response is worth caching under any circumstance.
+	 * Whether the response is worth caching under any circumstance.
 	 *
 	 * Responses marked _private_ with an explicit `Cache-Control` directive are considered
 	 * not cacheable.
@@ -583,7 +579,7 @@ class Response implements ResponseStatus
 	}
 
 	/**
-	 * Checks if the response is fresh.
+	 * Whether the response is fresh.
 	 *
 	 * @return boolean
 	 */

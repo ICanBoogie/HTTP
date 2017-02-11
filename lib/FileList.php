@@ -46,8 +46,11 @@ class FileList implements \ArrayAccess, \IteratorAggregate, \Countable
 	/**
 	 * @var File[]
 	 */
-	protected $list;
+	private $list;
 
+	/**
+	 * @param array $files
+	 */
 	public function __construct(array $files = [])
 	{
 		foreach ($files as $id => $file)

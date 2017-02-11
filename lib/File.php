@@ -28,7 +28,7 @@ use ICanBoogie\ToArray;
  * @property-read string $unsuffixed_name The name of the file without its extension.
  * @property-read bool $is_uploaded `true` if the file is uploaded, `false` otherwise.
  * @property-read bool $is_valid `true` if the file is valid, `false` otherwise.
- * See: {@link is_valid()}.
+ * See: {@link get_is_valid()}.
  */
 class File implements ToArray, FileOptions
 {
@@ -120,7 +120,7 @@ class File implements ToArray, FileOptions
 	 *
 	 * @var string
 	 */
-	protected $name;
+	private $name;
 
 	/**
 	 * Returns the name of the file.
@@ -142,7 +142,7 @@ class File implements ToArray, FileOptions
 		return $this->name ? basename($this->name, $this->extension) : null;
 	}
 
-	protected $type;
+	private $type;
 
 	/**
 	 * Returns the type of the file.
@@ -167,7 +167,7 @@ class File implements ToArray, FileOptions
 		return FileInfo::resolve_type($this->pathname ?: $this->tmp_name);
 	}
 
-	protected $size;
+	private $size;
 
 	/**
 	 * Returns the size of the file.
@@ -193,9 +193,9 @@ class File implements ToArray, FileOptions
 		return null;
 	}
 
-	protected $tmp_name;
+	private $tmp_name;
 
-	protected $error;
+	private $error;
 
 	/**
 	 * Whether the file is valid.
@@ -212,7 +212,7 @@ class File implements ToArray, FileOptions
 		&& ($this->tmp_name || ($this->pathname && file_exists($this->pathname)));
 	}
 
-	protected $pathname;
+	private $pathname;
 
 	/**
 	 * Returns the pathname of the file.
