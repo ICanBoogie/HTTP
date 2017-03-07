@@ -15,7 +15,25 @@ use ICanBoogie\DateTime;
 
 class FileResponseTest extends \PHPUnit_Framework_TestCase
 {
-    /**
+	/**
+	 * @expectedException \LogicException
+	 * @expectedExceptionMessageRegExp /Expected file, got directory\:/
+	 */
+	public function test_should_throw_exception_on_directory()
+	{
+		new FileResponse(__DIR__, Request::from());
+	}
+
+	/**
+	 * @expectedException \LogicException
+	 * @expectedExceptionMessageRegExp /File does not exist\:/
+	 */
+	public function test_should_throw_exception_on_invalid_file()
+	{
+		new FileResponse(uniqid(), Request::from());
+	}
+
+	/**
      * @dataProvider provide_test_closure_body
      *
      * @param int $status

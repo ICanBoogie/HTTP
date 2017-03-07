@@ -90,7 +90,7 @@ class FileResponse extends Response
 	 */
 	public function __construct($file, Request $request, array $options = [], $headers = [])
 	{
-		$this->file = $file instanceof \SplFileInfo ? $file : new \SplFileInfo($file);
+		$this->file = $this->ensure_file_info($file);
 		$this->request = $request;
 		$this->apply_options($options, $headers);
 
@@ -104,6 +104,32 @@ class FileResponse extends Response
 			$this->send_file($this->file);
 
 		}, Status::OK, $headers);
+	}
+
+	/**
+	 * Ensures the provided file is a {@link \SplFileInfo} instance.
+	 *
+	 * @param mixed $file
+	 *
+	 * @return \SplFileInfo
+	 *
+	 * @throws \LogicException if the file is a directory, or does not exist.
+	 */
+	private function ensure_file_info($file)
+	{
+		$file = $file instanceof \SplFileInfo ? $file : new \SplFileInfo($file);
+
+		if ($file->isDir())
+		{
+			throw new \LogicException("Expected file, got directory: $file");
+		}
+
+		if (!$file->isFile())
+		{
+			throw new \LogicException("File does not exist: $file");
+		}
+
+		return $file;
 	}
 
 	/**
