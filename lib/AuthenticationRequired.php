@@ -11,12 +11,14 @@
 
 namespace ICanBoogie\HTTP;
 
+use ICanBoogie\HTTP\Exception\ClientError\Unauthorized;
+
 /**
  * Exception thrown when user authentication is required.
  *
  * Event hooks may rescue the exception and provide a login form instead.
  */
-class AuthenticationRequired extends ClientError implements SecurityError
+class AuthenticationRequired extends ClientError implements SecurityError, Unauthorized
 {
     const DEFAULT_MESSAGE = "The requested URL requires authentication.";
 

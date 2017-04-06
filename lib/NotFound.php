@@ -14,7 +14,7 @@ namespace ICanBoogie\HTTP;
 /**
  * Exception thrown when a resource is not found.
  */
-class NotFound extends ClientError implements Exception
+class NotFound extends ClientError implements Exception\ClientError\NotFound
 {
     const DEFAULT_MESSAGE = "The requested URL was not found on this server.";
 
