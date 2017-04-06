@@ -2,7 +2,12 @@
 	"name": "icanboogie/http",
 	"type": "library",
 	"description": "Provides an API to handle HTTP requests.",
-	"keywords": [ "http", "dispatcher", "request", "response" ],
+	"keywords": [
+		"http",
+		"dispatcher",
+		"request",
+		"response"
+	],
 	"homepage": "http://icanboogie.org/",
 	"license": "BSD-3-Clause",
 	"authors": [
@@ -10,17 +15,16 @@
 			"name": "Olivier Laviale",
 			"email": "olivier.laviale@gmail.com",
 			"homepage": "http://www.weirdog.com/",
-			"role" : "Developer"
+			"role": "Developer"
 		}
 	],
 	"support": {
 		"issues": "https://github.com/ICanBoogie/HTTP/issues",
 		"source": "https://github.com/ICanBoogie/HTTP"
 	},
-
 	"minimum-stability": "dev",
 	"prefer-stable": true,
-
+	"prefer-dist": true,
 	"require": {
 		"php": ">=5.5",
 		"icanboogie/prototype": "^2.3",
@@ -37,6 +41,8 @@
 		"classmap": [
 			"lib/RescueEvent.php"
 		],
-		"files": [ "helpers.php" ]
+		"files": [
+			"helpers.php"
+		]
 	}
 }
