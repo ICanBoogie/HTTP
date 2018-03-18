@@ -26,9 +26,9 @@
 	"prefer-stable": true,
 	"prefer-dist": true,
 	"require": {
-		"php": ">=5.6",
-		"icanboogie/prototype": "^3.0 | ^4.0",
-		"icanboogie/event": "^3.0",
+		"php": "^7.2",
+		"icanboogie/prototype": "^5.0",
+		"icanboogie/event": "^4.0",
 		"icanboogie/datetime": "^1.2"
 	},
 	"autoload": {

@@ -36,7 +36,7 @@ class RequestRange
 	 * @return RequestRange|null A new instance, or `null` if the range is not defined or deprecated
 	 * (because `If-Range` doesn't match `$etag`).
 	 */
-	static public function from(Headers $headers, $total, $etag)
+	static public function from(Headers $headers, int $total, string $etag): ?self
 	{
 		$range = (string) $headers['Range'];
 
@@ -72,7 +72,7 @@ class RequestRange
 	 */
 	static private function resolve_range($range, $total)
 	{
-		if (!preg_match('/^bytes\=(\d*)\-(\d*)$/', $range, $matches))
+		if (!\preg_match('/^bytes\=(\d*)\-(\d*)$/', $range, $matches))
 		{
 			return null;
 		}
@@ -119,7 +119,7 @@ class RequestRange
 	 * @param int $end
 	 * @param int $total
 	 */
-	protected function __construct($start, $end, $total)
+	protected function __construct(int $start, int $end, int $total)
 	{
 		$this->start = $start;
 		$this->end = $end;
@@ -133,7 +133,7 @@ class RequestRange
 	 */
 	public function __toString()
 	{
-		return sprintf('bytes %s-%s/%s', $this->start, $this->end, $this->total);
+		return \sprintf('bytes %s-%s/%s', $this->start, $this->end, $this->total);
 	}
 
 	/**
@@ -141,7 +141,7 @@ class RequestRange
 	 *
 	 * @return bool
 	 */
-	protected function get_is_satisfiable()
+	protected function get_is_satisfiable(): bool
 	{
 		$start = $this->start;
 		$end = $this->end;
@@ -154,7 +154,7 @@ class RequestRange
 	 *
 	 * @return bool
 	 */
-	protected function get_is_total()
+	protected function get_is_total(): bool
 	{
 		return $this->start === 0 && $this->end === $this->total - 1;
 	}
@@ -164,7 +164,7 @@ class RequestRange
 	 *
 	 * @return int
 	 */
-	protected function get_length()
+	protected function get_length(): int
 	{
 		return $this->end - $this->start + 1;
 	}
@@ -174,7 +174,7 @@ class RequestRange
 	 *
 	 * @return int
 	 */
-	protected function get_max_length()
+	protected function get_max_length(): int
 	{
 		return $this->end < $this->total ? $this->length : -1;
 	}
@@ -185,7 +185,7 @@ class RequestRange
 	 *
 	 * @return int
 	 */
-	protected function get_offset()
+	protected function get_offset(): int
 	{
 		return $this->start;
 	}

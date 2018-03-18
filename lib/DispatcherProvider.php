@@ -26,7 +26,7 @@ class DispatcherProvider
 	 *
 	 * @return callable|null
 	 */
-	static public function defined()
+	static public function defined(): ?callable
 	{
 		return self::$provider;
 	}
@@ -38,7 +38,7 @@ class DispatcherProvider
 	 *
 	 * @return callable|null The previous provider, or `null` if none was defined.
 	 */
-	static public function define(callable $provider)
+	static public function define(callable $provider): ?callable
 	{
 		$previous = self::$provider;
 
@@ -50,7 +50,7 @@ class DispatcherProvider
 	/**
 	 * Undefine the current {@link Dispatcher} provider.
 	 */
-	static public function undefine()
+	static public function undefine(): void
 	{
 		self::$provider = null;
 	}
@@ -62,7 +62,7 @@ class DispatcherProvider
 	 *
 	 * @throws DispatcherProviderNotDefined if no provider is defined.
 	 */
-	static public function provide()
+	static public function provide(): Dispatcher
 	{
 		$provider = self::$provider;
 

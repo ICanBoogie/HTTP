@@ -16,12 +16,12 @@ namespace ICanBoogie\HTTP;
  */
 class DispatcherProviderNotDefined extends \LogicException implements Exception
 {
-	const DEFAULT_MESSAGE = "No provider is defined yet. Please define one with `DispatcherProvider::define(\$provider)`.";
+	public const DEFAULT_MESSAGE = "No provider is defined yet. Please define one with `DispatcherProvider::define(\$provider)`.";
 
     /**
      * @inheritdoc
      */
-	public function __construct($message = self::DEFAULT_MESSAGE, $code = Status::INTERNAL_SERVER_ERROR, \Exception $previous = null)
+	public function __construct(string $message = self::DEFAULT_MESSAGE, int $code = Status::INTERNAL_SERVER_ERROR, \Throwable $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 	}

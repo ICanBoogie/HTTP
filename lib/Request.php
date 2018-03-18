@@ -390,7 +390,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 	 *
 	 * @return Response The response to the request.
 	 *
-	 * @throws \Exception re-throws exception raised during dispatch.
+	 * @throws \Throwable re-throws exception raised during dispatch.
 	 */
 	public function send($method = null, array $params = null)
 	{
@@ -408,7 +408,7 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 
 			return $response;
 		}
-		catch (\Exception $e)
+		catch (\Throwable $e)
 		{
 			self::$current_request = $request->parent;
 

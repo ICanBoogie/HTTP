@@ -24,7 +24,7 @@ class CallableDispatcher implements Dispatcher
 	/**
 	 * @param callable $callable
 	 */
-	public function __construct($callable)
+	public function __construct(callable $callable)
 	{
 		$this->callable = $callable;
 	}
@@ -32,17 +32,15 @@ class CallableDispatcher implements Dispatcher
 	/**
 	 * @inheritdoc
 	 */
-	public function __invoke(Request $request)
+	public function __invoke(Request $request): ?Response
 	{
-		$callable = $this->callable;
-
-		return $callable instanceof \Closure ? $callable($request) : call_user_func($callable, $request);
+		return ($this->callable)($request);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function rescue(\Exception $exception, Request $request)
+	public function rescue(\Throwable $exception, Request $request): Response
 	{
 		throw $exception;
 	}

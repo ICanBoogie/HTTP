@@ -21,7 +21,7 @@ class NotFound extends ClientError implements Exception
 	/**
 	 * @inheritdoc
 	 */
-	public function __construct($message = self::DEFAULT_MESSAGE, $code = Status::NOT_FOUND, \Exception $previous = null)
+	public function __construct(string $message = self::DEFAULT_MESSAGE, int $code = Status::NOT_FOUND, \Throwable $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 	}

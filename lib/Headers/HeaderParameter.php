@@ -36,10 +36,7 @@ class HeaderParameter
 	 */
 	protected $attribute;
 
-    /**
-     * @return string
-     */
-	protected function get_attribute()
+	protected function get_attribute(): string
 	{
 		return $this->attribute;
 	}
@@ -51,12 +48,9 @@ class HeaderParameter
 	 */
 	public $value;
 
-    /**
-     * @return string
-     */
-	protected function get_charset()
+	protected function get_charset(): string
 	{
-		return mb_detect_encoding($this->value) ?: 'ISO-8859-1';
+		return \mb_detect_encoding($this->value) ?: 'ISO-8859-1';
 	}
 
 	/**
@@ -73,47 +67,47 @@ class HeaderParameter
 	 *
 	 * @return HeaderParameter
 	 */
-	static public function from($source)
+	static public function from($source): self
 	{
 		if ($source instanceof self)
 		{
 			return $source;
 		}
 
-		$equal_pos = strpos($source, '=');
+		$equal_pos = \strpos($source, '=');
 		$language = null;
 
 		if ($source[$equal_pos - 1] === '*')
 		{
-			$attribute = substr($source, 0, $equal_pos - 1);
-			$value = substr($source, $equal_pos + 1);
+			$attribute = \substr($source, 0, $equal_pos - 1);
+			$value = \substr($source, $equal_pos + 1);
 
-			preg_match('#^([a-zA-Z0-9\-]+)?(\'([a-z\-]+)?\')?(")?([^"]+)(")?$#', $value, $matches);
+			\preg_match('#^([a-zA-Z0-9\-]+)?(\'([a-z\-]+)?\')?(")?([^"]+)(")?$#', $value, $matches);
 
 			if ($matches[3])
 			{
 				$language = $matches[3];
 			}
 
-			$value = urldecode($matches[5]);
+			$value = \urldecode($matches[5]);
 
 			if ($matches[1] === 'iso-8859-1')
 			{
-				$value = utf8_encode($value);
+				$value = \utf8_encode($value);
 			}
 		}
 		else
 		{
-			$attribute = substr($source, 0, $equal_pos);
-			$value = substr($source, $equal_pos + 1);
+			$attribute = \substr($source, 0, $equal_pos);
+			$value = \substr($source, $equal_pos + 1);
 
 			if ($value[0] === '"')
 			{
-				$value = substr($value, 1, -1);
+				$value = \substr($value, 1, -1);
 			}
 		}
 
-		$value = mb_convert_encoding($value, 'UTF-8');
+		$value = \mb_convert_encoding($value, 'UTF-8');
 
 		return new static($attribute, $value, $language);
 	}
@@ -142,7 +136,7 @@ class HeaderParameter
 		// \x21 = CHAR except 0 - 31 (\x1f) and SP (\x20)
 		// \x7e = CHAR except DEL
 
-		return !preg_match('#[^\x21-\x7e]#', $str) && !preg_match('#[\(\)\<\>\@\,\;\:\\\\"\/\[\]\?\=\{\}\x9]#', $str);
+		return !\preg_match('#[^\x21-\x7e]#', $str) && !\preg_match('#[\(\)\<\>\@\,\;\:\\\\"\/\[\]\?\=\{\}\x9]#', $str);
 	}
 
 	/**
@@ -158,7 +152,7 @@ class HeaderParameter
 	static public function to_ascii($str)
 	{
 		$str = remove_accents($str);
-		$str = preg_replace('/[^\x20-\x7F]+/', '', $str);
+		$str = \preg_replace('/[^\x20-\x7F]+/', '', $str);
 
 		return $str;
 	}
@@ -219,9 +213,9 @@ class HeaderParameter
 		# quoted string
 		#
 
-		$encoding = mb_detect_encoding($value);
+		$encoding = \mb_detect_encoding($value);
 
-		if (($encoding === 'ASCII' || $encoding === 'ISO-8859-1') && strpos($value, '"') === false)
+		if (($encoding === 'ASCII' || $encoding === 'ISO-8859-1') && \strpos($value, '"') === false)
 		{
 			return "{$attribute}=\"{$value}\"";
 		}
@@ -234,12 +228,12 @@ class HeaderParameter
 
 		if ($encoding !== 'UTF-8')
 		{
-			$value = mb_convert_encoding($value, 'UTF-8', $encoding);
-			$encoding = mb_detect_encoding($value);
+			$value = \mb_convert_encoding($value, 'UTF-8', $encoding);
+			$encoding = \mb_detect_encoding($value);
 		}
 
 		$normalized_value = self::to_ascii($value);
-		$normalized_value = str_replace([ '"', ';' ], '', $normalized_value);
+		$normalized_value = \str_replace([ '"', ';' ], '', $normalized_value);
 
 		return "{$attribute}=\"{$normalized_value}\"; {$attribute}*=" . $encoding . "'{$this->language}'" . rawurlencode($value);
 	}

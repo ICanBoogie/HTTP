@@ -26,7 +26,7 @@ class Date extends DateTime
      *
      * @return Date|DateTime
      */
-	static public function from($source, $timezone = null)
+	static public function from($source, $timezone = null): self
 	{
 		if ($source === null)
 		{
@@ -49,7 +49,7 @@ class Date extends DateTime
 			$time = $time->getTimestamp();
 		}
 
-		if (is_numeric($time))
+		if (\is_numeric($time))
 		{
 			$time = '@' . $time;
 			$timezone = null;

@@ -23,7 +23,7 @@ namespace ICanBoogie\HTTP;
  */
 class Headers implements \ArrayAccess, \IteratorAggregate
 {
-	static private $mapping = [
+	private const MAPPING = [
 
 		'Cache-Control'       => Headers\CacheControl::class,
 		'Content-Disposition' => Headers\ContentDisposition::class,
@@ -43,9 +43,9 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return string
 	 */
-	static private function normalize_field_name($name)
+	static private function normalize_field_name(string $name): string
 	{
-		return mb_convert_case(strtr(substr($name, 5), '_', '-'), MB_CASE_TITLE);
+		return \mb_convert_case(\strtr(\substr($name, 5), '_', '-'), MB_CASE_TITLE);
 	}
 
 	/**
@@ -69,7 +69,7 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 		{
 			foreach ($fields as $field => $value)
 			{
-				if (strpos($field, 'HTTP_') !== 0)
+				if (\strpos($field, 'HTTP_') !== 0)
 				{
 					continue;
 				}
@@ -83,7 +83,7 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 		{
 			foreach ($fields as $field => $value)
 			{
-				if (strpos($field, 'HTTP_') === 0)
+				if (\strpos($field, 'HTTP_') === 0)
 				{
 					$field = self::normalize_field_name($field);
 				}
@@ -100,7 +100,7 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	{
 		foreach ($this->fields as &$field)
 		{
-			if (!is_object($field))
+			if (!\is_object($field))
 			{
 				continue;
 			}
@@ -140,7 +140,7 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * Header fields with empty string values are discarded.
 	 */
-	public function __invoke()
+	public function __invoke(): void
 	{
 		foreach ($this->fields as $field => $value)
 		{
@@ -163,9 +163,9 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	 * @param string $field
 	 * @param string $value
 	 */
-	protected function send_header($field, $value) // @codeCoverageIgnoreStart
+	protected function send_header(string $field, string $value): void // @codeCoverageIgnoreStart
 	{
-		header("$field: $value");
+		\header("$field: $value");
 	}// @codeCoverageIgnoreEnd
 
 	/**
@@ -189,12 +189,12 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	 */
 	public function offsetGet($field)
 	{
-		if (isset(self::$mapping[$field]))
+		if (isset(self::MAPPING[$field]))
 		{
 			if (empty($this->fields[$field]))
 			{
 				/* @var $class Headers\Header|string */
-				$class = self::$mapping[$field];
+				$class = self::MAPPING[$field];
 				$this->fields[$field] = $class::from(null);
 			}
 
@@ -242,13 +242,13 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 				# http://stackoverflow.com/questions/12626699/if-modified-since-http-header-passed-by-ie9-includes-length
 				#
 
-				if (is_string($value))
+				if (\is_string($value))
 				{
-					$pos = strpos($value, ';');
+					$pos = \strpos($value, ';');
 
 					if ($pos)
 					{
-						$value = substr($value, 0, $pos);
+						$value = \substr($value, 0, $pos);
 					}
 				}
 			}
@@ -257,15 +257,15 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 			# http://tools.ietf.org/html/rfc2616#section-14.37
 			case 'Retry-After':
 			{
-				$value = is_numeric($value) ? $value : Headers\Date::from($value);
+				$value = \is_numeric($value) ? $value : Headers\Date::from($value);
 			}
 			break;
 		}
 
-		if (isset(self::$mapping[$field]))
+		if (isset(self::MAPPING[$field]))
 		{
 			/* @var $class Headers\Header|string */
-			$class = self::$mapping[$field];
+			$class = self::MAPPING[$field];
 			$value = $class::from($value);
 		}
 

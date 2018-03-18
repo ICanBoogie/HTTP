@@ -26,7 +26,7 @@ class RequestOptionsMapper implements RequestOptions
 	 *
 	 * @throws \InvalidArgumentException on invalid option.
 	 */
-	public function map(array &$options, array &$env)
+	public function map(array &$options, array &$env): void
 	{
 		$mappers = $this->get_mappers();
 
@@ -51,7 +51,7 @@ class RequestOptionsMapper implements RequestOptions
 	 *
 	 * @return \Closure[]
 	 */
-	protected function get_mappers()
+	protected function get_mappers(): array
 	{
 		return [
 

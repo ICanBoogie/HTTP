@@ -66,7 +66,7 @@ class Response implements ResponseStatus
 	 */
 	public function __construct($body = null, $status = self::STATUS_OK, $headers = [])
 	{
-		if (is_array($headers))
+		if (\is_array($headers))
 		{
 			$headers = new Headers($headers);
 		}
@@ -113,18 +113,18 @@ class Response implements ResponseStatus
 
 			$this->finalize($header, $body);
 
-			ob_start();
+			\ob_start();
 
 			$this->send_body($body);
 
-			$body = ob_get_clean();
+			$body = \ob_get_clean();
 
 			return "HTTP/{$this->version} {$this->status}\r\n"
 			. $header
 			. "\r\n"
 			. $body;
 		}
-		catch (\Exception $e)
+		catch (\Throwable $e)
 		{
 			return $e->getMessage();
 		}
@@ -142,7 +142,7 @@ class Response implements ResponseStatus
 	 * - The finalized body is `null`.
 	 * - The status is not ok.
 	 */
-	public function __invoke()
+	public function __invoke(): void
 	{
 		$headers = clone $this->headers;
 		$body = $this->body;
@@ -167,9 +167,9 @@ class Response implements ResponseStatus
 	 * @param Headers $headers Reference to the final header.
 	 * @param mixed $body Reference to the final body.
 	 */
-	protected function finalize(Headers &$headers, &$body)
+	protected function finalize(Headers &$headers, &$body): void
 	{
-		if ($body instanceof \Closure || !method_exists($body, '__toString'))
+		if ($body instanceof \Closure || !\method_exists($body, '__toString'))
 		{
 			return;
 		}
@@ -184,11 +184,11 @@ class Response implements ResponseStatus
 	 *
 	 * @return bool `true` is the headers were sent, `false` otherwise.
 	 */
-	protected function send_headers(Headers $headers) 	// @codeCoverageIgnoreStart
+	protected function send_headers(Headers $headers): bool // @codeCoverageIgnoreStart
 	{
-		if (headers_sent($file, $line))
+		if (\headers_sent($file, $line))
 		{
-			trigger_error(format("Cannot modify header information because it was already sent. Output started at !at.", [
+			\trigger_error(format("Cannot modify header information because it was already sent. Output started at !at.", [
 
 				'at' => $file . ':' . $line
 
@@ -197,10 +197,10 @@ class Response implements ResponseStatus
 			return false;
 		}
 
-		header_remove('Pragma');
-		header_remove('X-Powered-By');
+		\header_remove('Pragma');
+		\header_remove('X-Powered-By');
 
-		header("HTTP/{$this->version} {$this->status}");
+		\header("HTTP/{$this->version} {$this->status}");
 
 		$headers();
 
@@ -212,7 +212,7 @@ class Response implements ResponseStatus
 	 *
 	 * @param mixed $body
 	 */
-	protected function send_body($body)
+	protected function send_body($body): void
 	{
 		if ($body instanceof \Closure)
 		{
@@ -232,21 +232,14 @@ class Response implements ResponseStatus
 	private $status;
 
 	/**
-	 * Sets response status code and optionally status message.
-	 *
 	 * @param int|Status $status HTTP status code or HTTP status code and HTTP status message.
 	 */
-	protected function set_status($status)
+	protected function set_status($status): void
 	{
 		$this->status = Status::from($status);
 	}
 
-	/**
-	 * Returns the response status.
-	 *
-	 * @return Status
-	 */
-	protected function get_status()
+	protected function get_status(): Status
 	{
 		return $this->status;
 	}
@@ -254,33 +247,23 @@ class Response implements ResponseStatus
 	/**
 	 * The response body.
 	 *
-	 * @var mixed
-	 *
-	 * @see set_body(), get_body()
-	 */
-	private $body;
-
-	/**
-	 * Set the response body.
-	 *
 	 * The body can be any data type that can be converted into a string. This includes numeric
 	 * and objects implementing the {@link __toString()} method.
 	 *
-	 * @param string|\Closure|null $body
-	 *
-	 * @throws \UnexpectedValueException when the body cannot be converted to a string.
+	 * @var mixed
 	 */
-	protected function set_body($body)
+	private $body;
+
+	protected function set_body($body): void
 	{
 		$this->assert_body_is_valid($body);
-
 		$this->body = $body;
 	}
 
 	/**
 	 * Assert that a body is valid.
 	 *
-	 * @param $body
+	 * @param mixed $body
 	 *
 	 * @throws \UnexpectedValueException if the specified body doesn't meet the requirements.
 	 */
@@ -288,26 +271,21 @@ class Response implements ResponseStatus
 	{
 		if ($body === null
 		|| $body instanceof \Closure
-		|| is_numeric($body)
-		|| is_string($body)
-		|| (is_object($body) && method_exists($body, '__toString')))
+		|| \is_numeric($body)
+		|| \is_string($body)
+		|| (\is_object($body) && \method_exists($body, '__toString')))
 		{
 			return;
 		}
 
 		throw new \UnexpectedValueException(format('The Response body must be a string, an object implementing the __toString() method or be callable, %type given. !value', [
 
-			'type' => gettype($body),
+			'type' => \gettype($body),
 			'value' => $body
 
 		]));
 	}
 
-	/**
-	 * Returns the response body.
-	 *
-	 * @return string
-	 */
 	protected function get_body()
 	{
 		return $this->body;
@@ -318,7 +296,7 @@ class Response implements ResponseStatus
 	 *
 	 * @param string|null $url
 	 */
-	protected function set_location($url)
+	protected function set_location(?string $url)
 	{
 		if ($url !== null && !$url)
 		{
@@ -331,9 +309,9 @@ class Response implements ResponseStatus
 	/**
 	 * Returns the value of the `Location` header field.
 	 *
-	 * @return string
+	 * @return string|null
 	 */
-	protected function get_location()
+	protected function get_location(): ?string
 	{
 		return $this->headers['Location'];
 	}
@@ -341,9 +319,9 @@ class Response implements ResponseStatus
 	/**
 	 * Sets the value of the `Content-Type` header field.
 	 *
-	 * @param string $content_type
+	 * @param string|null $content_type
 	 */
-	protected function set_content_type($content_type)
+	protected function set_content_type(?string $content_type): void
 	{
 		$this->headers['Content-Type'] = $content_type;
 	}
@@ -353,7 +331,7 @@ class Response implements ResponseStatus
 	 *
 	 * @return Headers\ContentType
 	 */
-	protected function get_content_type()
+	protected function get_content_type(): Headers\ContentType
 	{
 		return $this->headers['Content-Type'];
 	}
@@ -361,9 +339,9 @@ class Response implements ResponseStatus
 	/**
 	 * Sets the value of the `Content-Length` header field.
 	 *
-	 * @param int $length
+	 * @param int|null $length
 	 */
-	protected function set_content_length($length)
+	protected function set_content_length(?int $length): void
 	{
 		$this->headers['Content-Length'] = $length;
 	}
@@ -371,9 +349,9 @@ class Response implements ResponseStatus
 	/**
 	 * Returns the value of the `Content-Length` header field.
 	 *
-	 * @return int
+	 * @return int|null
 	 */
-	protected function get_content_length()
+	protected function get_content_length(): ?int
 	{
 		return $this->headers['Content-Length'];
 	}
@@ -383,7 +361,7 @@ class Response implements ResponseStatus
 	 *
 	 * @param mixed $time
 	 */
-	protected function set_date($time)
+	protected function set_date($time): void
 	{
 		$this->headers['Date'] = $time;
 	}
@@ -393,7 +371,7 @@ class Response implements ResponseStatus
 	 *
 	 * @return Headers\Date
 	 */
-	protected function get_date()
+	protected function get_date(): Headers\Date
 	{
 		return $this->headers['Date'];
 	}
@@ -401,9 +379,9 @@ class Response implements ResponseStatus
 	/**
 	 * Sets the value of the `Age` header field.
 	 *
-	 * @param int $age
+	 * @param int|null $age
 	 */
-	protected function set_age($age)
+	protected function set_age(?int $age): void
 	{
 		$this->headers['Age'] = $age;
 	}
@@ -411,9 +389,9 @@ class Response implements ResponseStatus
 	/**
 	 * Returns the age of the response.
 	 *
-	 * @return int
+	 * @return int|null
 	 */
-	protected function get_age()
+	protected function get_age(): ?int
 	{
 		$age = $this->headers['Age'];
 
@@ -435,7 +413,7 @@ class Response implements ResponseStatus
 	 *
 	 * @param mixed $time
 	 */
-	protected function set_last_modified($time)
+	protected function set_last_modified($time): void
 	{
 		$this->headers['Last-Modified'] = $time;
 	}
@@ -445,7 +423,7 @@ class Response implements ResponseStatus
 	 *
 	 * @return Headers\Date
 	 */
-	protected function get_last_modified()
+	protected function get_last_modified(): Headers\Date
 	{
 		return $this->headers['Last-Modified'];
 	}
@@ -457,7 +435,7 @@ class Response implements ResponseStatus
 	 *
 	 * @param mixed $time
 	 */
-	protected function set_expires($time)
+	protected function set_expires($time): void
 	{
 		$this->headers['Expires'] = $time;
 		/* @var DateTime $expires */
@@ -470,7 +448,7 @@ class Response implements ResponseStatus
 	 *
 	 * @return Headers\Date
 	 */
-	protected function get_expires()
+	protected function get_expires(): Headers\Date
 	{
 		return $this->headers['Expires'];
 	}
@@ -480,7 +458,7 @@ class Response implements ResponseStatus
 	 *
 	 * @param string|null $value
 	 */
-	protected function set_etag($value)
+	protected function set_etag(?string $value): void
 	{
 		$this->headers['ETag'] = $value;
 	}
@@ -490,7 +468,7 @@ class Response implements ResponseStatus
 	 *
 	 * @return string|null
 	 */
-	protected function get_etag()
+	protected function get_etag(): ?string
 	{
 		return $this->headers['ETag'];
 	}
@@ -498,9 +476,9 @@ class Response implements ResponseStatus
 	/**
 	 * Sets the directives of the `Cache-Control` header field.
 	 *
-	 * @param string $cache_directives
+	 * @param string|null $cache_directives
 	 */
-	protected function set_cache_control($cache_directives)
+	protected function set_cache_control(?string $cache_directives): void
 	{
 		$this->headers['Cache-Control'] = $cache_directives;
 	}
@@ -510,7 +488,7 @@ class Response implements ResponseStatus
 	 *
 	 * @return Headers\CacheControl
 	 */
-	protected function get_cache_control()
+	protected function get_cache_control(): Headers\CacheControl
 	{
 		return $this->headers['Cache-Control'];
 	}
@@ -522,7 +500,7 @@ class Response implements ResponseStatus
 	 *
 	 * @param int|null $seconds The number of seconds.
 	 */
-	protected function set_ttl($seconds)
+	protected function set_ttl(?int $seconds): void
 	{
 		$this->cache_control->s_maxage = $this->age + $seconds;
 	}
@@ -536,7 +514,7 @@ class Response implements ResponseStatus
 	 * @return int|null The number of seconds to live, or `null` is no freshness information
 	 * is present.
 	 */
-	protected function get_ttl()
+	protected function get_ttl(): ?int
 	{
 		$max_age = $this->cache_control->max_age;
 
@@ -552,9 +530,9 @@ class Response implements ResponseStatus
 	 * Whether the response includes header fields that can be used to validate the response
 	 * with the origin server using a conditional GET request.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	protected function get_is_validateable()
+	protected function get_is_validateable(): bool
 	{
 		return !$this->headers['Last-Modified']->is_empty || $this->headers['ETag'];
 	}
@@ -568,9 +546,9 @@ class Response implements ResponseStatus
 	 * Responses with neither a freshness lifetime (Expires, max-age) nor cache validator
 	 * (`Last-Modified`, `ETag`) are considered not cacheable.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	protected function get_is_cacheable()
+	protected function get_is_cacheable(): bool
 	{
 		if (!$this->status->is_cacheable || $this->cache_control->no_store || $this->cache_control->cacheable == 'private')
 		{
@@ -583,9 +561,9 @@ class Response implements ResponseStatus
 	/**
 	 * Whether the response is fresh.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	protected function get_is_fresh()
+	protected function get_is_fresh(): bool
 	{
 		return $this->ttl > 0;
 	}

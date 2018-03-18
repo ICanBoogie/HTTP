@@ -36,8 +36,19 @@ class File implements ToArray, FileOptions
 {
 	use AccessorTrait;
 
-	const MOVE_OVERWRITE = true;
-	const MOVE_NO_OVERWRITE = false;
+	public const MOVE_OVERWRITE = true;
+	public const MOVE_NO_OVERWRITE = false;
+
+	private const INITIAL_PROPERTIES = [
+
+		self::OPTION_NAME,
+		self::OPTION_TYPE,
+		self::OPTION_SIZE,
+		self::OPTION_TMP_NAME,
+		self::OPTION_ERROR,
+		self::OPTION_PATHNAME
+
+	];
 
 	/**
 	 * Creates a {@link File} instance.
@@ -46,17 +57,17 @@ class File implements ToArray, FileOptions
 	 *
 	 * @return File
 	 */
-	static public function from($properties_or_name)
+	static public function from($properties_or_name): File
 	{
 		$properties = [];
 
-		if (is_string($properties_or_name))
+		if (\is_string($properties_or_name))
 		{
 			$properties = isset($_FILES[$properties_or_name])
 			? $_FILES[$properties_or_name]
-			: [ self::OPTION_NAME => basename($properties_or_name) ];
+			: [ self::OPTION_NAME => \basename($properties_or_name) ];
 		}
-		else if (is_array($properties_or_name))
+		else if (\is_array($properties_or_name))
 		{
 			$properties = $properties_or_name;
 		}
@@ -73,20 +84,9 @@ class File implements ToArray, FileOptions
 	 *
 	 * @return array
 	 */
-	static private function filter_initial_properties(array $properties)
+	static private function filter_initial_properties(array $properties): array
 	{
-		static $initial_properties = [
-
-			self::OPTION_NAME,
-			self::OPTION_TYPE,
-			self::OPTION_SIZE,
-			self::OPTION_TMP_NAME,
-			self::OPTION_ERROR,
-			self::OPTION_PATHNAME
-
-		];
-
-		return array_intersect_key($properties, array_fill_keys($initial_properties, true));
+		return \array_intersect_key($properties, \array_fill_keys(self::INITIAL_PROPERTIES, true));
 	}
 
 	/**
@@ -100,12 +100,12 @@ class File implements ToArray, FileOptions
 	 */
 	static private function format($format, array $args = [], array $options = [])
 	{
-		if (class_exists(\ICanBoogie\I18n\FormattedString::class, true))
+		if (\class_exists(\ICanBoogie\I18n\FormattedString::class, true))
 		{
 			return new \ICanBoogie\I18n\FormattedString($format, $args, $options); // @codeCoverageIgnore
 		}
 
-		if (class_exists(\ICanBoogie\FormattedString::class, true))
+		if (\class_exists(\ICanBoogie\FormattedString::class, true))
 		{
 			return new \ICanBoogie\FormattedString($format, $args, $options);
 		}
@@ -120,28 +120,18 @@ class File implements ToArray, FileOptions
 	/**
 	 * Name of the file.
 	 *
-	 * @var string
+	 * @var string|null
 	 */
 	private $name;
 
-	/**
-	 * Returns the name of the file.
-	 *
-	 * @return string
-	 */
-	protected function get_name()
+	protected function get_name(): ?string
 	{
 		return $this->name;
 	}
 
-	/**
-	 * Returns the name of the file, without its extension.
-	 *
-	 * @return string
-	 */
-	protected function get_unsuffixed_name()
+	protected function get_unsuffixed_name(): ?string
 	{
-		return $this->name ? basename($this->name, $this->extension) : null;
+		return $this->name ? \basename($this->name, $this->extension) : null;
 	}
 
 	private $type;
@@ -154,7 +144,7 @@ class File implements ToArray, FileOptions
 	 *
 	 * @return string|null The MIME type of the file, or `null` if it cannot be determined.
 	 */
-	protected function get_type()
+	protected function get_type(): ?string
 	{
 		if (!empty($this->type))
 		{
@@ -189,7 +179,7 @@ class File implements ToArray, FileOptions
 
 		if ($this->pathname)
 		{
-			return filesize($this->pathname);
+			return \filesize($this->pathname);
 		}
 
 		return null;
@@ -197,106 +187,12 @@ class File implements ToArray, FileOptions
 
 	private $tmp_name;
 
+	/**
+	 * @var int|null
+	 */
 	private $error;
 
-	/**
-	 * Whether the file is valid.
-	 *
-	 * A file is considered valid if it has no error code, if it has a size,
-	 * if it has either a temporary name or a pathname and that the file actually exists.
-	 *
-	 * @return boolean `true` if the file is valid, `false` otherwise.
-	 */
-	protected function get_is_valid()
-	{
-		return !$this->error
-		&& $this->size
-		&& ($this->tmp_name || ($this->pathname && file_exists($this->pathname)));
-	}
-
-	private $pathname;
-
-	/**
-	 * Returns the pathname of the file.
-	 *
-	 * **Note:** If the {@link $pathname} property is empty, the {@link $tmp_name} property
-	 * is returned.
-	 *
-	 * @return string
-	 */
-	protected function get_pathname()
-	{
-		return $this->pathname ?: $this->tmp_name;
-	}
-
-	protected function __construct(array $properties)
-	{
-		foreach ($properties as $property => $value)
-		{
-			$this->$property = $value;
-		}
-
-		if (!$this->name && $this->pathname)
-		{
-			$this->name = basename($this->pathname);
-		}
-
-		if (empty($this->type))
-		{
-			unset($this->type);
-		}
-
-		if (empty($this->size))
-		{
-			unset($this->size);
-		}
-	}
-
-	/**
-	 * Returns an array representation of the instance.
-	 *
-	 * The following properties are exported:
-	 *
-	 * - {@link $name}
-	 * - {@link $unsuffixed_name}
-	 * - {@link $extension}
-	 * - {@link $type}
-	 * - {@link $size}
-	 * - {@link $pathname}
-	 * - {@link $error}
-	 * - {@link $error_message}
-	 *
-	 * @return array
-	 */
-	public function to_array()
-	{
-		$error_message = $this->error_message;
-
-		if ($error_message !== null)
-		{
-			$error_message = (string) $error_message;
-		}
-
-		return [
-
-			'name' => $this->name,
-			'unsuffixed_name' => $this->unsuffixed_name,
-			'extension' => $this->extension,
-			'type' => $this->type,
-			'size' => $this->size,
-			'pathname' => $this->pathname,
-			'error' => $this->error,
-			'error_message' => $error_message
-
-		];
-	}
-
-	/**
-	 * Returns the error code.
-	 *
-	 * @return string
-	 */
-	protected function get_error()
+	protected function get_error(): ?int
 	{
 		return $this->error;
 	}
@@ -349,22 +245,109 @@ class File implements ToArray, FileOptions
 	}
 
 	/**
+	 * Whether the file is valid.
+	 *
+	 * A file is considered valid if it has no error code, if it has a size,
+	 * if it has either a temporary name or a pathname and that the file actually exists.
+	 *
+	 * @return boolean `true` if the file is valid, `false` otherwise.
+	 */
+	protected function get_is_valid(): bool
+	{
+		return !$this->error
+		&& $this->size
+		&& ($this->tmp_name || ($this->pathname && \file_exists($this->pathname)));
+	}
+
+	/**
+	 * @var string|null
+	 */
+	private $pathname;
+
+	protected function get_pathname(): ?string
+	{
+		return $this->pathname ?: $this->tmp_name;
+	}
+
+	protected function __construct(array $properties)
+	{
+		foreach ($properties as $property => $value)
+		{
+			$this->$property = $value;
+		}
+
+		if (!$this->name && $this->pathname)
+		{
+			$this->name = \basename($this->pathname);
+		}
+
+		if (empty($this->type))
+		{
+			unset($this->type);
+		}
+
+		if (empty($this->size))
+		{
+			unset($this->size);
+		}
+	}
+
+	/**
+	 * Returns an array representation of the instance.
+	 *
+	 * The following properties are exported:
+	 *
+	 * - {@link $name}
+	 * - {@link $unsuffixed_name}
+	 * - {@link $extension}
+	 * - {@link $type}
+	 * - {@link $size}
+	 * - {@link $pathname}
+	 * - {@link $error}
+	 * - {@link $error_message}
+	 *
+	 * @return array
+	 */
+	public function to_array(): array
+	{
+		$error_message = $this->error_message;
+
+		if ($error_message !== null)
+		{
+			$error_message = (string) $error_message;
+		}
+
+		return [
+
+			'name' => $this->name,
+			'unsuffixed_name' => $this->unsuffixed_name,
+			'extension' => $this->extension,
+			'type' => $this->type,
+			'size' => $this->size,
+			'pathname' => $this->pathname,
+			'error' => $this->error,
+			'error_message' => $error_message
+
+		];
+	}
+
+	/**
 	 * Returns the extension of the file, if any.
 	 *
 	 * **Note:** The extension includes the dot e.g. ".zip". The extension is always in lower case.
 	 *
 	 * @return string|null
 	 */
-	protected function get_extension()
+	protected function get_extension(): ?string
 	{
-		$extension = pathinfo($this->name, PATHINFO_EXTENSION);
+		$extension = \pathinfo($this->name, PATHINFO_EXTENSION);
 
 		if (!$extension)
 		{
 			return null;
 		}
 
-		return '.' . strtolower($extension);
+		return '.' . \strtolower($extension);
 	}
 
 	/**
@@ -372,9 +355,9 @@ class File implements ToArray, FileOptions
 	 *
 	 * @return boolean `true` if the file is uploaded, `false` otherwise.
 	 */
-	protected function get_is_uploaded()
+	protected function get_is_uploaded(): bool
 	{
-		return $this->tmp_name && is_uploaded_file($this->tmp_name);
+		return $this->tmp_name && \is_uploaded_file($this->tmp_name);
 	}
 
 	/**
@@ -387,14 +370,14 @@ class File implements ToArray, FileOptions
 	 *
 	 * @return bool `true` if the file matches (or `$type` is empty), `false` otherwise.
 	 */
-	public function match($type)
+	public function match($type): bool
 	{
 		if (!$type)
 		{
 			return true;
 		}
 
-		if (is_array($type))
+		if (\is_array($type))
 		{
 			return $this->match_multiple($type);
 		}
@@ -404,9 +387,9 @@ class File implements ToArray, FileOptions
 			return $type === $this->extension;
 		}
 
-		if (strpos($type, '/') === false)
+		if (\strpos($type, '/') === false)
 		{
-			return (bool) preg_match('#^' . preg_quote($type) . '/#', $this->type);
+			return (bool) \preg_match('#^' . \preg_quote($type) . '/#', $this->type);
 		}
 
 		return $type === $this->type;
@@ -419,7 +402,7 @@ class File implements ToArray, FileOptions
 	 *
 	 * @return bool `true` if the file matches, `false` otherwise.
 	 */
-	private function match_multiple(array $type_list)
+	private function match_multiple(array $type_list): bool
 	{
 		foreach ($type_list as $type)
 		{
@@ -439,29 +422,29 @@ class File implements ToArray, FileOptions
 	 * @param bool $overwrite Use {@link MOVE_OVERWRITE} to delete the destination before the file
 	 * is moved. Defaults to {@link MOVE_NO_OVERWRITE}.
 	 *
-	 * @throws \Exception if the file failed to be moved.
+	 * @throws \Throwable if the file failed to be moved.
 	 */
-	public function move($destination, $overwrite = self::MOVE_NO_OVERWRITE)
+	public function move($destination, $overwrite = self::MOVE_NO_OVERWRITE): void
 	{
-		if (file_exists($destination))
+		if (\file_exists($destination))
 		{
 			if (!$overwrite)
 			{
 				throw new \Exception("The destination file already exists: $destination.");
 			}
 
-			unlink($destination);
+			\unlink($destination);
 		}
 
 		if ($this->pathname)
 		{
-			if (!rename($this->pathname, $destination))
+			if (!\rename($this->pathname, $destination))
 			{
 				throw new \Exception("Unable to move file to destination: $destination.");  // @codeCoverageIgnore
 			}
 		}
 		// @codeCoverageIgnoreStart
-		elseif (!move_uploaded_file($this->tmp_name, $destination))
+		elseif (!\move_uploaded_file($this->tmp_name, $destination))
 		{
 			throw new \Exception("Unable to move file to destination: $destination.");
 		}

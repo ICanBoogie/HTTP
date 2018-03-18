@@ -1,8 +1,8 @@
 # customization
 
 PACKAGE_NAME = icanboogie/http
-PACKAGE_VERSION = 3.0
-PHPUNIT_VERSION = phpunit-5.phar
+PACKAGE_VERSION = 4.0
+PHPUNIT_VERSION = phpunit-7.phar
 PHPUNIT_FILENAME = build/$(PHPUNIT_VERSION)
 PHPUNIT = php $(PHPUNIT_FILENAME)
 

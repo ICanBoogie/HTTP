@@ -78,7 +78,7 @@ abstract class Header implements \ArrayAccess
 	/**
 	 * The value of the header.
 	 *
-	 * @var string
+	 * @var mixed
 	 */
 	public $value;
 
@@ -97,7 +97,7 @@ abstract class Header implements \ArrayAccess
 	 *
 	 * @return Header
 	 */
-	static public function from($source)
+	static public function from($source): Header
 	{
 		if ($source instanceof self)
 		{
@@ -109,9 +109,7 @@ abstract class Header implements \ArrayAccess
 			return new static;
 		}
 
-		list($value, $parameters) = static::parse($source);
-
-		return new static($value, $parameters);
+		return new static(...static::parse($source));
 	}
 
 	/**
@@ -124,14 +122,14 @@ abstract class Header implements \ArrayAccess
 	 *
 	 * @return array
 	 */
-	static protected function parse($source)
+	static protected function parse($source): array
 	{
-		if (is_object($source) && method_exists($source, '__toString'))
+		if (\is_object($source) && \method_exists($source, '__toString'))
 		{
 			$source = (string) $source;
 		}
 
-		if (!is_string($source))
+		if (!\is_string($source))
 		{
 			throw new \InvalidArgumentException(format
 			(
@@ -144,18 +142,18 @@ abstract class Header implements \ArrayAccess
 			));
 		}
 
-		$value_end = strpos($source, ';');
+		$value_end = \strpos($source, ';');
 		$parameters = [];
 
 		if ($value_end !== false)
 		{
-			$value = substr($source, 0, $value_end);
-			$attributes = trim(substr($source, $value_end + 1));
+			$value = \substr($source, 0, $value_end);
+			$attributes = \trim(\substr($source, $value_end + 1));
 
 			if ($attributes)
 			{
-                $attributes = explode(';', $attributes);
-                $attributes = array_map('trim', $attributes);
+                $attributes = \explode(';', $attributes);
+                $attributes = \array_map('trim', $attributes);
 
 				foreach ($attributes as $attribute)
 				{
@@ -248,14 +246,14 @@ abstract class Header implements \ArrayAccess
 	 * To enable future extensions, unrecognized parameters are ignored. Supported parameters must
 	 * be defined by a child class before it calls its parent.
 	 *
-	 * @param string $value
+	 * @param mixed $value
 	 * @param array $parameters
 	 */
-	public function __construct($value = '', array $parameters = [])
+	public function __construct($value = null, array $parameters = [])
 	{
 		$this->value = $value;
 
-		$parameters = array_intersect_key($parameters, $this->parameters);
+		$parameters = \array_intersect_key($parameters, $this->parameters);
 
 		foreach ($parameters as $attribute => $value)
 		{

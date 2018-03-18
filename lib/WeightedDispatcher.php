@@ -53,9 +53,6 @@ class WeightedDispatcher
 	 */
 	private $weight;
 
-	/**
-	 * @return int|string
-	 */
 	protected function get_weight()
 	{
 		return $this->weight;

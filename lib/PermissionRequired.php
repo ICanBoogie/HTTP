@@ -21,7 +21,7 @@ class PermissionRequired extends ClientError implements SecurityError
 	/**
 	 * @inheritdoc
 	 */
-	public function __construct($message = self::DEFAULT_MESSAGE, $code = Status::UNAUTHORIZED, \Exception $previous = null)
+	public function __construct(string $message = self::DEFAULT_MESSAGE, int $code = Status::UNAUTHORIZED, \Throwable $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 	}

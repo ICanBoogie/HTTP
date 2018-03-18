@@ -29,10 +29,7 @@ class ForceRedirect extends \Exception implements Exception
      */
 	private $location;
 
-    /**
-     * @return string
-     */
-	protected function get_location()
+	protected function get_location(): string
 	{
 		return $this->location;
 	}
@@ -40,23 +37,16 @@ class ForceRedirect extends \Exception implements Exception
     /**
      * @param string $location
      * @param int $code
-     * @param \Exception|null $previous
+     * @param \Throwable|null $previous
      */
-	public function __construct($location, $code = Status::FOUND, \Exception $previous = null)
+	public function __construct(string $location, int $code = Status::FOUND, \Throwable $previous = null)
 	{
 		$this->location = $location;
 
 		parent::__construct($this->format_message($location), $code, $previous);
 	}
 
-	/**
-	 * Formats exception message.
-	 *
-	 * @param string $location
-	 *
-	 * @return string
-	 */
-	protected function format_message($location)
+	private function format_message(string $location): string
 	{
 		return format("Location: %location", [ 'location' => $location ]);
 	}

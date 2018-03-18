@@ -32,15 +32,6 @@ class ContextTest extends \PHPUnit\Framework\TestCase
 		$this->assertSame($dispatcher, $context->dispatcher);
 	}
 
-	/**
-	 * @expectedException \InvalidArgumentException
-	 */
-	public function test_set_dispatcher_invalid()
-	{
-		$context = new Context(Request::from('/'));
-		$context->dispatcher = new \stdClass;
-	}
-
 	public function test_prototype()
 	{
 		$property = 'property' . uniqid();

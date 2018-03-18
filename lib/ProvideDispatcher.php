@@ -21,10 +21,7 @@ class ProvideDispatcher
      */
 	private $dispatcher;
 
-	/**
-	 * @return RequestDispatcher
-	 */
-	public function __invoke()
+	public function __invoke(): RequestDispatcher
 	{
 		$dispatcher = &$this->dispatcher;
 
@@ -40,10 +37,10 @@ class ProvideDispatcher
 		return $dispatcher;
 	}
 
-    /**
-     * @return RequestDispatcher
-     */
-	protected function create()
+	/**
+	 * The method can be overrode to provide an initialized dispatcher.
+	 */
+	protected function create(): RequestDispatcher
 	{
 		return new RequestDispatcher;
 	}

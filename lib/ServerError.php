@@ -21,7 +21,7 @@ class ServerError extends \Exception implements Exception
 	/**
 	 * @inheritdoc
 	 */
-	public function __construct($message = null, $code = Status::INTERNAL_SERVER_ERROR, \Exception $previous = null)
+	public function __construct(string $message = null, int $code = Status::INTERNAL_SERVER_ERROR, \Throwable $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 	}

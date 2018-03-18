@@ -27,10 +27,7 @@ class MethodNotSupported extends ClientError implements Exception
 	 */
 	private $method;
 
-	/**
-	 * @return string
-	 */
-	protected function get_method()
+	protected function get_method(): string
 	{
 		return $this->method;
 	}
@@ -38,9 +35,9 @@ class MethodNotSupported extends ClientError implements Exception
 	/**
 	 * @param string $method The unsupported HTTP method.
 	 * @param int $code
-	 * @param \Exception $previous
+	 * @param \Throwable $previous
 	 */
-	public function __construct($method, $code = Status::INTERNAL_SERVER_ERROR, \Exception $previous = null)
+	public function __construct(string $method, int $code = Status::INTERNAL_SERVER_ERROR, \Throwable $previous = null)
 	{
 		$this->method = $method;
 

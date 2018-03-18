@@ -59,9 +59,9 @@ class FileResponse extends Response
 	 *
 	 * @return string A base64 string
 	 */
-	static public function hash_file($pathname)
+	static public function hash_file(string $pathname): string
 	{
-		return base64_encode(hash_file('sha384', $pathname, true));
+		return \base64_encode(\hash_file('sha384', $pathname, true));
 	}
 
 	/**
@@ -69,10 +69,7 @@ class FileResponse extends Response
 	 */
 	private $file;
 
-	/**
-	 * @return \SplFileInfo
-	 */
-	protected function get_file()
+	protected function get_file(): \SplFileInfo
 	{
 		return $this->file;
 	}
@@ -88,7 +85,7 @@ class FileResponse extends Response
 	 * @param array $options
 	 * @param array $headers
 	 */
-	public function __construct($file, Request $request, array $options = [], $headers = [])
+	public function __construct($file, Request $request, array $options = [], array $headers = [])
 	{
 		$this->file = $this->ensure_file_info($file);
 		$this->request = $request;
@@ -115,7 +112,7 @@ class FileResponse extends Response
 	 *
 	 * @throws \LogicException if the file is a directory, or does not exist.
 	 */
-	private function ensure_file_info($file)
+	private function ensure_file_info($file): \SplFileInfo
 	{
 		$file = $file instanceof \SplFileInfo ? $file : new \SplFileInfo($file);
 
@@ -136,7 +133,7 @@ class FileResponse extends Response
 	 * Changes the status to `Status::NOT_MODIFIED` if the request's Cache-Control has
 	 * 'no-cache' and `is_modified` is false.
 	 */
-	public function __invoke()
+	public function __invoke(): void
 	{
 		$range = $this->range;
 
@@ -177,7 +174,7 @@ class FileResponse extends Response
 	 *
 	 * @inheritdoc
 	 */
-	protected function finalize(Headers &$headers, &$body)
+	protected function finalize(Headers &$headers, &$body): void
 	{
 		parent::finalize($headers, $body);
 
@@ -212,7 +209,7 @@ class FileResponse extends Response
 	 *
 	 * @param Headers $headers
 	 */
-	protected function finalize_for_not_modified(Headers &$headers)
+	protected function finalize_for_not_modified(Headers &$headers): void
 	{
 		unset($headers['Content-Length']);
 	}
@@ -222,7 +219,7 @@ class FileResponse extends Response
 	 *
 	 * @param Headers $headers
 	 */
-	protected function finalize_for_partial_content(Headers &$headers)
+	protected function finalize_for_partial_content(Headers &$headers): void
 	{
 		$range = $this->range;
 
@@ -237,7 +234,7 @@ class FileResponse extends Response
 	 *
 	 * @param Headers $headers
 	 */
-	protected function finalize_for_other(Headers &$headers)
+	protected function finalize_for_other(Headers &$headers): void
 	{
 		$headers['Last-Modified'] = $this->modified_time;
 
@@ -258,17 +255,17 @@ class FileResponse extends Response
 	 *
 	 * @codeCoverageIgnore
 	 */
-	protected function send_file(\SplFileInfo $file)
+	protected function send_file(\SplFileInfo $file): void
 	{
 		list($max_length, $offset) = $this->resolve_max_length_and_offset();
 
-		$out = fopen('php://output', 'wb');
-		$source = fopen($file->getPathname(), 'rb');
+		$out = \fopen('php://output', 'wb');
+		$source = \fopen($file->getPathname(), 'rb');
 
-		stream_copy_to_stream($source, $out, $max_length, $offset);
+		\stream_copy_to_stream($source, $out, $max_length, $offset);
 
-		fclose($out);
-		fclose($source);
+		\fclose($out);
+		\fclose($source);
 	}
 
 	/**
@@ -276,7 +273,7 @@ class FileResponse extends Response
 	 *
 	 * @return array
 	 */
-	private function resolve_max_length_and_offset()
+	private function resolve_max_length_and_offset(): array
 	{
 		$range = $this->range;
 
@@ -294,7 +291,7 @@ class FileResponse extends Response
 	 *
 	 * @inheritdoc
 	 */
-	protected function get_content_type()
+	protected function get_content_type(): Headers\ContentType
 	{
 		$content_type = parent::get_content_type();
 
@@ -305,9 +302,9 @@ class FileResponse extends Response
 
 		$mime = null;
 
-		if (function_exists('finfo_file'))
+		if (\function_exists('finfo_file'))
 		{
-			$mime = finfo_file(finfo_open(FILEINFO_MIME_TYPE), $this->file);
+			$mime = \finfo_file(\finfo_open(FILEINFO_MIME_TYPE), $this->file);
 		}
 
 		return new Headers\ContentType($mime ?: self::DEFAULT_MIME);
@@ -316,9 +313,9 @@ class FileResponse extends Response
 	/**
 	 * If the etag returned by the parent is empty the method returns a SHA-384 of the file.
 	 *
-	 * @return string
+	 * @return string|null
 	 */
-	protected function get_etag()
+	protected function get_etag(): ?string
 	{
 		return parent::get_etag() ?: self::hash_file($this->file->getPathname());
 	}
@@ -329,7 +326,7 @@ class FileResponse extends Response
 	 *
 	 * @return DateTime|Headers\Date
 	 */
-	protected function get_expires()
+	protected function get_expires(): Headers\Date
 	{
 		$expires = parent::get_expires();
 
@@ -338,7 +335,7 @@ class FileResponse extends Response
 			return $expires;
 		}
 
-		return DateTime::from(self::DEFAULT_EXPIRES);
+		return Headers\Date::from(self::DEFAULT_EXPIRES);
 	}
 
 	/**

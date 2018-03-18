@@ -23,7 +23,7 @@ class FileList implements \ArrayAccess, \IteratorAggregate, \Countable
 	 *
 	 * @return FileList
 	 */
-	static public function from($files)
+	static public function from($files): self
 	{
 		if ($files instanceof self)
 		{
@@ -127,10 +127,10 @@ class FileList implements \ArrayAccess, \IteratorAggregate, \Countable
 	/**
 	 * Returns the number of files in the collection.
 	 *
-	 * @return int
+	 * @inheritdoc
 	 */
 	public function count()
 	{
-		return count($this->list);
+		return \count($this->list);
 	}
 }

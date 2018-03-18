@@ -42,7 +42,7 @@ class CacheControl
 {
 	use AccessorTrait;
 
-	static protected $cacheable_values = [
+	private const CACHEABLE_VALUES = [
 
 		'private',
 		'public',
@@ -50,7 +50,7 @@ class CacheControl
 
 	];
 
-	static protected $booleans = [
+	private const BOOLEANS = [
 
 		'no-store',
 		'no-transform',
@@ -60,7 +60,7 @@ class CacheControl
 
 	];
 
-	static protected $placeholder = [
+	private const PLACEHOLDER = [
 
 		'cacheable'
 
@@ -71,7 +71,7 @@ class CacheControl
 	 *
 	 * @return array
 	 */
-	static protected function get_default_values()
+	static protected function get_default_values(): array
 	{
 		return [
 
@@ -96,37 +96,37 @@ class CacheControl
 	 *
 	 * @return array Returns an array made of the properties and extensions.
 	 */
-	static protected function parse($cache_directive)
+	static protected function parse(string $cache_directive): array
 	{
-		$directives = explode(',', $cache_directive);
-		$directives = array_map('trim', $directives);
+		$directives = \explode(',', $cache_directive);
+		$directives = \array_map('trim', $directives);
 
 		$properties = self::get_default_values();
 		$extensions = [];
 
 		foreach ($directives as $value)
 		{
-			if (in_array($value, self::$booleans))
+			if (\in_array($value, self::BOOLEANS))
 			{
-				$property = strtr($value, '-', '_');
+				$property = \strtr($value, '-', '_');
 				$properties[$property] = true;
 			}
-			if (in_array($value, self::$cacheable_values))
+			if (\in_array($value, self::CACHEABLE_VALUES))
 			{
 				$properties['cacheable'] = $value;
 			}
-			else if (preg_match('#^([^=]+)=(.+)$#', $value, $matches))
+			else if (\preg_match('#^([^=]+)=(.+)$#', $value, $matches))
 			{
 				list(, $directive, $value) = $matches;
 
-				$property = strtr($directive, '-', '_');
+				$property = \strtr($directive, '-', '_');
 
-				if (is_numeric($value))
+				if (\is_numeric($value))
 				{
 					$value = 0 + $value;
 				}
 
-				if (!array_key_exists($property, $properties))
+				if (!\array_key_exists($property, $properties))
 				{
 					$extensions[$property] = $value;
 
@@ -143,11 +143,11 @@ class CacheControl
 	/**
 	 * Create an instance from the provided source.
 	 *
-	 * @param string $source
+	 * @param self|string $source
 	 *
 	 * @return CacheControl
 	 */
-	static public function from($source)
+	static public function from($source): self
 	{
 		if ($source instanceof self)
 		{
@@ -188,7 +188,7 @@ class CacheControl
 			$value = 'no-cache';
 		}
 
-		if ($value !== null && !in_array($value, self::$cacheable_values))
+		if ($value !== null && !\in_array($value, self::CACHEABLE_VALUES))
 		{
 			throw new \InvalidArgumentException(format
 			(
@@ -331,11 +331,11 @@ class CacheControl
 	{
 		$cache_directive = '';
 
-		foreach (get_object_vars($this) as $directive => $value)
+		foreach (\get_object_vars($this) as $directive => $value)
 		{
-			$directive = strtr($directive, '_', '-');
+			$directive = \strtr($directive, '_', '-');
 
-			if (in_array($directive, self::$booleans))
+			if (\in_array($directive, self::BOOLEANS))
 			{
 				if (!$value)
 				{
@@ -344,7 +344,7 @@ class CacheControl
 
 				$cache_directive .= ', ' . $directive;
 			}
-			else if (in_array($directive, self::$placeholder))
+			else if (\in_array($directive, self::PLACEHOLDER))
 			{
 				if (!$value)
 				{
@@ -353,7 +353,7 @@ class CacheControl
 
 				$cache_directive .= ', ' . $value;
 			}
-			else if (is_array($value))
+			else if (\is_array($value))
 			{
 				// TODO: 20120831: extentions
 
@@ -365,7 +365,7 @@ class CacheControl
 			}
 		}
 
-		return $cache_directive ? substr($cache_directive, 2) : '';
+		return $cache_directive ? \substr($cache_directive, 2) : '';
 	}
 
 	/**
@@ -377,7 +377,7 @@ class CacheControl
 	 */
 	public function modify($cache_directive)
 	{
-		list($properties, $extensions) = static::parse($cache_directive);
+		[ $properties, $extensions ] = static::parse($cache_directive);
 
 		foreach ($properties as $property => $value)
 		{

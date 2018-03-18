@@ -20,7 +20,7 @@ use ICanBoogie\HTTP\Response;
  *
  * Third parties may use this event to provide a response for the exception.
  *
- * @property \Exception $exception
+ * @property \Throwable $exception
  * @property-read Request $request
  * @property Response $response
  */
@@ -35,56 +35,37 @@ class RescueEvent extends Event
 	 */
 	private $response;
 
-    /**
-     * @return Response|null
-     */
-	protected function get_response()
+	protected function get_response(): ?Response
 	{
 		return $this->response;
 	}
 
-    /**
-     * @param Response|null $response
-     */
-	protected function set_response(Response $response = null)
+	protected function set_response(?Response $response)
 	{
 		$this->response = $response;
 	}
 
 	/**
-	 * Reference to the exception.
-	 *
-	 * @var \Exception
+	 * @var \Throwable
 	 */
 	private $exception;
 
-    /**
-     * @return \Exception
-     */
-	protected function get_exception()
+	protected function get_exception(): \Throwable
 	{
 		return $this->exception;
 	}
 
-    /**
-     * @param \Exception $exception
-     */
-	protected function set_exception(\Exception $exception)
+	protected function set_exception(\Throwable $exception): void
 	{
 		$this->exception = $exception;
 	}
 
 	/**
-	 * The request.
-	 *
 	 * @var Request
 	 */
 	private $request;
 
-    /**
-     * @return Request
-     */
-	protected function get_request()
+	protected function get_request(): Request
 	{
 		return $this->request;
 	}
@@ -92,11 +73,11 @@ class RescueEvent extends Event
 	/**
 	 * The event is constructed with the type `rescue`.
 	 *
-	 * @param \Exception $target
+	 * @param \Throwable $target
 	 * @param Request $request The request.
 	 * @param Response|null $response Reference to the response.
 	 */
-	public function __construct(\Exception &$target, Request $request, Response &$response = null)
+	public function __construct(\Throwable &$target, Request $request, Response &$response = null)
 	{
 		$this->response = &$response;
 		$this->exception = &$target;

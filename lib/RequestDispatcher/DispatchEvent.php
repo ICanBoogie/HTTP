@@ -36,10 +36,7 @@ class DispatchEvent extends Event
 	 */
 	private $request;
 
-    /**
-     * @return Request
-     */
-	protected function get_request()
+	protected function get_request(): Request
 	{
 		return $this->request;
 	}
@@ -51,18 +48,12 @@ class DispatchEvent extends Event
 	 */
 	private $response;
 
-    /**
-     * @return Response|null
-     */
-	protected function get_response()
+	protected function get_response(): ?Response
 	{
 		return $this->response;
 	}
 
-    /**
-     * @param Response|null $response
-     */
-	protected function set_response(Response $response = null)
+	protected function set_response(?Response $response): void
 	{
 		$this->response = $response;
 	}

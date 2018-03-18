@@ -174,7 +174,7 @@ class A extends \ICanBoogie\HTTP\Headers\Header
 {
 	const VALUE_ALIAS = 'type';
 
-	public function __construct($value=null, array $parameters=[])
+	public function __construct($value = null, array $parameters = [])
 	{
 		$this->parameters['p'] = new HeaderParameter('p');
 

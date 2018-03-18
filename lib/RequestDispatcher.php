@@ -83,9 +83,11 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	 *
 	 * @param Request $request
 	 *
-	 * @return Response
+	 * @return Response|null
+	 *
+	 * @throws \Throwable
 	 */
-	public function __invoke(Request $request)
+	public function __invoke(Request $request): ?Response
 	{
 		$response = $this->handle($request);
 
@@ -106,15 +108,16 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	 * @param Request $request
 	 *
 	 * @return Response
-	 * @throws \Exception
+	 *
+	 * @throws \Throwable
 	 */
-	private function handle(Request $request)
+	private function handle(Request $request): Response
 	{
 		try
 		{
 			return $this->dispatch($request);
 		}
-		catch (\Exception $e)
+		catch (\Throwable $e)
 		{
 			if ($e instanceof NotFound && $request->is_head)
 			{
@@ -122,7 +125,7 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 				{
 					return $this->handle_head($request);
 				}
-				catch (\Exception $head_exception)
+				catch (\Throwable $head_exception)
 				{
 					#
 					# We don't care about this one, let's rescue the original exception.
@@ -140,8 +143,10 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	 * @param Request $request
 	 *
 	 * @return Response
+	 *
+	 * @throws \Throwable
 	 */
-	private function handle_head(Request $request)
+	private function handle_head(Request $request): Response
 	{
 		$response = $this->handle($request->with([ Request::OPTION_IS_GET => true ]));
 
@@ -149,9 +154,9 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 		{
 			try
 			{
-				$response->content_length = strlen((string) $response->body);
+				$response->content_length = \strlen((string) $response->body);
 			}
-			catch (\Exception $e)
+			catch (\Throwable $e)
 			{
 				#
 				# It's not that bad if we can't obtain the length of the body.
@@ -260,12 +265,12 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	 *
 	 * @return Response
 	 *
-	 * @throws \Exception If the dispatcher that raised an exception during dispatch doesn't implement
+	 * @throws \Throwable If the dispatcher that raised an exception during dispatch doesn't implement
 	 * {@link Dispatcher}.
 	 * @throws NotFound when neither the events nor the dispatchers were able to provide
 	 * a {@link Response}.
 	 */
-	protected function dispatch(Request $request)
+	protected function dispatch(Request $request): Response
 	{
 		$response = null;
 
@@ -309,11 +314,11 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	 * @param Dispatcher $dispatcher
 	 * @param Request $request
 	 *
-	 * @return Response
+	 * @return Response|null
 	 *
-	 * @throws \Exception
+	 * @throws \Throwable
 	 */
-	protected function dispatch_with_dispatcher(Dispatcher $dispatcher, Request $request)
+	protected function dispatch_with_dispatcher(Dispatcher $dispatcher, Request $request): ?Response
 	{
 		try
 		{
@@ -321,7 +326,7 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 
 			$response = $dispatcher($request);
 		}
-		catch (\Exception $e)
+		catch (\Throwable $e)
 		{
 			$response = $dispatcher->rescue($e, $request);
 		}
@@ -341,14 +346,14 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	 * If a response is finally obtained, the `X-ICanBoogie-Rescued-Exception` header is added to
 	 * indicate where the exception was thrown from.
 	 *
-	 * @param \Exception $exception The exception to rescue.
+	 * @param \Throwable $exception The exception to rescue.
 	 * @param Request $request The current request.
 	 *
 	 * @return Response
 	 *
-	 * @throws \Exception The exception is re-thrown if it could not be rescued.
+	 * @throws \Throwable The exception is re-thrown if it could not be rescued.
 	 */
-	public function rescue(\Exception $exception, Request $request)
+	public function rescue(\Throwable $exception, Request $request): Response
 	{
 		/* @var $response Response */
 		$response = null;
@@ -377,16 +382,16 @@ class RequestDispatcher implements \ArrayAccess, \IteratorAggregate, Dispatcher
 	 * specifies the filename and the line where the exception occurred.
 	 *
 	 * @param Response $response
-	 * @param \Exception $exception
+	 * @param \Throwable $exception
 	 */
-	protected function alter_response_with_exception(Response $response, \Exception $exception)
+	protected function alter_response_with_exception(Response $response, \Throwable $exception): void
 	{
 		$pathname = $exception->getFile();
 		$root = $_SERVER['DOCUMENT_ROOT'];
 
-		if ($root && strpos($pathname, $root) === 0)
+		if ($root && \strpos($pathname, $root) === 0)
 		{
-			$pathname = substr($pathname, strlen($root));
+			$pathname = \substr($pathname, \strlen($root));
 		}
 
 		$response->headers['X-ICanBoogie-Rescued-Exception'] = $pathname . '@' . $exception->getLine();

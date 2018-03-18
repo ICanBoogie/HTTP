@@ -21,7 +21,7 @@ class ClientError extends \Exception implements Exception
 	/**
 	 * @inheritdoc
 	 */
-	public function __construct($message = null, $code = Status::BAD_REQUEST, \Exception $previous = null)
+	public function __construct(string $message = null, int $code = Status::BAD_REQUEST, \Throwable $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 	}

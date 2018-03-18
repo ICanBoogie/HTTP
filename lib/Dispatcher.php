@@ -21,19 +21,19 @@ interface Dispatcher
 	 *
 	 * @param Request $request
 	 *
-	 * @return Response A response to the request.
+	 * @return Response|null A response or `null` if the dispatcher cannot handle the request.
 	 */
-	public function __invoke(Request $request);
+	public function __invoke(Request $request): ?Response;
 
 	/**
 	 * Rescues the exception that was thrown during the request process.
 	 *
-	 * @param \Exception $exception
+	 * @param \Throwable $exception
 	 * @param Request $request
 	 *
 	 * @return Response A response to the request exception.
 	 *
-	 * @throws \Exception when the request exception cannot be rescued.
+	 * @throws \Throwable when the request exception cannot be rescued.
 	 */
-	public function rescue(\Exception $exception, Request $request);
+	public function rescue(\Throwable $exception, Request $request): Response;
 }

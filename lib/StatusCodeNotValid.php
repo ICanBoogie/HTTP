@@ -29,35 +29,19 @@ class StatusCodeNotValid extends \InvalidArgumentException implements Exception
      */
 	private $status_code;
 
-    /**
-     * @return int
-     */
-	protected function get_status_code()
+	protected function get_status_code(): int
 	{
 		return $this->status_code;
 	}
 
-	/**
-	 * @param int $status_code
-	 * @param string|null $message
-	 * @param int $code
-	 * @param \Exception|null $previous
-	 */
-	public function __construct($status_code, $message = null, $code = Status::INTERNAL_SERVER_ERROR, \Exception $previous = null)
+	public function __construct(int $status_code, string $message = null, int $code = Status::INTERNAL_SERVER_ERROR, \Throwable $previous = null)
 	{
 		$this->status_code = $status_code;
 
 		parent::__construct($message ?: $this->format_message($status_code), $code, $previous);
 	}
 
-	/**
-	 * Formats exception message.
-	 *
-	 * @param int $status_code
-	 *
-	 * @return string
-	 */
-	protected function format_message($status_code)
+	private function format_message(int $status_code): string
 	{
 		return format("Status code not valid: %status_code.", [ 'status_code' => $status_code ]);
 	}
