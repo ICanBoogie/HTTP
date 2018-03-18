@@ -2,7 +2,6 @@
 
 [![Release](https://img.shields.io/packagist/v/icanboogie/http.svg)](https://packagist.org/packages/icanboogie/http)
 [![Build Status](https://img.shields.io/travis/ICanBoogie/HTTP.svg)](http://travis-ci.org/ICanBoogie/HTTP)
-[![HHVM](https://img.shields.io/hhvm/icanboogie/http.svg)](http://hhvm.h4cc.de/package/icanboogie/http)
 [![Code Quality](https://img.shields.io/scrutinizer/g/icanboogie/http.svg)](https://scrutinizer-ci.com/g/ICanBoogie/HTTP)
 [![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/HTTP.svg)](https://coveralls.io/r/ICanBoogie/HTTP)
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/http.svg)](https://packagist.org/packages/icanboogie/http)
