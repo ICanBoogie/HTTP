@@ -11,6 +11,8 @@
 
 namespace ICanBoogie\HTTP\Headers;
 
+use InvalidArgumentException;
+
 class CacheControlTest extends \PHPUnit\Framework\TestCase
 {
 	/**
@@ -33,21 +35,13 @@ class CacheControlTest extends \PHPUnit\Framework\TestCase
 
 	/**
 	 * @dataProvider provide_properties
-	 *
-	 * @param string $from
-	 * @param array $properties
 	 */
-	public function test_from($from, $properties)
+	public function test_from(string $from, array $properties)
 	{
 		$cache_control = CacheControl::from($from);
 
 		foreach ($properties as $property => $value)
 		{
-			if ($property == 'cacheable' && $value === false) // exception
-			{
-				continue;
-			}
-
 			$this->assertEquals($value, $cache_control->$property);
 		}
 	}
@@ -56,12 +50,9 @@ class CacheControlTest extends \PHPUnit\Framework\TestCase
 	{
 		return [
 
-			[ '', [] ],
-
 			[ 'public', [ 'cacheable' => 'public' ] ],
 			[ 'private', [ 'cacheable' => 'private'] ],
 			[ 'no-cache', [ 'cacheable' => 'no-cache' ] ],
-			[ 'no-cache', [ 'cacheable' => false ] ],
 			[ '', [ 'cacheable' => null ] ],
 
 			[ 'no-store', [  'no_store' => true ] ],
@@ -108,12 +99,10 @@ class CacheControlTest extends \PHPUnit\Framework\TestCase
 		$this->assertSame($instance, CacheControl::from($instance));
 	}
 
-	/**
-	 * @expectedException \InvalidArgumentException
-	 */
 	public function test_set_invalid_cacheable()
 	{
 		$cache_control = new CacheControl;
+		$this->expectException(InvalidArgumentException::class);
 		$cache_control->cacheable = 'madonna';
 	}
 

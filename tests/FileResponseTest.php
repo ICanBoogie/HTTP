@@ -12,24 +12,23 @@
 namespace ICanBoogie\HTTP;
 
 use ICanBoogie\DateTime;
+use LogicException;
 
-class FileResponseTest extends \PHPUnit\Framework\TestCase
+final class FileResponseTest extends \PHPUnit\Framework\TestCase
 {
-	/**
-	 * @expectedException \LogicException
-	 * @expectedExceptionMessageRegExp /Expected file, got directory\:/
-	 */
 	public function test_should_throw_exception_on_directory()
 	{
+		$this->expectException(LogicException::class);
+		$this->expectExceptionMessageRegExp("/Expected file, got directory\:/");
+
 		new FileResponse(__DIR__, Request::from());
 	}
 
-	/**
-	 * @expectedException \LogicException
-	 * @expectedExceptionMessageRegExp /File does not exist\:/
-	 */
 	public function test_should_throw_exception_on_invalid_file()
 	{
+		$this->expectException(\LogicException::class);
+		$this->expectExceptionMessageRegExp("/File does not exist\:/");
+
 		new FileResponse(uniqid(), Request::from());
 	}
 
@@ -44,7 +43,7 @@ class FileResponseTest extends \PHPUnit\Framework\TestCase
 		$response = $this
 			->getMockBuilder(FileResponse::class)
 			->setConstructorArgs([ __FILE__, Request::from()])
-			->setMethods([ 'send_file', 'send_headers' ])
+			->onlyMethods([ 'send_file', 'send_headers' ])
 			->getMock();
 		$response
 			->expects($expected)
@@ -89,7 +88,7 @@ class FileResponseTest extends \PHPUnit\Framework\TestCase
 		$response = $this
 			->getMockBuilder(FileResponse::class)
 			->setConstructorArgs([ create_file(), $request ])
-			->setMethods([ 'get_is_modified', 'send_headers', 'send_body' ])
+			->onlyMethods([ 'get_is_modified', 'send_headers', 'send_body' ])
 			->getMockForAbstractClass();
 		$response
 			->expects($this->any())
@@ -123,7 +122,7 @@ class FileResponseTest extends \PHPUnit\Framework\TestCase
 		$range = $this
 			->getMockBuilder(RequestRange::class)
 			->disableOriginalConstructor()
-			->setMethods([ 'get_is_satisfiable', 'get_is_total' ])
+			->onlyMethods([ 'get_is_satisfiable', 'get_is_total' ])
 			->getMock();
 		$range
 			->expects($this->any())
@@ -139,7 +138,7 @@ class FileResponseTest extends \PHPUnit\Framework\TestCase
 		$response = $this
 			->getMockBuilder(FileResponse::class)
 			->setConstructorArgs([ create_file(), $request ])
-			->setMethods([ 'get_is_modified', 'get_range', 'send_headers', 'send_body' ])
+			->onlyMethods([ 'get_is_modified', 'get_range', 'send_headers', 'send_body' ])
 			->getMock();
 		$response
 			->expects($this->any())
@@ -187,7 +186,7 @@ class FileResponseTest extends \PHPUnit\Framework\TestCase
 		$response = $this
 			->getMockBuilder(FileResponse::class)
 			->setConstructorArgs([ create_file(), Request::from() ])
-			->setMethods([ 'send_headers', 'send_file' ])
+			->onlyMethods([ 'send_headers', 'send_file' ])
 			->getMockForAbstractClass();
 		$response
 			->expects($this->once())
@@ -311,7 +310,7 @@ class FileResponseTest extends \PHPUnit\Framework\TestCase
 		$response = $this
 			->getMockBuilder(FileResponse::class)
 			->setConstructorArgs([ create_file(), $request ])
-			->setMethods([ 'get_modified_time', 'get_etag' ])
+			->onlyMethods([ 'get_modified_time', 'get_etag' ])
 			->getMockForAbstractClass();
 		$response
 			->expects($this->any())
@@ -390,12 +389,12 @@ class FileResponseTest extends \PHPUnit\Framework\TestCase
 		$response = $this
 			->getMockBuilder(FileResponse::class)
 			->setConstructorArgs([ __FILE__, $request ])
-			->setMethods([ 'send_body' ])
+			->onlyMethods([ 'send_body' ])
 			->getMock();
 
 		/* @var $response FileResponse */
 
-		$this->assertContains("Accept-Ranges: $type", (string) $response);
+		$this->assertStringContainsString("Accept-Ranges: $type", (string) $response);
 	}
 
 	public function provide_test_accept_ranges()
@@ -435,7 +434,7 @@ class FileResponseTest extends \PHPUnit\Framework\TestCase
 		$response = $this
 			->getMockBuilder(FileResponse::class)
 			->setConstructorArgs([ $pathname, $request, [ FileResponse::OPTION_ETAG => $etag ] ])
-			->setMethods([ 'send_headers' ])
+			->onlyMethods([ 'send_headers' ])
 			->getMock();
 
 		/* @var $response FileResponse */

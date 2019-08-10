@@ -2,7 +2,7 @@
 
 PACKAGE_NAME = icanboogie/http
 PACKAGE_VERSION = 4.0
-PHPUNIT_VERSION = phpunit-7.phar
+PHPUNIT_VERSION = phpunit-8.phar
 PHPUNIT_FILENAME = build/$(PHPUNIT_VERSION)
 PHPUNIT = php $(PHPUNIT_FILENAME)
 
@@ -26,18 +26,21 @@ $(PHPUNIT_FILENAME):
 	mkdir -p build
 	wget https://phar.phpunit.de/$(PHPUNIT_VERSION) -O $(PHPUNIT_FILENAME)
 
-test: all
+test: all test-cleanup
 	@$(PHPUNIT)
 
-test-coverage: all
+test-coverage: all test-cleanup
 	@mkdir -p build/coverage
 	@$(PHPUNIT) --coverage-html build/coverage
 
-test-coveralls: all
+test-coveralls: all test-cleanup
 	@mkdir -p build/logs
 	COMPOSER_ROOT_VERSION=$(PACKAGE_VERSION) composer require satooshi/php-coveralls
 	@$(PHPUNIT) --coverage-clover build/logs/clover.xml
 	php vendor/bin/php-coveralls -v
+
+test-cleanup:
+	rm -rf tests/sandbox/*
 
 doc: vendor
 	@mkdir -p build/docs

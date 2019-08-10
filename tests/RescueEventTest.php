@@ -3,34 +3,28 @@
 namespace ICanBoogie\HTTP;
 
 use ICanBoogie\Exception\RescueEvent;
+use ICanBoogie\PropertyNotWritable;
 
 class RescueEventTest extends \PHPUnit\Framework\TestCase
 {
 	public function test_error_on_invalid_exception_type()
 	{
-		$this->expectException(version_compare(PHP_VERSION, 7, '>=')
-			? \Throwable::class
-			: \PHPUnit_Framework_Error::class);
-
-		#
-
 		$exception = new \stdClass;
 		$response = null;
+
+		$this->expectException(\Throwable::class);
 
 		new RescueEvent($exception, Request::from('/'), $response);
 	}
 
 	public function test_error_on_setting_invalid_exception_type()
 	{
-		$this->expectException(version_compare(PHP_VERSION, 7, '>=')
-			? \Throwable::class
-			: \PHPUnit_Framework_Error::class);
-
-		#
-
 		$exception = new \Exception;
 		$response = null;
 		$event = new RescueEvent($exception, Request::from('/'), $response);
+
+		$this->expectException(\Throwable::class);
+
 		$event->exception = new \stdClass;
 	}
 
@@ -48,29 +42,22 @@ class RescueEventTest extends \PHPUnit\Framework\TestCase
 
 	public function test_error_on_invalid_response_type()
 	{
-		$this->expectException(version_compare(PHP_VERSION, 7, '>=')
-			? \Throwable::class
-			: \PHPUnit_Framework_Error::class);
-
-		#
-
 		$exception = new \Exception;
 		$response = new \StdClass;
+
+		$this->expectException(\Throwable::class);
 
 		new RescueEvent($exception, Request::from('/'), $response);
 	}
 
 	public function test_error_on_setting_invalid_response_type()
 	{
-		$this->expectException(version_compare(PHP_VERSION, 7, '>=')
-			? \Throwable::class
-			: \PHPUnit_Framework_Error::class);
-
-		#
-
 		$exception = new \Exception;
 		$response = null;
 		$event = new RescueEvent($exception, Request::from('/'), $response);
+
+		$this->expectException(\Throwable::class);
+
 		$event->response = new \stdClass;
 	}
 
@@ -105,15 +92,15 @@ class RescueEventTest extends \PHPUnit\Framework\TestCase
 		$this->assertSame($request, $event->request);
 	}
 
-	/**
-	 * @expectedException \ICanBoogie\PropertyNotWritable
-	 */
 	public function test_should_throw_exception_on_write_request()
 	{
 		$exception = new \Exception;
 		$request = Request::from('/');
 		$response = null;
 		$event = new RescueEvent($exception, $request, $response);
+
+		$this->expectException(PropertyNotWritable::class);
+
 		$event->request = null;
 	}
 }

@@ -11,11 +11,15 @@
 
 namespace ICanBoogie\HTTP;
 
+use ICanBoogie\PropertyNotWritable;
+use ICanBoogie\Prototype\MethodNotDefined;
+use InvalidArgumentException;
+
 class RequestTest extends \PHPUnit\Framework\TestCase
 {
 	static private $request;
 
-	static public function setupBeforeClass()
+	static public function setupBeforeClass(): void
 	{
 		self::$request = Request::from($_SERVER);
 	}
@@ -31,12 +35,11 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
 	/**
 	 * @dataProvider provide_test_write_readonly_properties
-	 * @expectedException \ICanBoogie\PropertyNotWritable
-	 *
-	 * @param string $property Property name.
 	 */
-	public function test_write_readonly_properties($property)
+	public function test_write_readonly_properties(string $property)
 	{
+		$this->expectException(PropertyNotWritable::class);
+
 		self::$request->$property = null;
 	}
 
@@ -68,11 +71,9 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals($value, $request->content_length);
 	}
 
-	/**
-	 * @expectedException \InvalidArgumentException
-	 */
 	public function test_from_with_extension()
 	{
+		$this->expectException(InvalidArgumentException::class);
 		Request::from([ 'extension' => '.png' ]);
 	}
 
@@ -241,11 +242,10 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals(Request::METHOD_DELETE, $request->method);
 	}
 
-	/**
-	 * @expectedException \ICanBoogie\HTTP\MethodNotSupported
-	 */
 	public function test_from_with_invalid_method()
 	{
+		$this->expectException(MethodNotSupported::class);
+
 		Request::from([ Request::OPTION_METHOD => uniqid() ]);
 	}
 
@@ -260,19 +260,17 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals('/path/', $request->path);
 	}
 
-	/**
-	 * @expectedException \InvalidArgumentException
-	 */
 	public function test_from_with_parent()
 	{
+		$this->expectException(InvalidArgumentException::class);
+
 		Request::from([ 'parent' => true ]);
 	}
 
-	/**
-	 * @expectedException \InvalidArgumentException
-	 */
 	public function test_from_with_query_string()
 	{
+		$this->expectException(InvalidArgumentException::class);
+
 		Request::from([ 'query_string' => true ]);
 	}
 
@@ -284,11 +282,10 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals($value, $request->referer);
 	}
 
-	/**
-	 * @expectedException \InvalidArgumentException
-	 */
 	public function test_from_with_script_name()
 	{
+		$this->expectException(InvalidArgumentException::class);
+
 		Request::from([ 'script_name' => true ]);
 	}
 
@@ -695,12 +692,12 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 		$this->assertSame([ ], $request3->params);
 	}
 
-	/**
-	 * @expectedException \InvalidArgumentException
-	 */
 	public function test_should_throw_exception_when_changing_with_unsupported_property()
 	{
 		$request = Request::from();
+
+		$this->expectException(InvalidArgumentException::class);
+
 		$request->with([ 'unsupported_property' => uniqid() ]);
 	}
 
@@ -730,13 +727,13 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 		$request1 = $this
 			->getMockBuilder(Request::class)
 			->disableOriginalConstructor()
-			->setMethods([ 'with' ])
+			->onlyMethods([ 'with' ])
 			->getMock();
 
 		$request2 = $this
 			->getMockBuilder(Request::class)
 			->disableOriginalConstructor()
-			->setMethods([ 'dispatch' ])
+			->onlyMethods([ 'dispatch' ])
 			->getMock();
 
 		$request2->expects($this->once())
@@ -753,13 +750,13 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 		$this->assertSame($response, $request1->post($request_params));
 	}
 
-	/**
-	 * @expectedException \ICanBoogie\Prototype\MethodNotDefined
-	 */
 	public function test_should_throw_exception_when_invoking_undefined_method()
 	{
 		$request = Request::from();
 		$method = 'undefined' . uniqid();
+
+		$this->expectException(MethodNotDefined::class);
+
 		$request->$method();
 	}
 
@@ -770,7 +767,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 		$request = $this
 			->getMockBuilder(Request::class)
 			->disableOriginalConstructor()
-			->setMethods([ 'dispatch' ])
+			->onlyMethods([ 'dispatch' ])
 			->getMock();
 
 		$request->expects($this->once())
@@ -789,7 +786,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 		$request = $this
 			->getMockBuilder(Request::class)
 			->disableOriginalConstructor()
-			->setMethods([ 'dispatch' ])
+			->onlyMethods([ 'dispatch' ])
 			->getMock();
 
 		$request->expects($this->once())
@@ -818,13 +815,13 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 		$request1 = $this
 			->getMockBuilder(Request::class)
 			->disableOriginalConstructor()
-			->setMethods([ 'dispatch' ])
+			->onlyMethods([ 'dispatch' ])
 			->getMock();
 
 		$request2 = $this
 			->getMockBuilder(Request::class)
 			->disableOriginalConstructor()
-			->setMethods([ 'dispatch' ])
+			->onlyMethods([ 'dispatch' ])
 			->getMock();
 
 		$request1->expects($this->once())

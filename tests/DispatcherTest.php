@@ -21,7 +21,7 @@ class DispatcherTest extends \PHPUnit\Framework\TestCase
 	 */
 	private $events;
 
-	public function setUp()
+	protected function setUp(): void
 	{
 		$this->events = $events = new EventCollection;
 
@@ -91,12 +91,10 @@ class DispatcherTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals('Rescued: Damned!', $response->body);
 	}
 
-	/**
-	 * @expectedException \ICanBoogie\HTTP\NotFound
-	 */
 	public function testNotFound()
 	{
 		$dispatcher = new RequestDispatcher;
+		$this->expectException(NotFound::class);
 		$dispatcher(Request::from($_SERVER));
 	}
 
@@ -235,7 +233,7 @@ class DispatcherTest extends \PHPUnit\Framework\TestCase
 		$dispatcher = $this
 			->getMockBuilder(RequestDispatcher::class)
 			->disableOriginalConstructor()
-			->setMethods(null)
+			->onlyMethods([])
 			->getMock();
 
 		$force_redirect = new ForceRedirect($location);

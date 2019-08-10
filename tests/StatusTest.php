@@ -11,6 +11,8 @@
 
 namespace ICanBoogie\HTTP;
 
+use InvalidArgumentException;
+
 class StatusTest extends \PHPUnit\Framework\TestCase
 {
 	public function test_constructor()
@@ -49,36 +51,33 @@ class StatusTest extends \PHPUnit\Framework\TestCase
 		];
 	}
 
-	/**
-	 * @expectedException \InvalidArgumentException
-	 */
 	public function test_from_invalid_status()
 	{
+		$this->expectException(InvalidArgumentException::class);
+
 		Status::from("Invalid status");
 	}
 
-	/**
-	 * @expectedException \ICanBoogie\HTTP\StatusCodeNotValid
-	 */
 	public function test_from_invalid_status_code()
 	{
+		$this->expectException(StatusCodeNotValid::class);
+
 		Status::from("987 Invalid");
 	}
 
-	/**
-	 * @expectedException \ICanBoogie\HTTP\StatusCodeNotValid
-	 */
 	public function test_constructor_with_invalid_code()
 	{
+		$this->expectException(StatusCodeNotValid::class);
+
 		new Status(987);
 	}
 
-	/**
-	 * @expectedException \ICanBoogie\HTTP\StatusCodeNotValid
-	 */
 	public function test_set_code_invalid()
 	{
 		$status = new Status;
+
+		$this->expectException(StatusCodeNotValid::class);
+
 		$status->code = 12345;
 	}
 

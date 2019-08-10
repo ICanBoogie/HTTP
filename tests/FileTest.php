@@ -12,6 +12,9 @@
 namespace ICanBoogie\HTTP;
 
 use ICanBoogie\FormattedString;
+use ICanBoogie\PropertyNotWritable;
+use function uniqid;
+use const UPLOAD_ERR_CANT_WRITE;
 
 class FileTest extends \PHPUnit\Framework\TestCase
 {
@@ -200,21 +203,27 @@ class FileTest extends \PHPUnit\Framework\TestCase
 
 	/**
 	 * @dataProvider provide_readonly_properties
-	 * @expectedException \ICanBoogie\PropertyNotWritable
 	 */
-	public function test_write_readonly_properties($property)
+	public function test_write_readonly_properties(string $property)
 	{
 		$file = File::from([ File::OPTION_PATHNAME => __FILE__ ]);
+
+		$this->expectException(PropertyNotWritable::class);
+
 		$file->$property = null;
 	}
 
 	/**
 	 * @dataProvider provide_readonly_properties
 	 */
-	public function test_read_readonly_properties($property)
+	public function test_read_readonly_properties(string $property)
 	{
-		$file = File::from([ File::OPTION_PATHNAME => __FILE__ ]);
-		$file->$property;
+		$file = File::from([
+			File::OPTION_PATHNAME => __FILE__,
+			File::OPTION_ERROR => UPLOAD_ERR_CANT_WRITE,
+		]);
+
+		$this->assertNotNull($file->$property);
 	}
 
 	public function provide_readonly_properties()
@@ -293,15 +302,15 @@ class FileTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals($expected, $file->size);
 	}
 
-	/**
-	 * @expectedException \Exception
-	 */
 	public function test_move_overwrite()
 	{
 		$file1 = create_file();
 		$file2 = create_file();
 
 		$file = File::from($file1);
+
+		$this->expectException(\Exception::class);
+
 		$file->move($file2);
 	}
 

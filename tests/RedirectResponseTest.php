@@ -16,22 +16,20 @@ class RedirectResponseTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals($uri, $response->location);
 
 		$body = (string) $response;
-		$this->assertContains($uri, $body);
+		$this->assertStringContainsString($uri, $body);
 	}
 
-	/**
-	 * @expectedException \ICanBoogie\HTTP\StatusCodeNotValid
-	 */
 	public function test_construct_with_invalid_code()
 	{
+		$this->expectException(StatusCodeNotValid::class);
+
 		new RedirectResponse("/go/to/there", 987);
 	}
 
-	/**
-	 * @expectedException \ICanBoogie\HTTP\StatusCodeNotValid
-	 */
 	public function test_construct_with_not_redirect_code()
 	{
+		$this->expectException(StatusCodeNotValid::class);
+
 		new RedirectResponse("/go/to/there", Status::NOT_FOUND);
 	}
 }

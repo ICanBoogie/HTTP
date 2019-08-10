@@ -54,7 +54,7 @@ class AlterEventTest extends \PHPUnit\Framework\TestCase
 		$dispatcher = $this
 			->getMockBuilder(RequestDispatcher::class)
 			->disableOriginalConstructor()
-			->setMethods([ 'offsetSet' ])
+			->onlyMethods([ 'offsetSet' ])
 			->getMock();
 		$dispatcher
 			->expects($this->once())
@@ -83,7 +83,7 @@ class AlterEventTest extends \PHPUnit\Framework\TestCase
 		$dispatcher = $this
 			->getMockBuilder(RequestDispatcher::class)
 			->disableOriginalConstructor()
-			->setMethods([ 'offsetSet' ])
+			->onlyMethods([ 'offsetSet' ])
 			->getMock();
 		$dispatcher
 			->expects($this->once())

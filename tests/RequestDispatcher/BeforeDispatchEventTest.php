@@ -14,6 +14,7 @@ namespace ICanBoogie\HTTP\RequestDispatcher;
 use ICanBoogie\HTTP\RequestDispatcher;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
+use ICanBoogie\PropertyNotWritable;
 
 class BeforeDispatchEventTest extends \PHPUnit\Framework\TestCase
 {
@@ -27,7 +28,7 @@ class BeforeDispatchEventTest extends \PHPUnit\Framework\TestCase
 	 */
 	private $request;
 
-	public function setUp()
+	protected function setUp(): void
 	{
 		$this->dispatcher = $this
 			->getMockBuilder(RequestDispatcher::class)
@@ -39,25 +40,15 @@ class BeforeDispatchEventTest extends \PHPUnit\Framework\TestCase
 
 	public function test_error_on_invalid_response_type()
 	{
-		$this->expectException(version_compare(PHP_VERSION, 7, '>=')
-			? \Throwable::class
-			: \PHPUnit_Framework_Error::class);
-
-		#
-
 		$response = new \StdClass;
+
+		$this->expectException(\Throwable::class);
 
 		new BeforeDispatchEvent($this->dispatcher, $this->request, $response);
 	}
 
 	public function test_error_on_setting_invalid_response_type()
 	{
-		$this->expectException(version_compare(PHP_VERSION, 7, '>=')
-			? \Throwable::class
-			: \PHPUnit_Framework_Error::class);
-
-		#
-
 		$response = null;
 
 		/* @var $event BeforeDispatchEvent */
@@ -69,6 +60,8 @@ class BeforeDispatchEventTest extends \PHPUnit\Framework\TestCase
 			'response' => &$response
 
 		]);
+
+		$this->expectException(\Throwable::class);
 
 		$event->response = new \StdClass;
 	}
@@ -129,9 +122,6 @@ class BeforeDispatchEventTest extends \PHPUnit\Framework\TestCase
 		$this->assertSame($this->request, $event->request);
 	}
 
-	/**
-	 * @expectedException \ICanBoogie\PropertyNotWritable
-	 */
 	public function test_should_throw_exception_on_write_request()
 	{
 		$response = null;
@@ -146,6 +136,7 @@ class BeforeDispatchEventTest extends \PHPUnit\Framework\TestCase
 
 		]);
 
+		$this->expectException(PropertyNotWritable::class);
 		$event->request = null;
 	}
 }

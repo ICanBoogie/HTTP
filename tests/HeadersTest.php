@@ -204,7 +204,7 @@ class HeadersTest extends \PHPUnit\Framework\TestCase
 
 		$headers = $this
 			->getMockBuilder(Headers::class)
-			->setMethods([ 'send_header' ])
+			->onlyMethods([ 'send_header' ])
 			->getMock();
 
 		$headers->expects($this->exactly(4))

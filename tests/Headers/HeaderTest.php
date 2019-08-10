@@ -13,6 +13,8 @@ namespace ICanBoogie\HTTP\Headers;
 
 use ICanBoogie\FormattedString;
 use ICanBoogie\HTTP\Headers\HeaderTest\A;
+use ICanBoogie\OffsetNotDefined;
+use ICanBoogie\PropertyNotDefined;
 
 class HeaderTest extends \PHPUnit\Framework\TestCase
 {
@@ -95,39 +97,31 @@ class HeaderTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals('123; p=test.txt', (string) $a);
 	}
 
-	/**
-	 * @expectedException \ICanBoogie\PropertyNotDefined
-	 */
 	public function test_setting_unsupported_attribute_using_a_property_should_throw_an_exception()
 	{
 		$a = new A;
+		$this->expectException(PropertyNotDefined::class);
 		$a->b = true;
 	}
 
-	/**
-	 * @expectedException \ICanBoogie\OffsetNotDefined
-	 */
 	public function test_setting_unsupported_attribute_using_an_offset_should_throw_an_exception()
 	{
 		$a = new A;
+		$this->expectException(OffsetNotDefined::class);
 		$a['b'] = true;
 	}
 
-	/**
-	 * @expectedException \ICanBoogie\PropertyNotDefined
-	 */
 	public function test_getting_unsupported_attribute_using_a_property_should_throw_an_exception()
 	{
 		$a = new A;
+		$this->expectException(PropertyNotDefined::class);
 		$b = $a->b;
 	}
 
-	/**
-	 * @expectedException \ICanBoogie\OffsetNotDefined
-	 */
 	public function test_getting_unsupported_attribute_using_an_offset_should_throw_an_exception()
 	{
 		$a = new A;
+		$this->expectException(OffsetNotDefined::class);
 		$b = $a['b'];
 	}
 
@@ -147,12 +141,12 @@ class HeaderTest extends \PHPUnit\Framework\TestCase
 	}
 
 	/**
-	 * @expectedException \InvalidArgumentException
 	 * @dataProvider provide_invalid_from_source
 	 */
 	public function test_from_with_invalid_input_should_throw_exception($source)
 	{
-		$a = A::from(new \StdClass);
+		$this->expectException(\InvalidArgumentException::class);
+		$a = A::from($source);
 	}
 
 	public function provide_invalid_from_source()

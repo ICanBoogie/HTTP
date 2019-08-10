@@ -13,16 +13,14 @@ namespace ICanBoogie\HTTP;
 
 class DispatcherProviderTest extends \PHPUnit\Framework\TestCase
 {
-	public function tearDown()
+	protected function tearDown(): void
 	{
 		DispatcherProvider::undefine();
 	}
 
-	/**
-	 * @expectedException \ICanBoogie\HTTP\DispatcherProviderNotDefined
-	 */
 	public function test_should_throw_exception_when_no_provider_is_defined()
 	{
+		$this->expectException(DispatcherProviderNotDefined::class);
 		DispatcherProvider::provide();
 	}
 

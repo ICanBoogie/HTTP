@@ -14,12 +14,15 @@ namespace ICanBoogie\HTTP;
 use ICanBoogie\DateTime;
 use ICanBoogie\HTTP\Headers\CacheControl;
 use ICanBoogie\HTTP\Headers\Date;
+use ICanBoogie\PropertyNotWritable;
+use InvalidArgumentException;
+use UnexpectedValueException;
 
 class ResponseTest extends \PHPUnit\Framework\TestCase
 {
 	static private $response;
 
-	static public function setupBeforeClass()
+	static public function setupBeforeClass(): void
 	{
 		self::$response = new Response;
 	}
@@ -33,28 +36,26 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
 		$this->assertNotSame($clone->status, $response->status);
 	}
 
-	/**
-	 * @expectedException \UnexpectedValueException
-	 */
 	public function test_invalid_body_should_throw_exception()
 	{
+		$this->expectException(UnexpectedValueException::class);
+
 		new Response(new \stdClass);
 	}
 
-	/**
-	 * @expectedException \InvalidArgumentException
-	 */
 	public function test_should_throw_exception_setting_empty_string_location()
 	{
 		$response = new Response;
+
+		$this->expectException(InvalidArgumentException::class);
+
 		$response->location = '';
 	}
 
-	/**
-	 * @expectedException \InvalidArgumentException
-	 */
 	public function test_invalid_headers_should_throw_exception()
 	{
+		$this->expectException(InvalidArgumentException::class);
+
 		new Response(null, Response::STATUS_OK, (object) []);
 	}
 
@@ -80,12 +81,11 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
 
 	/**
 	 * @dataProvider provide_test_write_readonly_properties
-	 * @expectedException \ICanBoogie\PropertyNotWritable
-	 *
-	 * @param string $property Property name.
 	 */
-	public function test_write_readonly_properties($property)
+	public function test_write_readonly_properties(string $property)
 	{
+		$this->expectException(PropertyNotWritable::class);
+
 		self::$response->$property = null;
 	}
 
@@ -194,7 +194,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
 		$response_string = (string) $response;
 
 		$this->assertStringStartsWith("HTTP/1.1 200 OK\r\nDate: {$response->date}\r\n", $response_string);
-		$this->assertNotContains("Content-Length", $response_string);
+		$this->assertStringNotContainsString("Content-Length", $response_string);
 		$this->assertNull($response->content_length);
 	}
 
@@ -283,13 +283,13 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
 		$headers = $this
 			->getMockBuilder(Headers::class)
 			->disableOriginalConstructor()
-			->setMethods([ '__invoke' ])
+			->onlyMethods([ '__invoke' ])
 			->getMock();
 
 		$response = $this
 			->getMockBuilder(Response::class)
 			->setConstructorArgs([ $body, Response::STATUS_OK, $headers ])
-			->setMethods([ 'finalize', 'send_headers', 'send_body' ])
+			->onlyMethods([ 'finalize', 'send_headers', 'send_body' ])
 			->getMock();
 		$response
 			->expects($this->once())
@@ -317,13 +317,13 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
 		$headers = $this
 			->getMockBuilder(Headers::class)
 			->disableOriginalConstructor()
-			->setMethods([ '__invoke' ])
+			->onlyMethods([ '__invoke' ])
 			->getMock();
 
 		$response = $this
 			->getMockBuilder(Response::class)
 			->setConstructorArgs([ $body, Response::STATUS_OK, $headers ])
-			->setMethods([ 'finalize', 'send_headers', 'send_body' ])
+			->onlyMethods([ 'finalize', 'send_headers', 'send_body' ])
 			->getMock();
 		$response
 			->expects($this->once())
@@ -353,7 +353,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
 		$response = $this
 			->getMockBuilder(Response::class)
 			->setConstructorArgs([ $body ])
-			->setMethods([ 'finalize', 'send_headers', 'send_body' ])
+			->onlyMethods([ 'finalize', 'send_headers', 'send_body' ])
 			->getMock();
 		$response
 			->expects($this->once())
