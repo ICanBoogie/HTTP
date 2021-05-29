@@ -14,7 +14,16 @@ namespace ICanBoogie\HTTP\Headers;
 use ICanBoogie\OffsetNotDefined;
 use ICanBoogie\PropertyNotDefined;
 
+use function array_intersect_key;
+use function array_map;
+use function explode;
 use function ICanBoogie\format;
+use function is_object;
+use function is_string;
+use function method_exists;
+use function strpos;
+use function substr;
+use function trim;
 
 /**
  * Base class for header fields.
@@ -73,7 +82,7 @@ use function ICanBoogie\format;
  */
 abstract class Header implements \ArrayAccess
 {
-	const VALUE_ALIAS = null;
+	public const VALUE_ALIAS = null;
 
 	/**
 	 * The value of the header.
@@ -115,7 +124,7 @@ abstract class Header implements \ArrayAccess
 	/**
 	 * Parse the provided source and extract its value and parameters.
 	 *
-	 * @param string $source The source to create the instance from.
+	 * @param string|object $source The source to create the instance from.
 	 *
 	 * @throws \InvalidArgumentException if `$source` is not a string nor an object implementing
 	 * `__toString()`.
@@ -124,12 +133,12 @@ abstract class Header implements \ArrayAccess
 	 */
 	static protected function parse($source): array
 	{
-		if (\is_object($source) && \method_exists($source, '__toString'))
+		if (is_object($source) && method_exists($source, '__toString'))
 		{
 			$source = (string) $source;
 		}
 
-		if (!\is_string($source))
+		if (!is_string($source))
 		{
 			throw new \InvalidArgumentException(format
 			(
@@ -142,18 +151,18 @@ abstract class Header implements \ArrayAccess
 			));
 		}
 
-		$value_end = \strpos($source, ';');
+		$value_end = strpos($source, ';');
 		$parameters = [];
 
 		if ($value_end !== false)
 		{
-			$value = \substr($source, 0, $value_end);
-			$attributes = \trim(\substr($source, $value_end + 1));
+			$value = substr($source, 0, $value_end);
+			$attributes = trim(substr($source, $value_end + 1));
 
 			if ($attributes)
 			{
-                $attributes = \explode(';', $attributes);
-                $attributes = \array_map('trim', $attributes);
+				$attributes = explode(';', $attributes);
+				$attributes = array_map('trim', $attributes);
 
 				foreach ($attributes as $attribute)
 				{
@@ -253,7 +262,7 @@ abstract class Header implements \ArrayAccess
 	{
 		$this->value = $value;
 
-		$parameters = \array_intersect_key($parameters, $this->parameters);
+		$parameters = array_intersect_key($parameters, $this->parameters);
 
 		foreach ($parameters as $attribute => $value)
 		{

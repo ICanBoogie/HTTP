@@ -11,6 +11,8 @@
 
 namespace ICanBoogie\HTTP;
 
+use function random_bytes;
+
 require __DIR__ . '/../vendor/autoload.php';
 
 /*
@@ -41,15 +43,15 @@ function generate_pathname()
  *
  * @return string The pathname of the file.
  */
-function create_file($extension = '')
+function create_file(string $extension = ''): string
 {
 	$pathname = generate_pathname() . $extension;
-	file_put_contents($pathname, openssl_random_pseudo_bytes(CREATE_FILE_SIZE));
+	file_put_contents($pathname, random_bytes(CREATE_FILE_SIZE));
 
 	return $pathname;
 }
 
-function create_image($extension = '.png')
+function create_image(string $extension = '.png'): string
 {
 	$image = imagecreatetruecolor(200, 200);
 	$pathname = generate_pathname() . $extension;

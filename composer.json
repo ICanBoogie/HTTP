@@ -27,9 +27,14 @@
 	"prefer-dist": true,
 	"require": {
 		"php": "^7.2",
+		"ext-mbstring": "*",
 		"icanboogie/prototype": "^5.0",
 		"icanboogie/event": "^4.0",
 		"icanboogie/datetime": "^1.2"
+	},
+	"require-dev": {
+		"ext-gd": "*",
+		"phpunit/phpunit": "^8.5"
 	},
 	"autoload": {
 		"psr-4": {

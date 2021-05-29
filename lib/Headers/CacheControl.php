@@ -12,8 +12,18 @@
 namespace ICanBoogie\HTTP\Headers;
 
 use ICanBoogie\Accessor\AccessorTrait;
-
+use InvalidArgumentException;
+use function array_key_exists;
+use function array_map;
+use function explode;
+use function get_object_vars;
 use function ICanBoogie\format;
+use function in_array;
+use function is_array;
+use function is_numeric;
+use function preg_match;
+use function strtr;
+use function substr;
 
 /**
  * Representation of the `Cache-Control` header field.
@@ -40,6 +50,11 @@ use function ICanBoogie\format;
  */
 class CacheControl
 {
+	/**
+	 * @uses get_cacheable
+	 * @uses set_cacheable
+	 * @uses get_default_values
+	 */
 	use AccessorTrait;
 
 	private const CACHEABLE_VALUES = [
@@ -68,10 +83,8 @@ class CacheControl
 
 	/**
 	 * Returns the default values of the instance.
-	 *
-	 * @return array
 	 */
-	static protected function get_default_values(): array
+	private static function get_default_values(): array
 	{
 		return [
 
@@ -92,41 +105,39 @@ class CacheControl
 	/**
 	 * Parses the provided cache directive.
 	 *
-	 * @param string $cache_directive
-	 *
 	 * @return array Returns an array made of the properties and extensions.
 	 */
 	static protected function parse(string $cache_directive): array
 	{
-		$directives = \explode(',', $cache_directive);
-		$directives = \array_map('trim', $directives);
+		$directives = explode(',', $cache_directive);
+		$directives = array_map('trim', $directives);
 
 		$properties = self::get_default_values();
 		$extensions = [];
 
 		foreach ($directives as $value)
 		{
-			if (\in_array($value, self::BOOLEANS))
+			if (in_array($value, self::BOOLEANS))
 			{
-				$property = \strtr($value, '-', '_');
+				$property = strtr($value, '-', '_');
 				$properties[$property] = true;
 			}
-			if (\in_array($value, self::CACHEABLE_VALUES))
+			if (in_array($value, self::CACHEABLE_VALUES))
 			{
 				$properties['cacheable'] = $value;
 			}
-			else if (\preg_match('#^([^=]+)=(.+)$#', $value, $matches))
+			else if (preg_match('#^([^=]+)=(.+)$#', $value, $matches))
 			{
 				list(, $directive, $value) = $matches;
 
-				$property = \strtr($directive, '-', '_');
+				$property = strtr($directive, '-', '_');
 
-				if (\is_numeric($value))
+				if (is_numeric($value))
 				{
 					$value = 0 + $value;
 				}
 
-				if (!\array_key_exists($property, $properties))
+				if (!array_key_exists($property, $properties))
 				{
 					$extensions[$property] = $value;
 
@@ -144,8 +155,6 @@ class CacheControl
 	 * Create an instance from the provided source.
 	 *
 	 * @param self|string $source
-	 *
-	 * @return CacheControl
 	 */
 	static public function from($source): self
 	{
@@ -166,31 +175,28 @@ class CacheControl
 	 *
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.1
 	 *
-	 * @var string
+	 * @var string|null
 	 */
 	private $cacheable;
 
-	/**
-	 * @return string
-	 */
-	protected function get_cacheable()
+	private function get_cacheable(): ?string
 	{
 		return $this->cacheable;
 	}
 
 	/**
-	 * @param $value
+	 * @param string|false|null $value
 	 */
-	protected function set_cacheable($value)
+	private function set_cacheable($value)
 	{
 		if ($value === false)
 		{
 			$value = 'no-cache';
 		}
 
-		if ($value !== null && !\in_array($value, self::CACHEABLE_VALUES))
+		if ($value !== null && !in_array($value, self::CACHEABLE_VALUES))
 		{
-			throw new \InvalidArgumentException(format
+			throw new InvalidArgumentException(format
 			(
 				"%var must be one of: public, private, no-cache. Give: %value", [
 
@@ -225,14 +231,14 @@ class CacheControl
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.4
 	 *
-	 * @var int
+	 * @var int|null
 	 */
 	public $max_age;
 
 	/**
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3
 	 *
-	 * @var int
+	 * @var int|null
 	 */
 	public $s_maxage;
 
@@ -247,7 +253,7 @@ class CacheControl
 	 *
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3
 	 *
-	 * @var string
+	 * @var string|null
 	 */
 	public $max_stale;
 
@@ -260,7 +266,7 @@ class CacheControl
 	 *
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3
 	 *
-	 * @var int
+	 * @var int|null
 	 */
 	public $min_fresh;
 
@@ -312,9 +318,9 @@ class CacheControl
 	/**
 	 * If they are defined, the object is initialized with the cache directives.
 	 *
-	 * @param string $cache_directives Cache directives.
+	 * @param string|null $cache_directives Cache directives.
 	 */
-	public function __construct($cache_directives = '')
+	public function __construct(string $cache_directives = null)
 	{
 		if ($cache_directives)
 		{
@@ -324,18 +330,16 @@ class CacheControl
 
 	/**
 	 * Returns cache directives.
-	 *
-	 * @return string
 	 */
-	public function __toString()
+	public function __toString(): string
 	{
 		$cache_directive = '';
 
-		foreach (\get_object_vars($this) as $directive => $value)
+		foreach (get_object_vars($this) as $directive => $value)
 		{
-			$directive = \strtr($directive, '_', '-');
+			$directive = strtr($directive, '_', '-');
 
-			if (\in_array($directive, self::BOOLEANS))
+			if (in_array($directive, self::BOOLEANS))
 			{
 				if (!$value)
 				{
@@ -344,7 +348,7 @@ class CacheControl
 
 				$cache_directive .= ', ' . $directive;
 			}
-			else if (\in_array($directive, self::PLACEHOLDER))
+			else if (in_array($directive, self::PLACEHOLDER))
 			{
 				if (!$value)
 				{
@@ -353,7 +357,7 @@ class CacheControl
 
 				$cache_directive .= ', ' . $value;
 			}
-			else if (\is_array($value))
+			else if (is_array($value))
 			{
 				// TODO: 20120831: extentions
 
@@ -365,17 +369,15 @@ class CacheControl
 			}
 		}
 
-		return $cache_directive ? \substr($cache_directive, 2) : '';
+		return $cache_directive ? substr($cache_directive, 2) : '';
 	}
 
 	/**
 	 * Sets the cache directives, updating the properties of the object.
 	 *
 	 * Unknown directives are stashed in the {@link $extensions} property.
-	 *
-	 * @param string $cache_directive
 	 */
-	public function modify($cache_directive)
+	public function modify(string $cache_directive): void
 	{
 		[ $properties, $extensions ] = static::parse($cache_directive);
 

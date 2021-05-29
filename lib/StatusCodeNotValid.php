@@ -13,6 +13,7 @@ namespace ICanBoogie\HTTP;
 
 use ICanBoogie\Accessor\AccessorTrait;
 
+use Throwable;
 use function ICanBoogie\format;
 
 /**
@@ -22,6 +23,9 @@ use function ICanBoogie\format;
  */
 class StatusCodeNotValid extends \InvalidArgumentException implements Exception
 {
+	/**
+	 * @uses get_status_code
+	 */
 	use AccessorTrait;
 
     /**
@@ -34,7 +38,7 @@ class StatusCodeNotValid extends \InvalidArgumentException implements Exception
 		return $this->status_code;
 	}
 
-	public function __construct(int $status_code, string $message = null, int $code = Status::INTERNAL_SERVER_ERROR, \Throwable $previous = null)
+	public function __construct(int $status_code, string $message = null, int $code = Status::INTERNAL_SERVER_ERROR, Throwable $previous = null)
 	{
 		$this->status_code = $status_code;
 

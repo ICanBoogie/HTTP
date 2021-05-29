@@ -36,7 +36,7 @@ namespace ICanBoogie\HTTP\Headers;
  */
 class ContentType extends Header
 {
-	const VALUE_ALIAS = 'type';
+	public const VALUE_ALIAS = 'type';
 
 	/**
 	 * Defines the `charset` parameter.

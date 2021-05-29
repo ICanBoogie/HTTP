@@ -27,6 +27,11 @@ use ICanBoogie\PrototypeTrait;
  */
 class Context implements \ArrayAccess
 {
+	/**
+	 * @uses get_request
+	 * @uses get_dispatcher
+	 * @uses set_dispatcher
+	 */
 	use PrototypeTrait;
 
 	/**

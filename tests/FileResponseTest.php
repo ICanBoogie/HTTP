@@ -13,13 +13,15 @@ namespace ICanBoogie\HTTP;
 
 use ICanBoogie\DateTime;
 use LogicException;
+use PHPUnit\Framework\MockObject\Rule\InvokedCount;
+use PHPUnit\Framework\TestCase;
 
-final class FileResponseTest extends \PHPUnit\Framework\TestCase
+final class FileResponseTest extends TestCase
 {
 	public function test_should_throw_exception_on_directory()
 	{
 		$this->expectException(LogicException::class);
-		$this->expectExceptionMessageRegExp("/Expected file, got directory\:/");
+		$this->expectExceptionMessageMatches("/Expected file, got directory\:/");
 
 		new FileResponse(__DIR__, Request::from());
 	}
@@ -27,18 +29,15 @@ final class FileResponseTest extends \PHPUnit\Framework\TestCase
 	public function test_should_throw_exception_on_invalid_file()
 	{
 		$this->expectException(\LogicException::class);
-		$this->expectExceptionMessageRegExp("/File does not exist\:/");
+		$this->expectExceptionMessageMatches("/File does not exist\:/");
 
 		new FileResponse(uniqid(), Request::from());
 	}
 
 	/**
      * @dataProvider provide_test_closure_body
-     *
-     * @param int $status
-     * @param \PHPUnit_Framework_MockObject_Matcher_InvokedCount $expected
      */
-	public function test_closure_body($status, $expected)
+	public function test_closure_body(int $status, InvokedCount $expected)
 	{
 		$response = $this
 			->getMockBuilder(FileResponse::class)
@@ -49,13 +48,11 @@ final class FileResponseTest extends \PHPUnit\Framework\TestCase
 			->expects($expected)
 			->method('send_file');
 
-		/* @var $response FileResponse */
-
 		$response->status = $status;
 		$response();
 	}
 
-	public function provide_test_closure_body()
+	public function provide_test_closure_body(): array
 	{
 		return [
 
@@ -76,12 +73,8 @@ final class FileResponseTest extends \PHPUnit\Framework\TestCase
 
 	/**
 	 * @dataProvider provide_test_invoke
-	 *
-	 * @param string $cache_control
-	 * @param bool $is_modified
-	 * @param int $expected
 	 */
-	public function test_invoke($cache_control, $is_modified, $expected)
+	public function test_invoke(string $cache_control, bool $is_modified, int $expected): void
 	{
 		$request = Request::from([ Request::OPTION_HEADERS => [ 'Cache-Control' => $cache_control ] ]);
 
@@ -101,8 +94,6 @@ final class FileResponseTest extends \PHPUnit\Framework\TestCase
 			->expects($this->once())
 			->method('send_body');
 
-		/* @var $response FileResponse */
-
 		$response();
 
 		$this->assertEquals($expected, $response->status->code);
@@ -110,14 +101,8 @@ final class FileResponseTest extends \PHPUnit\Framework\TestCase
 
 	/**
 	 * @dataProvider provide_test_invoke_with_range
-	 *
-	 * @param string $cache_control
-	 * @param bool $is_modified
-	 * @param bool $is_satisfiable
-	 * @param bool $is_total
-	 * @param int $expected
 	 */
-	public function test_invoke_with_range($cache_control, $is_modified, $is_satisfiable, $is_total, $expected)
+	public function test_invoke_with_range(string $cache_control, bool $is_modified, bool $is_satisfiable, bool $is_total, int $expected)
 	{
 		$range = $this
 			->getMockBuilder(RequestRange::class)
@@ -149,14 +134,12 @@ final class FileResponseTest extends \PHPUnit\Framework\TestCase
 			->method('get_range')
 			->willReturn($range);
 
-		/* @var $response FileResponse */
-
 		$response();
 
 		$this->assertEquals($expected, $response->status->code);
 	}
 
-	public function provide_test_invoke_with_range()
+	public function provide_test_invoke_with_range(): array
 	{
 		return [
 
@@ -169,7 +152,7 @@ final class FileResponseTest extends \PHPUnit\Framework\TestCase
 		];
 	}
 
-	public function provide_test_invoke()
+	public function provide_test_invoke(): array
 	{
 		return [
 
@@ -181,7 +164,7 @@ final class FileResponseTest extends \PHPUnit\Framework\TestCase
 		];
 	}
 
-	public function test_send_body()
+	public function test_send_body(): void
 	{
 		$response = $this
 			->getMockBuilder(FileResponse::class)
@@ -202,19 +185,14 @@ final class FileResponseTest extends \PHPUnit\Framework\TestCase
 
 	/**
 	 * @dataProvider provide_test_get_content_type
-	 *
-	 * @param string $expected
-	 * @param string $file
-	 * @param array $options
-	 * @param array $headers
 	 */
-	public function test_get_content_type($expected, $file, $options = [], $headers = [])
+	public function test_get_content_type(string $expected, string $file, array $options = [], array $headers = [])
 	{
 		$response = new FileResponse($file, Request::from(), $options, $headers);
 		$this->assertEquals($expected, (string) $response->content_type);
 	}
 
-	public function provide_test_get_content_type()
+	public function provide_test_get_content_type(): array
 	{
 		return [
 
@@ -230,19 +208,14 @@ final class FileResponseTest extends \PHPUnit\Framework\TestCase
 
 	/**
 	 * @dataProvider provide_test_get_etag
-	 *
-	 * @param string $expected
-	 * @param string $file
-	 * @param array $options
-	 * @param array $headers
 	 */
-	public function test_get_etag($expected, $file, $options = [], $headers = [])
+	public function test_get_etag(string $expected, string $file, array $options = [], array $headers = []): void
 	{
 		$response = new FileResponse($file, Request::from(), $options, $headers);
 		$this->assertEquals($expected, (string) $response->etag);
 	}
 
-	public function provide_test_get_etag()
+	public function provide_test_get_etag(): array
 	{
 		$file = create_file();
 		$file_hash = FileResponse::hash_file($file);
@@ -259,19 +232,14 @@ final class FileResponseTest extends \PHPUnit\Framework\TestCase
 
 	/**
 	 * @dataProvider provide_test_get_expires
-	 *
-	 * @param DateTime $expected
-	 * @param string $file
-	 * @param array $options
-	 * @param array $headers
 	 */
-	public function test_get_expires(DateTime $expected, $file, $options = [], $headers = [])
+	public function test_get_expires(DateTime $expected, string $file, array $options = [], array $headers = []): void
 	{
 		$response = new FileResponse($file, Request::from(), $options, $headers);
 		$this->assertEquals($expected->utc->format('YmdHi'), $response->expires->utc->format('YmdHi'));
 	}
 
-	public function provide_test_get_expires()
+	public function provide_test_get_expires(): array
 	{
 		$file = create_file();
 		$expires_default = DateTime::from(FileResponse::DEFAULT_EXPIRES);
@@ -289,7 +257,7 @@ final class FileResponseTest extends \PHPUnit\Framework\TestCase
 		];
 	}
 
-	public function test_get_modified_time()
+	public function test_get_modified_time(): void
 	{
 		$file = create_file();
 		$response = new FileResponse($file, Request::from());
@@ -298,13 +266,8 @@ final class FileResponseTest extends \PHPUnit\Framework\TestCase
 
 	/**
 	 * @dataProvider provide_test_get_is_modified
-	 *
-	 * @param bool $expected
-	 * @param array $request_headers
-	 * @param int|null $modified_time
-	 * @param string|null $etag
 	 */
-	public function test_get_is_modified($expected, $request_headers, $modified_time = null, $etag = null)
+	public function test_get_is_modified(bool $expected, array $request_headers, int $modified_time = null, string $etag = null)
 	{
 		$request = Request::from([ Request::OPTION_HEADERS => $request_headers ]);
 		$response = $this

@@ -22,7 +22,7 @@ use ICanBoogie\HTTP\WeightedDispatcher;
  *
  * @property RequestDispatcher $instance
  */
-class AlterEvent extends Event
+final class AlterEvent extends Event
 {
     const TYPE = 'alter';
 
