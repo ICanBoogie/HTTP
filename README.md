@@ -24,17 +24,17 @@ require 'vendor/autoload.php';
 
 $dispatcher = new RequestDispatcher([
 
-	'hello world' => function(Request $request) {
+    'hello world' => function(Request $request) {
 
-		$who = $request['name'] ?: 'world';
+        $who = $request['name'] ?: 'world';
 
-		return new Response("Hello $who!", Response::STATUS_OK, [
+        return new Response("Hello $who!", Response::STATUS_OK, [
 
-			'Content-Type' => 'text/plain'
+            'Content-Type' => 'text/plain'
 
-		]);
+        ]);
 
-	}
+    }
 
 ]);
 
@@ -70,14 +70,14 @@ $request = Request::from('path/to/file.html', $_SERVER);
 
 $request = Request::from([
 
-	Request::OPTION_PATH => 'path/to/file.html',
-	Request::OPTION_IS_LOCAL => true,            // or OPTION_IP => '::1'
-	Request::OPTION_IS_POST => true,             // or OPTION_METHOD => Request::METHOD_POST
-	Request::OPTION_HEADERS => [
+    Request::OPTION_PATH => 'path/to/file.html',
+    Request::OPTION_IS_LOCAL => true,            // or OPTION_IP => '::1'
+    Request::OPTION_IS_POST => true,             // or OPTION_METHOD => Request::METHOD_POST
+    Request::OPTION_HEADERS => [
 
-		'Cache-Control' => 'no-cache'
+        'Cache-Control' => 'no-cache'
 
-	]
+    ]
 
 ]);
 ```
@@ -135,8 +135,8 @@ use ICanBoogie\HTTP\Request;
 
 $request = Request::from($_SERVER)->with([
 
-	Request::OPTION_IS_HEAD => true,
-	Request::OPTION_IS_XHR => true
+    Request::OPTION_IS_HEAD => true,
+    Request::OPTION_IS_XHR => true
 
 ]);
 ```
@@ -199,7 +199,7 @@ Of course, the request is also an iterator:
 
 foreach ($request as $parameter => $value)
 {
-	echo "$parameter: $value\n";
+    echo "$parameter: $value\n";
 }
 ```
 
@@ -225,11 +225,11 @@ $request = Request::from($_SERVER);
 
 $request = Request::from([
 
-	Request::OPTION_FILES => [
+    Request::OPTION_FILES => [
 
-		'uploaded' => [ File::OPTION_PATHNAME => '/path/to/my/example.zip' ]
+        'uploaded' => [ File::OPTION_PATHNAME => '/path/to/my/example.zip' ]
 
-	]
+    ]
 
 ]);
 
@@ -263,7 +263,7 @@ echo $file->is_uploaded;     // false
 
 if ($file->is_valid)
 {
-	$file->move('/path/to/repository/' . $file->name, File::MOVE_OVERWRITE);
+    $file->move('/path/to/repository/' . $file->name, File::MOVE_OVERWRITE);
 }
 ```
 
@@ -299,14 +299,14 @@ with the `to_array()` method:
 $file->to_array();
 /*
 [
-	'name' => 'example.zip',
-	'unsuffixed_name' => 'example',
-	'extension' => '.zip',
-	'type' => 'application/zip',
-	'size' => 1234,
-	'pathname' => '/path/to/my/example.zip',
-	'error' => null,
-	'error_message' => null
+    'name' => 'example.zip',
+    'unsuffixed_name' => 'example',
+    'extension' => '.zip',
+    'type' => 'application/zip',
+    'size' => 1234,
+    'pathname' => '/path/to/my/example.zip',
+    'error' => null,
+    'error_message' => null
 ]
 */
 ```
@@ -344,7 +344,7 @@ use ICanBoogie\Prototype;
 
 Prototype::from(Context::class)['lazy_get_site'] = function(Context $context) use ($site_model) {
 
-	return $site_model->resolve_from_request($context->request);
+    return $site_model->resolve_from_request($context->request);
 
 };
 
@@ -396,8 +396,8 @@ use ICanBoogie\HTTP\Response;
 
 $response = new Response('<!DOCTYPE html><html><body><h1>Hello world!</h1></body></html>', Response::STATUS_OK, [
 
-	'Content-Type' => 'text/html',
-	'Cache-Control' => 'public, max-age=3600'
+    'Content-Type' => 'text/html',
+    'Cache-Control' => 'public, max-age=3600'
 
 ]);
 
@@ -462,14 +462,14 @@ $records = $app->models->order('created_at DESC');
 
 $output = function() use ($records) {
 
-	$out = fopen('php://output', 'w');
+    $out = fopen('php://output', 'w');
 
-	foreach ($records as $record)
-	{
-		fputcsv($out, [ $record->title, $record->created_at ]);
-	}
+    foreach ($records as $record)
+    {
+        fputcsv($out, [ $record->title, $record->created_at ]);
+    }
 
-	fclose($out);
+    fclose($out);
 
 };
 
@@ -541,7 +541,7 @@ use ICanBoogie\HTTP\FileResponse;
 
 $response = new FileResponse("/absolute/path/to/my/file", $request, [
 
-	FileResponse::OPTION_FILENAME => "Vidéo d'un été à la mer.mp4"
+    FileResponse::OPTION_FILENAME => "Vidéo d'un été à la mer.mp4"
 
 ]);
 
@@ -666,9 +666,9 @@ use ICanBoogie\HTTP\Response;
 
 $response = new Response('{ "message": "Ok" }', Response::STATUS_OK, [
 
-	'Content-Type' => 'application/json',
-	'Date' => 'now',
-	'Expires' => '+1 hour'
+    'Content-Type' => 'application/json',
+    'Date' => 'now',
+    'Expires' => '+1 hour'
 
 ]);
 ```
@@ -707,9 +707,9 @@ use ICanBoogie\HTTP\RequestDispatcher;
 
 $dispatcher = new RequestDispatcher([
 
-	'operation' => \ICanBoogie\Operation\OperationDispatcher::class,
-	'route' => \ICanBoogie\Routing\RouteDispatcher::class,
-	'page' => \Icybee\Modules\Pages\PageDisptacher::class
+    'operation' => \ICanBoogie\Operation\OperationDispatcher::class,
+    'route' => \ICanBoogie\Routing\RouteDispatcher::class,
+    'page' => \Icybee\Modules\Pages\PageDisptacher::class
 
 ]);
 ```
@@ -735,8 +735,8 @@ use ICanBoogie\HTTP\RequestDispatcher;
 
 $dispatcher = new RequestDispatcher([
 
-	'two' => 'dummy',
-	'three' => 'dummy'
+    'two' => 'dummy',
+    'three' => 'dummy'
 
 ]);
 
@@ -753,7 +753,7 @@ $order = '';
 
 foreach ($dispatcher as $dispatcher_id => $dummy)
 {
-	$order .= ' ' . $dispatcher_id;
+    $order .= ' ' . $dispatcher_id;
 }
 
 echo $order; //  hypertop megatop top one two three four bottom megabottom hyperbottom
@@ -785,16 +785,16 @@ use function ICanBoogie\HTTP\get_dispatcher();
 
 DispatcherProvider::define(function() use ($domain_dispatchers) {
 
-	static $dispatcher;
+    static $dispatcher;
 
-	if (!$dispatcher)
-	{
-		$dispatcher = new RequestDispatcher($domain_dispatchers);
+    if (!$dispatcher)
+    {
+        $dispatcher = new RequestDispatcher($domain_dispatchers);
 
-		new RequestDispatcher\AlterEvent($dispatcher);
-	}
+        new RequestDispatcher\AlterEvent($dispatcher);
+    }
 
-	return $dispatcher;
+    return $dispatcher;
 
 });
 
@@ -824,14 +824,14 @@ use ICanBoogie\HTTP\Response;
 
 $app->events->attach(function(RequestDispatcher\AlterEvent $event, RequestDispatcher $target) {
 
-	$target['hello'] = function(Request $request) {
+    $target['hello'] = function(Request $request) {
 
-		if ($request->path === '/hello')
-		{
-			return new Response('Hello world!');
-		}
+        if ($request->path === '/hello')
+        {
+            return new Response('Hello world!');
+        }
 
-	}
+    }
 
 });
 ```
@@ -862,12 +862,12 @@ $request = Request::from('/path/to/resource.html');
 
 try
 {
-	$response = $dispatcher($request);
-	$response();
+    $response = $dispatcher($request);
+    $response();
 }
 catch (NotFound $e)
 {
-	echo $e->getMessage();
+    echo $e->getMessage();
 }
 ```
 
@@ -897,16 +897,16 @@ use ICanBoogie\HTTP\RedirectResponse;
 
 $events->attach(function(RequestDispatcher\BeforeDispatchEvent $event, RequestDispatcher $dispatcher) {
 
-	$path = $event->request->path;
-	$normalized_path = $event->request->normalized_path;
+    $path = $event->request->path;
+    $normalized_path = $event->request->normalized_path;
 
-	if ($path === $normalized_path)
-	{
-		return;
-	}
+    if ($path === $normalized_path)
+    {
+        return;
+    }
 
-	$event->response = new RedirectResponse($normalized_path);
-	$event->stop();
+    $event->response = new RedirectResponse($normalized_path);
+    $event->stop();
 
 });
 ```
@@ -936,14 +936,14 @@ use ICanBoogie\HTTP\RequestDispatcher;
 
 $events->attach(function(RequestDispatcher\DispatchEvent $event, RequestDispatcher $target) use($cache) {
 
-	$response = $event->response;
+    $response = $event->response;
 
-	if ($response->content_type->type !== 'text/html')
-	{
-		return;
-	}
+    if ($response->content_type->type !== 'text/html')
+    {
+        return;
+    }
 
-	$cache[sha1($event->request->uri)] = $event->response;
+    $cache[sha1($event->request->uri)] = $event->response;
 
 });
 ```
@@ -976,10 +976,10 @@ use ICanBoogie\HTTP\Response;
 
 $events->attach(function(ICanBoogie\Exception\RescueEvent $event, AuthenticationRequired $target) {
 
-	ICanBoogie\log_error($target->getMessage());
+    ICanBoogie\log_error($target->getMessage());
 
-	$event->response = new Response(new DocumentDecorator(new LoginForm), $target->getCode());
-	$event->stop();
+    $event->response = new Response(new DocumentDecorator(new LoginForm), $target->getCode());
+    $event->stop();
 
 });
 ```
@@ -1036,14 +1036,14 @@ before returning them.
 The following exceptions are defined by the HTTP package:
 
 * [ClientError][]: thrown when a client error occurs.
-	* [NotFound][]: thrown when a resource is not found. For instance, this exception is
-	thrown by the dispatcher when it fails to resolve a request into a response.
-	* [AuthenticationRequired][]: thrown when the authentication of the client is required. Implements [SecurityError][].
-	* [PermissionRequired][]: thrown when the client lacks a required permission. Implements [SecurityError][].
-	* [MethodNotSupported][]: thrown when a HTTP method is not supported.
+    * [NotFound][]: thrown when a resource is not found. For instance, this exception is
+    thrown by the dispatcher when it fails to resolve a request into a response.
+    * [AuthenticationRequired][]: thrown when the authentication of the client is required. Implements [SecurityError][].
+    * [PermissionRequired][]: thrown when the client lacks a required permission. Implements [SecurityError][].
+    * [MethodNotSupported][]: thrown when a HTTP method is not supported.
 * [ServerError][]: throw when a server error occurs.
-	* [ServiceUnavailable][]: thrown when a server is currently unavailable
-	(because it is overloaded or down for maintenance).
+    * [ServiceUnavailable][]: thrown when a server is currently unavailable
+    (because it is overloaded or down for maintenance).
 * [ForceRedirect][]: thrown when a redirect is absolutely required.
 * [StatusCodeNotValid][]: thrown when a HTTP status code is not valid.
 
@@ -1055,15 +1055,15 @@ Using this interface one can easily catch HTTP related exceptions:
 
 try
 {
-	// …
+    // …
 }
 catch (\ICanBoogie\HTTP\Exception $e)
 {
-	// HTTP exception types
+    // HTTP exception types
 }
 catch (\Exception $e)
 {
-	// Other exception types
+    // Other exception types
 }
 ```
 

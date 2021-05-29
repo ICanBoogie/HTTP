@@ -2,7 +2,7 @@ FROM php:7.2-cli-buster
 
 RUN apt-get update && \
 	apt-get install -y autoconf pkg-config && \
-    pecl channel-update pecl.php.net && \
+	pecl channel-update pecl.php.net && \
 	pecl install xdebug && \
 	docker-php-ext-enable opcache xdebug
 
@@ -25,8 +25,10 @@ RUN apt-get update && \
     curl -s https://raw.githubusercontent.com/composer/getcomposer.org/76a7060ccb93902cd7576b67264ad91c8a2700e2/web/installer | php -- --quiet && \
 	mv composer.phar /usr/local/bin/composer
 
+#
+# Package specifics stages
+#
+
 RUN apt-get update && \
 	apt-get install -y libpng-dev && \
 	docker-php-ext-install gd
-
-ENV PHP_IDE_CONFIG serverName=icanboogie-http-tests
