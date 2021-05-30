@@ -15,6 +15,10 @@ use ICanBoogie\HTTP\Dispatcher;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\PropertyNotDefined;
 use ICanBoogie\PrototypeTrait;
+use RuntimeException;
+use function array_shift;
+use function get_class;
+use function is_subclass_of;
 
 /**
  * The context of a request.
@@ -33,6 +37,11 @@ class Context implements \ArrayAccess
 	 * @uses set_dispatcher
 	 */
 	use PrototypeTrait;
+
+	/**
+	 * @var object[]
+	 */
+	private array $values = [];
 
 	/**
 	 * The request the context belongs to.
@@ -71,8 +80,38 @@ class Context implements \ArrayAccess
 		$this->request = $request;
 	}
 
+	public function add(object $value): void
+	{
+		array_unshift($this->values, $value);
+	}
+
+	public function get(string $class): object
+	{
+		$value = $this->find($class);
+
+		if (!$value) {
+			throw new RuntimeException("Unable to find value matching: $class.");
+		}
+
+		return $value;
+	}
+
+	public function find(string $class): ?object
+	{
+		foreach ($this->values as $value)
+		{
+			if ($value instanceof $class) {
+				return $value;
+			}
+		}
+
+		return null;
+	}
+
 	/**
 	 * @inheritdoc
+	 *
+	 * @deprecated
 	 */
 	public function offsetExists($property)
 	{
@@ -90,6 +129,8 @@ class Context implements \ArrayAccess
 
 	/**
 	 * @inheritdoc
+	 *
+	 * @deprecated
 	 */
 	public function offsetGet($property)
 	{
@@ -98,6 +139,8 @@ class Context implements \ArrayAccess
 
 	/**
 	 * @inheritdoc
+	 *
+	 * @deprecated
 	 */
 	public function offsetSet($property, $value)
 	{
@@ -106,6 +149,8 @@ class Context implements \ArrayAccess
 
 	/**
 	 * @inheritdoc
+	 *
+	 * @deprecated
 	 */
 	public function offsetUnset($property)
 	{
