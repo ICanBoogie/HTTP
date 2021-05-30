@@ -15,6 +15,7 @@ use ICanBoogie\Accessor\AccessorTrait;
 use ICanBoogie\DateTime;
 
 use function ICanBoogie\format;
+use function is_object;
 
 /**
  * A response to a HTTP request.
@@ -169,7 +170,7 @@ class Response implements ResponseStatus
 	 */
 	protected function finalize(Headers &$headers, &$body): void
 	{
-		if ($body instanceof \Closure || !\method_exists($body, '__toString'))
+		if ($body instanceof \Closure || !is_object($body) || !\method_exists($body, '__toString'))
 		{
 			return;
 		}

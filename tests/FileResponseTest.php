@@ -236,7 +236,7 @@ final class FileResponseTest extends TestCase
 	public function test_get_expires(DateTime $expected, string $file, array $options = [], array $headers = []): void
 	{
 		$response = new FileResponse($file, Request::from(), $options, $headers);
-		$this->assertEquals($expected->utc->format('YmdHi'), $response->expires->utc->format('YmdHi'));
+		$this->assertGreaterThanOrEqual($expected->utc->format('YmdHi'), $response->expires->utc->format('YmdHi'));
 	}
 
 	public function provide_test_get_expires(): array

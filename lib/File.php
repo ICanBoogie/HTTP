@@ -382,7 +382,7 @@ class File implements ToArray, FileOptions
 			return $this->match_multiple($type);
 		}
 
-		if ($type{0} === '.')
+		if ($type[0] === '.')
 		{
 			return $type === $this->extension;
 		}

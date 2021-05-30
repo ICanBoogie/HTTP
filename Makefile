@@ -1,7 +1,7 @@
 # customization
 
 PACKAGE_NAME = icanboogie/http
-PACKAGE_VERSION = 4.0
+PACKAGE_VERSION = 6.0
 PHPUNIT = vendor/bin/phpunit
 # do not edit the following lines
 
