@@ -324,9 +324,6 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals($param1, $request->query_params['p1']);
 		$this->assertEquals($param2, $request->query_params['p2']);
 		$this->assertEquals($param3, $request->query_params['p3']);
-		$this->assertEquals($param1, $request['p1']);
-		$this->assertEquals($param2, $request['p2']);
-		$this->assertEquals($param3, $request['p3']);
 	}
 
 	public function test_from_with_user_agent()
@@ -540,7 +537,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 	public function test_query_string_from_uri()
 	{
 		$uri = '/api/users/login';
-		$query = 'redirect_to=haven';
+		$query = 'redirect_to=heaven';
 		$request = Request::from($uri, [ 'QUERY_STRING' => $query ]);
 		$this->assertEmpty($request->query_string);
 		$this->assertEquals($uri, $request->uri);
@@ -552,9 +549,8 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals($uri, $request->path);
 		$this->assertArrayHasKey('redirect_to', $request->query_params);
 		$this->assertArrayHasKey('redirect_to', $request->params);
-		$this->assertEquals('haven', $request->query_params['redirect_to']);
-		$this->assertEquals('haven', $request->params['redirect_to']);
-		$this->assertEquals('haven', $request['redirect_to']);
+		$this->assertEquals('heaven', $request->query_params['redirect_to']);
+		$this->assertEquals('heaven', $request->params['redirect_to']);
 	}
 
 	public function test_path_when_uri_is_missing_query_string()
@@ -597,21 +593,17 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertSame([ 'p1' => 1, 'p2' => 2, 'p3' => 3, 'p4' => 4 ], $request->params);
 
-		$request['p5'] = 5;
-		$this->assertTrue(isset($request['p5']));
+		$request->request_params['p5'] = 5;
 
-		$expected = [ 'p1' => 1, 'p2' => 2, 'p3' => 3, 'p4' => 4, 'p5' => 5 ];
+		$expected = [ 'p1' => 1, 'p2' => 2, 'p3' => 3, 'p4' => 4 ];
 		$this->assertSame($expected, $request->params);
 		unset($request->params);
 		$expected = [ 'p1' => 1, 'p2' => 2, 'p3' => 3, 'p4' => 4, 'p5' => 5 ];
 		$this->assertEquals($expected, $request->params);
 
-		unset($request['p5']);
+		unset($request->params['p5']);
 		$expected = [ 'p1' => 1, 'p2' => 2, 'p3' => 3, 'p4' => 4 ];
 		$this->assertEquals($expected, $request->params);
-		$this->assertFalse(isset($request['p5']));
-
-		$this->assertEquals($expected, iterator_to_array($request));
 	}
 
 	/**

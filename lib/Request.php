@@ -85,7 +85,7 @@ use function ICanBoogie\normalize_url_path;
  *
  * @see http://en.wikipedia.org/wiki/Uniform_resource_locator
  */
-class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, RequestOptions
+class Request implements RequestMethods, RequestOptions
 {
 	use AccessorTrait;
 
@@ -528,63 +528,6 @@ class Request implements \ArrayAccess, \IteratorAggregate, RequestMethods, Reque
 		}
 
 		throw new MethodNotDefined($method, $this);
-	}
-
-	/**
-	 * Checks if the specified param exists in the request's params.
-	 *
-	 * @param string $param The name of the parameter.
-	 *
-	 * @return bool
-	 */
-	public function offsetExists($param)
-	{
-		return isset($this->params[$param]);
-	}
-
-	/**
-	 * Get the specified param from the request's params.
-	 *
-	 * @param string $param The name of the parameter.
-	 *
-	 * @return mixed|null The value of the parameter, or `null` if the parameter does not exists.
-	 */
-	public function offsetGet($param)
-	{
-		return isset($this->params[$param]) ? $this->params[$param] : null;
-	}
-
-	/**
-	 * Set the specified param to the specified value.
-	 *
-	 * @param string $param The name of the parameter.
-	 * @param mixed $value The value of the parameter.
-	 */
-	public function offsetSet($param, $value)
-	{
-		$this->params;
-		$this->params[$param] = $value;
-		$this->request_params[$param] = $value;
-	}
-
-	/**
-	 * Remove the specified param from the request's parameters.
-	 *
-	 * @param mixed $param
-	 */
-	public function offsetUnset($param)
-	{
-		unset($this->params[$param]);
-	}
-
-	/**
-	 * Returns an array iterator for the params.
-	 *
-	 * @return \ArrayIterator
-	 */
-	public function getIterator()
-	{
-		return new \ArrayIterator($this->params);
 	}
 
 	/**
