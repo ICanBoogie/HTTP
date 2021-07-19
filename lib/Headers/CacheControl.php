@@ -83,6 +83,8 @@ class CacheControl
 
 	/**
 	 * Returns the default values of the instance.
+	 *
+	 * @return array<string, mixed>
 	 */
 	private static function get_default_values(): array
 	{
@@ -105,7 +107,7 @@ class CacheControl
 	/**
 	 * Parses the provided cache directive.
 	 *
-	 * @return array Returns an array made of the properties and extensions.
+	 * @return array<string, mixed> Returns an array made of the properties and extensions.
 	 */
 	static protected function parse(string $cache_directive): array
 	{
@@ -122,6 +124,7 @@ class CacheControl
 				$property = strtr($value, '-', '_');
 				$properties[$property] = true;
 			}
+
 			if (in_array($value, self::CACHEABLE_VALUES))
 			{
 				$properties['cacheable'] = $value;
@@ -153,10 +156,8 @@ class CacheControl
 
 	/**
 	 * Create an instance from the provided source.
-	 *
-	 * @param self|string $source
 	 */
-	static public function from($source): self
+	static public function from(string|self|null $source): self
 	{
 		if ($source instanceof self)
 		{
@@ -177,17 +178,14 @@ class CacheControl
 	 *
 	 * @var string|null
 	 */
-	private $cacheable;
+	private ?string $cacheable = null;
 
 	private function get_cacheable(): ?string
 	{
 		return $this->cacheable;
 	}
 
-	/**
-	 * @param string|false|null $value
-	 */
-	private function set_cacheable($value)
+	private function set_cacheable(bool|string|null $value)
 	{
 		if ($value === false)
 		{
@@ -216,10 +214,8 @@ class CacheControl
 	 * Scope: request, response.
 	 *
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.2
-	 *
-	 * @var bool
 	 */
-	public $no_store = false;
+	public bool $no_store = false;
 
 	/**
 	 * Indicates that the client is willing to accept a response whose age is no greater than the
@@ -230,17 +226,13 @@ class CacheControl
 	 *
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.4
-	 *
-	 * @var int|null
 	 */
-	public $max_age;
+	public ?int $max_age = null;
 
 	/**
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3
-	 *
-	 * @var int|null
 	 */
-	public $s_maxage;
+	public ?int $s_maxage = null;
 
 	/**
 	 * Indicates that the client is willing to accept a response that has exceeded its expiration
@@ -252,10 +244,8 @@ class CacheControl
 	 * Scope: request.
 	 *
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3
-	 *
-	 * @var string|null
 	 */
-	public $max_stale;
+	public ?string $max_stale = null;
 
 	/**
 	 * Indicates that the client is willing to accept a response whose freshness lifetime is no
@@ -265,60 +255,46 @@ class CacheControl
 	 * Scope: request.
 	 *
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3
-	 *
-	 * @var int|null
 	 */
-	public $min_fresh;
+	public ?int $min_fresh = null;
 
 	/**
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.5
 	 *
 	 * Scope: request, response.
-	 *
-	 * @var bool
 	 */
-	public $no_transform = false;
+	public bool $no_transform = false;
 
 	/**
 	 * Scope: request.
 	 *
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.4
-	 *
-	 * @var bool
 	 */
-	public $only_if_cached = false;
+	public bool $only_if_cached = false;
 
 	/**
 	 * Scope: response.
 	 *
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.4
-	 *
-	 * @var bool
 	 */
-	public $must_revalidate = false;
+	public bool $must_revalidate = false;
 
 	/**
 	 * Scope: response.
 	 *
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.4
-	 *
-	 * @var bool
 	 */
-	public $proxy_revalidate = false;
+	public bool $proxy_revalidate = false;
 
 	/**
 	 * Scope: request, response.
 	 *
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.6
-	 *
-	 * @var array
 	 */
-	public $extensions = [];
+	public array $extensions = [];
 
 	/**
 	 * If they are defined, the object is initialized with the cache directives.
-	 *
-	 * @param string|null $cache_directives Cache directives.
 	 */
 	public function __construct(string $cache_directives = null)
 	{

@@ -14,6 +14,7 @@ namespace ICanBoogie\HTTP\Headers;
 use ICanBoogie\OffsetNotDefined;
 use ICanBoogie\PropertyNotDefined;
 
+use Stringable;
 use function array_intersect_key;
 use function array_map;
 use function explode;
@@ -86,27 +87,23 @@ abstract class Header implements \ArrayAccess
 
 	/**
 	 * The value of the header.
-	 *
-	 * @var mixed
 	 */
-	public $value;
+	public mixed $value;
 
 	/**
 	 * The parameters supported by the header.
 	 *
 	 * @var HeaderParameter[]
 	 */
-	protected $parameters = [];
+	protected array $parameters = [];
 
 	/**
 	 * Creates a {@link Header} instance from the provided source.
 	 *
-	 * @param string|Header $source The source to create the instance from. If the source is
+	 * @param string|Header|null $source The source to create the instance from. If the source is
 	 * an instance of {@link Header} it is returned as is.
-	 *
-	 * @return Header
 	 */
-	static public function from($source): Header
+	static public function from(string|self|null $source): Header
 	{
 		if ($source instanceof self)
 		{
@@ -124,31 +121,16 @@ abstract class Header implements \ArrayAccess
 	/**
 	 * Parse the provided source and extract its value and parameters.
 	 *
-	 * @param string|object $source The source to create the instance from.
-	 *
 	 * @throws \InvalidArgumentException if `$source` is not a string nor an object implementing
 	 * `__toString()`.
 	 *
-	 * @return array
+	 * @return array<string, mixed>
 	 */
-	static protected function parse($source): array
+	static protected function parse(string|Stringable $source): array
 	{
-		if (is_object($source) && method_exists($source, '__toString'))
+		if ($source instanceof Stringable)
 		{
 			$source = (string) $source;
-		}
-
-		if (!is_string($source))
-		{
-			throw new \InvalidArgumentException(format
-			(
-				"%var must be a string or an object implementing __toString(). Given: !data", [
-
-					'var' => 'source',
-					'data' => $source
-
-				]
-			));
 		}
 
 		$value_end = strpos($source, ';');

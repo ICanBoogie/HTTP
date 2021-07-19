@@ -15,8 +15,9 @@ use ICanBoogie\FormattedString;
 use ICanBoogie\HTTP\Headers\HeaderTest\A;
 use ICanBoogie\OffsetNotDefined;
 use ICanBoogie\PropertyNotDefined;
+use PHPUnit\Framework\TestCase;
 
-class HeaderTest extends \PHPUnit\Framework\TestCase
+final class HeaderTest extends TestCase
 {
 	public function test_value()
 	{
@@ -139,34 +140,16 @@ class HeaderTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals("madonna", $h->value);
 		$this->assertEquals("music", $h->p);
 	}
-
-	/**
-	 * @dataProvider provide_invalid_from_source
-	 */
-	public function test_from_with_invalid_input_should_throw_exception($source)
-	{
-		$this->expectException(\InvalidArgumentException::class);
-		$a = A::from($source);
-	}
-
-	public function provide_invalid_from_source()
-	{
-		return [
-
-			[ new \StdClass ],
-			[ [ 1, 2, 3 ] ]
-
-		];
-	}
 }
 
 namespace ICanBoogie\HTTP\Headers\HeaderTest;
 
+use ICanBoogie\HTTP\Headers\Header;
 use ICanBoogie\HTTP\Headers\HeaderParameter;
 
-class A extends \ICanBoogie\HTTP\Headers\Header
+class A extends Header
 {
-	const VALUE_ALIAS = 'type';
+	public const VALUE_ALIAS = 'type';
 
 	public function __construct($value = null, array $parameters = [])
 	{

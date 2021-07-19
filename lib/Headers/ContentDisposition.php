@@ -41,7 +41,7 @@ class ContentDisposition extends Header
 	 *
 	 * @inheritdoc
 	 */
-	public function __construct($value = null, array $attributes = [])
+	public function __construct(string $value = null, array $attributes = [])
 	{
 		$this->parameters['filename'] = new HeaderParameter('filename');
 

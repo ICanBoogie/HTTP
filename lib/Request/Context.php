@@ -43,41 +43,29 @@ class Context implements \ArrayAccess
 	 */
 	private array $values = [];
 
-	/**
-	 * The request the context belongs to.
-	 *
-	 * @var Request
-	 */
-	private $request;
-
-	protected function get_request(): Request
+	private function get_request(): Request
 	{
 		return $this->request;
 	}
 
 	/**
 	 * The dispatcher currently dispatching the request.
-	 *
-	 * @var Dispatcher|null
 	 */
-	private $dispatcher;
+	private ?Dispatcher $dispatcher = null;
 
-	protected function set_dispatcher(?Dispatcher $dispatcher): void
+	private function set_dispatcher(?Dispatcher $dispatcher): void
 	{
 		$this->dispatcher = $dispatcher;
 	}
 
-	protected function get_dispatcher(): ?Dispatcher
+	private function get_dispatcher(): ?Dispatcher
 	{
 		return $this->dispatcher;
 	}
 
-	/**
-	 * @param Request $request The request the context belongs to.
-	 */
-	public function __construct(Request $request)
-	{
-		$this->request = $request;
+	public function __construct(
+		private Request $request
+	) {
 	}
 
 	public function add(object $value): void
