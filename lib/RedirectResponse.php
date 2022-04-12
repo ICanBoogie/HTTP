@@ -18,25 +18,24 @@ use function ICanBoogie\escape;
  */
 class RedirectResponse extends Response
 {
-	/**
-	 * Initializes the `Location` header.
-	 *
-	 * @param string $url URL to redirect to.
-	 * @param int $status Status code (default to {@link Status::FOUND}).
-	 * @param array $headers Additional headers.
-	 *
-	 * @throws \InvalidArgumentException if the provided status code is not a redirect.
-	 */
-	public function __construct(string $url, int $status = Status::FOUND, array $headers = [])
-	{
-		parent::__construct
-		(
-			function(Response $response) {
+    /**
+     * Initializes the `Location` header.
+     *
+     * @param string $url URL to redirect to.
+     * @param int $status Status code (default to {@link Status::FOUND}).
+     * @param array $headers Additional headers.
+     *
+     * @throws \InvalidArgumentException if the provided status code is not a redirect.
+     */
+    public function __construct(string $url, int $status = Status::FOUND, array $headers = [])
+    {
+        parent::__construct(
+            function (Response $response) {
 
-				$location = $response->location;
-				$title = escape($location);
+                $location = $response->location;
+                $title = escape($location);
 
-				echo <<<EOT
+                echo <<<EOT
 <!DOCTYPE html>
 <html>
 <head>
@@ -50,15 +49,14 @@ class RedirectResponse extends Response
 </body>
 </html>
 EOT
-; // @codeCoverageIgnore
-			},
+                ; // @codeCoverageIgnore
+            },
+            $status,
+            [ 'Location' => $url ] + $headers
+        );
 
-			$status, [ 'Location' => $url ] + $headers
-		);
-
-		if (!$this->status->is_redirect)
-		{
-			throw new StatusCodeNotValid($this->status->code, "The HTTP status code is not a redirect: {$status}.");
-		}
-	}
+        if (!$this->status->is_redirect) {
+            throw new StatusCodeNotValid($this->status->code, "The HTTP status code is not a redirect: {$status}.");
+        }
+    }
 }

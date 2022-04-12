@@ -27,46 +27,37 @@ use ICanBoogie\Accessor\AccessorTrait;
  */
 class WeightedDispatcher
 {
-	use AccessorTrait;
+    /**
+     * @uses get_dispatcher
+     * @uses get_weight
+     */
+    use AccessorTrait;
 
-	const WEIGHT_TOP = 'top';
-	const WEIGHT_BOTTOM = 'bottom';
-	const WEIGHT_BEFORE_PREFIX = 'before:';
-	const WEIGHT_AFTER_PREFIX = 'after:';
-	const WEIGHT_DEFAULT = 0;
+    public const WEIGHT_TOP = 'top';
+    public const WEIGHT_BOTTOM = 'bottom';
+    public const WEIGHT_BEFORE_PREFIX = 'before:';
+    public const WEIGHT_AFTER_PREFIX = 'after:';
+    public const WEIGHT_DEFAULT = 0;
 
-	/**
-	 * @var Dispatcher|string
-	 */
-	private $dispatcher;
+    protected function get_dispatcher(): Dispatcher|string
+    {
+        return $this->dispatcher;
+    }
 
-	/**
-	 * @return Dispatcher|string
-	 */
-	protected function get_dispatcher()
-	{
-		return $this->dispatcher;
-	}
+    protected function get_weight(): int|string
+    {
+        return $this->weight;
+    }
 
-	/**
-	 * @var int|string
-	 */
-	private $weight;
-
-	protected function get_weight()
-	{
-		return $this->weight;
-	}
-
-	/**
-	 * Initializes the {@link $dispatcher} and {@link $weight} properties.
-	 *
-	 * @param Dispatcher|string $dispatcher
-	 * @param int|string $weight
-	 */
-	public function __construct($dispatcher, $weight = self::WEIGHT_DEFAULT)
-	{
-		$this->dispatcher = $dispatcher;
-		$this->weight = $weight;
-	}
+    /**
+     * Initializes the {@link $dispatcher} and {@link $weight} properties.
+     *
+     * @param string|Dispatcher $dispatcher
+     * @param int|string $weight
+     */
+    public function __construct(
+        private Dispatcher|string $dispatcher,
+        private int|string $weight = self::WEIGHT_DEFAULT
+    ) {
+    }
 }

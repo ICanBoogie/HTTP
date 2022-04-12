@@ -26,63 +26,63 @@ use ICanBoogie\HTTP\Response;
  */
 class RescueEvent extends Event
 {
-    const TYPE = 'rescue';
+    public const TYPE = 'rescue';
 
-	/**
-	 * Reference to the response.
-	 *
-	 * @var Response|null
-	 */
-	private $response;
+    /**
+     * Reference to the response.
+     *
+     * @var Response|null
+     */
+    private $response;
 
-	protected function get_response(): ?Response
-	{
-		return $this->response;
-	}
+    protected function get_response(): ?Response
+    {
+        return $this->response;
+    }
 
-	protected function set_response(?Response $response)
-	{
-		$this->response = $response;
-	}
+    protected function set_response(?Response $response)
+    {
+        $this->response = $response;
+    }
 
-	/**
-	 * @var \Throwable
-	 */
-	private $exception;
+    /**
+     * @var \Throwable
+     */
+    private $exception;
 
-	protected function get_exception(): \Throwable
-	{
-		return $this->exception;
-	}
+    protected function get_exception(): \Throwable
+    {
+        return $this->exception;
+    }
 
-	protected function set_exception(\Throwable $exception): void
-	{
-		$this->exception = $exception;
-	}
+    protected function set_exception(\Throwable $exception): void
+    {
+        $this->exception = $exception;
+    }
 
-	/**
-	 * @var Request
-	 */
-	private $request;
+    /**
+     * @var Request
+     */
+    private $request;
 
-	protected function get_request(): Request
-	{
-		return $this->request;
-	}
+    protected function get_request(): Request
+    {
+        return $this->request;
+    }
 
-	/**
-	 * The event is constructed with the type `rescue`.
-	 *
-	 * @param \Throwable $target
-	 * @param Request $request The request.
-	 * @param Response|null $response Reference to the response.
-	 */
-	public function __construct(\Throwable &$target, Request $request, Response &$response = null)
-	{
-		$this->response = &$response;
-		$this->exception = &$target;
-		$this->request = $request;
+    /**
+     * The event is constructed with the type `rescue`.
+     *
+     * @param \Throwable $target
+     * @param Request $request The request.
+     * @param Response|null $response Reference to the response.
+     */
+    public function __construct(\Throwable &$target, Request $request, Response &$response = null)
+    {
+        $this->response = &$response;
+        $this->exception = &$target;
+        $this->request = $request;
 
-		parent::__construct($target, self::TYPE);
-	}
+        parent::__construct($target, self::TYPE);
+    }
 }

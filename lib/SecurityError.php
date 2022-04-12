@@ -16,5 +16,4 @@ namespace ICanBoogie\HTTP;
  */
 interface SecurityError extends Exception
 {
-
 }

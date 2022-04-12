@@ -13,27 +13,27 @@ namespace ICanBoogie\HTTP;
 
 class FileInfoTest extends \PHPUnit\Framework\TestCase
 {
-	/**
-	 * @dataProvider provide_test_resolve_type
-	 *
-	 * @param $pathname
-	 * @param $expected
-	 */
-	public function test_resolve_type($pathname, $expected)
-	{
-		$this->assertEquals($expected, FileInfo::resolve_type($pathname));
-	}
+    /**
+     * @dataProvider provide_test_resolve_type
+     *
+     * @param $pathname
+     * @param $expected
+     */
+    public function test_resolve_type($pathname, $expected)
+    {
+        $this->assertEquals($expected, FileInfo::resolve_type($pathname));
+    }
 
-	public function provide_test_resolve_type()
-	{
-		$bytes = create_file();
+    public function provide_test_resolve_type()
+    {
+        $bytes = create_file();
 
-		return [
+        return [
 
-			[ $bytes, 'application/octet-stream' ],
-			[ __DIR__ . '/../composer.json', 'application/json' ],
-			[ __DIR__ . '/../LICENSE', 'text/plain' ]
+            [ $bytes, 'application/octet-stream' ],
+            [ __DIR__ . '/../composer.json', 'application/json' ],
+            [ __DIR__ . '/../LICENSE', 'text/plain' ]
 
-		];
-	}
+        ];
+    }
 }

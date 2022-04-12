@@ -29,24 +29,24 @@ namespace ICanBoogie\HTTP\Headers;
  * echo $ct->charset;        // iso-8859-1
  * </pre>
  *
- * @property $type string Media type of the entity-body.
- * @property $charset string Charset of the entity-body.
+ * @property string $type Media type of the entity-body.
+ * @property string $charset Charset of the entity-body.
  *
  * @see http://tools.ietf.org/html/rfc2616#section-14.17
  */
 class ContentType extends Header
 {
-	public const VALUE_ALIAS = 'type';
+    public const VALUE_ALIAS = 'type';
 
-	/**
-	 * Defines the `charset` parameter.
-	 *
-	 * @inheritdoc
-	 */
-	public function __construct(string $value = null, array $attributes = [])
-	{
-		$this->parameters['charset'] = new HeaderParameter('charset');
+    /**
+     * Defines the `charset` parameter.
+     *
+     * @inheritdoc
+     */
+    public function __construct(string $value = null, array $attributes = [])
+    {
+        $this->parameters['charset'] = new HeaderParameter('charset');
 
-		parent::__construct($value, $attributes);
-	}
+        parent::__construct($value, $attributes);
+    }
 }

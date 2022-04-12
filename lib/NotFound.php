@@ -11,18 +11,23 @@
 
 namespace ICanBoogie\HTTP;
 
+use Throwable;
+
 /**
  * Exception thrown when a resource is not found.
  */
 class NotFound extends ClientError implements Exception
 {
-    const DEFAULT_MESSAGE = "The requested URL was not found on this server.";
+    public const DEFAULT_MESSAGE = "The requested URL was not found on this server.";
 
-	/**
-	 * @inheritdoc
-	 */
-	public function __construct(string $message = self::DEFAULT_MESSAGE, int $code = Status::NOT_FOUND, \Throwable $previous = null)
-	{
-		parent::__construct($message, $code, $previous);
-	}
+    /**
+     * @inheritdoc
+     */
+    public function __construct(
+        string $message = self::DEFAULT_MESSAGE,
+        int $code = Status::NOT_FOUND,
+        Throwable $previous = null
+    ) {
+        parent::__construct($message, $code, $previous);
+    }
 }

@@ -22,32 +22,32 @@ use function ICanBoogie\format;
  */
 class ForceRedirect extends \Exception implements Exception
 {
-	use AccessorTrait;
+    use AccessorTrait;
 
     /**
      * @var string
      */
-	private $location;
+    private $location;
 
-	protected function get_location(): string
-	{
-		return $this->location;
-	}
+    protected function get_location(): string
+    {
+        return $this->location;
+    }
 
     /**
      * @param string $location
      * @param int $code
      * @param \Throwable|null $previous
      */
-	public function __construct(string $location, int $code = Status::FOUND, \Throwable $previous = null)
-	{
-		$this->location = $location;
+    public function __construct(string $location, int $code = Status::FOUND, \Throwable $previous = null)
+    {
+        $this->location = $location;
 
-		parent::__construct($this->format_message($location), $code, $previous);
-	}
+        parent::__construct($this->format_message($location), $code, $previous);
+    }
 
-	private function format_message(string $location): string
-	{
-		return format("Location: %location", [ 'location' => $location ]);
-	}
+    private function format_message(string $location): string
+    {
+        return format("Location: %location", [ 'location' => $location ]);
+    }
 }

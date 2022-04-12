@@ -13,23 +13,22 @@ namespace ICanBoogie\HTTP;
 
 class HelpersTest extends \PHPUnit\Framework\TestCase
 {
-	public function test_dispatcher()
-	{
-		$dispatcher = get_dispatcher();
-		$this->assertInstanceOf(RequestDispatcher::class, $dispatcher);
-		$this->assertSame($dispatcher, get_dispatcher());
+    public function test_dispatcher()
+    {
+        $dispatcher = get_dispatcher();
+        $this->assertInstanceOf(RequestDispatcher::class, $dispatcher);
+        $this->assertSame($dispatcher, get_dispatcher());
 
-		$other_dispatcher = $this->getMockBuilder(Dispatcher::class)
-			->getMock();
+        $other_dispatcher = $this->getMockBuilder(Dispatcher::class)
+            ->getMock();
 
-		DispatcherProvider::define(function() use ($other_dispatcher) {
+        DispatcherProvider::define(function () use ($other_dispatcher) {
 
-			return $other_dispatcher;
+            return $other_dispatcher;
+        });
 
-		});
+        $this->assertSame($other_dispatcher, get_dispatcher());
 
-		$this->assertSame($other_dispatcher, get_dispatcher());
-
-		DispatcherProvider::undefine();
-	}
+        DispatcherProvider::undefine();
+    }
 }

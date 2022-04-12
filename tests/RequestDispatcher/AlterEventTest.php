@@ -15,88 +15,88 @@ use ICanBoogie\HTTP\RequestDispatcher;
 
 class AlterEventTest extends \PHPUnit\Framework\TestCase
 {
-	public function test_instance()
-	{
-		$dispatcher = $this
-			->getMockBuilder(RequestDispatcher::class)
-			->disableOriginalConstructor()
-			->getMock();
+    public function test_instance()
+    {
+        $dispatcher = $this
+            ->getMockBuilder(RequestDispatcher::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
-		$other_dispatcher = $this
-			->getMockBuilder(RequestDispatcher::class)
-			->disableOriginalConstructor()
-			->getMock();
+        $other_dispatcher = $this
+            ->getMockBuilder(RequestDispatcher::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
-		/* @var $dispatcher RequestDispatcher */
-		/* @var $other_dispatcher RequestDispatcher */
-		/* @var $event AlterEvent */
+        /* @var $dispatcher RequestDispatcher */
+        /* @var $other_dispatcher RequestDispatcher */
+        /* @var $event AlterEvent */
 
-		$event = AlterEvent::from([
+        $event = AlterEvent::from([
 
-			'target' => &$dispatcher
+            'target' => &$dispatcher
 
-		]);
+        ]);
 
-		$this->assertSame($dispatcher, $event->instance);
-		$event->instance = $other_dispatcher;
-		$this->assertSame($other_dispatcher, $dispatcher);
-	}
+        $this->assertSame($dispatcher, $event->instance);
+        $event->instance = $other_dispatcher;
+        $this->assertSame($other_dispatcher, $dispatcher);
+    }
 
-	public function test_insert_before()
-	{
-		$id = uniqid();
-		$reference = uniqid();
-		$inserted_dispatcher = $this
-			->getMockBuilder(RequestDispatcher::class)
-			->disableOriginalConstructor()
-			->getMock();
+    public function test_insert_before()
+    {
+        $id = uniqid();
+        $reference = uniqid();
+        $inserted_dispatcher = $this
+            ->getMockBuilder(RequestDispatcher::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
-		$dispatcher = $this
-			->getMockBuilder(RequestDispatcher::class)
-			->disableOriginalConstructor()
-			->onlyMethods([ 'offsetSet' ])
-			->getMock();
-		$dispatcher
-			->expects($this->once())
-			->method('offsetSet');
+        $dispatcher = $this
+            ->getMockBuilder(RequestDispatcher::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([ 'offsetSet' ])
+            ->getMock();
+        $dispatcher
+            ->expects($this->once())
+            ->method('offsetSet');
 
-		/* @var $event AlterEvent */
+        /* @var $event AlterEvent */
 
-		$event = AlterEvent::from([
+        $event = AlterEvent::from([
 
-			'target' => &$dispatcher
+            'target' => &$dispatcher
 
-		]);
+        ]);
 
-		$event->insert_before($id, $inserted_dispatcher, $reference);
-	}
+        $event->insert_before($id, $inserted_dispatcher, $reference);
+    }
 
-	public function test_insert_after()
-	{
-		$id = uniqid();
-		$reference = uniqid();
-		$inserted_dispatcher = $this
-			->getMockBuilder(RequestDispatcher::class)
-			->disableOriginalConstructor()
-			->getMock();
+    public function test_insert_after()
+    {
+        $id = uniqid();
+        $reference = uniqid();
+        $inserted_dispatcher = $this
+            ->getMockBuilder(RequestDispatcher::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
-		$dispatcher = $this
-			->getMockBuilder(RequestDispatcher::class)
-			->disableOriginalConstructor()
-			->onlyMethods([ 'offsetSet' ])
-			->getMock();
-		$dispatcher
-			->expects($this->once())
-			->method('offsetSet');
+        $dispatcher = $this
+            ->getMockBuilder(RequestDispatcher::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([ 'offsetSet' ])
+            ->getMock();
+        $dispatcher
+            ->expects($this->once())
+            ->method('offsetSet');
 
-		/* @var $event AlterEvent */
+        /* @var $event AlterEvent */
 
-		$event = AlterEvent::from([
+        $event = AlterEvent::from([
 
-			'target' => &$dispatcher
+            'target' => &$dispatcher
 
-		]);
+        ]);
 
-		$event->insert_after($id, $inserted_dispatcher, $reference);
-	}
+        $event->insert_after($id, $inserted_dispatcher, $reference);
+    }
 }

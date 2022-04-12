@@ -13,8 +13,8 @@ namespace ICanBoogie\HTTP\Headers;
 
 use ICanBoogie\OffsetNotDefined;
 use ICanBoogie\PropertyNotDefined;
-
 use Stringable;
+
 use function array_intersect_key;
 use function array_map;
 use function explode;
@@ -83,273 +83,251 @@ use function trim;
  */
 abstract class Header implements \ArrayAccess
 {
-	public const VALUE_ALIAS = null;
+    public const VALUE_ALIAS = null;
 
-	/**
-	 * The value of the header.
-	 */
-	public mixed $value;
+    /**
+     * The value of the header.
+     */
+    public mixed $value;
 
-	/**
-	 * The parameters supported by the header.
-	 *
-	 * @var HeaderParameter[]
-	 */
-	protected array $parameters = [];
+    /**
+     * The parameters supported by the header.
+     *
+     * @var HeaderParameter[]
+     */
+    protected array $parameters = [];
 
-	/**
-	 * Creates a {@link Header} instance from the provided source.
-	 *
-	 * @param string|Header|null $source The source to create the instance from. If the source is
-	 * an instance of {@link Header} it is returned as is.
-	 */
-	static public function from(string|self|null $source): Header
-	{
-		if ($source instanceof self)
-		{
-			return $source;
-		}
+    /**
+     * Creates a {@link Header} instance from the provided source.
+     *
+     * @param string|Header|null $source The source to create the instance from. If the source is
+     * an instance of {@link Header} it is returned as is.
+     */
+    public static function from(string|self|null $source): Header
+    {
+        if ($source instanceof self) {
+            return $source;
+        }
 
-		if ($source === null)
-		{
-			return new static;
-		}
+        if ($source === null) {
+            return new static(); // @phpstan-ignore-line
+        }
 
-		return new static(...static::parse($source));
-	}
+        return new static(...static::parse($source)); // @phpstan-ignore-line
+    }
 
-	/**
-	 * Parse the provided source and extract its value and parameters.
-	 *
-	 * @throws \InvalidArgumentException if `$source` is not a string nor an object implementing
-	 * `__toString()`.
-	 *
-	 * @return array<string, mixed>
-	 */
-	static protected function parse(string|Stringable $source): array
-	{
-		if ($source instanceof Stringable)
-		{
-			$source = (string) $source;
-		}
+    /**
+     * Parse the provided source and extract its value and parameters.
+     *
+     * @throws \InvalidArgumentException if `$source` is not a string nor an object implementing
+     * `__toString()`.
+     *
+     * @phpstan-return array{ 0: string, 1: array<string, mixed> }
+     */
+    protected static function parse(string|Stringable $source): array
+    {
+        if ($source instanceof Stringable) {
+            $source = (string) $source;
+        }
 
-		$value_end = strpos($source, ';');
-		$parameters = [];
+        $value_end = strpos($source, ';');
+        $parameters = [];
 
-		if ($value_end !== false)
-		{
-			$value = substr($source, 0, $value_end);
-			$attributes = trim(substr($source, $value_end + 1));
+        if ($value_end !== false) {
+            $value = substr($source, 0, $value_end);
+            $attributes = trim(substr($source, $value_end + 1));
 
-			if ($attributes)
-			{
-				$attributes = explode(';', $attributes);
-				$attributes = array_map('trim', $attributes);
+            if ($attributes) {
+                $attributes = explode(';', $attributes);
+                $attributes = array_map('trim', $attributes);
 
-				foreach ($attributes as $attribute)
-				{
-					$parameter = HeaderParameter::from($attribute);
-					$parameters[$parameter->attribute] = $parameter;
-				}
-			}
-		}
-		else
-		{
-			$value = $source;
-		}
+                foreach ($attributes as $attribute) {
+                    $parameter = HeaderParameter::from($attribute);
+                    $parameters[$parameter->attribute] = $parameter;
+                }
+            }
+        } else {
+            $value = $source;
+        }
 
-		return [ $value, $parameters ];
-	}
+        return [ $value, $parameters ];
+    }
 
-	/**
-	 * Checks if a parameter exists.
-	 *
-	 * @param string $attribute
-	 *
-	 * @return bool
-	 */
-	public function offsetExists($attribute)
-	{
-		return isset($this->parameters[$attribute]);
-	}
+    /**
+     * Checks if a parameter exists.
+     *
+     * @param string $attribute
+     *
+     * @return bool
+     */
+    public function offsetExists($attribute)
+    {
+        return isset($this->parameters[$attribute]);
+    }
 
-	/**
-	 * Sets the value of a parameter to `null`.
-	 *
-	 * @param string $attribute
-	 */
-	public function offsetUnset($attribute)
-	{
-		$this->parameters[$attribute]->value = null;
-	}
+    /**
+     * Sets the value of a parameter to `null`.
+     *
+     * @param string $attribute
+     */
+    public function offsetUnset($attribute)
+    {
+        $this->parameters[$attribute]->value = null;
+    }
 
-	/**
-	 * Sets the value of a parameter.
-	 *
-	 * If the value is an instance of {@link HeaderParameter} then the parameter is replaced,
-	 * otherwise the value of the current parameter is updated and its language is set to `null`.
-	 *
-	 * @param string $attribute
-	 * @param mixed $value
-	 *
-	 * @throws OffsetNotDefined in attempt to access a parameter that is not defined.
-	 */
-	public function offsetSet($attribute, $value)
-	{
-		if (!$this->offsetExists($attribute))
-		{
-			throw new OffsetNotDefined([ $attribute, $this ]);
-		}
+    /**
+     * Sets the value of a parameter.
+     *
+     * If the value is an instance of {@link HeaderParameter} then the parameter is replaced,
+     * otherwise the value of the current parameter is updated and its language is set to `null`.
+     *
+     * @param string $attribute
+     * @param mixed $value
+     *
+     * @throws OffsetNotDefined in attempt to access a parameter that is not defined.
+     */
+    public function offsetSet($attribute, $value)
+    {
+        if (!$this->offsetExists($attribute)) {
+            throw new OffsetNotDefined([ $attribute, $this ]);
+        }
 
-		if ($value instanceof HeaderParameter)
-		{
-			$this->parameters[$attribute] = $value;
-		}
-		else
-		{
-			$this->parameters[$attribute]->value = $value;
-			$this->parameters[$attribute]->language = null;
-		}
-	}
+        if ($value instanceof HeaderParameter) {
+            $this->parameters[$attribute] = $value;
+        } else {
+            $this->parameters[$attribute]->value = $value;
+            $this->parameters[$attribute]->language = null;
+        }
+    }
 
-	/**
-	 * Returns a {@link HeaderParameter} instance.
-	 *
-	 * @param string $attribute
-	 *
-	 * @return HeaderParameter
-	 *
-	 * @throws OffsetNotDefined in attempt to access a parameter that is not defined.
-	 */
-	public function offsetGet($attribute)
-	{
-		if (!$this->offsetExists($attribute))
-		{
-			throw new OffsetNotDefined([ $attribute, $this ]);
-		}
+    /**
+     * Returns a {@link HeaderParameter} instance.
+     *
+     * @param string $attribute
+     *
+     * @return HeaderParameter
+     *
+     * @throws OffsetNotDefined in attempt to access a parameter that is not defined.
+     */
+    public function offsetGet($attribute)
+    {
+        if (!$this->offsetExists($attribute)) {
+            throw new OffsetNotDefined([ $attribute, $this ]);
+        }
 
-		return $this->parameters[$attribute];
-	}
+        return $this->parameters[$attribute];
+    }
 
-	/**
-	 * Initializes the {@link $name}, {@link $value} and {@link $parameters} properties.
-	 *
-	 * To enable future extensions, unrecognized parameters are ignored. Supported parameters must
-	 * be defined by a child class before it calls its parent.
-	 *
-	 * @param mixed $value
-	 * @param array $parameters
-	 */
-	public function __construct($value = null, array $parameters = [])
-	{
-		$this->value = $value;
+    /**
+     * Initializes the {@link $name}, {@link $value} and {@link $parameters} properties.
+     *
+     * To enable future extensions, unrecognized parameters are ignored. Supported parameters must
+     * be defined by a child class before it calls its parent.
+     *
+     * @param mixed $value
+     * @param array $parameters
+     */
+    public function __construct($value = null, array $parameters = [])
+    {
+        $this->value = $value;
 
-		$parameters = array_intersect_key($parameters, $this->parameters);
+        $parameters = array_intersect_key($parameters, $this->parameters);
 
-		foreach ($parameters as $attribute => $value)
-		{
-			$this[$attribute] = $value;
-		}
-	}
+        foreach ($parameters as $attribute => $value) {
+            $this[$attribute] = $value;
+        }
+    }
 
-	/**
-	 * Returns the value of a defined parameter.
-	 *
-	 * The method also handles the alias of the {@link $value} property.
-	 *
-	 * @param string $property
-	 *
-	 * @throws PropertyNotDefined in attempt to access a parameter that is not defined.
-	 *
-	 * @return mixed
-	 */
-	public function __get($property)
-	{
-		if ($property === static::VALUE_ALIAS)
-		{
-			return $this->value;
-		}
+    /**
+     * Returns the value of a defined parameter.
+     *
+     * The method also handles the alias of the {@link $value} property.
+     *
+     * @param string $property
+     *
+     * @throws PropertyNotDefined in attempt to access a parameter that is not defined.
+     *
+     * @return mixed
+     */
+    public function __get($property)
+    {
+        if ($property === static::VALUE_ALIAS) {
+            return $this->value;
+        }
 
-		if ($this->offsetExists($property))
-		{
-			return $this[$property]->value;
-		}
+        if ($this->offsetExists($property)) {
+            return $this[$property]->value;
+        }
 
-		throw new PropertyNotDefined([ $property, $this ]);
-	}
+        throw new PropertyNotDefined([ $property, $this ]);
+    }
 
-	/**
-	 * Sets the value of a supported parameter.
-	 *
-	 * The method also handles the alias of the {@link $value} property.
-	 *
-	 * @param string $property
-	 * @param mixed $value
-	 *
-	 * @throws PropertyNotDefined in attempt to access a parameter that is not defined.
-	 */
-	public function __set($property, $value)
-	{
-		if ($property === static::VALUE_ALIAS)
-		{
-			$this->value = $value;
+    /**
+     * Sets the value of a supported parameter.
+     *
+     * The method also handles the alias of the {@link $value} property.
+     *
+     * @param string $property
+     * @param mixed $value
+     *
+     * @throws PropertyNotDefined in attempt to access a parameter that is not defined.
+     */
+    public function __set($property, $value)
+    {
+        if ($property === static::VALUE_ALIAS) {
+            $this->value = $value;
 
-			return;
-		}
+            return;
+        }
 
-		if ($this->offsetExists($property))
-		{
-			$this[$property]->value = $value;
+        if ($this->offsetExists($property)) {
+            $this[$property]->value = $value;
 
-			return;
-		}
+            return;
+        }
 
-		throw new PropertyNotDefined([ $property, $this ]);
-	}
+        throw new PropertyNotDefined([ $property, $this ]);
+    }
 
-	/**
-	 * Unsets the matching parameter.
-	 *
-	 * @param string $property
-	 *
-	 * @throws PropertyNotDefined in attempt to access a parameter that is not defined.
-	 */
-	public function __unset($property)
-	{
-		if (!isset($this->parameters[$property]))
-		{
-			return;
-		}
+    /**
+     * Unsets the matching parameter.
+     *
+     * @param string $property
+     *
+     * @throws PropertyNotDefined in attempt to access a parameter that is not defined.
+     */
+    public function __unset($property)
+    {
+        if (!isset($this->parameters[$property])) {
+            return;
+        }
 
-		unset($this[$property]);
-	}
+        unset($this[$property]);
+    }
 
-	/**
-	 * Renders the instance's value and parameters into a string.
-	 *
-	 * @return string
-	 */
-	public function __toString()
-	{
-		$value = $this->value;
+    /**
+     * Renders the instance's value and parameters into a string.
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        $value = $this->value;
 
-		if (!$value && $value !== 0)
-		{
-			return '';
-		}
+        if (!$value && $value !== 0) {
+            return '';
+        }
 
-		foreach ($this->parameters as $attribute)
-		{
-			$rendered_attribute = $attribute->render();
+        foreach ($this->parameters as $attribute) {
+            $rendered_attribute = $attribute->render();
 
-			if (!$rendered_attribute)
-			{
-				continue;
-			}
+            if (!$rendered_attribute) {
+                continue;
+            }
 
-			$value .= '; ' . $rendered_attribute;
-		}
+            $value .= '; ' . $rendered_attribute;
+        }
 
-		return $value;
-	}
+        return $value;
+    }
 }

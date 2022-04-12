@@ -13,10 +13,10 @@ namespace ICanBoogie\HTTP;
 
 class DispatcherNotDefinedTest extends \PHPUnit\Framework\TestCase
 {
-	public function test_instance()
-	{
-		$dispatcher_id = uniqid();
-		$instance = new DispatcherNotDefined($dispatcher_id);
-		$this->assertSame($dispatcher_id, $instance->dispatcher_id);
-	}
+    public function test_instance()
+    {
+        $dispatcher_id = uniqid();
+        $instance = new DispatcherNotDefined($dispatcher_id);
+        $this->assertSame($dispatcher_id, $instance->dispatcher_id);
+    }
 }

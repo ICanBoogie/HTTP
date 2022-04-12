@@ -19,35 +19,33 @@ class ProvideDispatcherTest extends \PHPUnit\Framework\TestCase
     /**
      * @var EventCollection
      */
-	private $events;
+    private $events;
 
-	protected function setUp(): void
-	{
-		$this->events = new EventCollection;
+    protected function setUp(): void
+    {
+        $this->events = new EventCollection();
 
-		EventCollectionProvider::define(function() {
+        EventCollectionProvider::define(function () {
 
-			return $this->events;
+            return $this->events;
+        });
+    }
 
-		});
-	}
+    public function test_invoke()
+    {
+        $called_event = 0;
 
-	public function test_invoke()
-	{
-		$called_event = 0;
+        $this->events->attach(function (RequestDispatcher\AlterEvent $event, RequestDispatcher $target) use (&$called_event) {
 
-		$this->events->attach(function(RequestDispatcher\AlterEvent $event, RequestDispatcher $target) use (&$called_event) {
+            $called_event++;
+        });
 
-			$called_event++;
+        $provide = new ProvideDispatcher();
+        $dispatcher = $provide();
 
-		});
-
-		$provide = new ProvideDispatcher;
-		$dispatcher = $provide();
-
-		$this->assertInstanceOf(RequestDispatcher::class, $dispatcher);
-		$this->assertEquals(1, $called_event);
-		$this->assertSame($dispatcher, $provide());
-		$this->assertEquals(1, $called_event);
-	}
+        $this->assertInstanceOf(RequestDispatcher::class, $dispatcher);
+        $this->assertEquals(1, $called_event);
+        $this->assertSame($dispatcher, $provide());
+        $this->assertEquals(1, $called_event);
+    }
 }

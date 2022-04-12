@@ -12,7 +12,9 @@
 namespace ICanBoogie\HTTP\Headers;
 
 use DateTimeInterface;
+use DateTimeZone;
 use ICanBoogie\DateTime;
+
 use function is_numeric;
 
 /**
@@ -22,51 +24,43 @@ use function is_numeric;
  */
 class Date extends DateTime
 {
+    public static function from($source, $timezone = null): self|parent
+    {
+        if ($source === null) {
+            return static::none();
+        }
+
+        return parent::from($source, $timezone);
+    }
+
     /**
-     * @param mixed $source
-     * @param string|\DateTimeZone|null $timezone
-     *
-     * @return Date|DateTime
+     * @param string|int|DateTimeInterface $time If time is provided as a numeric value it is used
+     *     as
+     * "@{$time}" and the time zone is set to UTC.
+     * @param DateTimeZone|string $timezone A {@link \DateTimeZone} object representing the desired
+     * time zone. If the time zone is empty `utc` is used instead.
      */
-	static public function from($source, $timezone = null): self
-	{
-		if ($source === null)
-		{
-			return static::none();
-		}
+    public function __construct($time = 'now', $timezone = null)
+    {
+        if ($time instanceof DateTimeInterface) {
+            $time = $time->getTimestamp();
+        }
 
-		return parent::from($source, $timezone);
-	}
+        if (is_numeric($time)) {
+            $time = '@' . $time;
+            $timezone = null;
+        }
 
-	/**
-	 * @param string|int|DateTimeInterface $time If time is provided as a numeric value it is used as
-	 * "@{$time}" and the time zone is set to UTC.
-	 * @param \DateTimeZone|string $timezone A {@link \DateTimeZone} object representing the desired
-	 * time zone. If the time zone is empty `utc` is used instead.
-	 */
-	public function __construct($time = 'now', $timezone = null)
-	{
-		if ($time instanceof DateTimeInterface)
-		{
-			$time = $time->getTimestamp();
-		}
+        parent::__construct($time, $timezone ?: 'utc');
+    }
 
-		if (is_numeric($time))
-		{
-			$time = '@' . $time;
-			$timezone = null;
-		}
-
-		parent::__construct($time, $timezone ?: 'utc');
-	}
-
-	/**
-	 * Formats the instance according to the RFC 1123.
+    /**
+     * Formats the instance according to the RFC 1123.
      *
      * @inheritdoc
-	 */
-	public function __toString()
-	{
-		return $this->is_empty ? '' : $this->utc->as_rfc1123;
-	}
+     */
+    public function __toString()
+    {
+        return $this->is_empty ? '' : $this->utc->as_rfc1123;
+    }
 }

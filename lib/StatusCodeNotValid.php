@@ -12,8 +12,9 @@
 namespace ICanBoogie\HTTP;
 
 use ICanBoogie\Accessor\AccessorTrait;
-
+use InvalidArgumentException;
 use Throwable;
+
 use function ICanBoogie\format;
 
 /**
@@ -21,32 +22,29 @@ use function ICanBoogie\format;
  *
  * @property-read int $status_code The status code that is not supported.
  */
-class StatusCodeNotValid extends \InvalidArgumentException implements Exception
+class StatusCodeNotValid extends InvalidArgumentException implements Exception
 {
-	/**
-	 * @uses get_status_code
-	 */
-	use AccessorTrait;
-
     /**
-     * @var int
+     * @uses get_status_code
      */
-	private $status_code;
+    use AccessorTrait;
 
-	protected function get_status_code(): int
-	{
-		return $this->status_code;
-	}
+    protected function get_status_code(): int
+    {
+        return $this->status_code;
+    }
 
-	public function __construct(int $status_code, string $message = null, int $code = Status::INTERNAL_SERVER_ERROR, Throwable $previous = null)
-	{
-		$this->status_code = $status_code;
+    public function __construct(
+        private int $status_code,
+        string $message = null,
+        int $code = Status::INTERNAL_SERVER_ERROR,
+        Throwable $previous = null
+    ) {
+        parent::__construct($message ?: $this->format_message($status_code), $code, $previous);
+    }
 
-		parent::__construct($message ?: $this->format_message($status_code), $code, $previous);
-	}
-
-	private function format_message(int $status_code): string
-	{
-		return format("Status code not valid: %status_code.", [ 'status_code' => $status_code ]);
-	}
+    private function format_message(int $status_code): string
+    {
+        return format("Status code not valid: %status_code.", [ 'status_code' => $status_code ]);
+    }
 }

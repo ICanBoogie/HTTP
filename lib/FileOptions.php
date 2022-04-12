@@ -16,33 +16,33 @@ namespace ICanBoogie\HTTP;
  */
 interface FileOptions
 {
-	/**
-	 * Name of the file.
-	 */
-	const OPTION_NAME = 'name';
+    /**
+     * Name of the file.
+     */
+    public const OPTION_NAME = 'name';
 
-	/**
-	 * MIME type of the file.
-	 */
-	const OPTION_TYPE = 'type';
+    /**
+     * MIME type of the file.
+     */
+    public const OPTION_TYPE = 'type';
 
-	/**
-	 * Size of the file.
-	 */
-	const OPTION_SIZE = 'size';
+    /**
+     * Size of the file.
+     */
+    public const OPTION_SIZE = 'size';
 
-	/**
-	 * Temporary filename.
-	 */
-	const OPTION_TMP_NAME = 'tmp_name';
+    /**
+     * Temporary filename.
+     */
+    public const OPTION_TMP_NAME = 'tmp_name';
 
-	/**
-	 * Error code, one of `UPLOAD_ERR_*`.
-	 */
-	const OPTION_ERROR = 'error';
+    /**
+     * Error code, one of `UPLOAD_ERR_*`.
+     */
+    public const OPTION_ERROR = 'error';
 
-	/**
-	 * Pathname of the file.
-	 */
-	const OPTION_PATHNAME = 'pathname';
+    /**
+     * Pathname of the file.
+     */
+    public const OPTION_PATHNAME = 'pathname';
 }

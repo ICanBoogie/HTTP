@@ -28,49 +28,37 @@ use ICanBoogie\HTTP\Response;
  */
 class BeforeDispatchEvent extends Event
 {
-    const TYPE = 'dispatch:before';
+    public const TYPE = 'dispatch:before';
 
-	/**
-	 * The request.
-	 *
-	 * @var Request
-	 */
-	private $request;
+    protected function get_request(): Request
+    {
+        return $this->request;
+    }
 
-	protected function get_request(): Request
-	{
-		return $this->request;
-	}
+    /**
+     * Reference to the response.
+     */
+    private ?Response $response;
 
-	/**
-	 * Reference to the response.
-	 *
-	 * @var Response|null
-	 */
-	private $response;
+    protected function get_response(): ?Response
+    {
+        return $this->response;
+    }
 
-	protected function get_response(): ?Response
-	{
-		return $this->response;
-	}
+    protected function set_response(?Response $response): void
+    {
+        $this->response = $response;
+    }
 
-	protected function set_response(?Response $response): void
-	{
-		$this->response = $response;
-	}
+    /**
+     * The event is constructed with the type `dispatch:before`.
+     *
+     * @param Response|null $response Reference to the response.
+     */
+    public function __construct(RequestDispatcher $target, private Request $request, Response &$response = null)
+    {
+        $this->response = &$response;
 
-	/**
-	 * The event is constructed with the type `dispatch:before`.
-	 *
-	 * @param RequestDispatcher $target
-	 * @param Request $request
-	 * @param Response|null $response Reference to the response.
-	 */
-	public function __construct(RequestDispatcher $target, Request $request, Response &$response = null)
-	{
-		$this->request = $request;
-		$this->response = &$response;
-
-		parent::__construct($target, self::TYPE);
-	}
+        parent::__construct($target, self::TYPE);
+    }
 }

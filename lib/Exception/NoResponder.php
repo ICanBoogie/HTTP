@@ -19,5 +19,4 @@ use LogicException;
  */
 class NoResponder extends LogicException implements Exception
 {
-
 }

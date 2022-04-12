@@ -13,7 +13,10 @@
     <rule ref="PSR12"/>
 
     <rule ref="PSR12.Classes.ClosingBrace.StatementAfter">
-        <exclude-pattern>lib/AccessorTrait.php</exclude-pattern>
+        <exclude-pattern>lib/*</exclude-pattern>
+    </rule>
+    <rule ref="Squiz.ControlStructures.ControlSignature.SpaceAfterCloseBrace">
+        <exclude-pattern>lib/File.php</exclude-pattern>
     </rule>
 
     <rule ref="Generic.Files.LineLength.TooLong">
@@ -22,5 +25,8 @@
 
     <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
         <exclude-pattern>*/tests/*</exclude-pattern>
+    </rule>
+    <rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
+        <exclude-pattern>*/tests/bootstrap.php</exclude-pattern>
     </rule>
 </ruleset>

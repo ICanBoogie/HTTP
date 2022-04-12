@@ -14,6 +14,16 @@ namespace ICanBoogie\HTTP\Headers;
 use ICanBoogie\Accessor\AccessorTrait;
 
 use function ICanBoogie\remove_accents;
+use function mb_convert_encoding;
+use function mb_detect_encoding;
+use function preg_match;
+use function preg_replace;
+use function rawurlencode;
+use function str_replace;
+use function strpos;
+use function substr;
+use function urldecode;
+use function utf8_encode;
 
 /**
  * Representation of a header parameter.
@@ -27,226 +37,176 @@ use function ICanBoogie\remove_accents;
  */
 class HeaderParameter
 {
-	use AccessorTrait;
+    use AccessorTrait;
 
-	/**
-	 * Token of the parameter.
-	 *
-	 * @var string
-	 */
-	protected $attribute;
+    protected function get_attribute(): string
+    {
+        return $this->attribute;
+    }
 
-	protected function get_attribute(): string
-	{
-		return $this->attribute;
-	}
+    protected function get_charset(): string
+    {
+        return mb_detect_encoding($this->value) ?: 'ISO-8859-1';
+    }
 
-	/**
-	 * Value of the parameter.
-	 *
-	 * @var string
-	 */
-	public $value;
+    /**
+     * Creates a {@link HeaderParameter} instance from the provided source.
+     */
+    public static function from(mixed $source): self
+    {
+        if ($source instanceof self) {
+            return $source;
+        }
 
-	protected function get_charset(): string
-	{
-		return \mb_detect_encoding($this->value) ?: 'ISO-8859-1';
-	}
+        $equal_pos = strpos($source, '=');
+        $language = null;
 
-	/**
-	 * Language of the value.
-	 *
-	 * @var string
-	 */
-	public $language;
+        if ($source[$equal_pos - 1] === '*') {
+            $attribute = substr($source, 0, $equal_pos - 1);
+            $value = substr($source, $equal_pos + 1);
 
-	/**
-	 * Creates a {@link HeaderParameter} instance from the provided source.
-	 *
-	 * @param mixed $source
-	 *
-	 * @return HeaderParameter
-	 */
-	static public function from($source): self
-	{
-		if ($source instanceof self)
-		{
-			return $source;
-		}
+            preg_match('#^([a-zA-Z0-9\-]+)?(\'([a-z\-]+)?\')?(")?([^"]+)(")?$#', $value, $matches);
 
-		$equal_pos = \strpos($source, '=');
-		$language = null;
+            if ($matches[3]) {
+                $language = $matches[3];
+            }
 
-		if ($source[$equal_pos - 1] === '*')
-		{
-			$attribute = \substr($source, 0, $equal_pos - 1);
-			$value = \substr($source, $equal_pos + 1);
+            $value = urldecode($matches[5]);
 
-			\preg_match('#^([a-zA-Z0-9\-]+)?(\'([a-z\-]+)?\')?(")?([^"]+)(")?$#', $value, $matches);
+            if ($matches[1] === 'iso-8859-1') {
+                $value = utf8_encode($value);
+            }
+        } else {
+            $attribute = substr($source, 0, $equal_pos);
+            $value = substr($source, $equal_pos + 1);
 
-			if ($matches[3])
-			{
-				$language = $matches[3];
-			}
+            if ($value[0] === '"') {
+                $value = substr($value, 1, -1);
+            }
+        }
 
-			$value = \urldecode($matches[5]);
+        $value = mb_convert_encoding($value, 'UTF-8');
 
-			if ($matches[1] === 'iso-8859-1')
-			{
-				$value = \utf8_encode($value);
-			}
-		}
-		else
-		{
-			$attribute = \substr($source, 0, $equal_pos);
-			$value = \substr($source, $equal_pos + 1);
+        return new self($attribute, $value, $language);
+    }
 
-			if ($value[0] === '"')
-			{
-				$value = \substr($value, 1, -1);
-			}
-		}
+    /**
+     * Checks if the provided string is a token.
+     *
+     * <pre>
+     * token          = 1*<any CHAR except CTLs or separators>
+     * separators     = "(" | ")" | "<" | ">" | "@"
+     *                | "," | ";" | ":" | "\" | <">
+     *                | "/" | "[" | "]" | "?" | "="
+     *                | "{" | "}" | SP | HT
+     * CHAR           = <any US-ASCII character (octets 0 - 127)>
+     * CTL            = <any US-ASCII control character (octets 0 - 31) and DEL (127)>
+     * SP             = <US-ASCII SP, space (32)>
+     * HT             = <US-ASCII HT, horizontal-tab (9)>
+     *</pre>
+     */
+    public static function is_token(string $str): bool
+    {
+        // \x21 = CHAR except 0 - 31 (\x1f) and SP (\x20)
+        // \x7e = CHAR except DEL
 
-		$value = \mb_convert_encoding($value, 'UTF-8');
+        return !preg_match('#[^\x21-\x7e]#', $str)
+            && !preg_match('#[\(\)\<\>\@\,\;\:\\\\"\/\[\]\?\=\{\}\x9]#', $str);
+    }
 
-		return new static($attribute, $value, $language);
-	}
+    /**
+     * Converts a string to the ASCI charset.
+     *
+     * Accents are converted using {@link \ICanBoogie\remove_accents()}. Characters that are not
+     * in the ASCII range are discarted.
+     *
+     * @param string $str The string to convert.
+     */
+    public static function to_ascii(string $str): string
+    {
+        $str = remove_accents($str);
 
-	/**
-	 * Checks if the provided string is a token.
-	 *
-	 * <pre>
-	 * token          = 1*<any CHAR except CTLs or separators>
-	 * separators     = "(" | ")" | "<" | ">" | "@"
-	 *                | "," | ";" | ":" | "\" | <">
-	 *                | "/" | "[" | "]" | "?" | "="
-	 *                | "{" | "}" | SP | HT
-	 * CHAR           = <any US-ASCII character (octets 0 - 127)>
-	 * CTL            = <any US-ASCII control character (octets 0 - 31) and DEL (127)>
-	 * SP             = <US-ASCII SP, space (32)>
-	 * HT             = <US-ASCII HT, horizontal-tab (9)>
-	 *</pre>
-	 *
-	 * @param string $str
-	 *
-	 * @return boolean `true` if the provided string is a token, `false` otherwise.
-	 */
-	static public function is_token($str)
-	{
-		// \x21 = CHAR except 0 - 31 (\x1f) and SP (\x20)
-		// \x7e = CHAR except DEL
+        return preg_replace('/[^\x20-\x7F]+/', '', $str);
+    }
 
-		return !\preg_match('#[^\x21-\x7e]#', $str) && !\preg_match('#[\(\)\<\>\@\,\;\:\\\\"\/\[\]\?\=\{\}\x9]#', $str);
-	}
+    public function __construct(
+        protected string $attribute,
+        public ?string $value = null,
+        public ?string $language = null
+    ) {
+    }
 
-	/**
-	 * Converts a string to the ASCI charset.
-	 *
-	 * Accents are converted using {@link \ICanBoogie\remove_accents()}. Characters that are not
-	 * in the ASCII range are discarted.
-	 *
-	 * @param string $str The string to convert.
-	 *
-	 * @return string
-	 */
-	static public function to_ascii($str)
-	{
-		$str = remove_accents($str);
-		$str = \preg_replace('/[^\x20-\x7F]+/', '', $str);
+    /**
+     * Renders the attribute and value into a string.
+     *
+     * <pre>
+     * A string of text is parsed as a single word if it is quoted using
+     * double-quote marks.
+     *
+     *   quoted-string  = ( <"> *(qdtext | quoted-pair ) <"> )
+     *   qdtext         = <any TEXT except <">>
+     *
+     * The backslash character ("\") MAY be used as a single-character
+     * quoting mechanism only within quoted-string and comment constructs.
+     *
+     *   quoted-pair    = "\" CHAR
+     * </pre>
+     */
+    public function render(): string
+    {
+        $value = $this->value;
 
-		return $str;
-	}
+        if (!$value) {
+            return '';
+        }
 
-	/**
-	 * Initializes the {@link $attribute}, {@link $value} and {@link $language} properties.
-	 *
-	 * @param string $attribute
-	 * @param string|null $value
-	 * @param string|null $language
-	 */
-	public function __construct($attribute, $value = null, $language = null)
-	{
-		$this->attribute = $attribute;
-		$this->value = $value;
-		$this->language = $language;
-	}
+        $attribute = $this->attribute;
 
-	/**
-	 * Renders the attribute and value into a string.
-	 *
-	 * <pre>
-	 * A string of text is parsed as a single word if it is quoted using
-	 * double-quote marks.
-	 *
-	 *   quoted-string  = ( <"> *(qdtext | quoted-pair ) <"> )
-	 *   qdtext         = <any TEXT except <">>
-	 *
-	 * The backslash character ("\") MAY be used as a single-character
-	 * quoting mechanism only within quoted-string and comment constructs.
-	 *
-	 *   quoted-pair    = "\" CHAR
-	 * </pre>
-	 *
-	 * @return string
-	 */
-	public function render()
-	{
-		$value = $this->value;
+        #
+        # token
+        #
 
-		if (!$value)
-		{
-			return '';
-		}
+        if (self::is_token($value)) {
+            return "{$attribute}={$value}";
+        }
 
-		$attribute = $this->attribute;
+        #
+        # quoted string
+        #
 
-		#
-		# token
-		#
+        $encoding = mb_detect_encoding($value);
 
-		if (self::is_token($value))
-		{
-			return "{$attribute}={$value}";
-		}
+        if (($encoding === 'ASCII' || $encoding === 'ISO-8859-1') && !str_contains($value, '"')) {
+            return "{$attribute}=\"{$value}\"";
+        }
 
-		#
-		# quoted string
-		#
+        #
+        # escaped, with fallback
+        #
+        # @see http://greenbytes.de/tech/tc2231/#encoding-2231-fb
+        #
 
-		$encoding = \mb_detect_encoding($value);
+        if ($encoding !== 'UTF-8') {
+            $value = mb_convert_encoding($value, 'UTF-8', $encoding);
+            $encoding = mb_detect_encoding($value);
+        }
 
-		if (($encoding === 'ASCII' || $encoding === 'ISO-8859-1') && \strpos($value, '"') === false)
-		{
-			return "{$attribute}=\"{$value}\"";
-		}
+        $normalized_value = self::to_ascii($value);
+        $normalized_value = str_replace([ '"', ';' ], '', $normalized_value);
 
-		#
-		# escaped, with fallback
-		#
-		# @see http://greenbytes.de/tech/tc2231/#encoding-2231-fb
-		#
+        return "{$attribute}=\"{$normalized_value}\"; {$attribute}*="
+            . $encoding . "'{$this->language}'" . rawurlencode($value);
+    }
 
-		if ($encoding !== 'UTF-8')
-		{
-			$value = \mb_convert_encoding($value, 'UTF-8', $encoding);
-			$encoding = \mb_detect_encoding($value);
-		}
-
-		$normalized_value = self::to_ascii($value);
-		$normalized_value = \str_replace([ '"', ';' ], '', $normalized_value);
-
-		return "{$attribute}=\"{$normalized_value}\"; {$attribute}*=" . $encoding . "'{$this->language}'" . rawurlencode($value);
-	}
-
-	/**
-	 * Returns the value of the parameter.
-	 *
-	 * Note: {@link render()} to render the attribute and value of the parameter.
-	 *
-	 * @return string
-	 */
-	public function __toString()
-	{
-		return (string) $this->value;
-	}
+    /**
+     * Returns the value of the parameter.
+     *
+     * Note: {@link render()} to render the attribute and value of the parameter.
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return (string) $this->value;
+    }
 }

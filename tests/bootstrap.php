@@ -26,14 +26,13 @@ const CREATE_FILE_SIZE = 10000;
 
 $iterator = new \RegexIterator(new \DirectoryIterator(__DIR__ . '/sandbox'), '/^bytes/');
 
-foreach ($iterator as $file)
-{
-	unlink($file->getPathname());
+foreach ($iterator as $file) {
+    unlink($file->getPathname());
 }
 
 function generate_pathname()
 {
-	return __DIR__ . '/sandbox/bytes-' . uniqid();
+    return __DIR__ . '/sandbox/bytes-' . uniqid();
 }
 
 /**
@@ -45,18 +44,18 @@ function generate_pathname()
  */
 function create_file(string $extension = ''): string
 {
-	$pathname = generate_pathname() . $extension;
-	file_put_contents($pathname, random_bytes(CREATE_FILE_SIZE));
+    $pathname = generate_pathname() . $extension;
+    file_put_contents($pathname, random_bytes(CREATE_FILE_SIZE));
 
-	return $pathname;
+    return $pathname;
 }
 
 function create_image(string $extension = '.png'): string
 {
-	$image = imagecreatetruecolor(200, 200);
-	$pathname = generate_pathname() . $extension;
+    $image = imagecreatetruecolor(200, 200);
+    $pathname = generate_pathname() . $extension;
 
-	imagepng($image, $pathname);
+    imagepng($image, $pathname);
 
-	return $pathname;
+    return $pathname;
 }

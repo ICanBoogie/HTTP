@@ -19,29 +19,28 @@ class ProvideDispatcher
     /**
      * @var RequestDispatcher
      */
-	private $dispatcher;
+    private $dispatcher;
 
-	public function __invoke(): RequestDispatcher
-	{
-		$dispatcher = &$this->dispatcher;
+    public function __invoke(): RequestDispatcher
+    {
+        $dispatcher = &$this->dispatcher;
 
-		if ($dispatcher)
-		{
-			return $dispatcher;
-		}
+        if ($dispatcher) {
+            return $dispatcher;
+        }
 
-		$dispatcher = $this->create();
+        $dispatcher = $this->create();
 
-		new RequestDispatcher\AlterEvent($dispatcher);
+        new RequestDispatcher\AlterEvent($dispatcher);
 
-		return $dispatcher;
-	}
+        return $dispatcher;
+    }
 
-	/**
-	 * The method can be overrode to provide an initialized dispatcher.
-	 */
-	protected function create(): RequestDispatcher
-	{
-		return new RequestDispatcher;
-	}
+    /**
+     * The method can be overrode to provide an initialized dispatcher.
+     */
+    protected function create(): RequestDispatcher
+    {
+        return new RequestDispatcher();
+    }
 }

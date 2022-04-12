@@ -18,8 +18,8 @@ use Throwable;
  */
 interface Responder
 {
-	/**
-	 * @throws Throwable if the response cannot be produced.
-	 */
-	public function respond(Request $request): Response;
+    /**
+     * @throws Throwable if the response cannot be produced.
+     */
+    public function respond(Request $request): Response;
 }

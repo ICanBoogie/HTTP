@@ -13,27 +13,27 @@ namespace ICanBoogie\HTTP;
 
 class ExceptionTest extends \PHPUnit\Framework\TestCase
 {
-	/**
-	 * @dataProvider provide_test_implements
-	 */
-	public function test_implements($class, $args)
-	{
-		$reflection = new \ReflectionClass(__NAMESPACE__ . '\\' . $class);
-		$exception = $reflection->newInstanceArgs($args);
+    /**
+     * @dataProvider provide_test_implements
+     */
+    public function test_implements($class, $args)
+    {
+        $reflection = new \ReflectionClass(__NAMESPACE__ . '\\' . $class);
+        $exception = $reflection->newInstanceArgs($args);
 
-		$this->assertInstanceOf(Exception::class, $exception);
-	}
+        $this->assertInstanceOf(Exception::class, $exception);
+    }
 
-	public function provide_test_implements()
-	{
-		return [
+    public function provide_test_implements()
+    {
+        return [
 
-			[ 'NotFound', [] ],
-			[ 'ServiceUnavailable', [] ],
-			[ 'MethodNotSupported', [ 'UNSUPPORTED' ] ],
-			[ 'StatusCodeNotValid', [ 123 ] ],
-			[ 'ForceRedirect', [ 'to/location.html' ] ]
+            [ 'NotFound', [] ],
+            [ 'ServiceUnavailable', [] ],
+            [ 'MethodNotSupported', [ 'UNSUPPORTED' ] ],
+            [ 'StatusCodeNotValid', [ 123 ] ],
+            [ 'ForceRedirect', [ 'to/location.html' ] ]
 
-		];
-	}
+        ];
+    }
 }

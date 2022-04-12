@@ -16,233 +16,220 @@ use ICanBoogie\EventCollectionProvider;
 
 class DispatcherTest extends \PHPUnit\Framework\TestCase
 {
-	/**
-	 * @var EventCollection
-	 */
-	private $events;
+    /**
+     * @var EventCollection
+     */
+    private $events;
 
-	protected function setUp(): void
-	{
-		$this->events = $events = new EventCollection;
+    protected function setUp(): void
+    {
+        $this->events = $events = new EventCollection();
 
-		EventCollectionProvider::define(function() use ($events) {
+        EventCollectionProvider::define(function () use ($events) {
 
-			return $events;
+            return $events;
+        });
+    }
 
-		});
-	}
+    /**
+     * The event hooks for the `ICanBoogie\HTTP\RequestDispatcher::dispatch:before` and
+     * `ICanBoogie\HTTP\RequestDispatcher::dispatch` events must be called and a response must be
+     * provided with the body 'Ok'.
+     */
+    public function testDispatchEvent()
+    {
+        $before_done = null;
+        $done = null;
 
-	/**
-	 * The event hooks for the `ICanBoogie\HTTP\RequestDispatcher::dispatch:before` and
-	 * `ICanBoogie\HTTP\RequestDispatcher::dispatch` events must be called and a response must be
-	 * provided with the body 'Ok'.
-	 */
-	public function testDispatchEvent()
-	{
-		$before_done = null;
-		$done = null;
+        $this->events->attach(function (RequestDispatcher\BeforeDispatchEvent $event, RequestDispatcher $target) use (&$before_done) {
 
-		$this->events->attach(function(RequestDispatcher\BeforeDispatchEvent $event, RequestDispatcher $target) use(&$before_done) {
+            $before_done = true;
+        });
 
-			$before_done = true;
+        $this->events->attach(function (RequestDispatcher\DispatchEvent $event, RequestDispatcher $target) use (&$done) {
 
-		});
+            $done = true;
 
-		$this->events->attach(function(RequestDispatcher\DispatchEvent $event, RequestDispatcher $target) use(&$done) {
+            $event->response = new Response('Ok');
+        });
 
-			$done = true;
+        $dispatcher = new RequestDispatcher();
+        $response = $dispatcher(Request::from($_SERVER));
 
-			$event->response = new Response('Ok');
+        $this->assertTrue($before_done);
+        $this->assertTrue($done);
+        $this->assertEquals('Ok', $response->body);
+    }
 
-		});
+    /**
+     * The exception thrown by the _exception_ dispatcher must be rescued by the _rescue event hook_.
+     */
+    public function testDispatcherRescueEvent()
+    {
+        $this->events->attach(function (\ICanBoogie\Exception\RescueEvent $event, \Exception $target) {
 
-		$dispatcher = new RequestDispatcher;
-		$response = $dispatcher(Request::from($_SERVER));
+            $event->response = new Response("Rescued: " . $event->exception->getMessage());
+        });
 
-		$this->assertTrue($before_done);
-		$this->assertTrue($done);
-		$this->assertEquals('Ok', $response->body);
-	}
+        $dispatcher = new RequestDispatcher([
 
-	/**
-	 * The exception thrown by the _exception_ dispatcher must be rescued by the _rescue event hook_.
-	 */
-	public function testDispatcherRescueEvent()
-	{
-		$this->events->attach(function(\ICanBoogie\Exception\RescueEvent $event, \Exception $target) {
+            'exception' => function () {
 
-			$event->response = new Response("Rescued: " . $event->exception->getMessage());
+                throw new \Exception('Damned!');
+            }
 
-		});
+        ]);
 
-		$dispatcher = new RequestDispatcher([
+        $response = $dispatcher(Request::from($_SERVER));
 
-			'exception' => function() {
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertEquals('Rescued: Damned!', $response->body);
+    }
 
-				throw new \Exception('Damned!');
+    public function testNotFound()
+    {
+        $dispatcher = new RequestDispatcher();
+        $this->expectException(NotFound::class);
+        $dispatcher(Request::from($_SERVER));
+    }
 
-			}
+    public function testSetDispatchersWeight()
+    {
+        $dispatcher = new RequestDispatcher([
 
-		]);
+            'two' => 'dummy',
+            'three' => 'dummy'
 
-		$response = $dispatcher(Request::from($_SERVER));
+        ]);
 
-		$this->assertInstanceOf(Response::class, $response);
-		$this->assertEquals('Rescued: Damned!', $response->body);
-	}
+        $dispatcher['bottom'] = new WeightedDispatcher('dummy', 'bottom');
+        $dispatcher['megabottom'] = new WeightedDispatcher('dummy', 'bottom');
+        $dispatcher['hyperbottom'] = new WeightedDispatcher('dummy', 'bottom');
+        $dispatcher['one'] = new WeightedDispatcher('dummy', 'before:two');
+        $dispatcher['four'] = new WeightedDispatcher('dummy', 'after:three');
+        $dispatcher['top'] = new WeightedDispatcher('dummy', 'top');
+        $dispatcher['megatop'] = new WeightedDispatcher('dummy', 'top');
+        $dispatcher['hypertop'] = new WeightedDispatcher('dummy', 'top');
 
-	public function testNotFound()
-	{
-		$dispatcher = new RequestDispatcher;
-		$this->expectException(NotFound::class);
-		$dispatcher(Request::from($_SERVER));
-	}
-
-	public function testSetDispatchersWeight()
-	{
-		$dispatcher = new RequestDispatcher([
-
-			'two' => 'dummy',
-			'three' => 'dummy'
-
-		]);
-
-		$dispatcher['bottom'] = new WeightedDispatcher('dummy', 'bottom');
-		$dispatcher['megabottom'] = new WeightedDispatcher('dummy', 'bottom');
-		$dispatcher['hyperbottom'] = new WeightedDispatcher('dummy', 'bottom');
-		$dispatcher['one'] = new WeightedDispatcher('dummy', 'before:two');
-		$dispatcher['four'] = new WeightedDispatcher('dummy', 'after:three');
-		$dispatcher['top'] = new WeightedDispatcher('dummy', 'top');
-		$dispatcher['megatop'] = new WeightedDispatcher('dummy', 'top');
-		$dispatcher['hypertop'] = new WeightedDispatcher('dummy', 'top');
-
-		$this->assertSame(
-		    'hypertop megatop top one two three four bottom megabottom hyperbottom',
+        $this->assertSame(
+            'hypertop megatop top one two three four bottom megabottom hyperbottom',
             implode(' ', array_keys(iterator_to_array($dispatcher)))
         );
-	}
+    }
 
-	public function test_head_fallback()
-	{
-		$message = "Astonishing success!";
+    public function test_head_fallback()
+    {
+        $message = "Astonishing success!";
 
-		$dispatcher = new RequestDispatcher([
+        $dispatcher = new RequestDispatcher([
 
-			'primary' => function(Request $request) use($message) {
+            'primary' => function (Request $request) use ($message) {
 
-				if ($request->is_get)
-				{
-					if ($request->uri == '/with-message')
-					{
-						return new Response($message, Status::OK, [ 'X-Was-Get' => 'yes' ]);
-					}
-					else
-					{
-						return new Response(null, Status::OK, [ 'X-Was-Get' => 'yes', 'Content-Length' => 1234 ]);
-					}
-				}
+                if ($request->is_get) {
+                    if ($request->uri == '/with-message') {
+                        return new Response($message, Status::OK, [ 'X-Was-Get' => 'yes' ]);
+                    } else {
+                        return new Response(null, Status::OK, [ 'X-Was-Get' => 'yes', 'Content-Length' => 1234 ]);
+                    }
+                }
 
-				return null;
+                return null;
+            }
 
-			}
+        ]);
 
-		]);
+        $request = Request::from([
 
-		$request = Request::from([
+            Request::OPTION_URI => '/with-message',
+            Request::OPTION_IS_HEAD => true
 
-			Request::OPTION_URI => '/with-message',
-			Request::OPTION_IS_HEAD => true
+        ]);
 
-		]);
+        $response = $dispatcher($request);
 
-		$response = $dispatcher($request);
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertInstanceOf(Status::class, $response->status);
+        $this->assertEquals(Status::OK, $response->status->code);
+        $this->assertEquals(strlen($message), $response->content_length);
+        $this->assertEquals('yes', $response->headers['X-Was-Get']);
+        $this->assertNull($response->body);
 
-		$this->assertInstanceOf(Response::class, $response);
-		$this->assertInstanceOf(Status::class, $response->status);
-		$this->assertEquals(Status::OK, $response->status->code);
-		$this->assertEquals(strlen($message), $response->content_length);
-		$this->assertEquals('yes', $response->headers['X-Was-Get']);
-		$this->assertNull($response->body);
+        $request = Request::from([
 
-		$request = Request::from([
+            Request::OPTION_IS_HEAD => true
 
-			Request::OPTION_IS_HEAD => true
+        ]);
 
-		]);
+        $response = $dispatcher($request);
+        $this->assertEquals(1234, $response->content_length);
+    }
 
-		$response = $dispatcher($request);
-		$this->assertEquals(1234, $response->content_length);
-	}
+    public function test_head_strip_body()
+    {
+        $original_response = null;
+        $dispatcher = new RequestDispatcher([
 
-	public function test_head_strip_body()
-	{
-		$original_response = null;
-		$dispatcher = new RequestDispatcher([
+            'primary' => function (Request $request) use (&$original_response) {
 
-			'primary' => function(Request $request) use(&$original_response) {
+                return $original_response = new Response("With a fantastic message!");
+            }
 
-				return $original_response = new Response("With a fantastic message!");
+        ]);
 
-			}
+        $request = Request::from([
 
-		]);
+            Request::OPTION_IS_HEAD => true
 
-		$request = Request::from([
+        ]);
 
-			Request::OPTION_IS_HEAD => true
+        $response = $dispatcher($request);
+        $expected = "HTTP/1.1 200 OK\r\nDate: {$response->date}\r\n\r\n";
 
-		]);
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertNotSame($response, $original_response);
+        $this->assertEquals($expected, (string) $response);
+    }
 
-		$response = $dispatcher($request);
-		$expected = "HTTP/1.1 200 OK\r\nDate: {$response->date}\r\n\r\n";
+    public function test_array_access_interface()
+    {
+        $dispatcher = new RequestDispatcher();
+        $d1 = function () {
+        };
+        $k1 = 'd' . uniqid();
 
-		$this->assertInstanceOf(Response::class, $response);
-		$this->assertNotSame($response, $original_response);
-		$this->assertEquals($expected, (string) $response);
-	}
+        $this->assertFalse(isset($dispatcher[$k1]));
+        $dispatcher[$k1] = $d1;
+        $this->assertTrue(isset($dispatcher[$k1]));
+        $this->assertSame($d1, $dispatcher[$k1]);
+        unset($dispatcher[$k1]);
+        $this->assertFalse(isset($dispatcher[$k1]));
 
-	public function test_array_access_interface()
-	{
-		$dispatcher = new RequestDispatcher;
-		$d1 = function() {};
-		$k1 = 'd' . uniqid();
+        try {
+            $dispatcher[$k1];
 
-		$this->assertFalse(isset($dispatcher[$k1]));
-		$dispatcher[$k1] = $d1;
-		$this->assertTrue(isset($dispatcher[$k1]));
-		$this->assertSame($d1, $dispatcher[$k1]);
-		unset($dispatcher[$k1]);
-		$this->assertFalse(isset($dispatcher[$k1]));
+            $this->fail('Expected DispatcherNotDefined');
+        } catch (\Exception $e) {
+            $this->assertInstanceOf(DispatcherNotDefined::class, $e);
+        }
+    }
 
-		try
-		{
-			$dispatcher[$k1];
+    public function test_rescue_force_redirect()
+    {
+        $location = '/path/to/location/' . uniqid();
 
-			$this->fail('Expected DispatcherNotDefined');
-		}
-		catch (\Exception $e)
-		{
-			$this->assertInstanceOf(DispatcherNotDefined::class, $e);
-		}
-	}
+        $dispatcher = $this
+            ->getMockBuilder(RequestDispatcher::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([])
+            ->getMock();
 
-	public function test_rescue_force_redirect()
-	{
-		$location = '/path/to/location/' . uniqid();
+        $force_redirect = new ForceRedirect($location);
 
-		$dispatcher = $this
-			->getMockBuilder(RequestDispatcher::class)
-			->disableOriginalConstructor()
-			->onlyMethods([])
-			->getMock();
+        /* @var $dispatcher RequestDispatcher */
 
-		$force_redirect = new ForceRedirect($location);
+        $response = $dispatcher->rescue($force_redirect, Request::from('/'));
 
-		/* @var $dispatcher RequestDispatcher */
-
-		$response = $dispatcher->rescue($force_redirect, Request::from('/'));
-
-		$this->assertInstanceOf(RedirectResponse::class, $response);
-		$this->assertSame($location, $response->location);
-	}
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertSame($location, $response->location);
+    }
 }

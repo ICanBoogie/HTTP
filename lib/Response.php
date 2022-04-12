@@ -11,24 +11,30 @@
 
 namespace ICanBoogie\HTTP;
 
+use Closure;
 use ICanBoogie\Accessor\AccessorTrait;
 use ICanBoogie\DateTime;
 
 use function ICanBoogie\format;
 use function is_object;
+use function method_exists;
 
 /**
  * A response to a HTTP request.
  *
- * @property Status $status
+ * @property Status|int $status
  * @property mixed $body The body of the response.
  *
- * @property int|null $ttl Adjusts the `s-maxage` part of the `Cache-Control` header field definition according to the `Age` header field definition.
+ * @property int|null $ttl
+ *     Adjusts the `s-maxage` part of the `Cache-Control` header field definition according to
+ *     the `Age` header field definition.
  * @property int|null $age Shortcut to the `Age` header field definition.
- * @property Headers\CacheControl $cache_control Shortcut to the `Cache-Control` header field definition.
+ * @property Headers\CacheControl $cache_control
+ *     Shortcut to the `Cache-Control` header field definition.
  * @property int $content_length Shortcut to the `Content-Length` header field definition.
- * @property Headers\ContentType $content_type Shortcut to the `Content-Type` header field definition.
- * @property Headers\Date $date Shortcut to the `Date` header field definition.
+ * @property Headers\ContentType $content_type
+ *     Shortcut to the `Content-Type` header field definition.
+ * @property Headers\Date|string $date Shortcut to the `Date` header field definition.
  * @property string|null $etag Shortcut to the `ETag` header field definition.
  * @property Headers\Date $expires Shortcut to the `Expires` header field definition.
  * @property Headers\Date $last_modified Shortcut to the `Last-Modified` header field definition.
@@ -42,530 +48,531 @@ use function is_object;
  */
 class Response implements ResponseStatus
 {
-	use AccessorTrait;
-
-	/**
-	 * Response headers.
-	 *
-	 * @var Headers
-	 */
-	public $headers;
-
-	/**
-	 * The HTTP protocol version (1.0 or 1.1), defaults to '1.1'
-	 *
-	 * @var string
-	 */
-	public $version = '1.1';
-
-	/**
-	 * Initializes the `$body`,  `$status`, `$headers`, and `$date` properties.
-	 *
-	 * @param mixed $body The body of the response.
-	 * @param int|Status $status The status code of the response.
-	 * @param Headers|array $headers The initial header fields of the response.
-	 */
-	public function __construct($body = null, $status = self::STATUS_OK, $headers = [])
-	{
-		if (\is_array($headers))
-		{
-			$headers = new Headers($headers);
-		}
-		elseif (!$headers instanceof Headers)
-		{
-			throw new \InvalidArgumentException("\$headers must be an array or a ICanBoogie\\HTTP\\Headers instance. Given: " . gettype($headers));
-		}
-
-		$this->headers = $headers;
-
-		if ($this->date->is_empty)
-		{
-			$this->date = 'now';
-		}
-
-		$this->set_status($status);
-
-		if ($body !== null)
-		{
-			$this->set_body($body);
-		}
-	}
-
-	/**
-	 * Clones the `$headers` and `$status` properties.
-	 */
-	public function __clone()
-	{
-		$this->headers = clone $this->headers;
-		$this->status = clone $this->status;
-	}
-
-	/**
-	 * Renders the response as an HTTP string.
-	 *
-	 * @return string
-	 */
-	public function __toString()
-	{
-		try
-		{
-			$header = clone $this->headers;
-			$body = $this->body;
-
-			$this->finalize($header, $body);
-
-			\ob_start();
-
-			$this->send_body($body);
-
-			$body = \ob_get_clean();
-
-			return "HTTP/{$this->version} {$this->status}\r\n"
-			. $header
-			. "\r\n"
-			. $body;
-		}
-		catch (\Throwable $e)
-		{
-			return $e->getMessage();
-		}
-	}
-
-	/**
-	 * Issues the HTTP response.
-	 *
-	 * {@link finalize()} is invoked to finalize the headers (a cloned actually)
-	 * and the body. {@link send_headers} is invoked to send the headers and {@link send_body()}
-	 *is invoked to send the body, if the body is not `null`.
-	 *
-	 * The body is not send in the following instances:
-	 *
-	 * - The finalized body is `null`.
-	 * - The status is not ok.
-	 */
-	public function __invoke(): void
-	{
-		$headers = clone $this->headers;
-		$body = $this->body;
-
-		$this->finalize($headers, $body);
-		$this->send_headers($headers);
-
-		if ($body === null)
-		{
-			return;
-		}
-
-		$this->send_body($body);
-	}
-
-	/**
-	 * Finalize the body.
-	 *
-	 * Subclasses might want to override this method if they wish to alter the header or the body
-	 * before the response is sent or transformed into a string.
-	 *
-	 * @param Headers $headers Reference to the final header.
-	 * @param mixed $body Reference to the final body.
-	 */
-	protected function finalize(Headers &$headers, &$body): void
-	{
-		if ($body instanceof \Closure || !is_object($body) || !\method_exists($body, '__toString'))
-		{
-			return;
-		}
-
-		$body = (string) $body;
-	}
-
-	/**
-	 * Sends response headers.
-	 *
-	 * @param Headers $headers
-	 *
-	 * @return bool `true` is the headers were sent, `false` otherwise.
-	 */
-	protected function send_headers(Headers $headers): bool // @codeCoverageIgnoreStart
-	{
-		if (\headers_sent($file, $line))
-		{
-			\trigger_error(format("Cannot modify header information because it was already sent. Output started at !at.", [
-
-				'at' => $file . ':' . $line
-
-			]));
-
-			return false;
-		}
-
-		\header_remove('Pragma');
-		\header_remove('X-Powered-By');
-
-		\header("HTTP/{$this->version} {$this->status}");
-
-		$headers();
-
-		return true;
-	} // @codeCoverageIgnoreEnd
-
-	/**
-	 * Sends response body.
-	 *
-	 * @param mixed $body
-	 */
-	protected function send_body($body): void
-	{
-		if ($body instanceof \Closure)
-		{
-			$body($this);
-
-			return;
-		}
-
-		echo $body;
-	}
-
-	/**
-	 * Status of the HTTP response.
-	 *
-	 * @var Status
-	 */
-	private $status;
-
-	/**
-	 * @param int|Status $status HTTP status code or HTTP status code and HTTP status message.
-	 */
-	protected function set_status($status): void
-	{
-		$this->status = Status::from($status);
-	}
-
-	protected function get_status(): Status
-	{
-		return $this->status;
-	}
-
-	/**
-	 * The response body.
-	 *
-	 * The body can be any data type that can be converted into a string. This includes numeric
-	 * and objects implementing the {@link __toString()} method.
-	 *
-	 * @var mixed
-	 */
-	private $body;
-
-	protected function set_body($body): void
-	{
-		$this->assert_body_is_valid($body);
-		$this->body = $body;
-	}
-
-	/**
-	 * Assert that a body is valid.
-	 *
-	 * @param mixed $body
-	 *
-	 * @throws \UnexpectedValueException if the specified body doesn't meet the requirements.
-	 */
-	protected function assert_body_is_valid($body)
-	{
-		if ($body === null
-		|| $body instanceof \Closure
-		|| \is_numeric($body)
-		|| \is_string($body)
-		|| (\is_object($body) && \method_exists($body, '__toString')))
-		{
-			return;
-		}
-
-		throw new \UnexpectedValueException(format('The Response body must be a string, an object implementing the __toString() method or be callable, %type given. !value', [
-
-			'type' => \gettype($body),
-			'value' => $body
-
-		]));
-	}
-
-	protected function get_body()
-	{
-		return $this->body;
-	}
-
-	/**
-	 * Sets the value of the `Location` header field.
-	 *
-	 * @param string|null $url
-	 */
-	protected function set_location(?string $url)
-	{
-		if ($url !== null && !$url)
-		{
-			throw new \InvalidArgumentException('Cannot redirect to an empty URL.');
-		}
-
-		$this->headers['Location'] = $url;
-	}
-
-	/**
-	 * Returns the value of the `Location` header field.
-	 *
-	 * @return string|null
-	 */
-	protected function get_location(): ?string
-	{
-		return $this->headers['Location'];
-	}
-
-	/**
-	 * Sets the value of the `Content-Type` header field.
-	 *
-	 * @param string|null $content_type
-	 */
-	protected function set_content_type(?string $content_type): void
-	{
-		$this->headers['Content-Type'] = $content_type;
-	}
-
-	/**
-	 * Returns the value of the `Content-Type` header field.
-	 *
-	 * @return Headers\ContentType
-	 */
-	protected function get_content_type(): Headers\ContentType
-	{
-		return $this->headers['Content-Type'];
-	}
-
-	/**
-	 * Sets the value of the `Content-Length` header field.
-	 *
-	 * @param int|null $length
-	 */
-	protected function set_content_length(?int $length): void
-	{
-		$this->headers['Content-Length'] = $length;
-	}
-
-	/**
-	 * Returns the value of the `Content-Length` header field.
-	 *
-	 * @return int|null
-	 */
-	protected function get_content_length(): ?int
-	{
-		return $this->headers['Content-Length'];
-	}
-
-	/**
-	 * Sets the value of the `Date` header field.
-	 *
-	 * @param mixed $time
-	 */
-	protected function set_date($time): void
-	{
-		$this->headers['Date'] = $time;
-	}
-
-	/**
-	 * Returns the value of the `Date` header field.
-	 *
-	 * @return Headers\Date
-	 */
-	protected function get_date(): Headers\Date
-	{
-		return $this->headers['Date'];
-	}
-
-	/**
-	 * Sets the value of the `Age` header field.
-	 *
-	 * @param int|null $age
-	 */
-	protected function set_age(?int $age): void
-	{
-		$this->headers['Age'] = $age;
-	}
-
-	/**
-	 * Returns the age of the response.
-	 *
-	 * @return int|null
-	 */
-	protected function get_age(): ?int
-	{
-		$age = $this->headers['Age'];
-
-		if ($age)
-		{
-			return $age;
-		}
-
-		if (!$this->date->is_empty)
-		{
-			return max(0, time() - $this->date->utc->timestamp);
-		}
-
-		return null;
-	}
-
-	/**
-	 * Sets the value of the `Last-Modified` header field.
-	 *
-	 * @param mixed $time
-	 */
-	protected function set_last_modified($time): void
-	{
-		$this->headers['Last-Modified'] = $time;
-	}
-
-	/**
-	 * Returns the value of the `Last-Modified` header field.
-	 *
-	 * @return Headers\Date
-	 */
-	protected function get_last_modified(): Headers\Date
-	{
-		return $this->headers['Last-Modified'];
-	}
-
-	/**
-	 * Sets the value of the `Expires` header field.
-	 *
-	 * The method updates the `max-age` Cache Control directive accordingly.
-	 *
-	 * @param mixed $time
-	 */
-	protected function set_expires($time): void
-	{
-		$this->headers['Expires'] = $time;
-		/* @var DateTime $expires */
-		$expires = $this->headers['Expires'];
-		$this->cache_control->max_age = $expires->is_empty ? null : $expires->timestamp - time();
-	}
-
-	/**
-	 * Returns the value of the `Expires` header field.
-	 *
-	 * @return Headers\Date
-	 */
-	protected function get_expires(): Headers\Date
-	{
-		return $this->headers['Expires'];
-	}
-
-	/**
-	 * Sets the value of the `ETag` header field.
-	 *
-	 * @param string|null $value
-	 */
-	protected function set_etag(?string $value): void
-	{
-		$this->headers['ETag'] = $value;
-	}
-
-	/**
-	 * Returns the value of the `ETag` header field.
-	 *
-	 * @return string|null
-	 */
-	protected function get_etag(): ?string
-	{
-		return $this->headers['ETag'];
-	}
-
-	/**
-	 * Sets the directives of the `Cache-Control` header field.
-	 *
-	 * @param string|null $cache_directives
-	 */
-	protected function set_cache_control(?string $cache_directives): void
-	{
-		$this->headers['Cache-Control'] = $cache_directives;
-	}
-
-	/**
-	 * Returns the `Cache-Control` header field.
-	 *
-	 * @return Headers\CacheControl
-	 */
-	protected function get_cache_control(): Headers\CacheControl
-	{
-		return $this->headers['Cache-Control'];
-	}
-
-	/**
-	 * Sets the response's time-to-live for shared caches.
-	 *
-	 * This method adjusts the Cache-Control/s-maxage directive.
-	 *
-	 * @param int|null $seconds The number of seconds.
-	 */
-	protected function set_ttl(?int $seconds): void
-	{
-		$this->cache_control->s_maxage = $this->age + $seconds;
-	}
-
-	/**
-	 * Returns the response's time-to-live in seconds.
-	 *
-	 * When the responses TTL is <= 0, the response may not be served from cache without first
-	 * re-validating with the origin.
-	 *
-	 * @return int|null The number of seconds to live, or `null` is no freshness information
-	 * is present.
-	 */
-	protected function get_ttl(): ?int
-	{
-		$max_age = $this->cache_control->max_age;
-
-		if ($max_age)
-		{
-			return $max_age - $this->age;
-		}
-
-		return null;
-	}
-
-	/**
-	 * Whether the response includes header fields that can be used to validate the response
-	 * with the origin server using a conditional GET request.
-	 *
-	 * @return bool
-	 */
-	protected function get_is_validateable(): bool
-	{
-		return !$this->headers['Last-Modified']->is_empty || $this->headers['ETag'];
-	}
-
-	/**
-	 * Whether the response is worth caching under any circumstance.
-	 *
-	 * Responses marked _private_ with an explicit `Cache-Control` directive are considered
-	 * not cacheable.
-	 *
-	 * Responses with neither a freshness lifetime (Expires, max-age) nor cache validator
-	 * (`Last-Modified`, `ETag`) are considered not cacheable.
-	 *
-	 * @return bool
-	 */
-	protected function get_is_cacheable(): bool
-	{
-		if (!$this->status->is_cacheable || $this->cache_control->no_store || $this->cache_control->cacheable == 'private')
-		{
-			return false;
-		}
-
-		return $this->is_validateable || $this->is_fresh;
-	}
-
-	/**
-	 * Whether the response is fresh.
-	 *
-	 * @return bool
-	 */
-	protected function get_is_fresh(): bool
-	{
-		return $this->ttl > 0;
-	}
+    use AccessorTrait;
+
+    /**
+     * Response headers.
+     */
+    public Headers $headers;
+
+    /**
+     * The HTTP protocol version (1.0 or 1.1), defaults to '1.1'
+     */
+    public string $version = '1.1';
+
+    /**
+     * Initializes the `$body`,  `$status`, `$headers`, and `$date` properties.
+     *
+     * @param mixed|null $body The body of the response.
+     * @param int|Status $status The status code of the response.
+     * @param array|Headers $headers The initial header fields of the response.
+     */
+    public function __construct(
+        mixed $body = null,
+        int|Status $status = self::STATUS_OK,
+        Headers|array $headers = []
+    ) {
+        if (\is_array($headers)) {
+            $headers = new Headers($headers);
+        } elseif (!$headers instanceof Headers) {
+            throw new \InvalidArgumentException(
+                "\$headers must be an array or a ICanBoogie\\HTTP\\Headers instance. Given: " . gettype(
+                    $headers
+                )
+            );
+        }
+
+        $this->headers = $headers;
+
+        if ($this->date->is_empty) {
+            $this->date = 'now';
+        }
+
+        $this->set_status($status);
+
+        if ($body !== null) {
+            $this->set_body($body);
+        }
+    }
+
+    /**
+     * Clones the `$headers` and `$status` properties.
+     */
+    public function __clone()
+    {
+        $this->headers = clone $this->headers;
+        $this->status = clone $this->status;
+    }
+
+    /**
+     * Renders the response as an HTTP string.
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        try {
+            $header = clone $this->headers;
+            $body = $this->body;
+
+            $this->finalize($header, $body);
+
+            \ob_start();
+
+            $this->send_body($body);
+
+            $body = \ob_get_clean();
+
+            return "HTTP/{$this->version} {$this->status}\r\n"
+                . $header
+                . "\r\n"
+                . $body;
+        } catch (\Throwable $e) {
+            return $e->getMessage();
+        }
+    }
+
+    /**
+     * Issues the HTTP response.
+     *
+     * {@link finalize()} is invoked to finalize the headers (a cloned actually)
+     * and the body. {@link send_headers} is invoked to send the headers and {@link send_body()}
+     *is invoked to send the body, if the body is not `null`.
+     *
+     * The body is not send in the following instances:
+     *
+     * - The finalized body is `null`.
+     * - The status is not ok.
+     */
+    public function __invoke(): void
+    {
+        $headers = clone $this->headers;
+        $body = $this->body;
+
+        $this->finalize($headers, $body);
+        $this->send_headers($headers);
+
+        if ($body === null) {
+            return;
+        }
+
+        $this->send_body($body);
+    }
+
+    /**
+     * Finalize the body.
+     *
+     * Subclasses might want to override this method if they wish to alter the header or the body
+     * before the response is sent or transformed into a string.
+     *
+     * @param Headers $headers Reference to the final header.
+     * @param mixed $body Reference to the final body.
+     */
+    protected function finalize(Headers &$headers, &$body): void
+    {
+        if (
+            $body instanceof Closure
+            || !is_object($body)
+            || !method_exists($body, '__toString')
+        ) {
+            return;
+        }
+
+        $body = (string)$body;
+    }
+
+    /**
+     * Sends response headers.
+     *
+     * @param Headers $headers
+     *
+     * @return bool `true` is the headers were sent, `false` otherwise.
+     */
+    protected function send_headers(Headers $headers): bool // @codeCoverageIgnoreStart
+    {
+        if (\headers_sent($file, $line)) {
+            \trigger_error(
+                format(
+                    "Cannot modify header information because"
+                    . " it was already sent. Output started at !at.",
+                    [
+
+                        'at' => $file . ':' . $line,
+
+                    ]
+                )
+            );
+
+            return false;
+        }
+
+        \header_remove('Pragma');
+        \header_remove('X-Powered-By');
+
+        \header("HTTP/{$this->version} {$this->status}");
+
+        $headers();
+
+        return true;
+    } // @codeCoverageIgnoreEnd
+
+    /**
+     * Sends response body.
+     *
+     * @param mixed $body
+     */
+    protected function send_body($body): void
+    {
+        if ($body instanceof Closure) {
+            $body($this);
+
+            return;
+        }
+
+        echo $body;
+    }
+
+    /**
+     * Status of the HTTP response.
+     */
+    private Status $status;
+
+    protected function set_status(int|Status $status): void
+    {
+        $this->status = Status::from($status);
+    }
+
+    protected function get_status(): Status
+    {
+        return $this->status;
+    }
+
+    /**
+     * The response body.
+     *
+     * The body can be any data type that can be converted into a string. This includes numeric
+     * and objects implementing the {@link __toString()} method.
+     *
+     * @var mixed
+     */
+    private $body;
+
+    protected function set_body($body): void
+    {
+        $this->assert_body_is_valid($body);
+        $this->body = $body;
+    }
+
+    /**
+     * Assert that a body is valid.
+     *
+     * @param mixed $body
+     *
+     * @throws \UnexpectedValueException if the specified body doesn't meet the requirements.
+     */
+    protected function assert_body_is_valid($body)
+    {
+        if (
+            $body === null
+            || $body instanceof Closure
+            || \is_numeric($body)
+            || \is_string($body)
+            || (\is_object($body) && method_exists($body, '__toString'))
+        ) {
+            return;
+        }
+
+        throw new \UnexpectedValueException(
+            format(
+                "The Response body must be a string,"
+                . " an object implementing the __toString() method or be callable, %type given."
+                . " !value",
+                [
+
+                    'type' => \gettype($body),
+                    'value' => $body,
+
+                ]
+            )
+        );
+    }
+
+    protected function get_body()
+    {
+        return $this->body;
+    }
+
+    /**
+     * Sets the value of the `Location` header field.
+     *
+     * @param string|null $url
+     */
+    protected function set_location(?string $url)
+    {
+        if ($url !== null && !$url) {
+            throw new \InvalidArgumentException('Cannot redirect to an empty URL.');
+        }
+
+        $this->headers['Location'] = $url;
+    }
+
+    /**
+     * Returns the value of the `Location` header field.
+     *
+     * @return string|null
+     */
+    protected function get_location(): ?string
+    {
+        return $this->headers['Location'];
+    }
+
+    /**
+     * Sets the value of the `Content-Type` header field.
+     *
+     * @param string|null $content_type
+     */
+    protected function set_content_type(?string $content_type): void
+    {
+        $this->headers['Content-Type'] = $content_type;
+    }
+
+    /**
+     * Returns the value of the `Content-Type` header field.
+     *
+     * @return Headers\ContentType
+     */
+    protected function get_content_type(): Headers\ContentType
+    {
+        return $this->headers['Content-Type']; // @phpstan-ignore-line
+    }
+
+    /**
+     * Sets the value of the `Content-Length` header field.
+     *
+     * @param int|null $length
+     */
+    protected function set_content_length(?int $length): void
+    {
+        $this->headers['Content-Length'] = $length;
+    }
+
+    /**
+     * Returns the value of the `Content-Length` header field.
+     *
+     * @return int|null
+     */
+    protected function get_content_length(): ?int
+    {
+        return $this->headers['Content-Length']; // @phpstan-ignore-line
+    }
+
+    /**
+     * Sets the value of the `Date` header field.
+     *
+     * @param mixed $time
+     */
+    protected function set_date($time): void
+    {
+        $this->headers['Date'] = $time;
+    }
+
+    /**
+     * Returns the value of the `Date` header field.
+     *
+     * @return Headers\Date
+     */
+    protected function get_date(): Headers\Date
+    {
+        return $this->headers['Date']; // @phpstan-ignore-line
+    }
+
+    /**
+     * Sets the value of the `Age` header field.
+     *
+     * @param int|null $age
+     */
+    protected function set_age(?int $age): void
+    {
+        $this->headers['Age'] = $age;
+    }
+
+    /**
+     * Returns the age of the response.
+     *
+     * @return int|null
+     */
+    protected function get_age(): ?int
+    {
+        $age = $this->headers['Age'];
+
+        if ($age) {
+            return (int) $age;
+        }
+
+        if (!$this->date->is_empty) {
+            return max(0, time() - $this->date->utc->timestamp);
+        }
+
+        return null;
+    }
+
+    /**
+     * Sets the value of the `Last-Modified` header field.
+     *
+     * @param mixed $time
+     */
+    protected function set_last_modified($time): void
+    {
+        $this->headers['Last-Modified'] = $time;
+    }
+
+    /**
+     * Returns the value of the `Last-Modified` header field.
+     *
+     * @return Headers\Date
+     */
+    protected function get_last_modified(): Headers\Date
+    {
+        return $this->headers['Last-Modified']; // @phpstan-ignore-line
+    }
+
+    /**
+     * Sets the value of the `Expires` header field.
+     *
+     * The method updates the `max-age` Cache Control directive accordingly.
+     *
+     * @param mixed $time
+     */
+    protected function set_expires($time): void
+    {
+        $this->headers['Expires'] = $time;
+        $expires = $this->headers['Expires'];
+        assert($expires instanceof DateTime);
+        $this->cache_control->max_age = $expires->is_empty ? null : $expires->timestamp - time();
+    }
+
+    /**
+     * Returns the value of the `Expires` header field.
+     *
+     * @return Headers\Date
+     */
+    protected function get_expires(): Headers\Date
+    {
+        return $this->headers['Expires']; // @phpstan-ignore-line
+    }
+
+    /**
+     * Sets the value of the `ETag` header field.
+     *
+     * @param string|null $value
+     */
+    protected function set_etag(?string $value): void
+    {
+        $this->headers['ETag'] = $value;
+    }
+
+    /**
+     * Returns the value of the `ETag` header field.
+     *
+     * @return string|null
+     */
+    protected function get_etag(): ?string
+    {
+        return $this->headers['ETag'];
+    }
+
+    /**
+     * Sets the directives of the `Cache-Control` header field.
+     *
+     * @param string|null $cache_directives
+     */
+    protected function set_cache_control(?string $cache_directives): void
+    {
+        $this->headers['Cache-Control'] = $cache_directives;
+    }
+
+    /**
+     * Returns the `Cache-Control` header field.
+     *
+     * @return Headers\CacheControl
+     */
+    protected function get_cache_control(): Headers\CacheControl
+    {
+        return $this->headers['Cache-Control']; // @phpstan-ignore-line
+    }
+
+    /**
+     * Sets the response's time-to-live for shared caches.
+     *
+     * This method adjusts the Cache-Control/s-maxage directive.
+     *
+     * @param int|null $seconds The number of seconds.
+     */
+    protected function set_ttl(?int $seconds): void
+    {
+        $this->cache_control->s_maxage = $this->age + $seconds;
+    }
+
+    /**
+     * Returns the response's time-to-live in seconds.
+     *
+     * When the responses TTL is <= 0, the response may not be served from cache without first
+     * re-validating with the origin.
+     *
+     * @return int|null The number of seconds to live, or `null` is no freshness information
+     * is present.
+     */
+    protected function get_ttl(): ?int
+    {
+        $max_age = $this->cache_control->max_age;
+
+        if ($max_age) {
+            return $max_age - $this->age;
+        }
+
+        return null;
+    }
+
+    /**
+     * Whether the response includes header fields that can be used to validate the response
+     * with the origin server using a conditional GET request.
+     *
+     * @return bool
+     */
+    protected function get_is_validateable(): bool
+    {
+        return !$this->headers['Last-Modified']->is_empty || $this->headers['ETag']; // @phpstan-ignore-line
+    }
+
+    /**
+     * Whether the response is worth caching under any circumstance.
+     *
+     * Responses marked _private_ with an explicit `Cache-Control` directive are considered
+     * not cacheable.
+     *
+     * Responses with neither a freshness lifetime (Expires, max-age) nor cache validator
+     * (`Last-Modified`, `ETag`) are considered not cacheable.
+     *
+     * @return bool
+     */
+    protected function get_is_cacheable(): bool
+    {
+        if (
+            !$this->status->is_cacheable
+            || $this->cache_control->no_store
+            || $this->cache_control->cacheable == 'private'
+        ) {
+            return false;
+        }
+
+        return $this->is_validateable || $this->is_fresh;
+    }
+
+    /**
+     * Whether the response is fresh.
+     */
+    protected function get_is_fresh(): bool
+    {
+        return $this->ttl > 0;
+    }
 }

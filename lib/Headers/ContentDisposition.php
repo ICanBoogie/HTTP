@@ -34,17 +34,17 @@ namespace ICanBoogie\HTTP\Headers;
  */
 class ContentDisposition extends Header
 {
-	public const VALUE_ALIAS = 'type';
+    public const VALUE_ALIAS = 'type';
 
-	/**
-	 * Defines the `filename` parameter.
-	 *
-	 * @inheritdoc
-	 */
-	public function __construct(string $value = null, array $attributes = [])
-	{
-		$this->parameters['filename'] = new HeaderParameter('filename');
+    /**
+     * Defines the `filename` parameter.
+     *
+     * @inheritdoc
+     */
+    public function __construct(string $value = null, array $attributes = [])
+    {
+        $this->parameters['filename'] = new HeaderParameter('filename');
 
-		parent::__construct($value, $attributes);
-	}
+        parent::__construct($value, $attributes);
+    }
 }

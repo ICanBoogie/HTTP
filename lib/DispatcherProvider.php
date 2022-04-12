@@ -14,63 +14,56 @@ namespace ICanBoogie\HTTP;
 /**
  * Provides a {@link Dispatcher} instance.
  */
-class DispatcherProvider
+final class DispatcherProvider
 {
-	/**
-	 * @var callable {@link Dispatcher} provider
-	 */
-	static private $provider;
+    /**
+     * @var callable|null {@link Dispatcher} provider
+     */
+    private static $provider;
 
-	/**
-	 * Return the current provider, or `null` if there is none.
-	 *
-	 * @return callable|null
-	 */
-	static public function defined(): ?callable
-	{
-		return self::$provider;
-	}
+    /**
+     * Return the current provider, or `null` if there is none.
+     */
+    public static function defined(): ?callable
+    {
+        return self::$provider;
+    }
 
-	/**
-	 * Define a {@link Dispatcher} provider.
-	 *
-	 * @param callable $provider
-	 *
-	 * @return callable|null The previous provider, or `null` if none was defined.
-	 */
-	static public function define(callable $provider): ?callable
-	{
-		$previous = self::$provider;
+    /**
+     * Define a {@link Dispatcher} provider.
+     *
+     * @return callable|null The previous provider, or `null` if none was defined.
+     */
+    public static function define(callable $provider): ?callable
+    {
+        $previous = self::$provider;
 
-		self::$provider = $provider;
+        self::$provider = $provider;
 
-		return $previous;
-	}
+        return $previous;
+    }
 
-	/**
-	 * Undefine the current {@link Dispatcher} provider.
-	 */
-	static public function undefine(): void
-	{
-		self::$provider = null;
-	}
+    /**
+     * Undefine the current {@link Dispatcher} provider.
+     */
+    public static function undefine(): void
+    {
+        self::$provider = null;
+    }
 
-	/**
-	 * Return a {@link Dispatcher} instance using the current provider.
-	 *
-	 * @return Dispatcher
-	 *
-	 * @throws DispatcherProviderNotDefined if no provider is defined.
-	 */
-	static public function provide(): Dispatcher
-	{
-		$provider = self::$provider;
+    /**
+     * Return a {@link Dispatcher} instance using the current provider.
+     *
+     * @throws DispatcherProviderNotDefined if no provider is defined.
+     */
+    public static function provide(): Dispatcher
+    {
+        $provider = self::$provider;
 
-		if (!$provider)
-		{
-			throw new DispatcherProviderNotDefined;
-		}
+        if (!$provider) {
+            throw new DispatcherProviderNotDefined();
+        }
 
-		return $provider();
-	}
+        return $provider();
+    }
 }

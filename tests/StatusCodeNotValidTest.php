@@ -13,10 +13,10 @@ namespace ICanBoogie\HTTP;
 
 class StatusCodeNotValidTest extends \PHPUnit\Framework\TestCase
 {
-	public function test_get_status_code()
-	{
-		$status_code = 123;
-		$exception = new StatusCodeNotValid($status_code);
-		$this->assertEquals($status_code, $exception->status_code);
-	}
+    public function test_get_status_code()
+    {
+        $status_code = 123;
+        $exception = new StatusCodeNotValid($status_code);
+        $this->assertEquals($status_code, $exception->status_code);
+    }
 }

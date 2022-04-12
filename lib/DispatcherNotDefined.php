@@ -12,6 +12,8 @@
 namespace ICanBoogie\HTTP;
 
 use ICanBoogie\Accessor\AccessorTrait;
+use LogicException;
+use Throwable;
 
 use function ICanBoogie\format;
 
@@ -20,39 +22,34 @@ use function ICanBoogie\format;
  *
  * @property-read string $dispatcher_id The identifier of the dispatcher.
  */
-class DispatcherNotDefined extends \LogicException implements Exception
+class DispatcherNotDefined extends LogicException implements Exception
 {
-	use AccessorTrait;
+    use AccessorTrait;
 
-	/**
-	 * @var string
-	 */
-	private $dispatcher_id;
+    private string $dispatcher_id;
 
-	protected function get_dispatcher_id(): string
-	{
-		return $this->dispatcher_id;
-	}
+    protected function get_dispatcher_id(): string
+    {
+        return $this->dispatcher_id;
+    }
 
-    /**
-     * @param string $dispatcher_id
-     * @param string|null $message
-     * @param \Throwable|int $code
-     * @param \Throwable|null $previous
-     */
-	public function __construct(string $dispatcher_id, string $message = null, int $code = Status::INTERNAL_SERVER_ERROR, \Throwable $previous = null)
-	{
-		$this->dispatcher_id = $dispatcher_id;
+    public function __construct(
+        string $dispatcher_id,
+        string $message = null,
+        int $code = Status::INTERNAL_SERVER_ERROR,
+        Throwable $previous = null
+    ) {
+        $this->dispatcher_id = $dispatcher_id;
 
-		parent::__construct($message ?: $this->format_message($dispatcher_id), $code, $previous);
-	}
+        parent::__construct($message ?: $this->format_message($dispatcher_id), $code, $previous);
+    }
 
-	private function format_message(string $dispatcher_id): string
-	{
-		return format("The dispatcher %dispatcher_id is not defined.", [
+    private function format_message(string $dispatcher_id): string
+    {
+        return format("The dispatcher %dispatcher_id is not defined.", [
 
-			'dispatcher_id' => $dispatcher_id
+            'dispatcher_id' => $dispatcher_id,
 
-		]);
-	}
+        ]);
+    }
 }

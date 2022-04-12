@@ -19,29 +19,29 @@ class CallableDispatcher implements Dispatcher
     /**
      * @var callable
      */
-	private $callable;
+    private $callable;
 
-	/**
-	 * @param callable $callable
-	 */
-	public function __construct(callable $callable)
-	{
-		$this->callable = $callable;
-	}
+    /**
+     * @param callable $callable
+     */
+    public function __construct(callable $callable)
+    {
+        $this->callable = $callable;
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function __invoke(Request $request): ?Response
-	{
-		return ($this->callable)($request);
-	}
+    /**
+     * @inheritdoc
+     */
+    public function __invoke(Request $request): ?Response
+    {
+        return ($this->callable)($request);
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function rescue(\Throwable $exception, Request $request): Response
-	{
-		throw $exception;
-	}
+    /**
+     * @inheritdoc
+     */
+    public function rescue(\Throwable $exception, Request $request): Response
+    {
+        throw $exception;
+    }
 }

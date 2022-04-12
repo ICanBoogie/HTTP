@@ -11,18 +11,23 @@
 
 namespace ICanBoogie\HTTP;
 
+use Throwable;
+
 /**
  * Exception thrown when a user lacks a required permission.
  */
 class PermissionRequired extends ClientError implements SecurityError
 {
-    const DEFAULT_MESSAGE = "You don't have the required permission.";
+    public const DEFAULT_MESSAGE = "You don't have the required permission.";
 
-	/**
-	 * @inheritdoc
-	 */
-	public function __construct(string $message = self::DEFAULT_MESSAGE, int $code = Status::UNAUTHORIZED, \Throwable $previous = null)
-	{
-		parent::__construct($message, $code, $previous);
-	}
+    /**
+     * @inheritdoc
+     */
+    public function __construct(
+        string $message = self::DEFAULT_MESSAGE,
+        int $code = Status::UNAUTHORIZED,
+        Throwable $previous = null
+    ) {
+        parent::__construct($message, $code, $previous);
+    }
 }

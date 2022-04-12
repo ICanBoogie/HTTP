@@ -11,6 +11,17 @@
 
 namespace ICanBoogie\HTTP;
 
+use ArrayAccess;
+use ArrayIterator;
+use IteratorAggregate;
+
+use function header;
+use function is_numeric;
+use function is_object;
+use function is_string;
+use function strpos;
+use function substr;
+
 /**
  * HTTP Header field definitions.
  *
@@ -21,272 +32,242 @@ namespace ICanBoogie\HTTP;
  *
  * @see http://tools.ietf.org/html/rfc2616#section-14
  */
-class Headers implements \ArrayAccess, \IteratorAggregate
+class Headers implements ArrayAccess, IteratorAggregate
 {
-	private const MAPPING = [
+    private const MAPPING = [
 
-		'Cache-Control'       => Headers\CacheControl::class,
-		'Content-Disposition' => Headers\ContentDisposition::class,
-		'Content-Type'        => Headers\ContentType::class,
-		'Date'                => Headers\Date::class,
-		'Expires'             => Headers\Date::class,
-		'If-Modified-Since'   => Headers\Date::class,
-		'If-Unmodified-Since' => Headers\Date::class,
-		'Last-Modified'       => Headers\Date::class
+        'Cache-Control' => Headers\CacheControl::class,
+        'Content-Disposition' => Headers\ContentDisposition::class,
+        'Content-Type' => Headers\ContentType::class,
+        'Date' => Headers\Date::class,
+        'Expires' => Headers\Date::class,
+        'If-Modified-Since' => Headers\Date::class,
+        'If-Unmodified-Since' => Headers\Date::class,
+        'Last-Modified' => Headers\Date::class,
 
-	];
+    ];
 
-	/**
-	 * Normalizes field name.
-	 *
-	 * @param string $name
-	 *
-	 * @return string
-	 */
-	static private function normalize_field_name(string $name): string
-	{
-		return \mb_convert_case(\strtr(\substr($name, 5), '_', '-'), MB_CASE_TITLE);
-	}
+    /**
+     * Normalizes field name.
+     */
+    private static function normalize_field_name(string $name): string
+    {
+        return \mb_convert_case(\strtr(substr($name, 5), '_', '-'), MB_CASE_TITLE);
+    }
 
-	/**
-	 * Header fields.
-	 *
-	 * @var array
-	 */
-	private $fields = [];
+    /**
+     * Header fields.
+     */
+    private array $fields = [];
 
-	/**
-	 * If the `REQUEST_URI` key is found in the header fields they are considered coming from the
-	 * super global `$_SERVER` array in which case they are filtered to keep only keys
-	 * starting with the `HTTP_` prefix. Also, header field names are normalized. For instance,
-	 * `HTTP_CONTENT_TYPE` becomes `Content-Type`.
-	 *
-	 * @param array $fields The initial headers.
-	 */
-	public function __construct(array $fields = [])
-	{
-		if (isset($fields['REQUEST_URI']))
-		{
-			foreach ($fields as $field => $value)
-			{
-				if (\strpos($field, 'HTTP_') !== 0)
-				{
-					continue;
-				}
+    /**
+     * If the `REQUEST_URI` key is found in the header fields they are considered coming from the
+     * super global `$_SERVER` array in which case they are filtered to keep only keys
+     * starting with the `HTTP_` prefix. Also, header field names are normalized. For instance,
+     * `HTTP_CONTENT_TYPE` becomes `Content-Type`.
+     *
+     * @param array $fields The initial headers.
+     */
+    public function __construct(array $fields = [])
+    {
+        if (isset($fields['REQUEST_URI'])) {
+            foreach ($fields as $field => $value) {
+                if (!str_starts_with($field, 'HTTP_')) {
+                    continue;
+                }
 
-				$field = self::normalize_field_name($field);
+                $field = self::normalize_field_name($field);
 
-				$this[$field] = $value;
-			}
-		}
-		else
-		{
-			foreach ($fields as $field => $value)
-			{
-				if (\strpos($field, 'HTTP_') === 0)
-				{
-					$field = self::normalize_field_name($field);
-				}
+                $this[$field] = $value;
+            }
+        } else {
+            foreach ($fields as $field => $value) {
+                if (str_starts_with($field, 'HTTP_')) {
+                    $field = self::normalize_field_name($field);
+                }
 
-				$this[$field] = $value;
-			}
-		}
-	}
+                $this[$field] = $value;
+            }
+        }
+    }
 
-	/**
-	 * Clone instantiated fields.
-	 */
-	public function __clone()
-	{
-		foreach ($this->fields as &$field)
-		{
-			if (!\is_object($field))
-			{
-				continue;
-			}
+    /**
+     * Clone instantiated fields.
+     */
+    public function __clone()
+    {
+        foreach ($this->fields as &$field) {
+            if (!is_object($field)) {
+                continue;
+            }
 
-			$field = clone $field;
-		}
-	}
+            $field = clone $field;
+        }
+    }
 
-	/**
-	 * Returns the header as a string.
-	 *
-	 * Header fields with empty string values are discarded.
-	 *
-	 * @return string
-	 */
-	public function __toString()
-	{
-		$header = '';
+    /**
+     * Returns the header as a string.
+     *
+     * Header fields with empty string values are discarded.
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        $header = '';
 
-		foreach ($this->fields as $field => $value)
-		{
-			$value = (string) $value;
+        foreach ($this->fields as $field => $value) {
+            $value = (string)$value;
 
-			if ($value === '')
-			{
-				continue;
-			}
+            if ($value === '') {
+                continue;
+            }
 
-			$header .= "$field: $value\r\n";
-		}
+            $header .= "$field: $value\r\n";
+        }
 
-		return $header;
-	}
+        return $header;
+    }
 
-	/**
-	 * Sends header fields using the {@link header()} function.
-	 *
-	 * Header fields with empty string values are discarded.
-	 */
-	public function __invoke(): void
-	{
-		foreach ($this->fields as $field => $value)
-		{
-			$value = (string) $value;
+    /**
+     * Sends header fields using the {@link header()} function.
+     *
+     * Header fields with empty string values are discarded.
+     */
+    public function __invoke(): void
+    {
+        foreach ($this->fields as $field => $value) {
+            $value = (string)$value;
 
-			if ($value === '')
-			{
-				continue;
-			}
+            if ($value === '') {
+                continue;
+            }
 
-			$this->send_header($field, $value);
-		}
-	}
+            $this->send_header($field, $value);
+        }
+    }
 
-	/**
-	 * Send header field.
-	 *
-	 * Note: The only reason for this method is testing.
-	 *
-	 * @param string $field
-	 * @param string $value
-	 */
-	protected function send_header(string $field, string $value): void // @codeCoverageIgnoreStart
-	{
-		\header("$field: $value");
-	}// @codeCoverageIgnoreEnd
+    /**
+     * Send header field.
+     *
+     * Note: The only reason for this method is testing.
+     *
+     * @param string $field
+     * @param string $value
+     */
+    protected function send_header(string $field, string $value): void // @codeCoverageIgnoreStart
+    {
+        header("$field: $value");
+    }// @codeCoverageIgnoreEnd
 
-	/**
-	 * Checks if a header field exists.
-	 *
-	 * @param mixed $field
-	 *
-	 * @return boolean
-	 */
-	public function offsetExists($field)
-	{
-		return isset($this->fields[(string) $field]);
-	}
+    /**
+     * Checks if a header field exists.
+     *
+     * @param mixed $field
+     *
+     * @return boolean
+     */
+    public function offsetExists($field)
+    {
+        return isset($this->fields[(string)$field]);
+    }
 
-	/**
-	 * Returns a header.
-	 *
-	 * @param mixed $field
-	 *
-	 * @return string|null The header field value or null if it is not defined.
-	 */
-	public function offsetGet($field)
-	{
-		if (isset(self::MAPPING[$field]))
-		{
-			if (empty($this->fields[$field]))
-			{
-				/* @var $class Headers\Header|string */
-				$class = self::MAPPING[$field];
-				$this->fields[$field] = $class::from(null);
-			}
+    /**
+     * Returns a header.
+     *
+     * @param mixed $field
+     *
+     * @return string|null The header field value or null if it is not defined.
+     */
+    public function offsetGet($field)
+    {
+        if (isset(self::MAPPING[$field])) {
+            if (empty($this->fields[$field])) {
+                /* @var $class Headers\Header|string */
+                $class = self::MAPPING[$field];
+                $this->fields[$field] = $class::from(null);
+            }
 
-			return $this->fields[$field];
-		}
+            return $this->fields[$field];
+        }
 
-		return $this->offsetExists($field) ? $this->fields[$field] : null;
-	}
+        return $this->offsetExists($field) ? $this->fields[$field] : null;
+    }
 
-	/**
-	 * Sets a header field.
-	 *
-	 * > **Note:** Setting a header field to `null` removes it, just like unset() would.
-	 *
-	 * **Date, Expires, Last-Modified**
-	 *
-	 * The `Date`, `Expires` and `Last-Modified` header fields can be provided as a Unix
-	 * timestamp, a string or a {@link \DateTime} object.
-	 *
-	 * **Cache-Control, Content-Disposition and Content-Type**
-	 *
-	 * Instances of the {@link Headers\CacheControl}, {@link Headers\ContentDisposition} and
-	 * {@link Headers\ContentType} are used to handle the values of the `Cache-Control`,
-	 * `Content-Disposition` and `Content-Type` header fields.
-	 *
-	 * @param string $field The header field to set.
-	 * @param mixed $value The value of the header field.
-	 */
-	public function offsetSet($field, $value)
-	{
-		if ($value === null)
-		{
-			unset($this[$field]);
+    /**
+     * Sets a header field.
+     *
+     * > **Note:** Setting a header field to `null` removes it, just like unset() would.
+     *
+     * **Date, Expires, Last-Modified**
+     *
+     * The `Date`, `Expires` and `Last-Modified` header fields can be provided as a Unix
+     * timestamp, a string or a {@link \DateTime} object.
+     *
+     * **Cache-Control, Content-Disposition and Content-Type**
+     *
+     * Instances of the {@link Headers\CacheControl}, {@link Headers\ContentDisposition} and
+     * {@link Headers\ContentType} are used to handle the values of the `Cache-Control`,
+     * `Content-Disposition` and `Content-Type` header fields.
+     *
+     * @param string $field The header field to set.
+     * @param mixed $value The value of the header field.
+     */
+    public function offsetSet($field, $value)
+    {
+        if ($value === null) {
+            unset($this[$field]);
 
-			return;
-		}
+            return;
+        }
 
-		switch ($field)
-		{
-			# http://tools.ietf.org/html/rfc2616#section-14.25
-			case 'If-Modified-Since':
-			{
-				#
-				# Removes the ";length=xxx" string added by Internet Explorer.
-				# http://stackoverflow.com/questions/12626699/if-modified-since-http-header-passed-by-ie9-includes-length
-				#
+        switch ($field) {
+            # http://tools.ietf.org/html/rfc2616#section-14.25
+            case 'If-Modified-Since':
+                #
+                # Removes the ";length=xxx" string added by Internet Explorer.
+                # http://stackoverflow.com/questions/12626699/if-modified-since-http-header-passed-by-ie9-includes-length
+                #
 
-				if (\is_string($value))
-				{
-					$pos = \strpos($value, ';');
+                if (is_string($value)) {
+                    $pos = strpos($value, ';');
 
-					if ($pos)
-					{
-						$value = \substr($value, 0, $pos);
-					}
-				}
-			}
-			break;
+                    if ($pos) {
+                        $value = substr($value, 0, $pos);
+                    }
+                }
+                break;
 
-			# http://tools.ietf.org/html/rfc2616#section-14.37
-			case 'Retry-After':
-			{
-				$value = \is_numeric($value) ? $value : Headers\Date::from($value);
-			}
-			break;
-		}
+            # http://tools.ietf.org/html/rfc2616#section-14.37
+            case 'Retry-After':
+                $value = is_numeric($value) ? $value : Headers\Date::from($value);
+                break;
+        }
 
-		if (isset(self::MAPPING[$field]))
-		{
-			/* @var $class Headers\Header|string */
-			$class = self::MAPPING[$field];
-			$value = $class::from($value);
-		}
+        if (isset(self::MAPPING[$field])) {
+            /* @var $class Headers\Header|string */
+            $class = self::MAPPING[$field];
+            $value = $class::from($value);
+        }
 
-		$this->fields[$field] = $value;
-	}
+        $this->fields[$field] = $value;
+    }
 
-	/**
-	 * Removes a header field.
-	 *
-	 * @param mixed $field
-	 */
-	public function offsetUnset($field)
-	{
-		unset($this->fields[$field]);
-	}
+    /**
+     * Removes a header field.
+     *
+     * @param mixed $field
+     */
+    public function offsetUnset($field)
+    {
+        unset($this->fields[$field]);
+    }
 
-	/**
-	 * Returns an iterator for the header fields.
-	 */
-	public function getIterator()
-	{
-		return new \ArrayIterator($this->fields);
-	}
+    /**
+     * Returns an iterator for the header fields.
+     */
+    public function getIterator(): ArrayIterator
+    {
+        return new ArrayIterator($this->fields);
+    }
 }

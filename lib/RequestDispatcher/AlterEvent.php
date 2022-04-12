@@ -24,70 +24,65 @@ use ICanBoogie\HTTP\WeightedDispatcher;
  */
 final class AlterEvent extends Event
 {
-    const TYPE = 'alter';
+    public const TYPE = 'alter';
 
-	/**
-	 * Reference to the target instance.
-	 *
-	 * @var RequestDispatcher
-	 */
-	private $instance;
+    /**
+     * Reference to the target instance.
+     */
+    private RequestDispatcher $instance;
 
-	protected function get_instance(): RequestDispatcher
-	{
-		return $this->instance;
-	}
+    protected function get_instance(): RequestDispatcher
+    {
+        return $this->instance;
+    }
 
-	protected function set_instance(RequestDispatcher $dispatcher): void
-	{
-		$this->instance = $dispatcher;
-	}
+    protected function set_instance(RequestDispatcher $dispatcher): void
+    {
+        $this->instance = $dispatcher;
+    }
 
-	/**
-	 * The event is constructed with the type {@link self::TYPE}.
-	 *
-	 * @param RequestDispatcher $target
-	 */
-	public function __construct(RequestDispatcher &$target)
-	{
-		$this->instance = &$target;
+    /**
+     * The event is constructed with the type {@link self::TYPE}.
+     */
+    public function __construct(RequestDispatcher &$target)
+    {
+        $this->instance = &$target;
 
-		parent::__construct($target, self::TYPE);
-	}
+        parent::__construct($target, self::TYPE);
+    }
 
-	/**
-	 * Inserts a dispatcher.
-	 *
-	 * @param string $id RequestDispatcher identifier.
-	 * @param mixed $dispatcher RequestDispatcher.
-	 * @param int|string $weight
-	 */
-	public function insert(string $id, $dispatcher, $weight = 0)
-	{
-		$this->instance[$id] = new WeightedDispatcher($dispatcher, $weight);
-	}
+    /**
+     * Inserts a dispatcher.
+     *
+     * @param string $id RequestDispatcher identifier.
+     * @param mixed $dispatcher RequestDispatcher.
+     */
+    public function insert(string $id, mixed $dispatcher, int|string $weight = 0)
+    {
+        $this->instance[$id] = new WeightedDispatcher($dispatcher, $weight);
+    }
 
-	/**
-	 * Inserts a dispatcher before another.
-	 *
-	 * @param string $id RequestDispatcher identifier.
-	 * @param mixed $dispatcher RequestDispatcher.
-	 * @param string $reference Reference dispatcher identifier.
-	 */
-	public function insert_before(string $id, $dispatcher, string $reference)
-	{
-		$this->insert($id, $dispatcher, WeightedDispatcher::WEIGHT_BEFORE_PREFIX . $reference);
-	}
+    /**
+     * Inserts a dispatcher before another.
+     *
+     * @param string $id RequestDispatcher identifier.
+     * @param mixed $dispatcher RequestDispatcher.
+     * @param string $reference Reference dispatcher identifier.
+     */
+    public function insert_before(string $id, mixed $dispatcher, string $reference)
+    {
+        $this->insert($id, $dispatcher, WeightedDispatcher::WEIGHT_BEFORE_PREFIX . $reference);
+    }
 
-	/**
-	 * Inserts a dispatcher after another.
-	 *
-	 * @param string $id RequestDispatcher identifier.
-	 * @param mixed $dispatcher RequestDispatcher.
-	 * @param string $reference Reference dispatcher identifier.
-	 */
-	public function insert_after(string $id, $dispatcher, string $reference)
-	{
-		$this->insert($id, $dispatcher, WeightedDispatcher::WEIGHT_AFTER_PREFIX . $reference);
-	}
+    /**
+     * Inserts a dispatcher after another.
+     *
+     * @param string $id RequestDispatcher identifier.
+     * @param mixed $dispatcher RequestDispatcher.
+     * @param string $reference Reference dispatcher identifier.
+     */
+    public function insert_after(string $id, mixed $dispatcher, string $reference)
+    {
+        $this->insert($id, $dispatcher, WeightedDispatcher::WEIGHT_AFTER_PREFIX . $reference);
+    }
 }

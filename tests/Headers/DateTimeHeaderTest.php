@@ -15,26 +15,26 @@ use ICanBoogie\DateTime;
 
 class DateTest extends \PHPUnit\Framework\TestCase
 {
-	/**
-	 * @dataProvider provider_test_to_string
-	 */
-	public function test_to_string($expected, $datetime)
-	{
-		$field = Date::from($datetime);
+    /**
+     * @dataProvider provider_test_to_string
+     */
+    public function test_to_string($expected, $datetime)
+    {
+        $field = Date::from($datetime);
 
-		$this->assertEquals($expected, (string) $field);
-	}
+        $this->assertEquals($expected, (string) $field);
+    }
 
-	public function provider_test_to_string()
-	{
-		$now = DateTime::now('Europe/Berlin');
+    public function provider_test_to_string()
+    {
+        $now = DateTime::now('Europe/Berlin');
 
-		return [
+        return [
 
-			[ $now->utc->as_rfc1123, $now ],
-			[ '', DateTime::none() ],
-			[ '', null ]
+            [ $now->utc->as_rfc1123, $now ],
+            [ '', DateTime::none() ],
+            [ '', null ]
 
-		];
-	}
+        ];
+    }
 }

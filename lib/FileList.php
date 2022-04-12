@@ -16,121 +16,115 @@ namespace ICanBoogie\HTTP;
  */
 class FileList implements \ArrayAccess, \IteratorAggregate, \Countable
 {
-	/**
-	 * Creates a {@link FileList} instance.
-	 *
-	 * @param array|FileList|null $files
-	 *
-	 * @return FileList
-	 */
-	static public function from($files): self
-	{
-		if ($files instanceof self)
-		{
-			return clone $files;
-		}
+    /**
+     * Creates a {@link FileList} instance.
+     *
+     * @param array|FileList|null $files
+     *
+     * @return FileList
+     */
+    public static function from($files): self
+    {
+        if ($files instanceof self) {
+            return clone $files;
+        }
 
-		if (!$files)
-		{
-			return new static([]);
-		}
+        if (!$files) {
+            return new self([]);
+        }
 
-		foreach ($files as &$file)
-		{
-			$file = File::from($file);
-		}
+        foreach ($files as &$file) {
+            $file = File::from($file);
+        }
 
-		return new static($files);
-	}
+        return new self($files);
+    }
 
-	/**
-	 * @var File[]
-	 */
-	private $list = [];
+    /**
+     * @var File[]
+     */
+    private array $list = [];
 
-	/**
-	 * @param array $files
-	 */
-	public function __construct(array $files = [])
-	{
-		foreach ($files as $id => $file)
-		{
-			$this[$id] = $file;
-		}
-	}
+    /**
+     * @param array $files
+     */
+    public function __construct(array $files = [])
+    {
+        foreach ($files as $id => $file) {
+            $this[$id] = $file;
+        }
+    }
 
-	/**
-	 * Checks if a file exists.
-	 *
-	 * @param string $id
-	 *
-	 * @return bool
-	 */
-	public function offsetExists($id)
-	{
-		return isset($this->list[$id]);
-	}
+    /**
+     * Checks if a file exists.
+     *
+     * @param string $id
+     *
+     * @return bool
+     */
+    public function offsetExists($id)
+    {
+        return isset($this->list[$id]);
+    }
 
-	/**
-	 * Returns a file.
-	 *
-	 * @param string $id
-	 *
-	 * @return File|null A {@link File} instance, or `null` if it does not exists.
-	 */
-	public function offsetGet($id)
-	{
-		if (!$this->offsetExists($id))
-		{
-			return null;
-		}
+    /**
+     * Returns a file.
+     *
+     * @param string $id
+     *
+     * @return File|null A {@link File} instance, or `null` if it does not exists.
+     */
+    public function offsetGet($id)
+    {
+        if (!$this->offsetExists($id)) {
+            return null;
+        }
 
-		return $this->list[$id];
-	}
+        return $this->list[$id];
+    }
 
-	/**
-	 * Adds a file.
-	 *
-	 * @param string $id
-	 * @param string|array|File $file
-	 */
-	public function offsetSet($id, $file)
-	{
-		if (!($file instanceof File || $file instanceof FileList))
-		{
-			$file = File::from($file);
-		}
+    /**
+     * Adds a file.
+     *
+     * @param string $id
+     * @param string|array|File $file
+     */
+    public function offsetSet($id, $file)
+    {
+        if (!($file instanceof File || $file instanceof FileList)) {
+            $file = File::from($file);
+        }
 
-		$this->list[$id] = $file;
-	}
+        $this->list[$id] = $file;
+    }
 
-	/**
-	 * Removes a file.
-	 *
-	 * @param string $id
-	 */
-	public function offsetUnset($id)
-	{
-		unset($this->list[$id]);
-	}
+    /**
+     * Removes a file.
+     *
+     * @param string $id
+     */
+    public function offsetUnset($id)
+    {
+        unset($this->list[$id]);
+    }
 
-	/**
-	 * @inheritdoc
-	 *
-	 * @return \ArrayIterator
-	 */
-	public function getIterator()
-	{
-		return new \ArrayIterator($this->list);
-	}
+    /**
+     * @inheritdoc
+     *
+     * @return \ArrayIterator
+     */
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->list);
+    }
 
-	/**
-	 * Returns the number of files in the collection.
-	 *
-	 * @inheritdoc
-	 */
-	public function count()
-	{
-		return \count($this->list);
-	}
+    /**
+     * Returns the number of files in the collection.
+     *
+     * @inheritdoc
+     */
+    public function count()
+    {
+        return \count($this->list);
+    }
 }

@@ -16,6 +16,7 @@ use ICanBoogie\HTTP\Request;
 use ICanBoogie\PropertyNotDefined;
 use ICanBoogie\PrototypeTrait;
 use RuntimeException;
+
 use function array_shift;
 use function get_class;
 use function is_subclass_of;
@@ -27,121 +28,117 @@ use function is_subclass_of;
  * request.
  *
  * @property-read Request $request The request associated with the context.
- * @property Dispatcher $dispatcher The dispatcher currently dispatching the request.
+ * @property Dispatcher|null $dispatcher The dispatcher currently dispatching the request.
  */
 class Context implements \ArrayAccess
 {
-	/**
-	 * @uses get_request
-	 * @uses get_dispatcher
-	 * @uses set_dispatcher
-	 */
-	use PrototypeTrait;
+    /**
+     * @uses get_request
+     * @uses get_dispatcher
+     * @uses set_dispatcher
+     */
+    use PrototypeTrait;
 
-	/**
-	 * @var object[]
-	 */
-	private array $values = [];
+    /**
+     * @var object[]
+     */
+    private array $values = [];
 
-	private function get_request(): Request
-	{
-		return $this->request;
-	}
+    private function get_request(): Request
+    {
+        return $this->request;
+    }
 
-	/**
-	 * The dispatcher currently dispatching the request.
-	 */
-	private ?Dispatcher $dispatcher = null;
+    /**
+     * The dispatcher currently dispatching the request.
+     */
+    private ?Dispatcher $dispatcher = null;
 
-	private function set_dispatcher(?Dispatcher $dispatcher): void
-	{
-		$this->dispatcher = $dispatcher;
-	}
+    private function set_dispatcher(?Dispatcher $dispatcher): void
+    {
+        $this->dispatcher = $dispatcher;
+    }
 
-	private function get_dispatcher(): ?Dispatcher
-	{
-		return $this->dispatcher;
-	}
+    private function get_dispatcher(): ?Dispatcher
+    {
+        return $this->dispatcher;
+    }
 
-	public function __construct(
-		private Request $request
-	) {
-	}
+    public function __construct(
+        private Request $request
+    ) {
+    }
 
-	public function add(object $value): void
-	{
-		array_unshift($this->values, $value);
-	}
+    public function add(object $value): void
+    {
+        array_unshift($this->values, $value);
+    }
 
-	public function get(string $class): object
-	{
-		$value = $this->find($class);
+    public function get(string $class): object
+    {
+        $value = $this->find($class);
 
-		if (!$value) {
-			throw new RuntimeException("Unable to find value matching: $class.");
-		}
+        if (!$value) {
+            throw new RuntimeException("Unable to find value matching: $class.");
+        }
 
-		return $value;
-	}
+        return $value;
+    }
 
-	public function find(string $class): ?object
-	{
-		foreach ($this->values as $value)
-		{
-			if ($value instanceof $class) {
-				return $value;
-			}
-		}
+    public function find(string $class): ?object
+    {
+        foreach ($this->values as $value) {
+            if ($value instanceof $class) {
+                return $value;
+            }
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	/**
-	 * @inheritdoc
-	 *
-	 * @deprecated
-	 */
-	public function offsetExists($property)
-	{
-		try
-		{
-			$this->$property;
+    /**
+     * @inheritdoc
+     *
+     * @deprecated
+     */
+    public function offsetExists($property)
+    {
+        try {
+            $this->$property;
 
-			return true;
-		}
-		catch (PropertyNotDefined $e)
-		{
-			return false;
-		}
-	}
+            return true;
+        } catch (PropertyNotDefined $e) {
+            return false;
+        }
+    }
 
-	/**
-	 * @inheritdoc
-	 *
-	 * @deprecated
-	 */
-	public function offsetGet($property)
-	{
-		return $this->$property;
-	}
+    /**
+     * @inheritdoc
+     *
+     * @deprecated
+     */
+    public function offsetGet($property)
+    {
+        return $this->$property;
+    }
 
-	/**
-	 * @inheritdoc
-	 *
-	 * @deprecated
-	 */
-	public function offsetSet($property, $value)
-	{
-		$this->$property = $value;
-	}
+    /**
+     * @inheritdoc
+     *
+     * @deprecated
+     */
+    public function offsetSet($property, $value)
+    {
+        $this->$property = $value;
+    }
 
-	/**
-	 * @inheritdoc
-	 *
-	 * @deprecated
-	 */
-	public function offsetUnset($property)
-	{
-		unset($this->$property);
-	}
+    /**
+     * @inheritdoc
+     *
+     * @deprecated
+     */
+    public function offsetUnset($property)
+    {
+        unset($this->$property);
+    }
 }

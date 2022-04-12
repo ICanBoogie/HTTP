@@ -13,11 +13,11 @@ namespace ICanBoogie\HTTP;
 
 class PermissionRequiredTest extends \PHPUnit\Framework\TestCase
 {
-	public function test_message()
-	{
-		$exception = new PermissionRequired;
+    public function test_message()
+    {
+        $exception = new PermissionRequired();
 
-		$this->assertEquals("You don't have the required permission.", $exception->getMessage());
-		$this->assertEquals(Status::UNAUTHORIZED, $exception->getCode());
-	}
+        $this->assertEquals("You don't have the required permission.", $exception->getMessage());
+        $this->assertEquals(Status::UNAUTHORIZED, $exception->getCode());
+    }
 }

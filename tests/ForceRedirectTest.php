@@ -13,11 +13,11 @@ namespace ICanBoogie\HTTP;
 
 class ForceRedirectTest extends \PHPUnit\Framework\TestCase
 {
-	public function test_get_location()
-	{
-		$location = '/to/location.html';
-		$exception = new ForceRedirect($location);
-		$this->assertEquals(Status::FOUND, $exception->getCode());
-		$this->assertEquals($location, $exception->location);
-	}
+    public function test_get_location()
+    {
+        $location = '/to/location.html';
+        $exception = new ForceRedirect($location);
+        $this->assertEquals(Status::FOUND, $exception->getCode());
+        $this->assertEquals($location, $exception->location);
+    }
 }

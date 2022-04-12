@@ -13,11 +13,11 @@ namespace ICanBoogie\HTTP;
 
 class AuthenticationRequiredTest extends \PHPUnit\Framework\TestCase
 {
-	public function test_message()
-	{
-		$exception = new AuthenticationRequired;
+    public function test_message()
+    {
+        $exception = new AuthenticationRequired();
 
-		$this->assertEquals("The requested URL requires authentication.", $exception->getMessage());
-		$this->assertEquals(Status::UNAUTHORIZED, $exception->getCode());
-	}
+        $this->assertEquals("The requested URL requires authentication.", $exception->getMessage());
+        $this->assertEquals(Status::UNAUTHORIZED, $exception->getCode());
+    }
 }

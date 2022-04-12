@@ -18,12 +18,12 @@ use Closure;
  */
 final class ResponderClosure implements Responder
 {
-	public function __construct(private Closure $closure)
-	{
-	}
+    public function __construct(private Closure $closure)
+    {
+    }
 
-	public function respond(Request $request): Response
-	{
-		return ($this->closure)($request);
-	}
+    public function respond(Request $request): Response
+    {
+        return ($this->closure)($request);
+    }
 }

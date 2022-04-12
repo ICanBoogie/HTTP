@@ -13,10 +13,10 @@ namespace ICanBoogie\HTTP;
 
 class MethodNotSupportedTest extends \PHPUnit\Framework\TestCase
 {
-	public function test_get_method()
-	{
-		$method = 'UNSUPPORTED';
-		$exception = new MethodNotSupported($method);
-		$this->assertEquals($method, $exception->method);
-	}
+    public function test_get_method()
+    {
+        $method = 'UNSUPPORTED';
+        $exception = new MethodNotSupported($method);
+        $this->assertEquals($method, $exception->method);
+    }
 }
