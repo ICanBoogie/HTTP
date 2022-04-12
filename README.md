@@ -1,7 +1,6 @@
 # HTTP
 
 [![Release](https://img.shields.io/packagist/v/icanboogie/http.svg)](https://packagist.org/packages/icanboogie/http)
-[![Build Status](https://img.shields.io/github/workflow/status/ICanBoogie/HTTP/test)](https://github.com/ICanBoogie/HTTP/actions?query=workflow%3Atest)
 [![Code Quality](https://img.shields.io/scrutinizer/g/icanboogie/http.svg)](https://scrutinizer-ci.com/g/ICanBoogie/HTTP)
 [![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/HTTP.svg)](https://coveralls.io/r/ICanBoogie/HTTP)
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/http.svg)](https://packagist.org/packages/icanboogie/http)
@@ -44,6 +43,16 @@ $response();
 ```
 
 > **Note:** You might want to check the [icanboogie/routing][] package if you require a nice router.
+
+
+
+
+
+#### Installation
+
+```bash
+composer require icanboogie/http
+```
 
 
 
@@ -1098,41 +1107,26 @@ $response = dispatch($request);
 
 
 
+## Continuous Integration
 
+The project is continuously tested by [GitHub actions](https://github.com/ICanBoogie/HTTP/actions).
 
-## Requirements
-
-The package requires PHP 8.0 or later.
-
-
-
-
-
-## Installation
-
-```bash
-composer require icanboogie/http
-```
-
-The following packages are required, you might want to check them out:
-
-- [icanboogie/prototype](https://github.com/ICanBoogie/Prototype)
-- [icanboogie/event](https://github.com/ICanBoogie/Event)
-- [icanboogie/datetime](https://github.com/ICanBoogie/DateTime)
+[![Tests](https://github.com/ICanBoogie/Accessor/workflows/test/badge.svg?branch=master)](https://github.com/ICanBoogie/HTTP/actions?query=workflow%3Atest)
+[![Static Analysis](https://github.com/ICanBoogie/Accessor/workflows/static-analysis/badge.svg?branch=master)](https://github.com/ICanBoogie/HTTP/actions?query=workflow%3Astatic-analysis)
+[![Code Style](https://github.com/ICanBoogie/Accessor/workflows/code-style/badge.svg?branch=master)](https://github.com/ICanBoogie/HTTP/actions?query=workflow%3Acode-style)
 
 
 
+## Code of Conduct
+
+This project adheres to a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project and its
+community, you are expected to uphold this code.
 
 
-## Documentation
 
-The package is documented as part of the [ICanBoogie][] framework
-[documentation][]. You can generate the documentation for the package and its dependencies with
-the `make doc` command. The documentation is generated in the `build/docs` directory.
-[ApiGen](http://apigen.org/) is required. The directory can later be cleaned with the
-`make clean` command.
+## Contributing
 
-
+Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 
 
@@ -1148,7 +1142,7 @@ test suite. Alternatively, run `make test-coverage` to run the test suite with t
 
 ## License
 
-**icanboogie/http** is released under the [New BSD License](LICENSE).
+**icanboogie/http** is released under the [BSD-3-Clause](LICENSE).
 
 
 

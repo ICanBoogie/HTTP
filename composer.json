@@ -1,6 +1,7 @@
 {
 	"name": "icanboogie/http",
 	"type": "library",
+	"version": "6.0",
 	"description": "Provides an API to handle HTTP requests.",
 	"keywords": [
 		"http",
@@ -8,7 +9,7 @@
 		"request",
 		"response"
 	],
-	"homepage": "http://icanboogie.org/",
+	"homepage": "https://icanboogie.org/",
 	"license": "BSD-3-Clause",
 	"authors": [
 		{
