@@ -219,7 +219,7 @@ class FileResponse extends Response
         if (!$headers['Accept-Ranges']) {
             $request = $this->request;
 
-            $headers['Accept-Ranges'] = $request->is_get || $request->is_head ? 'bytes' : 'none';
+            $headers['Accept-Ranges'] = $request->method->is_get() || $request->method->is_head() ? 'bytes' : 'none';
         }
 
         $headers['Content-Length'] = $this->file->getSize();

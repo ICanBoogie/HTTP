@@ -46,7 +46,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     public function provide_test_write_readonly_properties()
     {
         $properties = 'authorization content_length cache_control context extension ip'
-        . ' is_delete is_get is_head is_local is_options is_patch is_post is_put is_trace is_xhr'
+        . ' is_local is_xhr'
         . ' normalized_path method path port parent query_string referer script_name uri'
         . ' user_agent files';
 
@@ -103,39 +103,39 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     {
         $request = Request::from([ Request::OPTION_IS_DELETE => true ]);
         $this->assertObjectNotHasAttribute('is_delete', $request);
-        $this->assertEquals(Request::METHOD_DELETE, $request->method);
-        $this->assertTrue($request->is_delete);
+        $this->assertEquals(RequestMethod::METHOD_DELETE, $request->method);
+        $this->assertTrue($request->method->is_delete());
 
         $request = Request::from([ Request::OPTION_IS_DELETE => false ]);
         $this->assertObjectNotHasAttribute('is_delete', $request);
-        $this->assertEquals(Request::METHOD_GET, $request->method);
-        $this->assertFalse($request->is_delete);
+        $this->assertEquals(RequestMethod::METHOD_GET, $request->method);
+        $this->assertFalse($request->method->is_delete());
     }
 
     public function test_from_with_is_get()
     {
         $request = Request::from([ Request::OPTION_IS_GET => true ]);
         $this->assertObjectNotHasAttribute('is_get', $request);
-        $this->assertEquals(Request::METHOD_GET, $request->method);
-        $this->assertTrue($request->is_get);
+        $this->assertEquals(RequestMethod::METHOD_GET, $request->method);
+        $this->assertTrue($request->method->is_get());
 
         $request = Request::from([ Request::OPTION_IS_GET => false ]);
         $this->assertObjectNotHasAttribute('is_get', $request);
-        $this->assertEquals(Request::METHOD_GET, $request->method);
-        $this->assertTrue($request->is_get);
+        $this->assertEquals(RequestMethod::METHOD_GET, $request->method);
+        $this->assertTrue($request->method->is_get());
     }
 
     public function test_from_with_is_head()
     {
         $request = Request::from([ Request::OPTION_IS_HEAD => true ]);
         $this->assertObjectNotHasAttribute('is_head', $request);
-        $this->assertEquals(Request::METHOD_HEAD, $request->method);
-        $this->assertTrue($request->is_head);
+        $this->assertEquals(RequestMethod::METHOD_HEAD, $request->method);
+        $this->assertTrue($request->method->is_head());
 
         $request = Request::from([ Request::OPTION_IS_HEAD => false ]);
         $this->assertObjectNotHasAttribute('is_head', $request);
-        $this->assertEquals(Request::METHOD_GET, $request->method);
-        $this->assertFalse($request->is_head);
+        $this->assertEquals(RequestMethod::METHOD_GET, $request->method);
+        $this->assertFalse($request->method->is_head());
     }
 
     public function test_from_with_is_local()
@@ -153,65 +153,65 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     {
         $request = Request::from([ Request::OPTION_IS_OPTIONS => true ]);
         $this->assertObjectNotHasAttribute('is_options', $request);
-        $this->assertEquals(Request::METHOD_OPTIONS, $request->method);
-        $this->assertTrue($request->is_options);
+        $this->assertEquals(RequestMethod::METHOD_OPTIONS, $request->method);
+        $this->assertTrue($request->method->is_options());
 
         $request = Request::from([ Request::OPTION_IS_OPTIONS => false ]);
         $this->assertObjectNotHasAttribute('is_options', $request);
-        $this->assertEquals(Request::METHOD_GET, $request->method);
-        $this->assertFalse($request->is_options);
+        $this->assertEquals(RequestMethod::METHOD_GET, $request->method);
+        $this->assertFalse($request->method->is_options());
     }
 
     public function test_from_with_is_patch()
     {
         $request = Request::from([ Request::OPTION_IS_PATCH => true ]);
         $this->assertObjectNotHasAttribute('is_patch', $request);
-        $this->assertEquals(Request::METHOD_PATCH, $request->method);
-        $this->assertTrue($request->is_patch);
+        $this->assertEquals(RequestMethod::METHOD_PATCH, $request->method);
+        $this->assertTrue($request->method->is_patch());
 
         $request = Request::from([ Request::OPTION_IS_PATCH => false ]);
         $this->assertObjectNotHasAttribute('is_patch', $request);
-        $this->assertEquals(Request::METHOD_GET, $request->method);
-        $this->assertFalse($request->is_patch);
+        $this->assertEquals(RequestMethod::METHOD_GET, $request->method);
+        $this->assertFalse($request->method->is_patch());
     }
 
     public function test_from_with_is_post()
     {
         $request = Request::from([ Request::OPTION_IS_POST => true ]);
         $this->assertObjectNotHasAttribute('is_post', $request);
-        $this->assertEquals(Request::METHOD_POST, $request->method);
-        $this->assertTrue($request->is_post);
+        $this->assertEquals(RequestMethod::METHOD_POST, $request->method);
+        $this->assertTrue($request->method->is_post());
 
         $request = Request::from([ Request::OPTION_IS_POST => false ]);
         $this->assertObjectNotHasAttribute('is_post', $request);
-        $this->assertEquals(Request::METHOD_GET, $request->method);
-        $this->assertFalse($request->is_post);
+        $this->assertEquals(RequestMethod::METHOD_GET, $request->method);
+        $this->assertFalse($request->method->is_post());
     }
 
     public function test_from_with_is_put()
     {
         $request = Request::from([ Request::OPTION_IS_PUT => true ]);
         $this->assertObjectNotHasAttribute('is_put', $request);
-        $this->assertEquals(Request::METHOD_PUT, $request->method);
-        $this->assertTrue($request->is_put);
+        $this->assertEquals(RequestMethod::METHOD_PUT, $request->method);
+        $this->assertTrue($request->method->is_put());
 
         $request = Request::from([ Request::OPTION_IS_PUT => false ]);
         $this->assertObjectNotHasAttribute('is_put', $request);
-        $this->assertEquals(Request::METHOD_GET, $request->method);
-        $this->assertFalse($request->is_put);
+        $this->assertEquals(RequestMethod::METHOD_GET, $request->method);
+        $this->assertFalse($request->method->is_put());
     }
 
     public function test_from_with_is_trace()
     {
         $request = Request::from([ Request::OPTION_IS_TRACE => true ]);
         $this->assertObjectNotHasAttribute('is_trace', $request);
-        $this->assertEquals(Request::METHOD_TRACE, $request->method);
-        $this->assertTrue($request->is_trace);
+        $this->assertEquals(RequestMethod::METHOD_TRACE, $request->method);
+        $this->assertTrue($request->method->is_trace());
 
         $request = Request::from([ Request::OPTION_IS_TRACE => false ]);
         $this->assertObjectNotHasAttribute('is_trace', $request);
-        $this->assertEquals(Request::METHOD_GET, $request->method);
-        $this->assertFalse($request->is_trace);
+        $this->assertEquals(RequestMethod::METHOD_GET, $request->method);
+        $this->assertFalse($request->method->is_trace());
     }
 
     public function test_from_with_is_xhr()
@@ -227,28 +227,21 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
     public function test_from_with_method()
     {
-        $request = Request::from([ Request::OPTION_METHOD => Request::METHOD_OPTIONS ]);
+        $request = Request::from([ Request::OPTION_METHOD => RequestMethod::METHOD_OPTIONS ]);
         $this->assertObjectNotHasAttribute('method', $request);
-        $this->assertEquals(Request::METHOD_OPTIONS, $request->method);
+        $this->assertEquals(RequestMethod::METHOD_OPTIONS, $request->method);
     }
 
     public function test_from_with_emulated_method()
     {
         $request = Request::from([
 
-            Request::OPTION_METHOD => Request::METHOD_POST,
-            Request::OPTION_REQUEST_PARAMS => [ '_method' => Request::METHOD_DELETE ]
+            Request::OPTION_METHOD => RequestMethod::METHOD_POST,
+            Request::OPTION_REQUEST_PARAMS => [ '_method' => RequestMethod::METHOD_DELETE ]
 
         ]);
 
-        $this->assertEquals(Request::METHOD_DELETE, $request->method);
-    }
-
-    public function test_from_with_invalid_method()
-    {
-        $this->expectException(MethodNotSupported::class);
-
-        Request::from([ Request::OPTION_METHOD => uniqid() ]);
+        $this->assertEquals(RequestMethod::METHOD_DELETE, $request->method);
     }
 
     public function test_from_with_path()
@@ -394,62 +387,6 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
 
         $this->assertSame($headers, $request->headers);
-    }
-
-    /**
-     * @dataProvider provide_test_get_is_safe
-     *
-     * @param string $method
-     * @param bool $expected
-     */
-    public function test_get_is_safe($method, $expected)
-    {
-        $this->assertSame($expected, Request::from([ Request::OPTION_METHOD => $method ])->is_safe);
-    }
-
-    public function provide_test_get_is_safe()
-    {
-        return [
-
-            [ Request::METHOD_CONNECT, true ],
-            [ Request::METHOD_DELETE,  false ],
-            [ Request::METHOD_GET,     true ],
-            [ Request::METHOD_HEAD,    true ],
-            [ Request::METHOD_OPTIONS, true ],
-            [ Request::METHOD_PATCH,   false ],
-            [ Request::METHOD_POST,    false ],
-            [ Request::METHOD_PUT,     false ],
-            [ Request::METHOD_TRACE,   true ],
-
-        ];
-    }
-
-    /**
-     * @dataProvider provide_test_get_is_idempotent
-     *
-     * @param string $method
-     * @param bool $expected
-     */
-    public function test_get_is_idempotent($method, $expected)
-    {
-        $this->assertSame($expected, Request::from([ Request::OPTION_METHOD => $method ])->is_idempotent);
-    }
-
-    public function provide_test_get_is_idempotent()
-    {
-        return [
-
-            [ Request::METHOD_CONNECT, true ],
-            [ Request::METHOD_DELETE,  true ],
-            [ Request::METHOD_GET,     true ],
-            [ Request::METHOD_HEAD,    true ],
-            [ Request::METHOD_OPTIONS, true ],
-            [ Request::METHOD_PATCH,   false ],
-            [ Request::METHOD_POST,    false ],
-            [ Request::METHOD_PUT,     true ],
-            [ Request::METHOD_TRACE,   true ],
-
-        ];
     }
 
     /**
@@ -614,6 +551,8 @@ class RequestTest extends \PHPUnit\Framework\TestCase
      */
     public function test_change(array $properties)
     {
+        $this->markTestSkipped("Request::OPTION_IS_* need to be removed");
+
         static $iterated;
 
         if (!$iterated) {
@@ -640,7 +579,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             [ [ Request::OPTION_IS_DELETE => true ] ],
             [ [ Request::OPTION_IS_POST => true, Request::OPTION_IS_XHR => true ] ],
             [ [ Request::OPTION_IS_POST => true, Request::OPTION_IS_XHR => false ] ],
-            [ [ Request::OPTION_METHOD => Request::METHOD_CONNECT ] ],
+            [ [ Request::OPTION_METHOD => RequestMethod::METHOD_CONNECT ] ],
             [ [ Request::OPTION_URI => '/path/to/something' ] ],
             [ [ Request::OPTION_URI => '/path/to/something-else' ] ],
 
@@ -708,7 +647,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
         $properties = [
 
-            Request::OPTION_METHOD => Request::METHOD_POST,
+            Request::OPTION_METHOD => RequestMethod::METHOD_POST,
             Request::OPTION_REQUEST_PARAMS => $request_params,
             Request::OPTION_PATH_PARAMS => [],
             Request::OPTION_QUERY_PARAMS => []
@@ -739,16 +678,6 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         /* @var $request1 Request */
 
         $this->assertSame($response, $request1->post($request_params));
-    }
-
-    public function test_should_throw_exception_when_invoking_undefined_method()
-    {
-        $request = Request::from();
-        $method = 'undefined' . uniqid();
-
-        $this->expectException(MethodNotDefined::class);
-
-        $request->$method();
     }
 
     public function test_invoke()

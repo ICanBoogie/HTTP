@@ -89,47 +89,47 @@ class RequestOptionsMapper implements RequestOptions
             },
             self::OPTION_IS_DELETE =>      function ($value, array &$env) {
                 if ($value) {
-                    $env['REQUEST_METHOD'] = Request::METHOD_DELETE;
+                    $env['REQUEST_METHOD'] = RequestMethod::METHOD_DELETE;
                 }
             },
             self::OPTION_IS_CONNECT =>     function ($value, array &$env) {
                 if ($value) {
-                    $env['REQUEST_METHOD'] = Request::METHOD_CONNECT;
+                    $env['REQUEST_METHOD'] = RequestMethod::METHOD_CONNECT;
                 }
             },
             self::OPTION_IS_GET =>         function ($value, array &$env) {
                 if ($value) {
-                    $env['REQUEST_METHOD'] = Request::METHOD_GET;
+                    $env['REQUEST_METHOD'] = RequestMethod::METHOD_GET;
                 }
             },
             self::OPTION_IS_HEAD =>        function ($value, array &$env) {
                 if ($value) {
-                    $env['REQUEST_METHOD'] = Request::METHOD_HEAD;
+                    $env['REQUEST_METHOD'] = RequestMethod::METHOD_HEAD;
                 }
             },
             self::OPTION_IS_OPTIONS =>     function ($value, array &$env) {
                 if ($value) {
-                    $env['REQUEST_METHOD'] = Request::METHOD_OPTIONS;
+                    $env['REQUEST_METHOD'] = RequestMethod::METHOD_OPTIONS;
                 }
             },
             self::OPTION_IS_PATCH =>       function ($value, array &$env) {
                 if ($value) {
-                    $env['REQUEST_METHOD'] = Request::METHOD_PATCH;
+                    $env['REQUEST_METHOD'] = RequestMethod::METHOD_PATCH;
                 }
             },
             self::OPTION_IS_POST =>        function ($value, array &$env) {
                 if ($value) {
-                    $env['REQUEST_METHOD'] = Request::METHOD_POST;
+                    $env['REQUEST_METHOD'] = RequestMethod::METHOD_POST;
                 }
             },
             self::OPTION_IS_PUT =>         function ($value, array &$env) {
                 if ($value) {
-                    $env['REQUEST_METHOD'] = Request::METHOD_PUT;
+                    $env['REQUEST_METHOD'] = RequestMethod::METHOD_PUT;
                 }
             },
             self::OPTION_IS_TRACE =>       function ($value, array &$env) {
                 if ($value) {
-                    $env['REQUEST_METHOD'] = Request::METHOD_TRACE;
+                    $env['REQUEST_METHOD'] = RequestMethod::METHOD_TRACE;
                 }
             },
             self::OPTION_IS_XHR =>         function ($value, array &$env) {

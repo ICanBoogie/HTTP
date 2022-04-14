@@ -364,10 +364,10 @@ final class FileResponseTest extends TestCase
     {
         return [
 
-            [ Request::METHOD_GET, 'bytes' ],
-            [ Request::METHOD_HEAD, 'bytes' ],
-            [ Request::METHOD_POST, 'none' ],
-            [ Request::METHOD_PUT, 'none' ]
+            [ RequestMethod::METHOD_GET, 'bytes' ],
+            [ RequestMethod::METHOD_HEAD, 'bytes' ],
+            [ RequestMethod::METHOD_POST, 'none' ],
+            [ RequestMethod::METHOD_PUT, 'none' ]
 
         ];
     }

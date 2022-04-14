@@ -11,15 +11,12 @@
 
 namespace ICanBoogie\HTTP\Request;
 
+use ArrayAccess;
 use ICanBoogie\HTTP\Dispatcher;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\PropertyNotDefined;
 use ICanBoogie\PrototypeTrait;
 use RuntimeException;
-
-use function array_shift;
-use function get_class;
-use function is_subclass_of;
 
 /**
  * The context of a request.
@@ -30,7 +27,7 @@ use function is_subclass_of;
  * @property-read Request $request The request associated with the context.
  * @property Dispatcher|null $dispatcher The dispatcher currently dispatching the request.
  */
-class Context implements \ArrayAccess
+class Context implements ArrayAccess
 {
     /**
      * @uses get_request
@@ -65,7 +62,7 @@ class Context implements \ArrayAccess
     }
 
     public function __construct(
-        private Request $request
+        private readonly Request $request
     ) {
     }
 
@@ -74,6 +71,11 @@ class Context implements \ArrayAccess
         array_unshift($this->values, $value);
     }
 
+    /**
+     * @param class-string $class
+     *
+     * @return object
+     */
     public function get(string $class): object
     {
         $value = $this->find($class);
@@ -101,10 +103,10 @@ class Context implements \ArrayAccess
      *
      * @deprecated
      */
-    public function offsetExists($property)
+    public function offsetExists(mixed $offset): bool
     {
         try {
-            $this->$property;
+            $this->$offset;
 
             return true;
         } catch (PropertyNotDefined $e) {
@@ -117,9 +119,9 @@ class Context implements \ArrayAccess
      *
      * @deprecated
      */
-    public function offsetGet($property)
+    public function offsetGet(mixed $offset): bool
     {
-        return $this->$property;
+        return $this->$offset;
     }
 
     /**
@@ -127,9 +129,9 @@ class Context implements \ArrayAccess
      *
      * @deprecated
      */
-    public function offsetSet($property, $value)
+    public function offsetSet(mixed $offset, mixed $value): void
     {
-        $this->$property = $value;
+        $this->$offset = $value;
     }
 
     /**
@@ -137,8 +139,8 @@ class Context implements \ArrayAccess
      *
      * @deprecated
      */
-    public function offsetUnset($property)
+    public function offsetUnset(mixed $offset): void
     {
-        unset($this->$property);
+        unset($this->$offset);
     }
 }

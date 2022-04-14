@@ -14,8 +14,9 @@ namespace ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\RequestDispatcher;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\Prototype;
+use PHPUnit\Framework\TestCase;
 
-class ContextTest extends \PHPUnit\Framework\TestCase
+class ContextTest extends TestCase
 {
     public function test_get_request()
     {

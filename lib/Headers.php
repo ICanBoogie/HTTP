@@ -13,13 +13,16 @@ namespace ICanBoogie\HTTP;
 
 use ArrayAccess;
 use ArrayIterator;
+use ICanBoogie\HTTP\Headers\Header;
 use IteratorAggregate;
 
 use function header;
 use function is_numeric;
 use function is_object;
 use function is_string;
+use function mb_convert_case;
 use function strpos;
+use function strtr;
 use function substr;
 
 /**
@@ -47,12 +50,9 @@ class Headers implements ArrayAccess, IteratorAggregate
 
     ];
 
-    /**
-     * Normalizes field name.
-     */
     private static function normalize_field_name(string $name): string
     {
-        return \mb_convert_case(\strtr(substr($name, 5), '_', '-'), MB_CASE_TITLE);
+        return mb_convert_case(strtr(substr($name, 5), '_', '-'), MB_CASE_TITLE);
     }
 
     /**
@@ -162,36 +162,28 @@ class Headers implements ArrayAccess, IteratorAggregate
 
     /**
      * Checks if a header field exists.
-     *
-     * @param mixed $field
-     *
-     * @return boolean
      */
-    public function offsetExists($field)
+    public function offsetExists(mixed $offset): bool
     {
-        return isset($this->fields[(string)$field]);
+        return isset($this->fields[(string)$offset]);
     }
 
     /**
      * Returns a header.
-     *
-     * @param mixed $field
-     *
-     * @return string|null The header field value or null if it is not defined.
      */
-    public function offsetGet($field)
+    public function offsetGet(mixed $offset): mixed
     {
-        if (isset(self::MAPPING[$field])) {
-            if (empty($this->fields[$field])) {
+        if (isset(self::MAPPING[$offset])) {
+            if (empty($this->fields[$offset])) {
                 /* @var $class Headers\Header|string */
-                $class = self::MAPPING[$field];
-                $this->fields[$field] = $class::from(null);
+                $class = self::MAPPING[$offset];
+                $this->fields[$offset] = $class::from(null);
             }
 
-            return $this->fields[$field];
+            return $this->fields[$offset];
         }
 
-        return $this->offsetExists($field) ? $this->fields[$field] : null;
+        return $this->offsetExists($offset) ? $this->fields[$offset] : null;
     }
 
     /**
@@ -209,19 +201,16 @@ class Headers implements ArrayAccess, IteratorAggregate
      * Instances of the {@link Headers\CacheControl}, {@link Headers\ContentDisposition} and
      * {@link Headers\ContentType} are used to handle the values of the `Cache-Control`,
      * `Content-Disposition` and `Content-Type` header fields.
-     *
-     * @param string $field The header field to set.
-     * @param mixed $value The value of the header field.
      */
-    public function offsetSet($field, $value)
+    public function offsetSet(mixed $offset, mixed $value): void
     {
         if ($value === null) {
-            unset($this[$field]);
+            unset($this[$offset]);
 
             return;
         }
 
-        switch ($field) {
+        switch ($offset) {
             # http://tools.ietf.org/html/rfc2616#section-14.25
             case 'If-Modified-Since':
                 #
@@ -244,23 +233,21 @@ class Headers implements ArrayAccess, IteratorAggregate
                 break;
         }
 
-        if (isset(self::MAPPING[$field])) {
+        if (isset(self::MAPPING[$offset])) {
             /* @var $class Headers\Header|string */
-            $class = self::MAPPING[$field];
+            $class = self::MAPPING[$offset];
             $value = $class::from($value);
         }
 
-        $this->fields[$field] = $value;
+        $this->fields[$offset] = $value;
     }
 
     /**
      * Removes a header field.
-     *
-     * @param mixed $field
      */
-    public function offsetUnset($field)
+    public function offsetUnset(mixed $offset): void
     {
-        unset($this->fields[$field]);
+        unset($this->fields[$offset]);
     }
 
     /**

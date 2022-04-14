@@ -11,6 +11,8 @@
 
 namespace ICanBoogie\HTTP;
 
+use Throwable;
+
 /**
  * Wrapper for callable dispatchers.
  */
@@ -21,9 +23,6 @@ class CallableDispatcher implements Dispatcher
      */
     private $callable;
 
-    /**
-     * @param callable $callable
-     */
     public function __construct(callable $callable)
     {
         $this->callable = $callable;
@@ -40,7 +39,7 @@ class CallableDispatcher implements Dispatcher
     /**
      * @inheritdoc
      */
-    public function rescue(\Throwable $exception, Request $request): Response
+    public function rescue(Throwable $exception, Request $request): Response
     {
         throw $exception;
     }

@@ -37,6 +37,10 @@ use function utf8_encode;
  */
 class HeaderParameter
 {
+    /**
+     * @uses get_attribute
+     * @uses get_charset
+     */
     use AccessorTrait;
 
     protected function get_attribute(): string
@@ -167,7 +171,7 @@ class HeaderParameter
         #
 
         if (self::is_token($value)) {
-            return "{$attribute}={$value}";
+            return "$attribute=$value";
         }
 
         #
@@ -177,7 +181,7 @@ class HeaderParameter
         $encoding = mb_detect_encoding($value);
 
         if (($encoding === 'ASCII' || $encoding === 'ISO-8859-1') && !str_contains($value, '"')) {
-            return "{$attribute}=\"{$value}\"";
+            return "$attribute=\"$value\"";
         }
 
         #
@@ -194,8 +198,8 @@ class HeaderParameter
         $normalized_value = self::to_ascii($value);
         $normalized_value = str_replace([ '"', ';' ], '', $normalized_value);
 
-        return "{$attribute}=\"{$normalized_value}\"; {$attribute}*="
-            . $encoding . "'{$this->language}'" . rawurlencode($value);
+        return "$attribute=\"$normalized_value\"; {$attribute}*="
+            . $encoding . "'$this->language'" . rawurlencode($value);
     }
 
     /**

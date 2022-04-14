@@ -73,10 +73,10 @@ class RequestDispatcher implements ArrayAccess, IteratorAggregate, Dispatcher
      * **HEAD requests**
      *
      * If a {@link NotFound} exception is caught during the dispatching of a request with a
-     * `Request::METHOD_HEAD` method the following happens:
+     * `RequestMethod::METHOD_HEAD` method the following happens:
      *
      * 1. The request is cloned and the method of the cloned request is changed to
-     * `Request::METHOD_GET`.
+     * `RequestMethod::METHOD_GET`.
      * 2. The cloned method is dispatched.
      * 3. If the result is *not* a {@link Response} instance, the result is returned.
      * 4. Otherwise, a new {@link Response} instance is created with a `null` body, but the status
@@ -89,7 +89,7 @@ class RequestDispatcher implements ArrayAccess, IteratorAggregate, Dispatcher
     {
         $response = $this->handle($request);
 
-        if ($request->is_head && $response->body) {
+        if ($request->method->is_head() && $response->body) {
             return new Response(null, $response->status, $response->headers);
         }
 
@@ -109,7 +109,7 @@ class RequestDispatcher implements ArrayAccess, IteratorAggregate, Dispatcher
         try {
             return $this->dispatch($request);
         } catch (Throwable $e) {
-            if ($e instanceof NotFound && $request->is_head) {
+            if ($e instanceof NotFound && $request->method->is_head()) {
                 try {
                     return $this->handle_head($request);
                 } catch (Throwable) {
@@ -130,12 +130,12 @@ class RequestDispatcher implements ArrayAccess, IteratorAggregate, Dispatcher
      */
     private function handle_head(Request $request): Response
     {
-        $response = $this->handle($request->with([ Request::OPTION_IS_GET => true ]));
+        $response = $this->handle($request->with([ Request::OPTION_METHOD => RequestMethod::METHOD_GET ]));
 
         if ($response->content_length === null && !$response->body instanceof Closure) {
             try {
                 $response->content_length = strlen((string) $response->body);
-            } catch (Throwable $e) {
+            } catch (Throwable) {
                 #
                 # It's not that bad if we can't obtain the length of the body.
                 #
@@ -148,74 +148,72 @@ class RequestDispatcher implements ArrayAccess, IteratorAggregate, Dispatcher
     /**
      * Check if the dispatcher is defined.
      *
-     * @param string $dispatcher_id The identifier of the dispatcher.
+     * @param string $offset The identifier of the dispatcher.
      *
      * @return bool `true` if the dispatcher is defined, `false` otherwise.
      */
-    public function offsetExists($dispatcher_id)
+    public function offsetExists(mixed $offset): bool
     {
-        return isset($this->dispatchers[$dispatcher_id]);
+        return isset($this->dispatchers[$offset]);
     }
 
     /**
      * Return a dispatcher.
      *
-     * @param string $dispatcher_id The identifier of the dispatcher.
+     * @param string $offset The identifier of the dispatcher.
      *
      * @return mixed
      */
-    public function offsetGet($dispatcher_id)
+    public function offsetGet(mixed $offset): mixed
     {
-        if (!$this->offsetExists($dispatcher_id)) {
-            throw new DispatcherNotDefined($dispatcher_id);
+        if (!$this->offsetExists($offset)) {
+            throw new DispatcherNotDefined($offset);
         }
 
-        return $this->dispatchers[$dispatcher_id];
+        return $this->dispatchers[$offset];
     }
 
     /**
      * Define a dispatcher.
      *
-     * @param string $dispatcher_id The identifier of the dispatcher.
-     * @param mixed $dispatcher The dispatcher class or callback.
+     * @param string $offset The identifier of the dispatcher.
+     * @param mixed $value The dispatcher class or callback.
      */
-    public function offsetSet($dispatcher_id, $dispatcher)
+    public function offsetSet(mixed $offset, mixed $value): void
     {
         $weight = 0;
 
-        if ($dispatcher instanceof WeightedDispatcher) {
-            $weight = $dispatcher->weight;
-            $dispatcher = $dispatcher->dispatcher;
+        if ($value instanceof WeightedDispatcher) {
+            $weight = $value->weight;
+            $value = $value->dispatcher;
         }
 
-        $this->dispatchers[$dispatcher_id] = $dispatcher;
-        $this->dispatchers_weight[$dispatcher_id] = $weight;
+        $this->dispatchers[$offset] = $value;
+        $this->dispatchers_weight[$offset] = $weight;
         $this->dispatchers_order = null;
     }
 
     /**
      * Remove a dispatcher.
      *
-     * @param string $dispatcher_id The identifier of the dispatcher.
+     * @param string $offset The identifier of the dispatcher.
      */
-    public function offsetUnset($dispatcher_id)
+    public function offsetUnset(mixed $offset): void
     {
-        unset($this->dispatchers[$dispatcher_id]);
+        unset($this->dispatchers[$offset]);
     }
 
     /**
      * @inheritdoc
      */
-    public function getIterator()
+    public function getIterator(): ArrayIterator
     {
         if (!$this->dispatchers_order) {
             $weights = $this->dispatchers_weight;
 
             $this->dispatchers_order = sort_by_weight(
                 $this->dispatchers,
-                function ($v, $k) use ($weights) {
-                    return $weights[$k];
-                }
+                fn($v, $k) => $weights[$k]
             );
         }
 

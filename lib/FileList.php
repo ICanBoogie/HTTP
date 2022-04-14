@@ -11,10 +11,17 @@
 
 namespace ICanBoogie\HTTP;
 
+use ArrayAccess;
+use ArrayIterator;
+use Countable;
+use IteratorAggregate;
+
+use function count;
+
 /**
  * Representation of a list of request files.
  */
-class FileList implements \ArrayAccess, \IteratorAggregate, \Countable
+class FileList implements ArrayAccess, IteratorAggregate, Countable
 {
     /**
      * Creates a {@link FileList} instance.
@@ -23,7 +30,7 @@ class FileList implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return FileList
      */
-    public static function from($files): self
+    public static function from(array|FileList|null $files): self
     {
         if ($files instanceof self) {
             return clone $files;
@@ -58,64 +65,62 @@ class FileList implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * Checks if a file exists.
      *
-     * @param string $id
-     *
-     * @return bool
+     * @param string $offset File identifier.
      */
-    public function offsetExists($id)
+    public function offsetExists(mixed $offset): bool
     {
-        return isset($this->list[$id]);
+        return isset($this->list[$offset]);
     }
 
     /**
      * Returns a file.
      *
-     * @param string $id
+     * @param string $offset File identifier.
      *
-     * @return File|null A {@link File} instance, or `null` if it does not exists.
+     * @return File|null A {@link File} instance, or `null` if it does not exist.
      */
-    public function offsetGet($id)
+    public function offsetGet(mixed $offset): ?File
     {
-        if (!$this->offsetExists($id)) {
+        if (!$this->offsetExists($offset)) {
             return null;
         }
 
-        return $this->list[$id];
+        return $this->list[$offset];
     }
 
     /**
      * Adds a file.
      *
-     * @param string $id
-     * @param string|array|File $file
+     * @param string $offset File identifier.
+     * @param string|array|File $value File.
      */
-    public function offsetSet($id, $file)
+    public function offsetSet(mixed $offset, mixed $value): void
     {
-        if (!($file instanceof File || $file instanceof FileList)) {
-            $file = File::from($file);
+        if (!($value instanceof File || $value instanceof FileList)) {
+            $value = File::from($value);
         }
 
-        $this->list[$id] = $file;
+        $this->list[$offset] = $value;
     }
 
     /**
      * Removes a file.
      *
-     * @param string $id
+     * @param string $offset File identifier.
      */
-    public function offsetUnset($id)
+    public function offsetUnset(mixed $offset): void
     {
-        unset($this->list[$id]);
+        unset($this->list[$offset]);
     }
 
     /**
      * @inheritdoc
      *
-     * @return \ArrayIterator
+     * @return ArrayIterator
      */
-    public function getIterator()
+    public function getIterator(): ArrayIterator
     {
-        return new \ArrayIterator($this->list);
+        return new ArrayIterator($this->list);
     }
 
     /**
@@ -123,8 +128,8 @@ class FileList implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @inheritdoc
      */
-    public function count()
+    public function count(): int
     {
-        return \count($this->list);
+        return count($this->list);
     }
 }

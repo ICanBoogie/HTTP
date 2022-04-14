@@ -11,17 +11,15 @@
 
 namespace ICanBoogie\HTTP\Headers;
 
+use ArrayAccess;
 use ICanBoogie\OffsetNotDefined;
 use ICanBoogie\PropertyNotDefined;
-use Stringable;
+
+use InvalidArgumentException;
 
 use function array_intersect_key;
 use function array_map;
 use function explode;
-use function ICanBoogie\format;
-use function is_object;
-use function is_string;
-use function method_exists;
 use function strpos;
 use function substr;
 use function trim;
@@ -81,7 +79,7 @@ use function trim;
  * }
  * </pre>
  */
-abstract class Header implements \ArrayAccess
+abstract class Header implements ArrayAccess
 {
     public const VALUE_ALIAS = null;
 
@@ -119,17 +117,13 @@ abstract class Header implements \ArrayAccess
     /**
      * Parse the provided source and extract its value and parameters.
      *
-     * @throws \InvalidArgumentException if `$source` is not a string nor an object implementing
-     * `__toString()`.
+     * @throws InvalidArgumentException if `$source` is not a string nor an object implementing
+     *     `__toString()`.
      *
      * @phpstan-return array{ 0: string, 1: array<string, mixed> }
      */
-    protected static function parse(string|Stringable $source): array
+    protected static function parse(string $source): array
     {
-        if ($source instanceof Stringable) {
-            $source = (string) $source;
-        }
-
         $value_end = strpos($source, ';');
         $parameters = [];
 
@@ -156,23 +150,21 @@ abstract class Header implements \ArrayAccess
     /**
      * Checks if a parameter exists.
      *
-     * @param string $attribute
-     *
-     * @return bool
+     * @param string $offset An attribute.
      */
-    public function offsetExists($attribute)
+    public function offsetExists(mixed $offset): bool
     {
-        return isset($this->parameters[$attribute]);
+        return isset($this->parameters[$offset]);
     }
 
     /**
      * Sets the value of a parameter to `null`.
      *
-     * @param string $attribute
+     * @param string $offset An attribute.
      */
-    public function offsetUnset($attribute)
+    public function offsetUnset(mixed $offset): void
     {
-        $this->parameters[$attribute]->value = null;
+        $this->parameters[$offset]->value = null;
     }
 
     /**
@@ -181,41 +173,41 @@ abstract class Header implements \ArrayAccess
      * If the value is an instance of {@link HeaderParameter} then the parameter is replaced,
      * otherwise the value of the current parameter is updated and its language is set to `null`.
      *
-     * @param string $attribute
+     * @param string $offset An attribute.
      * @param mixed $value
      *
      * @throws OffsetNotDefined in attempt to access a parameter that is not defined.
      */
-    public function offsetSet($attribute, $value)
+    public function offsetSet(mixed $offset, mixed $value): void
     {
-        if (!$this->offsetExists($attribute)) {
-            throw new OffsetNotDefined([ $attribute, $this ]);
+        if (!$this->offsetExists($offset)) {
+            throw new OffsetNotDefined([ $offset, $this ]);
         }
 
         if ($value instanceof HeaderParameter) {
-            $this->parameters[$attribute] = $value;
+            $this->parameters[$offset] = $value;
         } else {
-            $this->parameters[$attribute]->value = $value;
-            $this->parameters[$attribute]->language = null;
+            $this->parameters[$offset]->value = $value;
+            $this->parameters[$offset]->language = null;
         }
     }
 
     /**
      * Returns a {@link HeaderParameter} instance.
      *
-     * @param string $attribute
+     * @param string $offset An attribute.
      *
      * @return HeaderParameter
      *
      * @throws OffsetNotDefined in attempt to access a parameter that is not defined.
      */
-    public function offsetGet($attribute)
+    public function offsetGet(mixed $offset): HeaderParameter
     {
-        if (!$this->offsetExists($attribute)) {
-            throw new OffsetNotDefined([ $attribute, $this ]);
+        if (!$this->offsetExists($offset)) {
+            throw new OffsetNotDefined([ $offset, $this ]);
         }
 
-        return $this->parameters[$attribute];
+        return $this->parameters[$offset];
     }
 
     /**
@@ -224,10 +216,9 @@ abstract class Header implements \ArrayAccess
      * To enable future extensions, unrecognized parameters are ignored. Supported parameters must
      * be defined by a child class before it calls its parent.
      *
-     * @param mixed $value
-     * @param array $parameters
+     * @param array<string, mixed> $parameters
      */
-    public function __construct($value = null, array $parameters = [])
+    public function __construct(mixed $value = null, array $parameters = [])
     {
         $this->value = $value;
 
@@ -245,11 +236,11 @@ abstract class Header implements \ArrayAccess
      *
      * @param string $property
      *
-     * @throws PropertyNotDefined in attempt to access a parameter that is not defined.
-     *
      * @return mixed
+     *
+     * @throws PropertyNotDefined in attempt to access a parameter that is not defined.
      */
-    public function __get($property)
+    public function __get(string $property)
     {
         if ($property === static::VALUE_ALIAS) {
             return $this->value;
@@ -267,12 +258,9 @@ abstract class Header implements \ArrayAccess
      *
      * The method also handles the alias of the {@link $value} property.
      *
-     * @param string $property
-     * @param mixed $value
-     *
      * @throws PropertyNotDefined in attempt to access a parameter that is not defined.
      */
-    public function __set($property, $value)
+    public function __set(string $property, mixed $value)
     {
         if ($property === static::VALUE_ALIAS) {
             $this->value = $value;
@@ -292,11 +280,9 @@ abstract class Header implements \ArrayAccess
     /**
      * Unsets the matching parameter.
      *
-     * @param string $property
-     *
      * @throws PropertyNotDefined in attempt to access a parameter that is not defined.
      */
-    public function __unset($property)
+    public function __unset(string $property)
     {
         if (!isset($this->parameters[$property])) {
             return;

@@ -1111,9 +1111,9 @@ $response = dispatch($request);
 
 The project is continuously tested by [GitHub actions](https://github.com/ICanBoogie/HTTP/actions).
 
-[![Tests](https://github.com/ICanBoogie/Accessor/workflows/test/badge.svg?branch=master)](https://github.com/ICanBoogie/HTTP/actions?query=workflow%3Atest)
-[![Static Analysis](https://github.com/ICanBoogie/Accessor/workflows/static-analysis/badge.svg?branch=master)](https://github.com/ICanBoogie/HTTP/actions?query=workflow%3Astatic-analysis)
-[![Code Style](https://github.com/ICanBoogie/Accessor/workflows/code-style/badge.svg?branch=master)](https://github.com/ICanBoogie/HTTP/actions?query=workflow%3Acode-style)
+[![Tests](https://github.com/ICanBoogie/HTTP/workflows/test/badge.svg?branch=master)](https://github.com/ICanBoogie/HTTP/actions?query=workflow%3Atest)
+[![Static Analysis](https://github.com/ICanBoogie/HTTP/workflows/static-analysis/badge.svg?branch=master)](https://github.com/ICanBoogie/HTTP/actions?query=workflow%3Astatic-analysis)
+[![Code Style](https://github.com/ICanBoogie/HTTP/workflows/code-style/badge.svg?branch=master)](https://github.com/ICanBoogie/HTTP/actions?query=workflow%3Acode-style)
 
 
 

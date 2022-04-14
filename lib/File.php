@@ -202,10 +202,7 @@ class File implements ToArray, FileOptions
 
     private $tmp_name;
 
-    /**
-     * @var int|null
-     */
-    private $error;
+    private ?int $error = null;
 
     protected function get_error(): ?int
     {
@@ -335,6 +332,10 @@ class File implements ToArray, FileOptions
      */
     protected function get_extension(): ?string
     {
+        if (!$this->name) {
+            return null;
+        }
+
         $extension = pathinfo($this->name, PATHINFO_EXTENSION);
 
         if (!$extension) {

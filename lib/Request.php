@@ -55,23 +55,13 @@ use function ICanBoogie\normalize_url_path;
  * @property-read Request $parent Parent request.
  * @property-read FileList $files The files associated with the request.
  *
- * @property-read boolean $authorization Authorization of the request.
+ * @property-read bool $authorization Authorization of the request.
  * @property-read int $content_length Length of the request content.
  * @property-read Headers\CacheControl $cache_control
  * @property-read string $ip Remote IP of the request.
- * @property-read boolean $is_delete Is this a `DELETE` request?
- * @property-read boolean $is_get Is this a `GET` request?
- * @property-read boolean $is_head Is this a `HEAD` request?
- * @property-read boolean $is_options Is this a `OPTIONS` request?
- * @property-read boolean $is_patch Is this a `PATCH` request?
- * @property-read boolean $is_post Is this a `POST` request?
- * @property-read boolean $is_put Is this a `PUT` request?
- * @property-read boolean $is_trace Is this a `TRACE` request?
- * @property-read boolean $is_safe Is the request method considered safe?
- * @property-read boolean $is_idempotent Is the request method considered idempotent?
- * @property-read boolean $is_local Is this a local request?
- * @property-read boolean $is_xhr Is this an Ajax request?
- * @property-read string $method Method of the request.
+ * @property-read bool $is_local Is this a local request?
+ * @property-read bool $is_xhr Is this an Ajax request?
+ * @property-read RequestMethod $method Method of the request.
  * @property-read string $normalized_path Path of the request normalized using the
  *     `\ICanBoogie\normalize_url_path` function.
  * @property-read string $path Path info of the request.
@@ -86,32 +76,12 @@ use function ICanBoogie\normalize_url_path;
  *
  * @see http://en.wikipedia.org/wiki/Uniform_resource_locator
  */
-class Request implements RequestMethods, RequestOptions
+class Request implements RequestOptions
 {
+    /**
+     * @uses
+     */
     use AccessorTrait;
-
-    public const METHODS = [
-
-        self::METHOD_CONNECT,
-        self::METHOD_DELETE,
-        self::METHOD_GET,
-        self::METHOD_HEAD,
-        self::METHOD_OPTIONS,
-        self::METHOD_POST,
-        self::METHOD_PUT,
-        self::METHOD_PATCH,
-        self::METHOD_TRACE,
-
-    ];
-
-    public const SAFE_METHODS = [
-
-        self::METHOD_DELETE,
-        self::METHOD_PATCH,
-        self::METHOD_POST,
-        self::METHOD_PUT,
-
-    ];
 
     /**
      * Current request.
@@ -409,16 +379,9 @@ class Request implements RequestMethods, RequestOptions
 
     /**
      * Asserts that a method is supported.
-     *
-     * @param string $method
-     *
-     * @throws MethodNotSupported
      */
-    private function assert_method($method)
+    private function assert_method(RequestMethod $method)
     {
-        if (!in_array($method, self::METHODS)) {
-            throw new MethodNotSupported($method);
-        }
     }
 
     /**
@@ -488,15 +451,11 @@ class Request implements RequestMethods, RequestOptions
      */
     public function __call($method, $arguments)
     {
-        $http_method = strtoupper($method);
+        $http_method = RequestMethod::from(strtoupper($method));
 
-        if (in_array($http_method, self::METHODS)) {
-            array_unshift($arguments, $http_method);
+        array_unshift($arguments, $http_method);
 
-            return $this->send(...$arguments);
-        }
-
-        throw new MethodNotDefined($method, $this);
+        return $this->send(...$arguments);
     }
 
     /**
@@ -544,15 +503,13 @@ class Request implements RequestMethods, RequestOptions
      *
      * The method is retrieved from {@link $env}, if the key `REQUEST_METHOD` is not defined,
      * the method defaults to {@link METHOD_GET}.
-     *
-     * @return string
      */
-    protected function get_method()
+    protected function get_method(): RequestMethod
     {
-        $method = isset($this->env['REQUEST_METHOD']) ? $this->env['REQUEST_METHOD'] : self::METHOD_GET;
+        $method = RequestMethod::from_mixed($this->env['REQUEST_METHOD'] ?? 'GET');
 
-        if ($method == self::METHOD_POST && !empty($this->request_params['_method'])) {
-            $method = strtoupper($this->request_params['_method']);
+        if ($method === RequestMethod::METHOD_POST && !empty($this->request_params['_method'])) {
+            $method = RequestMethod::from_mixed($this->request_params['_method']);
         }
 
         return $method;
@@ -604,115 +561,6 @@ class Request implements RequestMethods, RequestOptions
     protected function get_user_agent()
     {
         return isset($this->env['HTTP_USER_AGENT']) ? $this->env['HTTP_USER_AGENT'] : null;
-    }
-
-    /**
-     * Checks if the request method is `DELETE`.
-     *
-     * @return boolean
-     */
-    protected function get_is_delete()
-    {
-        return $this->method == self::METHOD_DELETE;
-    }
-
-    /**
-     * Checks if the request method is `GET`.
-     *
-     * @return boolean
-     */
-    protected function get_is_get()
-    {
-        return $this->method == self::METHOD_GET;
-    }
-
-    /**
-     * Checks if the request method is `HEAD`.
-     *
-     * @return boolean
-     */
-    protected function get_is_head()
-    {
-        return $this->method == self::METHOD_HEAD;
-    }
-
-    /**
-     * Checks if the request method is `OPTIONS`.
-     *
-     * @return boolean
-     */
-    protected function get_is_options()
-    {
-        return $this->method == self::METHOD_OPTIONS;
-    }
-
-    /**
-     * Checks if the request method is `PATCH`.
-     *
-     * @return boolean
-     */
-    protected function get_is_patch()
-    {
-        return $this->method == self::METHOD_PATCH;
-    }
-
-    /**
-     * Checks if the request method is `POST`.
-     *
-     * @return boolean
-     */
-    protected function get_is_post()
-    {
-        return $this->method == self::METHOD_POST;
-    }
-
-    /**
-     * Checks if the request method is `PUT`.
-     *
-     * @return boolean
-     */
-    protected function get_is_put()
-    {
-        return $this->method == self::METHOD_PUT;
-    }
-
-    /**
-     * Checks if the request method is `TRACE`.
-     *
-     * @return boolean
-     */
-    protected function get_is_trace()
-    {
-        return $this->method == self::METHOD_TRACE;
-    }
-
-    /**
-     * Whether the request method is idempotent.
-     *
-     * @return bool
-     *
-     * @see http://restcookbook.com/HTTP%20Methods/idempotency/
-     */
-    protected function get_is_idempotent()
-    {
-        return !in_array($this->method, [
-
-            self::METHOD_PATCH,
-            self::METHOD_POST,
-
-        ]);
-    }
-
-    /**
-     * Whether the request method is safe.
-     *
-     * @return bool
-     *
-     * @see http://restcookbook.com/HTTP%20Methods/idempotency/
-     */
-    protected function get_is_safe()
-    {
-        return !in_array($this->method, self::SAFE_METHODS);
     }
 
     /**

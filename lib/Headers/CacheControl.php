@@ -179,7 +179,7 @@ final class CacheControl
         return $this->cacheable;
     }
 
-    private function set_cacheable(bool|string|null $value)
+    private function set_cacheable(bool|string|null $value): void
     {
         if ($value === false) {
             $value = 'no-cache';

@@ -11,6 +11,8 @@
 
 namespace ICanBoogie\HTTP;
 
+use Throwable;
+
 /**
  * Dispatcher interface.
  */
@@ -19,8 +21,6 @@ interface Dispatcher
     /**
      * Process the request.
      *
-     * @param Request $request
-     *
      * @return Response|null A response or `null` if the dispatcher cannot handle the request.
      */
     public function __invoke(Request $request): ?Response;
@@ -28,12 +28,9 @@ interface Dispatcher
     /**
      * Rescues the exception that was thrown during the request process.
      *
-     * @param \Throwable $exception
-     * @param Request $request
-     *
      * @return Response A response to the request exception.
      *
-     * @throws \Throwable when the request exception cannot be rescued.
+     * @throws Throwable when the request exception cannot be rescued.
      */
-    public function rescue(\Throwable $exception, Request $request): Response;
+    public function rescue(Throwable $exception, Request $request): Response;
 }

@@ -24,6 +24,9 @@ use function ICanBoogie\format;
  */
 class DispatcherNotDefined extends LogicException implements Exception
 {
+    /**
+     * @uses get_dispatcher_id
+     */
     use AccessorTrait;
 
     private string $dispatcher_id;
