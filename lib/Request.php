@@ -12,7 +12,6 @@
 namespace ICanBoogie\HTTP;
 
 use ICanBoogie\Accessor\AccessorTrait;
-use ICanBoogie\Prototype\MethodNotDefined;
 
 use function ICanBoogie\normalize_url_path;
 

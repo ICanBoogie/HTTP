@@ -9,22 +9,26 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP;
+namespace Test\ICanBoogie\HTTP;
 
-class ExceptionTest extends \PHPUnit\Framework\TestCase
+use ICanBoogie\HTTP\Exception;
+use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+
+class ExceptionTest extends TestCase
 {
     /**
      * @dataProvider provide_test_implements
      */
     public function test_implements($class, $args)
     {
-        $reflection = new \ReflectionClass(__NAMESPACE__ . '\\' . $class);
+        $reflection = new ReflectionClass('ICanBoogie\\HTTP\\' . $class);
         $exception = $reflection->newInstanceArgs($args);
 
         $this->assertInstanceOf(Exception::class, $exception);
     }
 
-    public function provide_test_implements()
+    public function provide_test_implements(): array
     {
         return [
 
@@ -32,7 +36,7 @@ class ExceptionTest extends \PHPUnit\Framework\TestCase
             [ 'ServiceUnavailable', [] ],
             [ 'MethodNotSupported', [ 'UNSUPPORTED' ] ],
             [ 'StatusCodeNotValid', [ 123 ] ],
-            [ 'ForceRedirect', [ 'to/location.html' ] ]
+            [ 'ForceRedirect', [ 'to/location.html' ] ],
 
         ];
     }

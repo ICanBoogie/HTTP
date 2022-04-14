@@ -9,20 +9,30 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP;
+namespace Test\ICanBoogie\HTTP;
 
+use Exception;
 use ICanBoogie\EventCollection;
 use ICanBoogie\EventCollectionProvider;
 use ICanBoogie\Exception\RescueEvent;
+use ICanBoogie\HTTP\DispatcherNotDefined;
+use ICanBoogie\HTTP\ForceRedirect;
+use ICanBoogie\HTTP\NotFound;
+use ICanBoogie\HTTP\RedirectResponse;
+use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\RequestDispatcher;
 use ICanBoogie\HTTP\RequestDispatcher\BeforeDispatchEvent;
 use ICanBoogie\HTTP\RequestDispatcher\DispatchEvent;
+use ICanBoogie\HTTP\RequestMethod;
+use ICanBoogie\HTTP\Response;
+use ICanBoogie\HTTP\Status;
+use ICanBoogie\HTTP\WeightedDispatcher;
+use PHPUnit\Framework\TestCase;
+use Throwable;
 
-class DispatcherTest extends \PHPUnit\Framework\TestCase
+class DispatcherTest extends TestCase
 {
-    /**
-     * @var EventCollection
-     */
-    private $events;
+    private EventCollection $events;
 
     protected function setUp(): void
     {
@@ -69,7 +79,7 @@ class DispatcherTest extends \PHPUnit\Framework\TestCase
      */
     public function testDispatcherRescueEvent()
     {
-        $this->events->attach(function (RescueEvent $event, \Exception $target) {
+        $this->events->attach(function (RescueEvent $event, Exception $target) {
             $event->response = new Response("Rescued: " . $event->exception->getMessage());
         });
 
@@ -77,7 +87,7 @@ class DispatcherTest extends \PHPUnit\Framework\TestCase
 
             'exception' => function () {
 
-                throw new \Exception('Damned!');
+                throw new Exception('Damned!');
             }
 
         ]);
@@ -211,7 +221,7 @@ class DispatcherTest extends \PHPUnit\Framework\TestCase
             $dispatcher[$k1];
 
             $this->fail('Expected DispatcherNotDefined');
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             $this->assertInstanceOf(DispatcherNotDefined::class, $e);
         }
     }
