@@ -9,17 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP;
+namespace Test\ICanBoogie\HTTP;
 
 use ICanBoogie\EventCollection;
 use ICanBoogie\EventCollectionProvider;
+use ICanBoogie\HTTP\ProvideDispatcher;
+use ICanBoogie\HTTP\RequestDispatcher;
+use ICanBoogie\HTTP\RequestDispatcher\AlterEvent;
+use PHPUnit\Framework\TestCase;
 
-class ProvideDispatcherTest extends \PHPUnit\Framework\TestCase
+class ProvideDispatcherTest extends TestCase
 {
-    /**
-     * @var EventCollection
-     */
-    private $events;
+    private EventCollection $events;
 
     protected function setUp(): void
     {
@@ -35,7 +36,7 @@ class ProvideDispatcherTest extends \PHPUnit\Framework\TestCase
     {
         $called_event = 0;
 
-        $this->events->attach(function (RequestDispatcher\AlterEvent $event, RequestDispatcher $target) use (&$called_event) {
+        $this->events->attach(function (AlterEvent $event, RequestDispatcher $target) use (&$called_event) {
 
             $called_event++;
         });

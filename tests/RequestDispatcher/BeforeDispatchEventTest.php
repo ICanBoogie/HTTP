@@ -9,24 +9,20 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP\RequestDispatcher;
+namespace Test\ICanBoogie\HTTP\RequestDispatcher;
 
-use ICanBoogie\HTTP\RequestDispatcher;
 use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\RequestDispatcher;
+use ICanBoogie\HTTP\RequestDispatcher\BeforeDispatchEvent;
 use ICanBoogie\HTTP\Response;
 use ICanBoogie\PropertyNotWritable;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class BeforeDispatchEventTest extends \PHPUnit\Framework\TestCase
+class BeforeDispatchEventTest extends TestCase
 {
-    /**
-     * @var RequestDispatcher
-     */
-    private $dispatcher;
-
-    /**
-     * @var Request
-     */
-    private $request;
+    private RequestDispatcher|MockObject $dispatcher;
+    private Request $request;
 
     protected function setUp(): void
     {
@@ -36,34 +32,6 @@ class BeforeDispatchEventTest extends \PHPUnit\Framework\TestCase
             ->getMock();
 
         $this->request = Request::from('/');
-    }
-
-    public function test_error_on_invalid_response_type()
-    {
-        $response = new \StdClass();
-
-        $this->expectException(\Throwable::class);
-
-        new BeforeDispatchEvent($this->dispatcher, $this->request, $response);
-    }
-
-    public function test_error_on_setting_invalid_response_type()
-    {
-        $response = null;
-
-        /* @var $event BeforeDispatchEvent */
-
-        $event = BeforeDispatchEvent::from([
-
-            'target' => $this->dispatcher,
-            'request' => $this->request,
-            'response' => &$response
-
-        ]);
-
-        $this->expectException(\Throwable::class);
-
-        $event->response = new \StdClass();
     }
 
     public function test_should_accept_null()

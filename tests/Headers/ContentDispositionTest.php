@@ -9,9 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP\Headers;
+namespace Test\ICanBoogie\HTTP\Headers;
 
-class ContentDispositionTest extends \PHPUnit\Framework\TestCase
+use ICanBoogie\HTTP\Headers\ContentDisposition;
+use ICanBoogie\HTTP\Headers\HeaderParameter;
+use PHPUnit\Framework\TestCase;
+
+class ContentDispositionTest extends TestCase
 {
     /**
      * @dataProvider provider_from
@@ -30,7 +34,7 @@ class ContentDispositionTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($source, (string) $h);
     }
 
-    public function provider_from()
+    public function provider_from(): array
     {
         return [
 

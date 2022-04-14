@@ -9,11 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP\RequestDispatcher;
+namespace Test\ICanBoogie\HTTP\RequestDispatcher;
 
 use ICanBoogie\HTTP\RequestDispatcher;
+use ICanBoogie\HTTP\RequestDispatcher\AlterEvent;
+use PHPUnit\Framework\TestCase;
 
-class AlterEventTest extends \PHPUnit\Framework\TestCase
+class AlterEventTest extends TestCase
 {
     public function test_instance()
     {

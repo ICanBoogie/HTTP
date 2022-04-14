@@ -9,9 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP\Headers;
+namespace Test\ICanBoogie\HTTP\Headers;
 
-class HeaderParameterTest extends \PHPUnit\Framework\TestCase
+use ICanBoogie\HTTP\Headers\HeaderParameter;
+use PHPUnit\Framework\TestCase;
+
+class HeaderParameterTest extends TestCase
 {
     public function test_is_token()
     {

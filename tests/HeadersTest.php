@@ -9,12 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP;
+namespace Test\ICanBoogie\HTTP;
 
 use ICanBoogie\DateTime;
+use ICanBoogie\HTTP\Headers;
 use ICanBoogie\HTTP\Headers\Date as DateHeader;
+use PHPUnit\Framework\TestCase;
 
-class HeadersTest extends \PHPUnit\Framework\TestCase
+class HeadersTest extends TestCase
 {
     public function testDateTimeFromDateTime()
     {

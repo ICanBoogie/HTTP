@@ -29,24 +29,12 @@ class DispatchEvent extends Event
 {
     public const TYPE = 'dispatch';
 
-    /**
-     * The request.
-     *
-     * @var Request
-     */
-    private $request;
-
     protected function get_request(): Request
     {
         return $this->request;
     }
 
-    /**
-     * Reference to the response.
-     *
-     * @var Response|null
-     */
-    private $response;
+    private ?Response $response;
 
     protected function get_response(): ?Response
     {
@@ -61,13 +49,13 @@ class DispatchEvent extends Event
     /**
      * The event is constructed with the type `dispatch`.
      *
-     * @param RequestDispatcher $target
-     * @param Request $request
      * @param Response|null $response Reference to the response.
      */
-    public function __construct(RequestDispatcher $target, Request $request, Response &$response = null)
-    {
-        $this->request = $request;
+    public function __construct(
+        RequestDispatcher $target,
+        private readonly Request $request,
+        Response &$response = null
+    ) {
         $this->response = &$response;
 
         parent::__construct($target, self::TYPE);

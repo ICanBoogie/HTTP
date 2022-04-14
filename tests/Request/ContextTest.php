@@ -9,62 +9,27 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP\Request;
+namespace Test\ICanBoogie\HTTP\Request;
 
-use ICanBoogie\HTTP\RequestDispatcher;
+use ICanBoogie\HTTP\Dispatcher;
 use ICanBoogie\HTTP\Request;
-use ICanBoogie\Prototype;
+use ICanBoogie\HTTP\RequestDispatcher;
 use PHPUnit\Framework\TestCase;
 
-class ContextTest extends TestCase
+final class ContextTest extends TestCase
 {
     public function test_get_request()
     {
         $request = Request::from('/');
-        $context = new Context($request);
-        $this->assertSame($request, $context->request);
+        $context = new Request\Context($request);
+        $this->assertSame($request, $context->get(Request::class));
     }
 
     public function test_set_dispatcher()
     {
-        $context = new Context(Request::from('/'));
+        $context = new Request\Context(Request::from('/'));
         $dispatcher = new RequestDispatcher();
-        $context->dispatcher = $dispatcher;
-        $this->assertSame($dispatcher, $context->dispatcher);
-    }
-
-    public function test_prototype()
-    {
-        $property = 'property' . uniqid();
-        $value = uniqid();
-        $invoked = 0;
-
-        $context = new Context(Request::from('/'));
-        $this->assertFalse(isset($context[$property]));
-
-        Prototype::from(Context::class)["lazy_get_$property"] = function () use ($value, &$invoked) {
-
-            $invoked++;
-
-            return $value;
-        };
-
-        $this->assertSame($value, $context->$property);
-        $this->assertSame($value, $context[$property]);
-        $this->assertTrue(isset($context[$property]));
-        $this->assertEquals(1, $invoked);
-
-        unset($context[$property]);
-
-        $this->assertSame($value, $context->$property);
-        $this->assertSame($value, $context[$property]);
-
-        $this->assertEquals(2, $invoked);
-
-        $value = uniqid();
-
-        $context[$property] = $value;
-
-        $this->assertSame($value, $context[$property]);
+        $context->add($dispatcher);
+        $this->assertSame($dispatcher, $context->get(Dispatcher::class));
     }
 }

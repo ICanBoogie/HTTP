@@ -9,11 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP\Headers;
+namespace Test\ICanBoogie\HTTP\Headers;
 
 use ICanBoogie\DateTime;
+use ICanBoogie\HTTP\Headers\Date;
+use PHPUnit\Framework\TestCase;
 
-class DateTest extends \PHPUnit\Framework\TestCase
+class DateTest extends TestCase
 {
     /**
      * @dataProvider provider_test_to_string
@@ -25,9 +27,9 @@ class DateTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expected, (string) $field);
     }
 
-    public function provider_test_to_string()
+    public function provider_test_to_string(): array
     {
-        $now = DateTime::now('Europe/Berlin');
+        $now = DateTime::now();
 
         return [
 

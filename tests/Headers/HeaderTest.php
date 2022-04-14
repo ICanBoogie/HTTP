@@ -9,10 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP\Headers;
+namespace Test\ICanBoogie\HTTP\Headers;
 
 use ICanBoogie\FormattedString;
-use ICanBoogie\HTTP\Headers\HeaderTest\A;
+use ICanBoogie\HTTP\Headers\Header;
+use ICanBoogie\HTTP\Headers\HeaderParameter;
 use ICanBoogie\OffsetNotDefined;
 use ICanBoogie\PropertyNotDefined;
 use PHPUnit\Framework\TestCase;
@@ -142,7 +143,7 @@ final class HeaderTest extends TestCase
     }
 }
 
-namespace ICanBoogie\HTTP\Headers\HeaderTest;
+namespace Test\ICanBoogie\HTTP\Headers;
 
 use ICanBoogie\HTTP\Headers\Header;
 use ICanBoogie\HTTP\Headers\HeaderParameter;

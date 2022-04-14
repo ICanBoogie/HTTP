@@ -9,11 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP\Headers;
+namespace Test\ICanBoogie\HTTP\Headers;
 
+use ICanBoogie\HTTP\Headers\CacheControl;
 use InvalidArgumentException;
+use PHPUnit\Framework\TestCase;
 
-class CacheControlTest extends \PHPUnit\Framework\TestCase
+class CacheControlTest extends TestCase
 {
     /**
      * @dataProvider provide_properties
@@ -44,7 +46,7 @@ class CacheControlTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function provide_properties()
+    public function provide_properties(): array
     {
         return [
 
@@ -89,7 +91,7 @@ class CacheControlTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    public function test_from_same()
+    public function test_from_same(): void
     {
         $instance = CacheControl::from('public, no-store, max-age=0');
 
@@ -97,14 +99,14 @@ class CacheControlTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($instance, CacheControl::from($instance));
     }
 
-    public function test_set_invalid_cacheable()
+    public function test_set_invalid_cacheable(): void
     {
         $cache_control = new CacheControl();
         $this->expectException(InvalidArgumentException::class);
         $cache_control->cacheable = 'madonna';
     }
 
-    public function test_extensions()
+    public function test_extensions(): void
     {
         $cache_control = new CacheControl("public, ext1=one, ext2=two");
         $this->assertEquals([ 'ext1' => "one", 'ext2' => "two" ], $cache_control->extensions);

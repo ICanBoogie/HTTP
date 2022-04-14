@@ -9,9 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP\Headers;
+namespace Test\ICanBoogie\HTTP\Headers;
 
-class ContentTypeTest extends \PHPUnit\Framework\TestCase
+use ICanBoogie\HTTP\Headers\ContentType;
+use PHPUnit\Framework\TestCase;
+
+class ContentTypeTest extends TestCase
 {
     /**
      * @dataProvider provider_from

@@ -14,7 +14,6 @@ namespace ICanBoogie\HTTP\Headers;
 use ArrayAccess;
 use ICanBoogie\OffsetNotDefined;
 use ICanBoogie\PropertyNotDefined;
-
 use InvalidArgumentException;
 
 use function array_intersect_key;

@@ -13,6 +13,9 @@ namespace ICanBoogie\HTTP;
 
 use ICanBoogie\EventCollection;
 use ICanBoogie\EventCollectionProvider;
+use ICanBoogie\Exception\RescueEvent;
+use ICanBoogie\HTTP\RequestDispatcher\BeforeDispatchEvent;
+use ICanBoogie\HTTP\RequestDispatcher\DispatchEvent;
 
 class DispatcherTest extends \PHPUnit\Framework\TestCase
 {
@@ -41,12 +44,12 @@ class DispatcherTest extends \PHPUnit\Framework\TestCase
         $before_done = null;
         $done = null;
 
-        $this->events->attach(function (RequestDispatcher\BeforeDispatchEvent $event, RequestDispatcher $target) use (&$before_done) {
+        $this->events->attach(function (BeforeDispatchEvent $event, RequestDispatcher $target) use (&$before_done) {
 
             $before_done = true;
         });
 
-        $this->events->attach(function (RequestDispatcher\DispatchEvent $event, RequestDispatcher $target) use (&$done) {
+        $this->events->attach(function (DispatchEvent $event, RequestDispatcher $target) use (&$done) {
 
             $done = true;
 
@@ -66,8 +69,7 @@ class DispatcherTest extends \PHPUnit\Framework\TestCase
      */
     public function testDispatcherRescueEvent()
     {
-        $this->events->attach(function (\ICanBoogie\Exception\RescueEvent $event, \Exception $target) {
-
+        $this->events->attach(function (RescueEvent $event, \Exception $target) {
             $event->response = new Response("Rescued: " . $event->exception->getMessage());
         });
 

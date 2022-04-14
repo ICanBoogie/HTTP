@@ -1,23 +1,19 @@
 <?php
 
-namespace ICanBoogie\HTTP\RequestDispatcher;
+namespace Test\ICanBoogie\HTTP\RequestDispatcher;
 
-use ICanBoogie\HTTP\RequestDispatcher;
 use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\RequestDispatcher;
+use ICanBoogie\HTTP\RequestDispatcher\DispatchEvent;
 use ICanBoogie\HTTP\Response;
 use ICanBoogie\PropertyNotWritable;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class DispatchEventTest extends \PHPUnit\Framework\TestCase
+class DispatchEventTest extends TestCase
 {
-    /**
-     * @var RequestDispatcher
-     */
-    private $dispatcher;
-
-    /**
-     * @var Request
-     */
-    private $request;
+    private RequestDispatcher|MockObject $dispatcher;
+    private Request $request;
 
     protected function setUp(): void
     {
