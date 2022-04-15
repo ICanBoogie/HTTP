@@ -44,6 +44,8 @@ use function substr;
  *     Shortcut to the `Content-Type` header field definition.
  *  @property Headers\Date|mixed $date
  *     Shortcut to the `Date` header field definition.
+ *  @property Headers\Date|mixed $expires
+ *     Shortcut to the `Expires` header field definition.
  */
 class Headers implements ArrayAccess, IteratorAggregate
 {
@@ -56,6 +58,8 @@ class Headers implements ArrayAccess, IteratorAggregate
      * @uses set_content_type
      * @uses get_date
      * @uses set_date
+     * @uses get_expires
+     * @uses set_expires
      */
     use AccessorTrait;
 
@@ -320,7 +324,16 @@ class Headers implements ArrayAccess, IteratorAggregate
         $this->offsetSet('Date', $value);
     }
 
-//'Expires' => Headers\Date::class,
+    private function get_expires(): Headers\Date
+    {
+        return $this->offsetGet('Expires');
+    }
+
+    private function set_expires(mixed $value): void
+    {
+        $this->offsetSet('Expires', $value);
+    }
+
 //'If-Modified-Since' => Headers\Date::class,
 //'If-Unmodified-Since' => Headers\Date::class,
 //'Last-Modified' => Headers\Date::class,

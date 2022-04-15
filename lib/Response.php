@@ -13,8 +13,6 @@ namespace ICanBoogie\HTTP;
 
 use Closure;
 use ICanBoogie\Accessor\AccessorTrait;
-use ICanBoogie\DateTime;
-
 use InvalidArgumentException;
 
 use function ICanBoogie\format;
@@ -26,19 +24,20 @@ use function trigger_error;
 use const E_USER_DEPRECATED;
 
 /**
- * A response to a HTTP request.
+ * A response to an HTTP request.
  *
  * @property Status|int $status
  * @property mixed $body The body of the response.
  *
  * @property int|null $ttl
- *     Adjusts the `s-maxage` part of the `Cache-Control` header field definition according to
+ *     Adjusts the `s-maxage` directive of the `Cache-Control` header field definition according to
  *     the `Age` header field definition.
  * @property int|null $age Shortcut to the `Age` header field definition.
  * @property int $content_length Shortcut to the `Content-Length` header field definition.
  * @property Headers\Date|string $date @deprecated Shortcut to the `Date` header field definition.
  * @property string|null $etag Shortcut to the `ETag` header field definition.
- * @property Headers\Date $expires Shortcut to the `Expires` header field definition.
+ * @property Headers\Date $expires
+ *     Adjusts the `Expires` header and the `max_age` directive of the `Cache-Control` header.
  * @property Headers\Date $last_modified Shortcut to the `Last-Modified` header field definition.
  * @property string|null $location Shortcut to the `Location` header field definition.
  *
@@ -50,11 +49,14 @@ use const E_USER_DEPRECATED;
  */
 class Response implements ResponseStatus
 {
+    /**
+     * @uses get_cache_control
+     * @uses set_cache_control
+     * @uses get_expires
+     * @uses set_expires
+     */
     use AccessorTrait;
 
-    /**
-     * Response headers.
-     */
     public Headers $headers;
 
     /**
@@ -331,25 +333,27 @@ class Response implements ResponseStatus
     /**
      * Sets the value of the `Content-Type` header field.
      *
-     * @param string|null $content_type
+     * @deprecated 6.0
+     * @see Headers::$content_type
      */
     protected function set_content_type(?string $content_type): void
     {
         trigger_error('$response->content_type is deprecated use $response->headers->content_type instead.', E_USER_DEPRECATED);
 
-        $this->headers['Content-Type'] = $content_type;
+        $this->headers->content_type = $content_type;
     }
 
     /**
      * Returns the value of the `Content-Type` header field.
      *
-     * @return Headers\ContentType
+     * @deprecated 6.0
+     * @see Headers::$content_type
      */
     protected function get_content_type(): Headers\ContentType
     {
         trigger_error('$response->content_type is deprecated use $response->headers->content_type instead.', E_USER_DEPRECATED);
 
-        return $this->headers['Content-Type']; // @phpstan-ignore-line
+        return $this->headers->content_type;
     }
 
     /**
@@ -374,10 +378,8 @@ class Response implements ResponseStatus
 
     /**
      * Sets the value of the `Date` header field.
-     *
-     * @param mixed $time
      */
-    protected function set_date($time): void
+    protected function set_date(mixed $time): void
     {
         trigger_error('$response->date is deprecated use $response->headers->date instead.', E_USER_DEPRECATED);
 
@@ -386,8 +388,6 @@ class Response implements ResponseStatus
 
     /**
      * Returns the value of the `Date` header field.
-     *
-     * @return Headers\Date
      */
     protected function get_date(): Headers\Date
     {
@@ -450,25 +450,21 @@ class Response implements ResponseStatus
      * Sets the value of the `Expires` header field.
      *
      * The method updates the `max-age` Cache Control directive accordingly.
-     *
-     * @param mixed $time
      */
-    protected function set_expires($time): void
+    protected function set_expires(mixed $time): void
     {
-        $this->headers['Expires'] = $time;
-        $expires = $this->headers['Expires'];
-        assert($expires instanceof DateTime);
+        $this->headers->expires = $time;
+        $expires = $this->headers->expires;
+
         $this->headers->cache_control->max_age = $expires->is_empty ? null : $expires->timestamp - time();
     }
 
     /**
      * Returns the value of the `Expires` header field.
-     *
-     * @return Headers\Date
      */
     protected function get_expires(): Headers\Date
     {
-        return $this->headers['Expires']; // @phpstan-ignore-line
+        return $this->headers->expires;
     }
 
     /**
@@ -501,24 +497,22 @@ class Response implements ResponseStatus
      */
     protected function set_cache_control(?string $cache_directives): void
     {
-        trigger_error("\$response->cache_control is deprecated, use \$response->headers->cache_control instead.", E_USER_DEPRECATED);
+        trigger_error('$response->cache_control is deprecated, use $response->headers->cache_control instead.', E_USER_DEPRECATED);
 
-        $this->headers['Cache-Control'] = $cache_directives;
+        $this->headers->cache_control = $cache_directives;
     }
 
     /**
      * Returns the `Cache-Control` header field.
-     *
-     * @return Headers\CacheControl
      *
      * @deprecated 6.0
      * @see Headers::$cache_control
      */
     protected function get_cache_control(): Headers\CacheControl
     {
-        trigger_error("\$response->cache_control is deprecated, use \$response->headers->cache_control instead.", E_USER_DEPRECATED);
+        trigger_error('$response->cache_control is deprecated, use $response->headers->cache_control instead.', E_USER_DEPRECATED);
 
-        return $this->headers['Cache-Control']; // @phpstan-ignore-line
+        return $this->headers->cache_control;
     }
 
     /**
