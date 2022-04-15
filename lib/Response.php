@@ -14,11 +14,15 @@ namespace ICanBoogie\HTTP;
 use Closure;
 use ICanBoogie\Accessor\AccessorTrait;
 use InvalidArgumentException;
+use Stringable;
+use Throwable;
 
+use function header;
+use function header_remove;
+use function headers_sent;
 use function ICanBoogie\format;
-use function is_array;
-use function is_object;
-use function method_exists;
+use function ob_get_clean;
+use function ob_start;
 use function trigger_error;
 
 use const E_USER_DEPRECATED;
@@ -27,27 +31,38 @@ use const E_USER_DEPRECATED;
  * A response to an HTTP request.
  *
  * @property Status|int $status
- * @property mixed $body
- *     The body of the response.
  *
  * @property int|null $ttl
- *     Adjusts the `s-maxage` directive of the `Cache-Control` header field definition according to
- *     the `Age` header field definition.
+ *     The response's time-to-live in second for shared caches.
+ *     Setting this property also adjust the `s-maxage` directive of the `Cache-Control` header according to
+ *     the `Age` header.
+ *     When the responses TTL is <= 0, the response may not be served from cache without first
+ *     re-validating with the origin.
  * @property int|null $age
- *     Shortcut to the `Age` header field definition.
+ *     Shortcut to the `Age` header.
  * @property Headers\Date|mixed $expires
  *     Adjusts the `Expires` header and the `max_age` directive of the `Cache-Control` header.
- * @property string|null $location Shortcut to the `Location` header field definition.
- *
- * @property-read bool $is_cacheable {@link get_is_cacheable()}
- * @property-read bool $is_fresh {@link get_is_fresh()}
- * @property-read bool $is_validateable {@link get_is_validateable()}
+ * @property string|null $location
+ *     Shortcut to the `Location` header.
+ * @property-read bool $is_cacheable
+ *     Whether the response is worth caching under any circumstance.
+ *     Responses marked _private_ with an explicit `Cache-Control` directive are considered
+ *     not cacheable. Responses with neither a freshness lifetime (Expires, max-age) nor cache validator
+ *     (`Last-Modified`, `ETag`) are considered not cacheable.
+ * @property-read bool $is_fresh
+ *     Whether the response is fresh.
+ *     A response is considered fresh when its TTL is greater than 0.
+ * @property-read bool $is_validateable
+ *     Whether the response includes header fields that can be used to validate the response
+ *     with the origin server using a conditional GET request.
  *
  * @see http://tools.ietf.org/html/rfc2616
  */
 class Response implements ResponseStatus
 {
     /**
+     * @uses get_age
+     * @uses set_age
      * @uses get_cache_control
      * @uses set_cache_control
      * @uses get_content_length
@@ -60,8 +75,13 @@ class Response implements ResponseStatus
      * @uses set_expires
      * @uses get_date
      * @uses set_date
+     * @uses get_is_cacheable
+     * @uses get_is_fresh
+     * @uses get_is_validateable
      * @uses get_last_modified
      * @uses set_last_modified
+     * @uses get_status
+     * @uses set_status
      * @uses get_ttl
      * @uses set_ttl
      */
@@ -77,23 +97,16 @@ class Response implements ResponseStatus
     /**
      * Initializes the `$body`,  `$status`, `$headers`, and `$date` properties.
      *
-     * @param mixed|null $body The body of the response.
      * @param int|Status $status The status code of the response.
      * @param array|Headers $headers The initial header fields of the response.
      */
     public function __construct(
-        mixed $body = null,
-        int|Status $status = self::STATUS_OK,
+        public string|Stringable|Closure|null $body = null,
+        int|Status $status = ResponseStatus::STATUS_OK,
         Headers|array $headers = []
     ) {
-        if (is_array($headers)) {
+        if (!$headers instanceof Headers) {
             $headers = new Headers($headers);
-        } elseif (!$headers instanceof Headers) {
-            throw new InvalidArgumentException(
-                "\$headers must be an array or a ICanBoogie\\HTTP\\Headers instance. Given: " . gettype(
-                    $headers
-                )
-            );
         }
 
         $this->headers = $headers;
@@ -103,10 +116,6 @@ class Response implements ResponseStatus
         }
 
         $this->set_status($status);
-
-        if ($body !== null) {
-            $this->set_body($body);
-        }
     }
 
     /**
@@ -120,10 +129,8 @@ class Response implements ResponseStatus
 
     /**
      * Renders the response as an HTTP string.
-     *
-     * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         try {
             $header = clone $this->headers;
@@ -131,17 +138,17 @@ class Response implements ResponseStatus
 
             $this->finalize($header, $body);
 
-            \ob_start();
+            ob_start();
 
             $this->send_body($body);
 
-            $body = \ob_get_clean();
+            $body = ob_get_clean();
 
-            return "HTTP/{$this->version} {$this->status}\r\n"
+            return "HTTP/$this->version $this->status\r\n"
                 . $header
                 . "\r\n"
                 . $body;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return $e->getMessage();
         }
     }
@@ -182,37 +189,21 @@ class Response implements ResponseStatus
      * @param Headers $headers Reference to the final header.
      * @param mixed $body Reference to the final body.
      */
-    protected function finalize(Headers &$headers, &$body): void
+    protected function finalize(Headers &$headers, mixed &$body): void
     {
-        if (
-            $body instanceof Closure
-            || !is_object($body)
-            || !method_exists($body, '__toString')
-        ) {
+        if ($body instanceof Closure || !$body instanceof Stringable) {
             return;
         }
 
-        $body = (string)$body;
+        $body = (string) $body;
     }
 
-    /**
-     * Sends response headers.
-     *
-     * @param Headers $headers
-     *
-     * @return bool `true` is the headers were sent, `false` otherwise.
-     */
     protected function send_headers(Headers $headers): bool // @codeCoverageIgnoreStart
     {
-        if (\headers_sent($file, $line)) {
-            \trigger_error(
-                format(
-                    "Cannot modify header information because"
-                    . " it was already sent. Output started at !at.",
-                    [
-
+        if (headers_sent($file, $line)) {
+            trigger_error(
+                format("Cannot modify header information because it was already sent. Output started at !at.", [
                         'at' => $file . ':' . $line,
-
                     ]
                 )
             );
@@ -220,22 +211,17 @@ class Response implements ResponseStatus
             return false;
         }
 
-        \header_remove('Pragma');
-        \header_remove('X-Powered-By');
+        header_remove('Pragma');
+        header_remove('X-Powered-By');
 
-        \header("HTTP/{$this->version} {$this->status}");
+        header("HTTP/$this->version $this->status");
 
         $headers();
 
         return true;
     } // @codeCoverageIgnoreEnd
 
-    /**
-     * Sends response body.
-     *
-     * @param mixed $body
-     */
-    protected function send_body($body): void
+    protected function send_body(mixed $body): void
     {
         if ($body instanceof Closure) {
             $body($this);
@@ -251,69 +237,14 @@ class Response implements ResponseStatus
      */
     private Status $status;
 
-    protected function set_status(int|Status $status): void
+    private function set_status(int|Status $status): void
     {
         $this->status = Status::from($status);
     }
 
-    protected function get_status(): Status
+    private function get_status(): Status
     {
         return $this->status;
-    }
-
-    /**
-     * The response body.
-     *
-     * The body can be any data type that can be converted into a string. This includes numeric
-     * and objects implementing the {@link __toString()} method.
-     *
-     * @var mixed
-     */
-    private $body;
-
-    protected function set_body($body): void
-    {
-        $this->assert_body_is_valid($body);
-        $this->body = $body;
-    }
-
-    /**
-     * Assert that a body is valid.
-     *
-     * @param mixed $body
-     *
-     * @throws \UnexpectedValueException if the specified body doesn't meet the requirements.
-     */
-    protected function assert_body_is_valid($body)
-    {
-        if (
-            $body === null
-            || $body instanceof Closure
-            || \is_numeric($body)
-            || \is_string($body)
-            || (\is_object($body) && method_exists($body, '__toString'))
-        ) {
-            return;
-        }
-
-        throw new \UnexpectedValueException(
-            format(
-                "The Response body must be a string,"
-                . " an object implementing the __toString() method or be callable, %type given."
-                . " !value",
-                [
-
-                    'type' => \gettype($body),
-                    'value' => $body,
-
-                ]
-            )
-        );
-    }
-
-    protected function get_body()
-    {
-        return $this->body;
     }
 
     /**
@@ -417,7 +348,10 @@ class Response implements ResponseStatus
      */
     protected function get_cache_control(): Headers\CacheControl
     {
-        trigger_error('$response->cache_control is deprecated, use $response->headers->cache_control instead.', E_USER_DEPRECATED);
+        trigger_error(
+            '$response->cache_control is deprecated, use $response->headers->cache_control instead.',
+            E_USER_DEPRECATED
+        );
 
         return $this->headers->cache_control;
     }
@@ -428,7 +362,10 @@ class Response implements ResponseStatus
      */
     protected function set_cache_control(?string $cache_directives): void
     {
-        trigger_error('$response->cache_control is deprecated, use $response->headers->cache_control instead.', E_USER_DEPRECATED);
+        trigger_error(
+            '$response->cache_control is deprecated, use $response->headers->cache_control instead.',
+            E_USER_DEPRECATED
+        );
 
         $this->headers->cache_control = $cache_directives;
     }
@@ -439,7 +376,10 @@ class Response implements ResponseStatus
      */
     private function get_content_length(): ?int
     {
-        trigger_error('$response->content_length is deprecated use $response->headers->content_length instead.', E_USER_DEPRECATED);
+        trigger_error(
+            '$response->content_length is deprecated use $response->headers->content_length instead.',
+            E_USER_DEPRECATED
+        );
 
         return $this->headers->content_length;
     }
@@ -450,7 +390,10 @@ class Response implements ResponseStatus
      */
     private function set_content_length(?int $length): void
     {
-        trigger_error('$response->content_length is deprecated use $response->headers->content_length instead.', E_USER_DEPRECATED);
+        trigger_error(
+            '$response->content_length is deprecated use $response->headers->content_length instead.',
+            E_USER_DEPRECATED
+        );
 
         $this->headers->content_length = $length;
     }
@@ -461,7 +404,10 @@ class Response implements ResponseStatus
      */
     protected function get_content_type(): Headers\ContentType
     {
-        trigger_error('$response->content_type is deprecated use $response->headers->content_type instead.', E_USER_DEPRECATED);
+        trigger_error(
+            '$response->content_type is deprecated use $response->headers->content_type instead.',
+            E_USER_DEPRECATED
+        );
 
         return $this->headers->content_type;
     }
@@ -472,7 +418,10 @@ class Response implements ResponseStatus
      */
     protected function set_content_type(mixed $content_type): void
     {
-        trigger_error('$response->content_type is deprecated use $response->headers->content_type instead.', E_USER_DEPRECATED);
+        trigger_error(
+            '$response->content_type is deprecated use $response->headers->content_type instead.',
+            E_USER_DEPRECATED
+        );
 
         $this->headers->content_type = $content_type;
     }
@@ -505,7 +454,10 @@ class Response implements ResponseStatus
      */
     private function get_last_modified(): Headers\Date
     {
-        trigger_error('$response->last_modified is deprecated, use $response->headers->last_modified instead.', E_USER_DEPRECATED);
+        trigger_error(
+            '$response->last_modified is deprecated, use $response->headers->last_modified instead.',
+            E_USER_DEPRECATED
+        );
 
         return $this->headers->last_modified;
     }
@@ -516,32 +468,14 @@ class Response implements ResponseStatus
      */
     private function set_last_modified(mixed $value): void
     {
-        trigger_error('$response->last_modified is deprecated, use $response->headers->last_modified instead.', E_USER_DEPRECATED);
+        trigger_error(
+            '$response->last_modified is deprecated, use $response->headers->last_modified instead.',
+            E_USER_DEPRECATED
+        );
 
         $this->headers->last_modified = $value;
     }
 
-    /**
-     * Sets the response's time-to-live for shared caches.
-     *
-     * This method adjusts the Cache-Control/s-maxage directive.
-     *
-     * @param int|null $seconds The number of seconds.
-     */
-    private function set_ttl(?int $seconds): void
-    {
-        $this->headers->cache_control->s_maxage = $this->age + $seconds;
-    }
-
-    /**
-     * Returns the response's time-to-live in seconds.
-     *
-     * When the responses TTL is <= 0, the response may not be served from cache without first
-     * re-validating with the origin.
-     *
-     * @return int|null The number of seconds to live, or `null` is no freshness information
-     * is present.
-     */
     private function get_ttl(): ?int
     {
         $max_age = $this->headers->cache_control->max_age;
@@ -553,27 +487,17 @@ class Response implements ResponseStatus
         return null;
     }
 
-    /**
-     * Whether the response includes header fields that can be used to validate the response
-     * with the origin server using a conditional GET request.
-     */
-    protected function get_is_validateable(): bool
+    private function set_ttl(?int $seconds): void
+    {
+        $this->headers->cache_control->s_maxage = $this->age + $seconds;
+    }
+
+    private function get_is_validateable(): bool
     {
         return !$this->headers->last_modified->is_empty || $this->headers->etag;
     }
 
-    /**
-     * Whether the response is worth caching under any circumstance.
-     *
-     * Responses marked _private_ with an explicit `Cache-Control` directive are considered
-     * not cacheable.
-     *
-     * Responses with neither a freshness lifetime (Expires, max-age) nor cache validator
-     * (`Last-Modified`, `ETag`) are considered not cacheable.
-     *
-     * @return bool
-     */
-    protected function get_is_cacheable(): bool
+    private function get_is_cacheable(): bool
     {
         if (
             !$this->status->is_cacheable
@@ -586,10 +510,7 @@ class Response implements ResponseStatus
         return $this->is_validateable || $this->is_fresh;
     }
 
-    /**
-     * Whether the response is fresh.
-     */
-    protected function get_is_fresh(): bool
+    private function get_is_fresh(): bool
     {
         return $this->ttl > 0;
     }

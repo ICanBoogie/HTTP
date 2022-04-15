@@ -39,13 +39,6 @@ class ResponseTest extends TestCase
         $this->assertNotSame($clone->status, $response->status);
     }
 
-    public function test_invalid_body_should_throw_exception()
-    {
-        $this->expectException(UnexpectedValueException::class);
-
-        new Response(new \stdClass());
-    }
-
     public function test_should_throw_exception_setting_empty_string_location()
     {
         $response = new Response();
