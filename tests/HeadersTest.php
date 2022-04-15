@@ -16,7 +16,7 @@ use ICanBoogie\HTTP\Headers;
 use ICanBoogie\HTTP\Headers\Date as DateHeader;
 use PHPUnit\Framework\TestCase;
 
-class HeadersTest extends TestCase
+final class HeadersTest extends TestCase
 {
     public function testDateTimeFromDateTime()
     {
@@ -51,11 +51,16 @@ class HeadersTest extends TestCase
     {
         $headers = new Headers();
         $this->assertInstanceOf(Headers\CacheControl::class, $headers['Cache-Control']);
+        $this->assertSame($headers['Cache-Control'], $headers->cache_control);
         $headers['Cache-Control'] = 'public, max-age=3600, no-transform';
         $this->assertInstanceOf(Headers\CacheControl::class, $headers['Cache-Control']);
-        $this->assertEquals('public', $headers['Cache-Control']->cacheable);
-        $this->assertEquals('3600', $headers['Cache-Control']->max_age);
-        $this->assertTrue($headers['Cache-Control']->no_transform);
+        $this->assertEquals('public', $headers->cache_control->cacheable);
+        $this->assertEquals('3600', $headers->cache_control->max_age);
+        $headers->cache_control->modify('public, max-age=3600, no-transform');
+        $this->assertInstanceOf(Headers\CacheControl::class, $headers['Cache-Control']);
+        $this->assertEquals('public', $headers->cache_control->cacheable);
+        $this->assertEquals('3600', $headers->cache_control->max_age);
+        $this->assertTrue($headers->cache_control->no_transform);
     }
 
     public function testContentDisposition()

@@ -130,7 +130,7 @@ class FileResponse extends Response
             }
         }
 
-        if ($this->request->cache_control->cacheable != 'no-cache' && !$this->is_modified) {
+        if ($this->request->headers->cache_control->cacheable != 'no-cache' && !$this->is_modified) {
             $this->status = Status::NOT_MODIFIED;
         }
 
@@ -162,8 +162,8 @@ class FileResponse extends Response
         $expires = $this->expires;
 
         $headers['Expires'] = $expires;
-        $headers['Cache-Control']->cacheable = 'public';
-        $headers['Cache-Control']->max_age = $expires->timestamp - DateTime::now()->timestamp;
+        $headers->cache_control->cacheable = 'public';
+        $headers->cache_control->max_age = $expires->timestamp - DateTime::now()->timestamp;
         $headers['Content-Type'] = $this->content_type;
         $headers['Etag'] = $this->etag;
 

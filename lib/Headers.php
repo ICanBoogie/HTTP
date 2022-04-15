@@ -13,6 +13,8 @@ namespace ICanBoogie\HTTP;
 
 use ArrayAccess;
 use ArrayIterator;
+use ICanBoogie\Accessor\AccessorTrait;
+use ICanBoogie\HTTP\Headers\CacheControl;
 use ICanBoogie\HTTP\Headers\Header;
 use IteratorAggregate;
 
@@ -34,9 +36,18 @@ use function substr;
  * is used to handle the directives of the `Cache-Control` header field.
  *
  * @see http://tools.ietf.org/html/rfc2616#section-14
+ *
+ *  @property Headers\CacheControl|mixed $cache_control
+ *     Shortcut to the `Cache-Control` header field definition.
  */
 class Headers implements ArrayAccess, IteratorAggregate
 {
+    /**
+     * @uses get_cache_control
+     * @uses set_cache_control
+     */
+    use AccessorTrait;
+
     private const MAPPING = [
 
         'Cache-Control' => Headers\CacheControl::class,
@@ -257,4 +268,23 @@ class Headers implements ArrayAccess, IteratorAggregate
     {
         return new ArrayIterator($this->fields);
     }
+
+    public function get_cache_control(): CacheControl
+    {
+        return $this->offsetGet('Cache-Control');
+    }
+
+    public function set_cache_control(mixed $value): void
+    {
+        $this->offsetSet('Cache-Control', $value);
+    }
+
+//'Content-Disposition' => Headers\ContentDisposition::class,
+//'Content-Type' => Headers\ContentType::class,
+//'Date' => Headers\Date::class,
+//'Expires' => Headers\Date::class,
+//'If-Modified-Since' => Headers\Date::class,
+//'If-Unmodified-Since' => Headers\Date::class,
+//'Last-Modified' => Headers\Date::class,
+
 }

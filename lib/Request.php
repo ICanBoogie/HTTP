@@ -56,7 +56,6 @@ use function ICanBoogie\normalize_url_path;
  *
  * @property-read bool $authorization Authorization of the request.
  * @property-read int $content_length Length of the request content.
- * @property-read Headers\CacheControl $cache_control
  * @property-read string $ip Remote IP of the request.
  * @property-read bool $is_local Is this a local request?
  * @property-read bool $is_xhr Is this an Ajax request?
@@ -473,14 +472,6 @@ class Request implements RequestOptions
     protected function get_context()
     {
         return $this->context;
-    }
-
-    /**
-     * Returns the `Cache-Control` header.
-     */
-    protected function get_cache_control(): Headers\CacheControl
-    {
-        return $this->headers['Cache-Control']; // @phpstan-ignore-line
     }
 
     /**

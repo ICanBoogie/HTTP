@@ -9,15 +9,21 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP;
+namespace Test\ICanBoogie\HTTP;
 
+use ICanBoogie\HTTP\File;
+use ICanBoogie\HTTP\FileList;
+use ICanBoogie\HTTP\Headers;
+use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\RequestMethod;
+use ICanBoogie\HTTP\Response;
 use ICanBoogie\PropertyNotWritable;
-use ICanBoogie\Prototype\MethodNotDefined;
 use InvalidArgumentException;
+use PHPUnit\Framework\TestCase;
 
-class RequestTest extends \PHPUnit\Framework\TestCase
+class RequestTest extends TestCase
 {
-    private static $request;
+    private static Request $request;
 
     public static function setupBeforeClass(): void
     {
@@ -45,7 +51,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
     public function provide_test_write_readonly_properties()
     {
-        $properties = 'authorization content_length cache_control context extension ip'
+        $properties = 'authorization content_length context extension ip'
         . ' is_local is_xhr'
         . ' normalized_path method path port parent query_string referer script_name uri'
         . ' user_agent files';
@@ -60,9 +66,8 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $value = "public, must-revalidate";
         $request = Request::from([ Request::OPTION_CACHE_CONTROL => $value ]);
         $this->assertObjectNotHasAttribute('cache_control', $request);
-        $this->assertInstanceOf(Headers\CacheControl::class, $request->cache_control);
-        $this->assertEquals('public', $request->cache_control->cacheable);
-        $this->assertTrue($request->cache_control->must_revalidate);
+        $this->assertEquals('public', $request->headers->cache_control->cacheable);
+        $this->assertTrue($request->headers->cache_control->must_revalidate);
     }
 
     public function test_from_with_content_length()
@@ -369,7 +374,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
 
         $this->assertInstanceOf(Headers::class, $request->headers);
-        $this->assertEquals("max-age=0", (string) $request->headers['Cache-Control']);
+        $this->assertEquals("max-age=0", (string) $request->headers->cache_control);
         $this->assertEquals("application/json", (string) $request->headers['Accept']);
 
         $headers = new Headers([

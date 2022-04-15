@@ -18,6 +18,9 @@ use ICanBoogie\DateTime;
 use function ICanBoogie\format;
 use function is_object;
 use function method_exists;
+use function trigger_error;
+
+use const E_USER_DEPRECATED;
 
 /**
  * A response to a HTTP request.
@@ -29,8 +32,6 @@ use function method_exists;
  *     Adjusts the `s-maxage` part of the `Cache-Control` header field definition according to
  *     the `Age` header field definition.
  * @property int|null $age Shortcut to the `Age` header field definition.
- * @property Headers\CacheControl $cache_control
- *     Shortcut to the `Cache-Control` header field definition.
  * @property int $content_length Shortcut to the `Content-Length` header field definition.
  * @property Headers\ContentType $content_type
  *     Shortcut to the `Content-Type` header field definition.
@@ -448,7 +449,7 @@ class Response implements ResponseStatus
         $this->headers['Expires'] = $time;
         $expires = $this->headers['Expires'];
         assert($expires instanceof DateTime);
-        $this->cache_control->max_age = $expires->is_empty ? null : $expires->timestamp - time();
+        $this->headers->cache_control->max_age = $expires->is_empty ? null : $expires->timestamp - time();
     }
 
     /**
@@ -485,9 +486,14 @@ class Response implements ResponseStatus
      * Sets the directives of the `Cache-Control` header field.
      *
      * @param string|null $cache_directives
+     *
+     * @deprecated 6.0
+     * @see Headers::$cache_control
      */
     protected function set_cache_control(?string $cache_directives): void
     {
+        trigger_error("\$response->cache_control is deprecated, use \$response->headers->cache_control instead.", E_USER_DEPRECATED);
+
         $this->headers['Cache-Control'] = $cache_directives;
     }
 
@@ -495,9 +501,14 @@ class Response implements ResponseStatus
      * Returns the `Cache-Control` header field.
      *
      * @return Headers\CacheControl
+     *
+     * @deprecated 6.0
+     * @see Headers::$cache_control
      */
     protected function get_cache_control(): Headers\CacheControl
     {
+        trigger_error("\$response->cache_control is deprecated, use \$response->headers->cache_control instead.", E_USER_DEPRECATED);
+
         return $this->headers['Cache-Control']; // @phpstan-ignore-line
     }
 
@@ -510,7 +521,7 @@ class Response implements ResponseStatus
      */
     protected function set_ttl(?int $seconds): void
     {
-        $this->cache_control->s_maxage = $this->age + $seconds;
+        $this->headers->cache_control->s_maxage = $this->age + $seconds;
     }
 
     /**
@@ -524,7 +535,7 @@ class Response implements ResponseStatus
      */
     protected function get_ttl(): ?int
     {
-        $max_age = $this->cache_control->max_age;
+        $max_age = $this->headers->cache_control->max_age;
 
         if ($max_age) {
             return $max_age - $this->age;
@@ -559,8 +570,8 @@ class Response implements ResponseStatus
     {
         if (
             !$this->status->is_cacheable
-            || $this->cache_control->no_store
-            || $this->cache_control->cacheable == 'private'
+            || $this->headers->cache_control->no_store
+            || $this->headers->cache_control->cacheable == 'private'
         ) {
             return false;
         }

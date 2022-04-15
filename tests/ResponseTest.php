@@ -137,15 +137,15 @@ class ResponseTest extends TestCase
     public function test_cache_control()
     {
         $response = new Response();
-        $this->assertInstanceOf(CacheControl::class, $response->cache_control);
-        $this->assertEmpty((string) $response->cache_control);
+        $this->assertInstanceOf(CacheControl::class, $response->headers->cache_control);
+        $this->assertEmpty((string) $response->headers->cache_control);
 
         $value = "public, max-age=12345";
-        $response->cache_control = $value;
-        $this->assertSame($value, (string) $response->cache_control);
+        $response->headers->cache_control = $value;
+        $this->assertSame($value, (string) $response->headers->cache_control);
 
-        $response->cache_control = null;
-        $this->assertEmpty((string) $response->cache_control);
+        $response->headers->cache_control = null;
+        $this->assertEmpty((string) $response->headers->cache_control);
     }
 
     public function test_last_modified()
@@ -171,11 +171,11 @@ class ResponseTest extends TestCase
         $value = new DateTime('+1 days');
         $response->expires = $value;
         $this->assertEquals($value->as_iso8601, $response->expires->as_iso8601);
-        $this->assertSame(86400, $response->cache_control->max_age);
+        $this->assertSame(86400, $response->headers->cache_control->max_age);
 
         $response->expires = null;
         $this->assertEmpty((string) $response->expires);
-        $this->assertNull($response->cache_control->max_age);
+        $this->assertNull($response->headers->cache_control->max_age);
     }
 
     /**
