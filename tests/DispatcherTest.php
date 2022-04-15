@@ -25,6 +25,7 @@ use ICanBoogie\HTTP\RequestDispatcher\BeforeDispatchEvent;
 use ICanBoogie\HTTP\RequestDispatcher\DispatchEvent;
 use ICanBoogie\HTTP\RequestMethod;
 use ICanBoogie\HTTP\Response;
+use ICanBoogie\HTTP\ResponseStatus;
 use ICanBoogie\HTTP\Status;
 use ICanBoogie\HTTP\WeightedDispatcher;
 use PHPUnit\Framework\TestCase;
@@ -139,9 +140,9 @@ final class DispatcherTest extends TestCase
 
                 if ($request->method->is_get()) {
                     if ($request->uri === '/with-message') {
-                        return new Response($message, Status::OK, [ 'X-Was-Get' => 'yes' ]);
+                        return new Response($message, ResponseStatus::STATUS_OK, [ 'X-Was-Get' => 'yes' ]);
                     } else {
-                        return new Response(null, Status::OK, [ 'X-Was-Get' => 'yes', 'Content-Length' => 1234 ]);
+                        return new Response(null, ResponseStatus::STATUS_OK, [ 'X-Was-Get' => 'yes', 'Content-Length' => 1234 ]);
                     }
                 }
 
@@ -161,7 +162,7 @@ final class DispatcherTest extends TestCase
 
         $this->assertInstanceOf(Response::class, $response);
         $this->assertInstanceOf(Status::class, $response->status);
-        $this->assertEquals(Status::OK, $response->status->code);
+        $this->assertEquals(ResponseStatus::STATUS_OK, $response->status->code);
         $this->assertEquals(strlen($message), $response->headers->content_length);
         $this->assertEquals('yes', $response->headers['X-Was-Get']);
         $this->assertNull($response->body);

@@ -27,7 +27,7 @@ class ServiceUnavailable extends ServerError implements Exception
      */
     public function __construct(
         string $message = self::DEFAULT_MESSAGE,
-        int $code = Status::SERVICE_UNAVAILABLE,
+        int $code = ResponseStatus::STATUS_SERVICE_UNAVAILABLE,
         Throwable $previous = null
     ) {
         parent::__construct($message, $code, $previous);

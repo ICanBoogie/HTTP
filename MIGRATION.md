@@ -63,3 +63,19 @@ $response->headers->location;
 $headers['Cache-Control']; $headers->cache_control;
 $headers['Content-Disposition']; $headers->content_disposition;
 ```
+
+`Status` constants are deprecated in favor of `ResponseStatus` equivalent:
+
+```php
+<?php
+
+ICanBoogie\HTTP\Status::OK;
+```
+
+```php
+<?php
+
+ICanBoogie\HTTP\ResponseStatus::STATUS_OK;
+or
+ICanBoogie\HTTP\Response::STATUS_OK;
+```

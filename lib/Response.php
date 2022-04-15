@@ -13,7 +13,6 @@ namespace ICanBoogie\HTTP;
 
 use Closure;
 use ICanBoogie\Accessor\AccessorTrait;
-use InvalidArgumentException;
 use Stringable;
 use Throwable;
 
@@ -31,7 +30,7 @@ use const E_USER_DEPRECATED;
  * A response to an HTTP request.
  *
  * @property Status|int $status
- *
+ *     The status of the response.
  * @property int|null $ttl
  *     The response's time-to-live in second for shared caches.
  *     Setting this property also adjust the `s-maxage` directive of the `Cache-Control` header according to

@@ -58,9 +58,9 @@ final class FileResponseTest extends TestCase
     {
         return [
 
-            [ Status::OK, $this->once() ],
-            [ Status::NOT_MODIFIED, $this->never() ],
-            [ Status::REQUESTED_RANGE_NOT_SATISFIABLE, $this->never() ]
+            [ ResponseStatus::STATUS_OK, $this->once() ],
+            [ ResponseStatus::STATUS_NOT_MODIFIED, $this->never() ],
+            [ ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE, $this->never() ]
 
         ];
     }
@@ -145,11 +145,11 @@ final class FileResponseTest extends TestCase
     {
         return [
 
-            [ 'no-cache', false, false, true, Status::REQUESTED_RANGE_NOT_SATISFIABLE ],
-            [ 'no-cache', false, true, false, Status::PARTIAL_CONTENT ],
-            [ 'no-cache', false, true, true, Status::OK ],
-            [ '', false, true, true, Status::NOT_MODIFIED ],
-            [ '', true, true, true, Status::OK ]
+            [ 'no-cache', false, false, true, ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE ],
+            [ 'no-cache', false, true, false, ResponseStatus::STATUS_PARTIAL_CONTENT ],
+            [ 'no-cache', false, true, true, ResponseStatus::STATUS_OK ],
+            [ '', false, true, true, ResponseStatus::STATUS_NOT_MODIFIED ],
+            [ '', true, true, true, ResponseStatus::STATUS_OK ]
 
         ];
     }
@@ -158,10 +158,10 @@ final class FileResponseTest extends TestCase
     {
         return [
 
-            [ '', false, Status::NOT_MODIFIED ],
-            [ 'no-cache', false, Status::OK ],
-            [ '', true, Status::OK ],
-            [ 'no-cache', true, Status::OK ]
+            [ '', false, ResponseStatus::STATUS_NOT_MODIFIED ],
+            [ 'no-cache', false, ResponseStatus::STATUS_OK ],
+            [ '', true, ResponseStatus::STATUS_OK ],
+            [ 'no-cache', true, ResponseStatus::STATUS_OK ]
 
         ];
     }

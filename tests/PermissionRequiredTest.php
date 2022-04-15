@@ -9,15 +9,19 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP;
+namespace Test\ICanBoogie\HTTP;
 
-class PermissionRequiredTest extends \PHPUnit\Framework\TestCase
+use ICanBoogie\HTTP\PermissionRequired;
+use ICanBoogie\HTTP\ResponseStatus;
+use PHPUnit\Framework\TestCase;
+
+final class PermissionRequiredTest extends TestCase
 {
-    public function test_message()
+    public function test_message(): void
     {
         $exception = new PermissionRequired();
 
         $this->assertEquals("You don't have the required permission.", $exception->getMessage());
-        $this->assertEquals(Status::UNAUTHORIZED, $exception->getCode());
+        $this->assertEquals(ResponseStatus::STATUS_UNAUTHORIZED, $exception->getCode());
     }
 }

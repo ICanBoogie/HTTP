@@ -11,43 +11,24 @@
 
 namespace ICanBoogie\HTTP;
 
-use ICanBoogie\Accessor\AccessorTrait;
 use Throwable;
-
-use function ICanboogie\format;
 
 /**
  * Exception thrown when the HTTP method is not supported.
- *
- * @property-read string $method The unsupported HTTP method.
  */
 class MethodNotSupported extends ClientError implements Exception
 {
     /**
-     * @uses get_method
-     */
-    use AccessorTrait;
-
-    private string $method;
-
-    protected function get_method(): string
-    {
-        return $this->method;
-    }
-
-    /**
      * @param string $method The unsupported HTTP method.
      */
     public function __construct(
-        string $method,
-        int $code = Status::INTERNAL_SERVER_ERROR,
+        public readonly string $method,
         Throwable $previous = null
     ) {
-        $this->method = $method;
-
-        parent::__construct(format(
-            'Method not supported: %method',
-            [ 'method' => $method ]
-        ), $code, $previous);
+        parent::__construct(
+            "Unsupported HTTP method: $method.",
+            ResponseStatus::STATUS_INTERNAL_SERVER_ERROR,
+            $previous
+        );
     }
 }

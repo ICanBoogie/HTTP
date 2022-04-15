@@ -24,12 +24,11 @@ class RedirectResponse extends Response
      * Initializes the `Location` header.
      *
      * @param string $url URL to redirect to.
-     * @param int $status Status code (default to {@link Status::FOUND}).
      * @param array $headers Additional headers.
      *
      * @throws InvalidArgumentException if the provided status code is not a redirect.
      */
-    public function __construct(string $url, int $status = Status::FOUND, array $headers = [])
+    public function __construct(string $url, int $status = ResponseStatus::STATUS_FOUND, array $headers = [])
     {
         parent::__construct(
             function (Response $response) {

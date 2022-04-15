@@ -9,17 +9,21 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP;
+namespace Test\ICanBoogie\HTTP;
 
+use ICanBoogie\HTTP\ResponseStatus;
+use ICanBoogie\HTTP\Status;
+use ICanBoogie\HTTP\StatusCodeNotValid;
 use InvalidArgumentException;
+use PHPUnit\Framework\TestCase;
 
-class StatusTest extends \PHPUnit\Framework\TestCase
+final class StatusTest extends TestCase
 {
     public function test_constructor()
     {
-        $status = new Status(Status::MOVED_PERMANENTLY, "Over the rainbow");
+        $status = new Status(ResponseStatus::STATUS_MOVED_PERMANENTLY, "Over the rainbow");
 
-        $this->assertEquals(Status::MOVED_PERMANENTLY, $status->code);
+        $this->assertEquals(ResponseStatus::STATUS_MOVED_PERMANENTLY, $status->code);
         $this->assertEquals("Over the rainbow", $status->message);
         $this->assertEquals("301 Over the rainbow", (string) $status);
 
@@ -30,35 +34,32 @@ class StatusTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider provide_test_from
-     *
-     * @param mixed $source
-     * @param string $expected
      */
-    public function test_from($source, $expected)
+    public function test_from(mixed $source, string $expected): void
     {
         $status = Status::from($source);
         $this->assertEquals($expected, (string) $status);
     }
 
-    public function provide_test_from()
+    public function provide_test_from(): array
     {
         return [
 
-            [ Status::OK , "200 OK" ],
-            [ [ Status::OK, "Madonna" ], "200 Madonna" ],
+            [ ResponseStatus::STATUS_OK, "200 OK" ],
+            [ [ ResponseStatus::STATUS_OK, "Madonna" ], "200 Madonna" ],
             [ "200 Madonna", "200 Madonna" ]
 
         ];
     }
 
-    public function test_from_invalid_status()
+    public function test_from_invalid_status(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
         Status::from("Invalid status");
     }
 
-    public function test_from_invalid_status_code()
+    public function test_from_invalid_status_code(): void
     {
         $this->expectException(StatusCodeNotValid::class);
 
@@ -84,19 +85,19 @@ class StatusTest extends \PHPUnit\Framework\TestCase
     public function test_set_code()
     {
         $status = new Status();
-        $status->code = Status::NOT_FOUND;
-        $this->assertEquals(Status::NOT_FOUND, $status->code);
+        $status->code = ResponseStatus::STATUS_NOT_FOUND;
+        $this->assertEquals(ResponseStatus::STATUS_NOT_FOUND, $status->code);
     }
 
     public function test_is_valid()
     {
-        $status = new Status(Status::OK);
+        $status = new Status(ResponseStatus::STATUS_OK);
         $this->assertTrue($status->is_valid);
     }
 
-    public function test_is_informational()
+    public function test_is_informational(): void
     {
-        $status = new Status(Status::OK);
+        $status = new Status(ResponseStatus::STATUS_OK);
         $this->assertFalse($status->is_informational);
         $status->code = 100;
         $this->assertTrue($status->is_informational);
@@ -104,7 +105,7 @@ class StatusTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue($status->is_informational);
     }
 
-    public function test_is_successful()
+    public function test_is_successful(): void
     {
         $status = new Status();
         $status->code = 199;
@@ -117,7 +118,7 @@ class StatusTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($status->is_successful);
     }
 
-    public function test_is_redirect()
+    public function test_is_redirect(): void
     {
         $status = new Status();
         $status->code = 299;
@@ -130,7 +131,7 @@ class StatusTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($status->is_redirect);
     }
 
-    public function test_is_client_error()
+    public function test_is_client_error(): void
     {
         $status = new Status();
         $status->code = 399;
@@ -139,84 +140,81 @@ class StatusTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue($status->is_client_error);
         $status->code = 499;
         $this->assertTrue($status->is_client_error);
-        $status->code = Status::INTERNAL_SERVER_ERROR;
+        $status->code = ResponseStatus::STATUS_INTERNAL_SERVER_ERROR;
         $this->assertFalse($status->is_client_error);
     }
 
-    public function test_is_server_error()
+    public function test_is_server_error(): void
     {
         $status = new Status();
         $status->code = 499;
         $this->assertFalse($status->is_server_error);
-        $status->code = Status::INTERNAL_SERVER_ERROR;
+        $status->code = ResponseStatus::STATUS_INTERNAL_SERVER_ERROR;
         $this->assertTrue($status->is_server_error);
         $status->code = 599;
         $this->assertTrue($status->is_server_error);
     }
 
-    public function test_is_ok()
+    public function test_is_ok(): void
     {
         $status = new Status();
         $this->assertTrue($status->is_ok);
-        $status->code = Status::NOT_FOUND;
+        $status->code = ResponseStatus::STATUS_NOT_FOUND;
         $this->assertFalse($status->is_ok);
     }
 
-    public function test_is_forbidden()
+    public function test_is_forbidden(): void
     {
         $status = new Status();
         $this->assertFalse($status->is_forbidden);
-        $status->code = Status::FORBIDDEN;
+        $status->code = ResponseStatus::STATUS_FORBIDDEN;
         $this->assertTrue($status->is_forbidden);
     }
 
-    public function test_is_not_found()
+    public function test_is_not_found(): void
     {
         $status = new Status();
         $this->assertFalse($status->is_not_found);
-        $status->code = Status::NOT_FOUND;
+        $status->code = ResponseStatus::STATUS_NOT_FOUND;
         $this->assertTrue($status->is_not_found);
     }
 
-    public function test_is_empty()
+    public function test_is_empty(): void
     {
         $status = new Status();
         $this->assertFalse($status->is_empty);
-        $status->code = Status::CREATED;
+        $status->code = ResponseStatus::STATUS_CREATED;
         $this->assertTrue($status->is_empty);
-        $status->code = Status::NO_CONTENT;
+        $status->code = ResponseStatus::STATUS_NO_CONTENT;
         $this->assertTrue($status->is_empty);
-        $status->code = Status::NOT_MODIFIED;
+        $status->code = ResponseStatus::STATUS_NOT_MODIFIED;
         $this->assertTrue($status->is_empty);
     }
 
     /**
      * @dataProvider provide_test_is_cacheable
-     *
-     * @param int $code
-     * @param bool $expected
      */
-    public function test_is_cacheable($code, $expected)
+    public function test_is_cacheable(int $code, bool $expected): void
     {
         $status = new Status($code);
         $this->assertEquals($expected, $status->is_cacheable);
     }
 
-    public function provide_test_is_cacheable()
+    public function provide_test_is_cacheable(): array
     {
         return [
 
-            [ Status::OK, true ],
-            [ Status::CREATED, false ],
-            [ Status::ACCEPTED, false ],
-            [ Status::NON_AUTHORITATIVE_INFORMATION, true ],
-            [ Status::MULTIPLE_CHOICES, true ],
-            [ Status::MOVED_PERMANENTLY, true ],
-            [ Status::FOUND, true ],
-            [ Status::SEE_OTHER, false ],
-            [ Status::NOT_FOUND, true ],
-            [ Status::METHOD_NOT_ALLOWED, false ],
-            [ Status::GONE, true ]
+            [ ResponseStatus::STATUS_OK, true ],
+            [ ResponseStatus::STATUS_CREATED, false ],
+            [ ResponseStatus::STATUS_ACCEPTED, false ],
+            [ ResponseStatus::STATUS_NON_AUTHORITATIVE_INFORMATION, true ],
+            [ ResponseStatus::STATUS_MULTIPLE_CHOICES, true ],
+            [ ResponseStatus::STATUS_MOVED_PERMANENTLY, true ],
+            [ ResponseStatus::STATUS_NOT_FOUND, true ],
+            [ ResponseStatus::STATUS_SEE_OTHER, false ],
+            [ ResponseStatus::STATUS_NOT_FOUND, true ],
+            [ ResponseStatus::STATUS_METHOD_NOT_ALLOWED, false ],
+            [ ResponseStatus::STATUS_GONE, true ]
 
         ];
     }

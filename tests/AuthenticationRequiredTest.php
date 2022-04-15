@@ -9,15 +9,19 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP;
+namespace Test\ICanBoogie\HTTP;
 
-class AuthenticationRequiredTest extends \PHPUnit\Framework\TestCase
+use ICanBoogie\HTTP\AuthenticationRequired;
+use ICanBoogie\HTTP\ResponseStatus;
+use PHPUnit\Framework\TestCase;
+
+final class AuthenticationRequiredTest extends TestCase
 {
     public function test_message()
     {
         $exception = new AuthenticationRequired();
 
         $this->assertEquals("The requested URL requires authentication.", $exception->getMessage());
-        $this->assertEquals(Status::UNAUTHORIZED, $exception->getCode());
+        $this->assertEquals(ResponseStatus::STATUS_UNAUTHORIZED, $exception->getCode());
     }
 }

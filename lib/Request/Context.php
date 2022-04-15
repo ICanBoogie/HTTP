@@ -27,9 +27,9 @@ class Context
      */
     private array $values = [];
 
-    public function __construct(Request $request)
-    {
-        $this->add($request);
+    public function __construct(
+        public readonly Request $request
+    ) {
     }
 
     public function add(object $value): void

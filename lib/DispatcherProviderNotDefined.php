@@ -27,7 +27,7 @@ class DispatcherProviderNotDefined extends LogicException implements Exception
      */
     public function __construct(
         string $message = self::DEFAULT_MESSAGE,
-        int $code = Status::INTERNAL_SERVER_ERROR,
+        int $code = ResponseStatus::STATUS_INTERNAL_SERVER_ERROR,
         Throwable $previous = null
     ) {
         parent::__construct($message, $code, $previous);

@@ -9,9 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP;
+namespace Test\ICanBoogie\HTTP;
 
-class MethodNotSupportedTest extends \PHPUnit\Framework\TestCase
+use ICanBoogie\HTTP\MethodNotSupported;
+use PHPUnit\Framework\TestCase;
+
+final class MethodNotSupportedTest extends TestCase
 {
     public function test_get_method()
     {

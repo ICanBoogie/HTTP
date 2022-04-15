@@ -108,7 +108,7 @@ class FileResponse extends Response
             }
 
             $this->send_file($this->file);
-        }, Status::OK, $headers);
+        }, ResponseStatus::STATUS_OK, $headers);
     }
 
     /**
@@ -195,14 +195,14 @@ class FileResponse extends Response
 
         if ($range) {
             if (!$range->is_satisfiable) {
-                $this->status = Status::REQUESTED_RANGE_NOT_SATISFIABLE;
+                $this->status = ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE;
             } elseif (!$range->is_total) {
-                $this->status = Status::PARTIAL_CONTENT;
+                $this->status = ResponseStatus::STATUS_PARTIAL_CONTENT;
             }
         }
 
         if ($this->request->headers->cache_control->cacheable != 'no-cache' && !$this->is_modified) {
-            $this->status = Status::NOT_MODIFIED;
+            $this->status = ResponseStatus::STATUS_NOT_MODIFIED;
         }
 
         parent::__invoke();
@@ -236,13 +236,13 @@ class FileResponse extends Response
         $headers->cache_control->cacheable = 'public';
         $headers->cache_control->max_age = $expires->timestamp - DateTime::now()->timestamp;
 
-        if ($status === Status::NOT_MODIFIED) {
+        if ($status === ResponseStatus::STATUS_NOT_MODIFIED) {
             $this->finalize_for_not_modified($headers);
 
             return;
         }
 
-        if ($status === Status::PARTIAL_CONTENT) {
+        if ($status === ResponseStatus::STATUS_PARTIAL_CONTENT) {
             $this->finalize_for_partial_content($headers);
 
             return;

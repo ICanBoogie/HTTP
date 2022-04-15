@@ -9,15 +9,19 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP;
+namespace Test\ICanBoogie\HTTP;
 
-class ForceRedirectTest extends \PHPUnit\Framework\TestCase
+use ICanBoogie\HTTP\ForceRedirect;
+use ICanBoogie\HTTP\ResponseStatus;
+use PHPUnit\Framework\TestCase;
+
+final class ForceRedirectTest extends TestCase
 {
-    public function test_get_location()
+    public function test_get_location(): void
     {
         $location = '/to/location.html';
         $exception = new ForceRedirect($location);
-        $this->assertEquals(Status::FOUND, $exception->getCode());
+        $this->assertEquals(ResponseStatus::STATUS_FOUND, $exception->getCode());
         $this->assertEquals($location, $exception->location);
     }
 }

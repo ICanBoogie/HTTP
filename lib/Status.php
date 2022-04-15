@@ -41,46 +41,210 @@ final class Status
 {
     use AccessorTrait;
 
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_CONTINUE
+     */
     public const CONTINUE_ = 100;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_SWITCHING_PROTOCOLS
+     */
     public const SWITCHING_PROTOCOLS = 101;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_OK
+     */
     public const OK = 200;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_CREATED
+     */
     public const CREATED = 201;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_ACCEPTED
+     */
     public const ACCEPTED = 202;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_NON_AUTHORITATIVE_INFORMATION
+     */
     public const NON_AUTHORITATIVE_INFORMATION = 203;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_NO_CONTENT
+     */
     public const NO_CONTENT = 204;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_RESET_CONTENT
+     */
     public const RESET_CONTENT = 205;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_PARTIAL_CONTENT
+     */
     public const PARTIAL_CONTENT = 206;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_MULTIPLE_CHOICES
+     */
     public const MULTIPLE_CHOICES = 300;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_MOVED_PERMANENTLY
+     */
     public const MOVED_PERMANENTLY = 301;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_FOUND
+     */
     public const FOUND = 302;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_SEE_OTHER
+     */
     public const SEE_OTHER = 303;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_NOT_MODIFIED
+     */
     public const NOT_MODIFIED = 304;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_USE_PROXY
+     */
     public const USE_PROXY = 305;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_TEMPORARY_REDIRECT
+     */
     public const TEMPORARY_REDIRECT = 307;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_BAD_REQUEST
+     */
     public const BAD_REQUEST = 400;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_UNAUTHORIZED
+     */
     public const UNAUTHORIZED = 401;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_PAYMENT_REQUIRED
+     */
     public const PAYMENT_REQUIRED = 402;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_FORBIDDEN
+     */
     public const FORBIDDEN = 403;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_NOT_FOUND
+     */
     public const NOT_FOUND = 404;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_METHOD_NOT_ALLOWED
+     */
     public const METHOD_NOT_ALLOWED = 405;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_NOT_ACCEPTABLE
+     */
     public const NOT_ACCEPTABLE = 406;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_PROXY_AUTHENTICATION_REQUIRED
+     */
     public const PROXY_AUTHENTICATION_REQUIRED = 407;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_REQUEST_TIMEOUT
+     */
     public const REQUEST_TIMEOUT = 408;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_CONFLICT
+     */
     public const CONFLICT = 409;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_GONE
+     */
     public const GONE = 410;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_LENGTH_REQUIRED
+     */
     public const LENGTH_REQUIRED = 411;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_PRECONDITION_FAILED
+     */
     public const PRECONDITION_FAILED = 412;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_REQUEST_ENTITY_TOO_LARGE
+     */
     public const REQUEST_ENTITY_TOO_LARGE = 413;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_REQUEST_URI_TOO_LONG
+     */
     public const REQUEST_URI_TOO_LONG = 414;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_UNSUPPORTED_MEDIA_TYPE
+     */
     public const UNSUPPORTED_MEDIA_TYPE = 415;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE
+     */
     public const REQUESTED_RANGE_NOT_SATISFIABLE = 416;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_EXPECTATION_FAILED
+     */
     public const EXPECTATION_FAILED = 417;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_I_M_A_TEAPOT
+     */
     public const I_M_A_TEAPOT = 418;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_INTERNAL_SERVER_ERROR
+     */
     public const INTERNAL_SERVER_ERROR = 500;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_NOT_IMPLEMENTED
+     */
     public const NOT_IMPLEMENTED = 501;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_BAD_GATEWAY
+     */
     public const BAD_GATEWAY = 502;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_SERVICE_UNAVAILABLE
+     */
     public const SERVICE_UNAVAILABLE = 503;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_GATEWAY_TIMEOUT
+     */
     public const GATEWAY_TIMEOUT = 504;
+    /**
+     * @deprecated
+     * @see ResponseStatus::STATUS_HTTP_VERSION_NOT_SUPPORTED
+     */
     public const HTTP_VERSION_NOT_SUPPORTED = 505;
 
     /**
@@ -267,46 +431,46 @@ final class Status
     /**
      * Whether the status is ok.
      *
-     * A status is considered ok when its code is {@link OK}.
+     * A status is considered ok when its code is {@link ResponseStatus::STATUS_OK}.
      */
     protected function get_is_ok(): bool
     {
-        return $this->code == self::OK;
+        return $this->code == ResponseStatus::STATUS_OK;
     }
 
     /**
      * Whether the status is forbidden.
      *
-     * A status is considered forbidden ok when its code is {@link FORBIDDEN}.
+     * A status is considered forbidden ok when its code is {@link ResponseStatus::STATUS_FORBIDDEN}.
      */
     protected function get_is_forbidden(): bool
     {
-        return $this->code == self::FORBIDDEN;
+        return $this->code == ResponseStatus::STATUS_FORBIDDEN;
     }
 
     /**
      * Whether the status is not found.
      *
-     * A status is considered not found when its code is {@link NOT_FOUND}.
+     * A status is considered not found when its code is {@link ResponseStatus::STATUS_NOT_FOUND}.
      */
     protected function get_is_not_found(): bool
     {
-        return $this->code == self::NOT_FOUND;
+        return $this->code == ResponseStatus::STATUS_NOT_FOUND;
     }
 
     /**
      * Whether the status is empty.
      *
-     * A status is considered empty when its code is {@link CREATED}, {@link NO_CONTENT} or
-     * {@link NOT_MODIFIED}.
+     * A status is considered empty when its code is {@link ResponseStatus::CREATED},
+     * {@link ResponseStatus::NO_CONTENT} or {@link ResponseStatus::NOT_MODIFIED}.
      */
     protected function get_is_empty(): bool
     {
         static $range = [
 
-            self::CREATED,
-            self::NO_CONTENT,
-            self::NOT_MODIFIED,
+            ResponseStatus::STATUS_CREATED,
+            ResponseStatus::STATUS_NO_CONTENT,
+            ResponseStatus::STATUS_NOT_MODIFIED,
 
         ];
 
@@ -320,13 +484,13 @@ final class Status
     {
         static $range = [
 
-            self::OK,
-            self::NON_AUTHORITATIVE_INFORMATION,
-            self::MULTIPLE_CHOICES,
-            self::MOVED_PERMANENTLY,
-            self::FOUND,
-            self::NOT_FOUND,
-            self::GONE,
+            ResponseStatus::STATUS_OK,
+            ResponseStatus::STATUS_NON_AUTHORITATIVE_INFORMATION,
+            ResponseStatus::STATUS_MULTIPLE_CHOICES,
+            ResponseStatus::STATUS_MOVED_PERMANENTLY,
+            ResponseStatus::STATUS_NOT_FOUND,
+            ResponseStatus::STATUS_NOT_FOUND,
+            ResponseStatus::STATUS_GONE,
 
         ];
 
@@ -357,11 +521,7 @@ final class Status
         return $message;
     }
 
-    /**
-     * @param int $code
-     * @param string|null $message
-     */
-    public function __construct(int $code = self::OK, string $message = null)
+    public function __construct(int $code = ResponseStatus::STATUS_OK, string $message = null)
     {
         self::assert_code_is_valid($code);
 

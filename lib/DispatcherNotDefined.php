@@ -39,7 +39,7 @@ class DispatcherNotDefined extends LogicException implements Exception
     public function __construct(
         string $dispatcher_id,
         string $message = null,
-        int $code = Status::INTERNAL_SERVER_ERROR,
+        int $code = ResponseStatus::STATUS_INTERNAL_SERVER_ERROR,
         Throwable $previous = null
     ) {
         $this->dispatcher_id = $dispatcher_id;

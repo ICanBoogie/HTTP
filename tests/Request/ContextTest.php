@@ -18,14 +18,14 @@ use PHPUnit\Framework\TestCase;
 
 final class ContextTest extends TestCase
 {
-    public function test_get_request()
+    public function test_get_request(): void
     {
         $request = Request::from('/');
         $context = new Request\Context($request);
-        $this->assertSame($request, $context->get(Request::class));
+        $this->assertSame($request, $context->request);
     }
 
-    public function test_set_dispatcher()
+    public function test_set_dispatcher(): void
     {
         $context = new Request\Context(Request::from('/'));
         $dispatcher = new RequestDispatcher();
