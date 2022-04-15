@@ -162,7 +162,7 @@ class DispatcherTest extends TestCase
         $this->assertInstanceOf(Response::class, $response);
         $this->assertInstanceOf(Status::class, $response->status);
         $this->assertEquals(Status::OK, $response->status->code);
-        $this->assertEquals(strlen($message), $response->content_length);
+        $this->assertEquals(strlen($message), $response->headers->content_length);
         $this->assertEquals('yes', $response->headers['X-Was-Get']);
         $this->assertNull($response->body);
 

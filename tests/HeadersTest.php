@@ -64,7 +64,7 @@ final class HeadersTest extends TestCase
         $this->assertTrue($headers->cache_control->no_transform);
     }
 
-    public function testContentDisposition()
+    public function test_content_disposition()
     {
         $headers = new Headers();
         $this->assertInstanceOf(Headers\ContentDisposition::class, $headers['Content-Disposition']);
@@ -74,7 +74,20 @@ final class HeadersTest extends TestCase
         $this->assertEquals('test.txt', $headers->content_disposition->filename);
     }
 
-    public function testContentType()
+    public function test_content_length()
+    {
+        $headers = new Headers();
+        $this->assertNull($headers['Content-Length']);
+        $headers['Content-Length'] = 123;
+        $this->assertEquals(123, $headers['Content-Length']);
+
+        $headers = new Headers();
+        $this->assertNull($headers->content_length);
+        $headers->content_length = 123;
+        $this->assertEquals(123, $headers->content_length);
+    }
+
+    public function test_content_type()
     {
         $headers = new Headers();
         $this->assertInstanceOf(Headers\ContentType::class, $headers['Content-Type']);

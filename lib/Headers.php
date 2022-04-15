@@ -40,6 +40,8 @@ use function substr;
  *     Shortcut to the `Cache-Control` header field definition.
  * @property Headers\ContentDisposition|mixed $content_disposition
  *     Shortcut to the `Content-Disposition` header field definition.
+ * @property int|null $content_length
+ *     Shortcut to the `Content-Length` header field definition.
  * @property Headers\ContentType|mixed $content_type
  *     Shortcut to the `Content-Type` header field definition.
  * @property Headers\Date|mixed $date
@@ -60,6 +62,8 @@ class Headers implements ArrayAccess, IteratorAggregate
      * @uses set_cache_control
      * @uses get_content_disposition
      * @uses set_content_disposition
+     * @uses get_content_length
+     * @uses set_content_length
      * @uses get_content_type
      * @uses set_content_type
      * @uses get_date
@@ -75,16 +79,26 @@ class Headers implements ArrayAccess, IteratorAggregate
      */
     use AccessorTrait;
 
+    public const HEADER_CACHE_CONTROL = 'Cache-Control';
+    public const HEADER_CONTENT_DISPOSITION = 'Content-Disposition';
+    public const HEADER_CONTENT_LENGTH = 'Content-Length';
+    public const HEADER_CONTENT_TYPE = 'Content-Type';
+    public const HEADER_DATE = 'Date';
+    public const HEADER_EXPIRES = 'Expires';
+    public const HEADER_IF_MODIFIED_SINCE = 'If-Modified-Since';
+    public const HEADER_IF_UNMODIFIED_SINCE = 'If-Unmodified-Since';
+    public const HEADER_LAST_MODIFIED = 'Last-Modified';
+
     private const MAPPING = [
 
-        'Cache-Control' => Headers\CacheControl::class,
-        'Content-Disposition' => Headers\ContentDisposition::class,
-        'Content-Type' => Headers\ContentType::class,
-        'Date' => Headers\Date::class,
-        'Expires' => Headers\Date::class,
-        'If-Modified-Since' => Headers\Date::class,
-        'If-Unmodified-Since' => Headers\Date::class,
-        'Last-Modified' => Headers\Date::class,
+        self::HEADER_CACHE_CONTROL => Headers\CacheControl::class,
+        self::HEADER_CONTENT_DISPOSITION => Headers\ContentDisposition::class,
+        self::HEADER_CONTENT_TYPE => Headers\ContentType::class,
+        self::HEADER_DATE => Headers\Date::class,
+        self::HEADER_EXPIRES => Headers\Date::class,
+        self::HEADER_IF_MODIFIED_SINCE => Headers\Date::class,
+        self::HEADER_IF_UNMODIFIED_SINCE => Headers\Date::class,
+        self::HEADER_LAST_MODIFIED => Headers\Date::class,
 
     ];
 
@@ -245,7 +259,7 @@ class Headers implements ArrayAccess, IteratorAggregate
 
         switch ($offset) {
             # http://tools.ietf.org/html/rfc2616#section-14.25
-            case 'If-Modified-Since':
+            case self::HEADER_IF_MODIFIED_SINCE:
                 #
                 # Removes the ";length=xxx" string added by Internet Explorer.
                 # http://stackoverflow.com/questions/12626699/if-modified-since-http-header-passed-by-ie9-includes-length
@@ -293,81 +307,91 @@ class Headers implements ArrayAccess, IteratorAggregate
 
     private function get_cache_control(): Headers\CacheControl
     {
-        return $this->offsetGet('Cache-Control');
+        return $this->offsetGet(self::HEADER_CACHE_CONTROL);
     }
 
     private function set_cache_control(mixed $value): void
     {
-        $this->offsetSet('Cache-Control', $value);
+        $this->offsetSet(self::HEADER_CACHE_CONTROL, $value);
+    }
+
+    private function get_content_length(): ?int
+    {
+        return $this->offsetGet(self::HEADER_CONTENT_LENGTH);
+    }
+
+    private function set_content_length(?int $value): void
+    {
+        $this->offsetSet(self::HEADER_CONTENT_LENGTH, $value);
     }
 
     private function get_content_disposition(): Headers\ContentDisposition
     {
-        return $this->offsetGet('Content-Disposition');
+        return $this->offsetGet(self::HEADER_CONTENT_DISPOSITION);
     }
 
     private function set_content_disposition(mixed $value): void
     {
-        $this->offsetSet('Content-Disposition', $value);
+        $this->offsetSet(self::HEADER_CONTENT_DISPOSITION, $value);
     }
 
     private function get_content_type(): Headers\ContentType
     {
-        return $this->offsetGet('Content-Type');
+        return $this->offsetGet(self::HEADER_CONTENT_TYPE);
     }
 
     private function set_content_type(mixed $value): void
     {
-        $this->offsetSet('Content-Type', $value);
+        $this->offsetSet(self::HEADER_CONTENT_TYPE, $value);
     }
 
     private function get_date(): Headers\Date
     {
-        return $this->offsetGet('Date');
+        return $this->offsetGet(self::HEADER_DATE);
     }
 
     private function set_date(mixed $value): void
     {
-        $this->offsetSet('Date', $value);
+        $this->offsetSet(self::HEADER_DATE, $value);
     }
 
     private function get_expires(): Headers\Date
     {
-        return $this->offsetGet('Expires');
+        return $this->offsetGet(self::HEADER_EXPIRES);
     }
 
     private function set_expires(mixed $value): void
     {
-        $this->offsetSet('Expires', $value);
+        $this->offsetSet(self::HEADER_EXPIRES, $value);
     }
 
     private function get_if_modified_since(): Headers\Date
     {
-        return $this->offsetGet('If-Modified-Since');
+        return $this->offsetGet(self::HEADER_IF_MODIFIED_SINCE);
     }
 
     private function set_if_modified_since(mixed $value): void
     {
-        $this->offsetSet('If-Modified-Since', $value);
+        $this->offsetSet(self::HEADER_IF_MODIFIED_SINCE, $value);
     }
 
     private function get_if_unmodified_since(): Headers\Date
     {
-        return $this->offsetGet('If-Unmodified-Since');
+        return $this->offsetGet(self::HEADER_IF_UNMODIFIED_SINCE);
     }
 
     private function set_if_unmodified_since(mixed $value): void
     {
-        $this->offsetSet('If-Unmodified-Since', $value);
+        $this->offsetSet(self::HEADER_IF_UNMODIFIED_SINCE, $value);
     }
 
     private function get_last_modified(): Headers\Date
     {
-        return $this->offsetGet('Last-Modified');
+        return $this->offsetGet(self::HEADER_LAST_MODIFIED);
     }
 
     private function set_last_modified(mixed $value): void
     {
-        $this->offsetSet('Last-Modified', $value);
+        $this->offsetSet(self::HEADER_LAST_MODIFIED, $value);
     }
 }

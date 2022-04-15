@@ -27,16 +27,17 @@ use const E_USER_DEPRECATED;
  * A response to an HTTP request.
  *
  * @property Status|int $status
- * @property mixed $body The body of the response.
+ * @property mixed $body
+ *     The body of the response.
  *
  * @property int|null $ttl
  *     Adjusts the `s-maxage` directive of the `Cache-Control` header field definition according to
  *     the `Age` header field definition.
- * @property int|null $age Shortcut to the `Age` header field definition.
- * @property int $content_length Shortcut to the `Content-Length` header field definition.
- * @property Headers\Date|string $date @deprecated Shortcut to the `Date` header field definition.
- * @property string|null $etag Shortcut to the `ETag` header field definition.
- * @property Headers\Date $expires
+ * @property int|null $age
+ *     Shortcut to the `Age` header field definition.
+ * @property string|null $etag
+ *     Shortcut to the `ETag` header field definition.
+ * @property Headers\Date|mixed $expires
  *     Adjusts the `Expires` header and the `max_age` directive of the `Cache-Control` header.
  * @property string|null $location Shortcut to the `Location` header field definition.
  *
@@ -51,9 +52,13 @@ class Response implements ResponseStatus
     /**
      * @uses get_cache_control
      * @uses set_cache_control
+     * @uses get_content_length
+     * @uses set_content_length
      * @uses get_content_type
      * @uses set_content_type
      * @uses get_expires
+     * @uses get_date
+     * @uses set_date
      * @uses set_expires
      * @uses get_last_modified
      * @uses set_last_modified
@@ -334,26 +339,6 @@ class Response implements ResponseStatus
     }
 
     /**
-     * Sets the value of the `Content-Length` header field.
-     *
-     * @param int|null $length
-     */
-    protected function set_content_length(?int $length): void
-    {
-        $this->headers['Content-Length'] = $length;
-    }
-
-    /**
-     * Returns the value of the `Content-Length` header field.
-     *
-     * @return int|null
-     */
-    protected function get_content_length(): ?int
-    {
-        return $this->headers['Content-Length']; // @phpstan-ignore-line
-    }
-
-    /**
      * Sets the value of the `Date` header field.
      */
     protected function set_date(mixed $time): void
@@ -468,6 +453,28 @@ class Response implements ResponseStatus
 
     /**
      * @deprecated 6.0
+     * @see Headers::$content_length
+     */
+    private function get_content_length(): ?int
+    {
+        trigger_error('$response->content_length is deprecated use $response->headers->content_length instead.', E_USER_DEPRECATED);
+
+        return $this->headers->content_length;
+    }
+
+    /**
+     * @deprecated 6.0
+     * @see Headers::$content_length
+     */
+    private function set_content_length(?int $length): void
+    {
+        trigger_error('$response->content_length is deprecated use $response->headers->content_length instead.', E_USER_DEPRECATED);
+
+        $this->headers->content_length = $length;
+    }
+
+    /**
+     * @deprecated 6.0
      * @see Headers::$content_type
      */
     protected function get_content_type(): Headers\ContentType
@@ -545,12 +552,10 @@ class Response implements ResponseStatus
     /**
      * Whether the response includes header fields that can be used to validate the response
      * with the origin server using a conditional GET request.
-     *
-     * @return bool
      */
     protected function get_is_validateable(): bool
     {
-        return !$this->headers['Last-Modified']->is_empty || $this->headers['ETag']; // @phpstan-ignore-line
+        return !$this->headers->last_modified->is_empty || $this->headers['ETag'];
     }
 
     /**

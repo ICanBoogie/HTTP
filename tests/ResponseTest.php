@@ -167,7 +167,6 @@ class ResponseTest extends TestCase
 
         $this->assertStringStartsWith("HTTP/1.1 200 OK\r\nDate: {$response->headers->date}\r\n", $response_string);
         $this->assertStringNotContainsString("Content-Length", $response_string);
-        $this->assertNull($response->content_length);
     }
 
     public function provide_test_no_content_length()
@@ -192,7 +191,6 @@ class ResponseTest extends TestCase
         $response = new Response();
 
         $this->assertEquals("HTTP/1.1 200 OK\r\nDate: {$response->headers->date}\r\n\r\n", (string) $response);
-        $this->assertNull($response->content_length);
     }
 
     public function test_preserve_content_length()
@@ -203,7 +201,6 @@ class ResponseTest extends TestCase
 
         ]);
 
-        $this->assertEquals(123, $response->content_length);
         $this->assertEquals("HTTP/1.1 200 OK\r\nContent-Length: 123\r\nDate: {$response->headers->date}\r\n\r\n", (string) $response);
     }
 

@@ -605,6 +605,8 @@ $headers->content_type->charset = 'utf-8';
 
 echo $headers->content_type; // application/xml; charset=utf-8
 
+$headers->content_length = 123;
+
 $headers->content_disposition->type = 'attachment';
 $headers->content_disposition->filename = 'été.jpg';
 

@@ -132,9 +132,9 @@ class RequestDispatcher implements ArrayAccess, IteratorAggregate, Dispatcher
     {
         $response = $this->handle($request->with([ Request::OPTION_METHOD => RequestMethod::METHOD_GET ]));
 
-        if ($response->content_length === null && !$response->body instanceof Closure) {
+        if ($response->headers->content_length === null && !$response->body instanceof Closure) {
             try {
-                $response->content_length = strlen((string) $response->body);
+                $response->headers->content_length = strlen((string) $response->body);
             } catch (Throwable) {
                 #
                 # It's not that bad if we can't obtain the length of the body.

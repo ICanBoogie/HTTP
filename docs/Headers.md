@@ -30,7 +30,7 @@ $headers->cache_control->max_age = 3600;
 $headers->cache_control->no_transform = true;
 ```
 
-## Cache-Control header
+## Cache-Control
 
 The `Cache-Control` header is represented by a [CacheControl][] instance. Directives can be set at
 once using a plain string, or individually using the properties of the [CacheControl][] instance.
@@ -56,7 +56,7 @@ $headers->cache_control->max_age = 7200;
 echo $headers->cache_control; // public, max-age=7200
 ```
 
-## Content-Type header
+## Content-Type
 
 The `Content-Type` header is represented by a [ContentType][] instance.
 
@@ -77,7 +77,7 @@ $headers->content_type->type = 'application/xml';
 echo $headers->content_type; // application/xml; charset=utf-8
 ```
 
-## Content-Disposition header
+## Content-Disposition
 
 The `Content-Disposition` header is represented by a [ContentDisposition][] instance. UTF-8 file names are supported.
 
@@ -96,7 +96,20 @@ echo $headers->content_disposition->filename; // été.jpg
 echo $headers->content_disposition; // attachment; filename="ete.jpg"; filename*=UTF-8''%C3%A9t%C3%A9.jpg
 ```
 
-## Date, Expires, If-Modified-Since, If-Unmodified-Since, Last-Modified, and Retry-After headers
+## Content-Length
+
+A pair getter/setter is offered to support `Content-Length`, for type safety.
+
+```php
+<?php
+
+use ICanBoogie\HTTP\Headers;
+
+$headers = new Headers();
+$headers->content_length = 123;
+```
+
+## Date, Expires, If-Modified-Since, If-Unmodified-Since, Last-Modified, and Retry-After
 
 All date related headers are represented by a [Date][] instance, and can be specified as Unix timestamp, strings
 or `DateTimeInterface` instances.

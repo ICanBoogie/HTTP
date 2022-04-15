@@ -35,6 +35,7 @@ these headers have been moved from `Request` and `Response` to `Headers`.
 
 $request->cache_control;
 $response->cache_control;
+$response->content_length;
 $response->content_type;
 $response->date;
 $response->last_modified;
@@ -51,6 +52,7 @@ $headers['Content-Disposition'];
 
 $request->headers->cache_control;
 $response->headers->cache_control;
+$response->headers->content_length;
 $response->headers->content_type;
 $response->headers->date;
 $response->headers->last_modified;
