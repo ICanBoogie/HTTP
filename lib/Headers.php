@@ -36,16 +36,18 @@ use function substr;
  *
  * @see http://tools.ietf.org/html/rfc2616#section-14
  *
- *  @property Headers\CacheControl|mixed $cache_control
+ * @property Headers\CacheControl|mixed $cache_control
  *     Shortcut to the `Cache-Control` header field definition.
- *  @property Headers\ContentDisposition|mixed $content_disposition
+ * @property Headers\ContentDisposition|mixed $content_disposition
  *     Shortcut to the `Content-Disposition` header field definition.
- *  @property Headers\ContentType|mixed $content_type
+ * @property Headers\ContentType|mixed $content_type
  *     Shortcut to the `Content-Type` header field definition.
- *  @property Headers\Date|mixed $date
+ * @property Headers\Date|mixed $date
  *     Shortcut to the `Date` header field definition.
- *  @property Headers\Date|mixed $expires
+ * @property Headers\Date|mixed $expires
  *     Shortcut to the `Expires` header field definition.
+ * @property Headers\Date|mixed $if_modified_since
+ *     Shortcut to the `If-Modified-Since` header field definition.
  */
 class Headers implements ArrayAccess, IteratorAggregate
 {
@@ -60,6 +62,8 @@ class Headers implements ArrayAccess, IteratorAggregate
      * @uses set_date
      * @uses get_expires
      * @uses set_expires
+     * @uses get_if_modified_since
+     * @uses set_if_modified_since
      */
     use AccessorTrait;
 
@@ -143,7 +147,7 @@ class Headers implements ArrayAccess, IteratorAggregate
         $header = '';
 
         foreach ($this->fields as $field => $value) {
-            $value = (string)$value;
+            $value = (string) $value;
 
             if ($value === '') {
                 continue;
@@ -163,7 +167,7 @@ class Headers implements ArrayAccess, IteratorAggregate
     public function __invoke(): void
     {
         foreach ($this->fields as $field => $value) {
-            $value = (string)$value;
+            $value = (string) $value;
 
             if ($value === '') {
                 continue;
@@ -191,7 +195,7 @@ class Headers implements ArrayAccess, IteratorAggregate
      */
     public function offsetExists(mixed $offset): bool
     {
-        return isset($this->fields[(string)$offset]);
+        return isset($this->fields[(string) $offset]);
     }
 
     /**
@@ -334,7 +338,16 @@ class Headers implements ArrayAccess, IteratorAggregate
         $this->offsetSet('Expires', $value);
     }
 
-//'If-Modified-Since' => Headers\Date::class,
+    private function get_if_modified_since(): Headers\Date
+    {
+        return $this->offsetGet('If-Modified-Since');
+    }
+
+    private function set_if_modified_since(mixed $value): void
+    {
+        $this->offsetSet('If-Modified-Since', $value);
+    }
+
 //'If-Unmodified-Since' => Headers\Date::class,
 //'Last-Modified' => Headers\Date::class,
 

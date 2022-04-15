@@ -150,6 +150,32 @@ final class HeadersTest extends TestCase
     }
 
     /**
+     * @dataProvider provide_getters
+     *
+     * @param class-string $expected
+     */
+    public function test_getters(string $getter, string $expected): void
+    {
+        $headers = new Headers();
+
+        $this->assertInstanceOf($expected, $headers->$getter);
+    }
+
+    public function provide_getters(): array
+    {
+        return [
+
+            [ 'cache_control', Headers\CacheControl::class ],
+            [ 'content_disposition', Headers\ContentDisposition::class ],
+            [ 'content_type', Headers\ContentType::class ],
+            [ 'date', Headers\Date::class ],
+            [ 'expires', Headers\Date::class ],
+            [ 'if_modified_since', Headers\Date::class ],
+
+        ];
+    }
+
+    /**
      * @dataProvider provide_test_empty_date
      *
      * @param string $field
