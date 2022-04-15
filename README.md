@@ -619,6 +619,8 @@ $headers->expires = '+1 hour';
 $headers->if_modified_since = '-1 hour';
 $headers->if_unmodified_since = '-1 hour';
 $headers->last_modified = '2022-01-01';
+$headers->retry_after = '+1 hour';
+$headers->retry_after = 123;
 
 $headers->location = 'to/the/moon';
 

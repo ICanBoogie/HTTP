@@ -150,7 +150,23 @@ $headers->location = "/to/the/moon";
 $headers->location = ""; // Throws an exception
 ```
 
-## Date, Expires, If-Modified-Since, If-Unmodified-Since, Last-Modified, and Retry-After
+## Retry-After
+
+A pair getter/setter is offered to support the `Retry-After` header, for type safety.
+
+Both seconds and date notation are supported.
+
+```php
+<?php
+
+use ICanBoogie\HTTP\Headers;
+
+$headers = new Headers();
+$headers->retry_after = 123;
+$headers->retry_after = '+1 hour';
+```
+
+## Date, Expires, If-Modified-Since, If-Unmodified-Since, and Last-Modified
 
 All date related headers are represented by a [Date][] instance, and can be specified as Unix timestamp, strings
 or `DateTimeInterface` instances.

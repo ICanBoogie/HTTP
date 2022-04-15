@@ -13,6 +13,7 @@ namespace ICanBoogie\HTTP;
 
 use ArrayAccess;
 use ArrayIterator;
+use DateTimeInterface;
 use ICanBoogie\Accessor\AccessorTrait;
 use ICanBoogie\HTTP\Headers\Header;
 use InvalidArgumentException;
@@ -59,6 +60,8 @@ use function substr;
  *     Shortcut to the `Last-Modified` header field definition.
  * @property string|null $location
  *     Shortcut to the `Location` header field definition.
+ * @property Headers\Date|int|mixed $retry_after
+ *     Shortcut to the `Retry-After` header field definition.
  */
 class Headers implements ArrayAccess, IteratorAggregate
 {
@@ -85,6 +88,8 @@ class Headers implements ArrayAccess, IteratorAggregate
      * @uses set_last_modified
      * @uses get_location
      * @uses set_location
+     * @uses get_retry_after
+     * @uses set_retry_after
      */
     use AccessorTrait;
 
@@ -100,6 +105,7 @@ class Headers implements ArrayAccess, IteratorAggregate
     public const HEADER_IF_NONE_MATCH = 'If-None-Match';
     public const HEADER_LAST_MODIFIED = 'Last-Modified';
     public const HEADER_LOCATION = 'Location';
+    public const HEADER_RETRY_AFTER = 'Retry-After';
 
     private const MAPPING = [
 
@@ -293,7 +299,7 @@ class Headers implements ArrayAccess, IteratorAggregate
                 break;
 
             # http://tools.ietf.org/html/rfc2616#section-14.37
-            case 'Retry-After':
+            case self::HEADER_RETRY_AFTER:
                 $value = is_numeric($value) ? $value : Headers\Date::from($value);
                 break;
         }
@@ -431,5 +437,15 @@ class Headers implements ArrayAccess, IteratorAggregate
     private function set_location(?string $value): void
     {
         $this->offsetSet(self::HEADER_LOCATION, $value);
+    }
+
+    private function get_retry_after(): int|Headers\Date|null
+    {
+        return $this->offsetGet(self::HEADER_RETRY_AFTER);
+    }
+
+    private function set_retry_after(int|DateTimeInterface|null $value): void
+    {
+        $this->offsetSet(self::HEADER_RETRY_AFTER, $value);
     }
 }

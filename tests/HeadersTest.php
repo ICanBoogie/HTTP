@@ -143,16 +143,6 @@ final class HeadersTest extends TestCase
         $this->assertEmpty((string) $headers->last_modified);
     }
 
-    public function test_should_remove_location_with_null(): void
-    {
-        $location = '/path/to/resource';
-        $headers = new Headers();
-        $headers->location = $location;
-        $this->assertEquals($location, $headers->location);
-        $headers->location = null;
-        $this->assertNull($headers->location);
-    }
-
     public function test_should_fail_on_blank_location(): void
     {
         $headers = new Headers();
@@ -160,14 +150,27 @@ final class HeadersTest extends TestCase
         $headers->location = '';
     }
 
+    public function test_retry_after(): void
+    {
+        $headers = new Headers();
+        $this->assertNull($headers->retry_after);
+
+        $headers->retry_after = 123;
+        $this->assertEquals(123, $headers->retry_after);
+
+        $value = DateTime::now();
+        $headers->retry_after = $value;
+        $this->assertEquals($value, $headers->retry_after);
+    }
+
     /**
      * @dataProvider provide_test_date_header
      */
-    public function test_date_header(string $field, mixed $value, string $expected)
+    public function test_date_header(string $field, mixed $value, string $expected): void
     {
         $headers = new Headers();
 
-        if ($field !== 'Retry-After') {
+        if ($field !== Headers::HEADER_RETRY_AFTER) {
             $this->assertInstanceOf(Headers\Date::class, $headers[$field]);
         }
 
@@ -205,7 +208,7 @@ final class HeadersTest extends TestCase
 
             [ 'Retry-After', $value1, $expected ],
             [ 'Retry-After', $value2, $expected ],
-            [ 'Retry-After', $value3, $expected ]
+            [ 'Retry-After', $value3, $expected ],
 
         ];
     }
