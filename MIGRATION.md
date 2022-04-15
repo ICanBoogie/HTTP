@@ -31,16 +31,22 @@ these headers have been moved from `Request` and `Response` to `Headers`.
 
 /* @var \ICanBoogie\HTTP\Request $request */
 /* @var \ICanBoogie\HTTP\Response $response */
+/* @var \ICanBoogie\HTTP\Headers $headers */
 
 $request->cache_control;
 $response->cache_control;
+$headers['Cache-Control'];
+$headers['Content-Disposition'];
 ```
 ```php
 <?php
 
 /* @var \ICanBoogie\HTTP\Request $request */
 /* @var \ICanBoogie\HTTP\Response $response */
+/* @var \ICanBoogie\HTTP\Headers $headers */
 
 $request->headers->cache_control;
 $response->headers->cache_control;
+$headers['Cache-Control']; $headers->cache_control;
+$headers['Content-Disposition']; $headers->content_disposition;
 ```

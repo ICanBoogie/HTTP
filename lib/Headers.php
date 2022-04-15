@@ -14,7 +14,6 @@ namespace ICanBoogie\HTTP;
 use ArrayAccess;
 use ArrayIterator;
 use ICanBoogie\Accessor\AccessorTrait;
-use ICanBoogie\HTTP\Headers\CacheControl;
 use ICanBoogie\HTTP\Headers\Header;
 use IteratorAggregate;
 
@@ -39,6 +38,8 @@ use function substr;
  *
  *  @property Headers\CacheControl|mixed $cache_control
  *     Shortcut to the `Cache-Control` header field definition.
+ *  @property Headers\ContentDisposition|mixed $content_disposition
+ *     Shortcut to the `Content-Disposition` header field definition.
  */
 class Headers implements ArrayAccess, IteratorAggregate
 {
@@ -269,7 +270,7 @@ class Headers implements ArrayAccess, IteratorAggregate
         return new ArrayIterator($this->fields);
     }
 
-    public function get_cache_control(): CacheControl
+    public function get_cache_control(): Headers\CacheControl
     {
         return $this->offsetGet('Cache-Control');
     }
@@ -279,7 +280,16 @@ class Headers implements ArrayAccess, IteratorAggregate
         $this->offsetSet('Cache-Control', $value);
     }
 
-//'Content-Disposition' => Headers\ContentDisposition::class,
+    public function get_content_disposition(): Headers\ContentDisposition
+    {
+        return $this->offsetGet('Content-Disposition');
+    }
+
+    public function set_content_disposition(mixed $value): void
+    {
+        $this->offsetSet('Content-Disposition', $value);
+    }
+
 //'Content-Type' => Headers\ContentType::class,
 //'Date' => Headers\Date::class,
 //'Expires' => Headers\Date::class,

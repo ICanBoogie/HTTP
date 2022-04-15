@@ -311,19 +311,15 @@ final class FileResponseTest extends TestCase
 
     /**
      * @dataProvider provide_test_filename
-     *
-     * @param $file
-     * @param $filename
-     * @param $expected
      */
-    public function test_filename($file, $filename, $expected)
+    public function test_filename(string $file, string|bool $filename, string $expected): void
     {
         $response = new FileResponse($file, Request::from(), [ FileResponse::OPTION_FILENAME => $filename ]);
 
         $this->assertEquals('binary', (string) $response->headers['Content-Transfer-Encoding']);
         $this->assertEquals('File Transfer', (string) $response->headers['Content-Description']);
-        $this->assertEquals('attachment', $response->headers['Content-Disposition']->type);
-        $this->assertEquals($expected, $response->headers['Content-Disposition']->filename);
+        $this->assertEquals('attachment', $response->headers->content_disposition->type);
+        $this->assertEquals($expected, $response->headers->content_disposition->filename);
     }
 
     public function provide_test_filename()

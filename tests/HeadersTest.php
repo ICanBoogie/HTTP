@@ -69,8 +69,8 @@ final class HeadersTest extends TestCase
         $this->assertInstanceOf(Headers\ContentDisposition::class, $headers['Content-Disposition']);
         $headers['Content-Disposition'] = "attachment; filename=test.txt";
         $this->assertInstanceOf(Headers\ContentDisposition::class, $headers['Content-Disposition']);
-        $this->assertEquals('attachment', $headers['Content-Disposition']->type);
-        $this->assertEquals('test.txt', $headers['Content-Disposition']->filename);
+        $this->assertEquals('attachment', $headers->content_disposition->type);
+        $this->assertEquals('test.txt', $headers->content_disposition->filename);
     }
 
     public function testContentType()
