@@ -11,11 +11,15 @@
 
 namespace Test\ICanBoogie\HTTP;
 
+use DateTimeZone;
+use Exception;
 use ICanBoogie\DateTime;
 use ICanBoogie\HTTP\Headers;
 use ICanBoogie\HTTP\Headers\Date;
 use ICanBoogie\HTTP\Headers\Date as DateHeader;
 use PHPUnit\Framework\TestCase;
+
+use function uniqid;
 
 final class HeadersTest extends TestCase
 {
@@ -23,14 +27,17 @@ final class HeadersTest extends TestCase
     {
         $datetime = new \DateTime();
         $headers_datetime = new DateHeader($datetime);
-        $datetime->setTimezone(new \DateTimeZone('GMT'));
+        $datetime->setTimezone(new DateTimeZone('GMT'));
 
         $this->assertEquals($datetime->format('D, d M Y H:i:s') . ' GMT', (string) $headers_datetime);
     }
 
+    /**
+     * @throws Exception
+     */
     public function testDateTimeFromDateTimeString()
     {
-        $datetime = new \DateTime('now', new \DateTimeZone('GMT'));
+        $datetime = new \DateTime('now', new DateTimeZone('GMT'));
 
         $this->assertEquals(
             $datetime->format('D, d M Y H:i:s') . ' GMT',
@@ -48,7 +55,7 @@ final class HeadersTest extends TestCase
         );
     }
 
-    public function testCacheControl()
+    public function test_cache_control()
     {
         $headers = new Headers();
         $this->assertInstanceOf(Headers\CacheControl::class, $headers['Cache-Control']);
@@ -108,6 +115,19 @@ final class HeadersTest extends TestCase
         $this->assertEquals($now, $headers->date);
     }
 
+    public function test_etag(): void
+    {
+        $headers = new Headers();
+        $this->assertNull($headers->etag);
+
+        $etag = uniqid();
+        $headers->etag = $etag;
+        $this->assertSame($etag, $headers->etag);
+
+        $headers->etag = null;
+        $this->assertNull($headers->etag);
+    }
+
     public function test_last_modified()
     {
         $headers = new Headers();
@@ -124,12 +144,8 @@ final class HeadersTest extends TestCase
 
     /**
      * @dataProvider provide_test_date_header
-     *
-     * @param string $field
-     * @param mixed $value
-     * @param string $expected
      */
-    public function test_date_header($field, $value, $expected)
+    public function test_date_header(string $field, mixed $value, string $expected)
     {
         $headers = new Headers();
 
@@ -145,7 +161,7 @@ final class HeadersTest extends TestCase
 
     public function provide_test_date_header(): array
     {
-        $value1 = new \ICanBoogie\DateTime();
+        $value1 = new DateTime();
         $value2 = new \DateTime();
         $value3 = (string) $value1;
         $expected = $value1->utc->as_rfc1123;
@@ -205,10 +221,8 @@ final class HeadersTest extends TestCase
 
     /**
      * @dataProvider provide_test_empty_date
-     *
-     * @param string $field
      */
-    public function test_empty_date($field)
+    public function test_empty_date(string $field)
     {
         $headers = new Headers();
 
@@ -216,7 +230,7 @@ final class HeadersTest extends TestCase
         $this->assertTrue($headers[$field]->is_empty);
     }
 
-    public function provide_test_empty_date()
+    public function provide_test_empty_date(): array
     {
         return [
 
@@ -228,7 +242,7 @@ final class HeadersTest extends TestCase
         ];
     }
 
-    public function test_to_string_with_empty_dates()
+    public function test_to_string_with_empty_dates(): void
     {
         $headers = new Headers([
 
@@ -244,7 +258,7 @@ final class HeadersTest extends TestCase
         $this->assertEquals("Content-Type: text/plain\r\n", (string) $headers);
     }
 
-    public function test_clone()
+    public function test_clone(): void
     {
         $headers = new Headers();
         $headers_cache_control = $headers['Cache-Control'];
@@ -254,7 +268,7 @@ final class HeadersTest extends TestCase
         $this->assertNotSame($clone_cache_control, $headers_cache_control);
     }
 
-    public function test_should_iterate()
+    public function test_should_iterate(): void
     {
         $headers = new Headers([
 
@@ -274,7 +288,7 @@ final class HeadersTest extends TestCase
         $this->assertEquals([ 'Cache-Control', 'Date', 'Expires' ], $names);
     }
 
-    public function test_should_send_headers()
+    public function test_should_send_headers(): void
     {
         $now = new DateTime('now', 'utc');
         $in_one_month = new DateTime('+1 month', 'utc');

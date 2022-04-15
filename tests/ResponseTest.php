@@ -109,33 +109,6 @@ class ResponseTest extends TestCase
         $this->assertSame(123, $response->age);
     }
 
-    public function test_etag()
-    {
-        $response = new Response();
-        $this->assertNull($response->etag);
-
-        $etag = uniqid();
-        $response->etag = $etag;
-        $this->assertSame($etag, $response->etag);
-
-        $response->etag = null;
-        $this->assertNull($response->etag);
-    }
-
-    public function test_cache_control()
-    {
-        $response = new Response();
-        $this->assertInstanceOf(CacheControl::class, $response->headers->cache_control);
-        $this->assertEmpty((string) $response->headers->cache_control);
-
-        $value = "public, max-age=12345";
-        $response->headers->cache_control = $value;
-        $this->assertSame($value, (string) $response->headers->cache_control);
-
-        $response->headers->cache_control = null;
-        $this->assertEmpty((string) $response->headers->cache_control);
-    }
-
     public function test_expires()
     {
         $response = new Response();
@@ -169,7 +142,7 @@ class ResponseTest extends TestCase
         $this->assertStringNotContainsString("Content-Length", $response_string);
     }
 
-    public function provide_test_no_content_length()
+    public function provide_test_no_content_length(): array
     {
         $now = DateTime::now();
 
@@ -209,12 +182,12 @@ class ResponseTest extends TestCase
         $response = new Response();
         $this->assertFalse($response->is_validateable);
 
-        $response->headers['ETag'] = uniqid();
+        $response->headers->etag = uniqid();
         $this->assertTrue($response->is_validateable);
-        $response->headers['ETag'] = null;
+        $response->headers->etag = null;
         $this->assertFalse($response->is_validateable);
 
-        $response->headers['Last-Modified'] = 'now';
+        $response->headers->last_modified = 'now';
         $this->assertTrue($response->is_validateable);
     }
 

@@ -46,6 +46,8 @@ use function substr;
  *     Shortcut to the `Content-Type` header field definition.
  * @property Headers\Date|mixed $date
  *     Shortcut to the `Date` header field definition.
+ * @property string|null $etag
+ *     Shortcut to the `ETag` header field definition.
  * @property Headers\Date|mixed $expires
  *     Shortcut to the `Expires` header field definition.
  * @property Headers\Date|mixed $if_modified_since
@@ -68,6 +70,8 @@ class Headers implements ArrayAccess, IteratorAggregate
      * @uses set_content_type
      * @uses get_date
      * @uses set_date
+     * @uses get_etag
+     * @uses set_etag
      * @uses get_expires
      * @uses set_expires
      * @uses get_if_modified_since
@@ -84,9 +88,11 @@ class Headers implements ArrayAccess, IteratorAggregate
     public const HEADER_CONTENT_LENGTH = 'Content-Length';
     public const HEADER_CONTENT_TYPE = 'Content-Type';
     public const HEADER_DATE = 'Date';
+    public const HEADER_ETAG = 'ETag';
     public const HEADER_EXPIRES = 'Expires';
     public const HEADER_IF_MODIFIED_SINCE = 'If-Modified-Since';
     public const HEADER_IF_UNMODIFIED_SINCE = 'If-Unmodified-Since';
+    public const HEADER_IF_NONE_MATCH = 'If-None-Match';
     public const HEADER_LAST_MODIFIED = 'Last-Modified';
 
     private const MAPPING = [
@@ -353,6 +359,16 @@ class Headers implements ArrayAccess, IteratorAggregate
     private function set_date(mixed $value): void
     {
         $this->offsetSet(self::HEADER_DATE, $value);
+    }
+
+    private function get_etag(): ?string
+    {
+        return $this->offsetGet(self::HEADER_ETAG);
+    }
+
+    private function set_etag(?string $value): void
+    {
+        $this->offsetSet(self::HEADER_ETAG, $value);
     }
 
     private function get_expires(): Headers\Date

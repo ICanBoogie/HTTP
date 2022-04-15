@@ -12,12 +12,19 @@
 namespace ICanBoogie\HTTP;
 
 use ICanBoogie\DateTime;
+use InvalidArgumentException;
 use LogicException;
 use SplFileInfo;
 
+use function array_filter;
+use function base64_encode;
+use function fclose;
 use function finfo_file;
 use function finfo_open;
+use function fopen;
 use function function_exists;
+use function hash_file;
+use function stream_copy_to_stream;
 
 use const FILEINFO_MIME_TYPE;
 
@@ -67,7 +74,7 @@ class FileResponse extends Response
      */
     public static function hash_file(string $pathname): string
     {
-        return \base64_encode(\hash_file('sha384', $pathname, true));
+        return base64_encode(hash_file('sha384', $pathname, true));
     }
 
     private SplFileInfo $file;
@@ -78,17 +85,22 @@ class FileResponse extends Response
     }
 
     /**
-     * @param array $options
-     * @param array $headers
+     * @param array<string, mixed> $options
+     * @param Headers|array<string, mixed> $headers
      */
     public function __construct(
         string|SplFileInfo $file,
         private readonly Request $request,
         array $options = [],
-        array $headers = []
+        Headers|array $headers = []
     ) {
+        if (!$headers instanceof Headers) {
+            $headers = new Headers($headers);
+        }
+
         $this->file = $this->ensure_file_info($file);
         $this->apply_options($options, $headers);
+        $this->ensure_content_type($this->file, $headers);
 
         parent::__construct(function () {
             if (!$this->status->is_successful) {
@@ -97,8 +109,6 @@ class FileResponse extends Response
 
             $this->send_file($this->file);
         }, Status::OK, $headers);
-
-        $this->ensure_content_type($this->file);
     }
 
     /**
@@ -119,6 +129,60 @@ class FileResponse extends Response
         }
 
         return $file;
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    private function apply_options(array $options, Headers $headers): void
+    {
+        foreach (array_filter($options) as $option => $value) {
+            switch ($option) {
+                case self::OPTION_ETAG:
+                    if ($headers->etag) {
+                        throw new InvalidArgumentException("Can only use one of OPTION_ETAG, HEADER_ETAG.");
+                    }
+
+                    $headers->etag = $value;
+                    break;
+
+                case self::OPTION_EXPIRES:
+                    $headers->expires = $value;
+                    break;
+
+                case self::OPTION_FILENAME:
+                    $headers['Content-Transfer-Encoding'] = 'binary';
+                    $headers['Content-Description'] = 'File Transfer';
+                    $headers->content_disposition->type = 'attachment';
+                    $headers->content_disposition->filename = $value === true ? $this->file->getFilename() : $value;
+                    break;
+
+                case self::OPTION_MIME:
+                    $headers->content_type = $value;
+                    break;
+            }
+        }
+
+        $headers->etag ??= $this->make_etag();
+    }
+
+    /**
+     * If the content type is empty in the headers the method tries to obtain it from
+     * the file, if it fails {@link DEFAULT_MIME} is used as fallback.
+     */
+    private function ensure_content_type(SplFileInfo $file, Headers $headers): void
+    {
+        if ($headers->content_type->value) {
+            return;
+        }
+
+        $mime = null;
+
+        if (function_exists('finfo_file')) {
+            $mime = finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file);
+        }
+
+        $headers->content_type = $mime ?? self::DEFAULT_MIME;
     }
 
     /**
@@ -168,10 +232,9 @@ class FileResponse extends Response
         $status = $this->status->code;
         $expires = $this->expires;
 
-        $headers['Expires'] = $expires;
+        $headers->expires = $expires;
         $headers->cache_control->cacheable = 'public';
         $headers->cache_control->max_age = $expires->timestamp - DateTime::now()->timestamp;
-        $headers['Etag'] = $this->etag;
 
         if ($status === Status::NOT_MODIFIED) {
             $this->finalize_for_not_modified($headers);
@@ -190,37 +253,31 @@ class FileResponse extends Response
 
     /**
      * Finalizes the response for `Status::NOT_MODIFIED`.
-     *
-     * @param Headers $headers
      */
-    protected function finalize_for_not_modified(Headers &$headers): void
+    private function finalize_for_not_modified(Headers &$headers): void
     {
-        unset($headers['Content-Length']);
+        $headers->content_length = null;
     }
 
     /**
      * Finalizes the response for `Status::PARTIAL_CONTENT`.
-     *
-     * @param Headers $headers
      */
-    protected function finalize_for_partial_content(Headers &$headers): void
+    private function finalize_for_partial_content(Headers &$headers): void
     {
         $range = $this->range;
 
-        $headers['Last-Modified'] = $this->modified_time;
+        $headers->last_modified = $this->modified_time;
         $headers['Content-Range'] = (string) $range;
-        $headers['Content-Length'] = $range->length;
+        $headers->content_length = $range->length;
     }
 
     /**
      * Finalizes the response for status other than `Status::NOT_MODIFIED` or
      * `Status::PARTIAL_CONTENT`.
-     *
-     * @param Headers $headers
      */
-    protected function finalize_for_other(Headers &$headers): void
+    private function finalize_for_other(Headers &$headers): void
     {
-        $headers['Last-Modified'] = $this->modified_time;
+        $headers->last_modified = $this->modified_time;
 
         if (!$headers['Accept-Ranges']) {
             $request = $this->request;
@@ -228,7 +285,7 @@ class FileResponse extends Response
             $headers['Accept-Ranges'] = $request->method->is_get() || $request->method->is_head() ? 'bytes' : 'none';
         }
 
-        $headers['Content-Length'] = $this->file->getSize();
+        $headers->content_length = $this->file->getSize();
     }
 
     /**
@@ -240,21 +297,19 @@ class FileResponse extends Response
      */
     protected function send_file(SplFileInfo $file): void
     {
-        list($max_length, $offset) = $this->resolve_max_length_and_offset();
+        [ $max_length, $offset ] = $this->resolve_max_length_and_offset();
 
-        $out = \fopen('php://output', 'wb');
-        $source = \fopen($file->getPathname(), 'rb');
+        $out = fopen('php://output', 'wb');
+        $source = fopen($file->getPathname(), 'rb');
 
-        \stream_copy_to_stream($source, $out, $max_length, $offset);
+        stream_copy_to_stream($source, $out, $max_length, $offset);
 
-        \fclose($out);
-        \fclose($source);
+        fclose($out);
+        fclose($source);
     }
 
     /**
      * Resolves `max_length` and `offset` parameters for stream copy.
-     *
-     * @return array
      */
     private function resolve_max_length_and_offset(): array
     {
@@ -268,13 +323,16 @@ class FileResponse extends Response
     }
 
     /**
-     * If the etag returned by the parent is empty the method returns a SHA-384 of the file.
-     *
-     * @return string|null
+     * Returns a SHA-384 of the file.
      */
-    protected function get_etag(): ?string
+    private function make_etag(): string
     {
-        return parent::get_etag() ?: self::hash_file($this->file->getPathname());
+        return self::hash_file($this->file->getPathname());
+    }
+
+    private function ensure_etag(): string
+    {
+        return $this->headers->etag ??= $this->make_etag();
     }
 
     /**
@@ -311,21 +369,17 @@ class FileResponse extends Response
      */
     protected function get_is_modified(): bool
     {
-        /* @var $if_modified_since DateTime */
-
         $headers = $this->request->headers;
 
         // HTTP/1.1
 
-        if ((string) $headers['If-None-Match'] != $this->etag) {
+        if ((string) $headers[Headers::HEADER_IF_NONE_MATCH] !== $this->headers->etag) {
             return true;
         }
 
         // HTTP/1.0
 
-        $if_modified_since = $headers['If-Modified-Since'];
-
-        assert($if_modified_since instanceof DateTime);
+        $if_modified_since = $headers->if_modified_since;
 
         return $if_modified_since->is_empty || $if_modified_since->timestamp < $this->modified_time;
     }
@@ -334,54 +388,10 @@ class FileResponse extends Response
 
     protected function get_range(): ?RequestRange
     {
-        return $this->range_ ??= RequestRange::from($this->request->headers, $this->file->getSize(), $this->etag);
-    }
-
-    protected function apply_options(array $options, Headers|array &$headers)
-    {
-        foreach (array_filter($options) as $option => $value) {
-            switch ($option) {
-                case self::OPTION_ETAG:
-                    $headers['ETag'] = $value;
-                    break;
-
-                case self::OPTION_EXPIRES:
-                    $headers['Expires'] = $value;
-                    break;
-
-                case self::OPTION_FILENAME:
-                    $headers['Content-Transfer-Encoding'] = 'binary';
-                    $headers['Content-Description'] = 'File Transfer';
-                    $headers['Content-Disposition'] = new Headers\ContentDisposition('attachment', [
-
-                        'filename' => $value === true ? $this->file->getFilename() : $value,
-
-                    ]);
-                    break;
-
-                case self::OPTION_MIME:
-                    $headers['Content-Type'] = $value;
-                    break;
-            }
-        }
-    }
-
-    /**
-     * If the content type is empty in the headers the method tries to obtain it from
-     * the file, if it fails {@link DEFAULT_MIME} is used as fallback.
-     */
-    private function ensure_content_type(SplFileInfo $file): void
-    {
-        if ($this->headers->content_type->value) {
-            return;
-        }
-
-        $mime = null;
-
-        if (function_exists('finfo_file')) {
-            $mime = finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file);
-        }
-
-        $this->headers->content_type = $mime ?? self::DEFAULT_MIME;
+        return $this->range_ ??= RequestRange::from(
+            $this->request->headers,
+            $this->file->getSize(),
+            $this->headers->etag
+        );
     }
 }

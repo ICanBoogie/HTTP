@@ -35,8 +35,6 @@ use const E_USER_DEPRECATED;
  *     the `Age` header field definition.
  * @property int|null $age
  *     Shortcut to the `Age` header field definition.
- * @property string|null $etag
- *     Shortcut to the `ETag` header field definition.
  * @property Headers\Date|mixed $expires
  *     Adjusts the `Expires` header and the `max_age` directive of the `Cache-Control` header.
  * @property string|null $location Shortcut to the `Location` header field definition.
@@ -56,12 +54,16 @@ class Response implements ResponseStatus
      * @uses set_content_length
      * @uses get_content_type
      * @uses set_content_type
+     * @uses get_etag
+     * @uses set_etag
      * @uses get_expires
+     * @uses set_expires
      * @uses get_date
      * @uses set_date
-     * @uses set_expires
      * @uses get_last_modified
      * @uses set_last_modified
+     * @uses get_ttl
+     * @uses set_ttl
      */
     use AccessorTrait;
 
@@ -410,26 +412,6 @@ class Response implements ResponseStatus
     }
 
     /**
-     * Sets the value of the `ETag` header field.
-     *
-     * @param string|null $value
-     */
-    protected function set_etag(?string $value): void
-    {
-        $this->headers['ETag'] = $value;
-    }
-
-    /**
-     * Returns the value of the `ETag` header field.
-     *
-     * @return string|null
-     */
-    protected function get_etag(): ?string
-    {
-        return $this->headers['ETag'];
-    }
-
-    /**
      * @deprecated 6.0
      * @see Headers::$cache_control
      */
@@ -497,6 +479,28 @@ class Response implements ResponseStatus
 
     /**
      * @deprecated 6.0
+     * @see Headers::$etag
+     */
+    private function get_etag(): ?string
+    {
+        trigger_error('$response->etag is deprecated use $response->headers->etag instead.', E_USER_DEPRECATED);
+
+        return $this->headers->etag;
+    }
+
+    /**
+     * @deprecated 6.0
+     * @see Headers::$etag
+     */
+    private function set_etag(?string $value): void
+    {
+        trigger_error('$response->etag is deprecated use $response->headers->etag instead.', E_USER_DEPRECATED);
+
+        $this->headers->etag = $value;
+    }
+
+    /**
+     * @deprecated 6.0
      * @see Headers::$last_modified
      */
     private function get_last_modified(): Headers\Date
@@ -524,7 +528,7 @@ class Response implements ResponseStatus
      *
      * @param int|null $seconds The number of seconds.
      */
-    protected function set_ttl(?int $seconds): void
+    private function set_ttl(?int $seconds): void
     {
         $this->headers->cache_control->s_maxage = $this->age + $seconds;
     }
@@ -538,7 +542,7 @@ class Response implements ResponseStatus
      * @return int|null The number of seconds to live, or `null` is no freshness information
      * is present.
      */
-    protected function get_ttl(): ?int
+    private function get_ttl(): ?int
     {
         $max_age = $this->headers->cache_control->max_age;
 
@@ -555,7 +559,7 @@ class Response implements ResponseStatus
      */
     protected function get_is_validateable(): bool
     {
-        return !$this->headers->last_modified->is_empty || $this->headers['ETag'];
+        return !$this->headers->last_modified->is_empty || $this->headers->etag;
     }
 
     /**

@@ -109,6 +109,19 @@ $headers = new Headers();
 $headers->content_length = 123;
 ```
 
+## ETag
+
+A pair getter/setter is offered to support `ETag`, for type safety.
+
+```php
+<?php
+
+use ICanBoogie\HTTP\Headers;
+
+$headers = new Headers();
+$headers->etag = "ABC123";
+```
+
 ## Date, Expires, If-Modified-Since, If-Unmodified-Since, Last-Modified, and Retry-After
 
 All date related headers are represented by a [Date][] instance, and can be specified as Unix timestamp, strings

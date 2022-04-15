@@ -612,6 +612,8 @@ $headers->content_disposition->filename = 'été.jpg';
 
 echo $headers->content_disposition; // attachment; filename="ete.jpg"; filename*=UTF-8''%C3%A9t%C3%A9.jpg
 
+$headers->etag = "ABC123";
+
 $headers->date = 'now';
 $headers->expires = '+1 hour';
 $headers->if_modified_since = '-1 hour';

@@ -16,6 +16,8 @@ use LogicException;
 use PHPUnit\Framework\MockObject\Rule\InvokedCount;
 use PHPUnit\Framework\TestCase;
 
+use function filemtime;
+
 final class FileResponseTest extends TestCase
 {
     public function test_should_throw_exception_on_directory()
@@ -212,7 +214,7 @@ final class FileResponseTest extends TestCase
     public function test_get_etag(string $expected, string $file, array $options = [], array $headers = []): void
     {
         $response = new FileResponse($file, Request::from(), $options, $headers);
-        $this->assertEquals($expected, (string) $response->etag);
+        $this->assertEquals($expected, $response->headers->etag);
     }
 
     public function provide_test_get_etag(): array
@@ -267,29 +269,25 @@ final class FileResponseTest extends TestCase
     /**
      * @dataProvider provide_test_get_is_modified
      */
-    public function test_get_is_modified(bool $expected, array $request_headers, false|int $modified_time = false, string $etag = null)
-    {
-        $request = Request::from([ Request::OPTION_HEADERS => $request_headers ]);
-        $response = $this
-            ->getMockBuilder(FileResponse::class)
-            ->setConstructorArgs([ create_file(), $request ])
-            ->onlyMethods([ 'get_modified_time', 'get_etag' ])
-            ->getMockForAbstractClass();
-        $response
-            ->expects($this->any())
-            ->method('get_modified_time')
-            ->willReturn($modified_time);
-        $response
-            ->expects($this->any())
-            ->method('get_etag')
-            ->willReturn($etag ?: uniqid());
+    public function test_get_is_modified(
+        bool $expected,
+        array $request_headers,
+        false|int $modified_time = false,
+        string $etag = null
+    ): void {
+        $file = create_file();
+        if ($modified_time) {
+            touch($file, $modified_time);
+        }
 
-        /* @var $response FileResponse */
+        $response = new FileResponse($file, Request::from([ RequestOptions::OPTION_HEADERS => $request_headers ]), [
+            FileResponse::OPTION_ETAG => $etag,
+        ]);
 
         $this->assertSame($expected, $response->is_modified);
     }
 
-    public function provide_test_get_is_modified()
+    public function provide_test_get_is_modified(): array
     {
         $modified_since = DateTime::from('-2 month');
         $modified_time_older = DateTime::from('-6 month')->timestamp;
