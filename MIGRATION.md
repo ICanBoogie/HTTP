@@ -40,6 +40,7 @@ $response->content_type;
 $response->date;
 $response->etag;
 $response->last_modified;
+$response->location;
 $headers['Cache-Control'];
 $headers['Content-Disposition'];
 ```
@@ -58,6 +59,7 @@ $response->headers->content_type;
 $response->headers->date;
 $response->headers->etag;
 $response->headers->last_modified;
+$response->headers->location;
 $headers['Cache-Control']; $headers->cache_control;
 $headers['Content-Disposition']; $headers->content_disposition;
 ```

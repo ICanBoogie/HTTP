@@ -42,8 +42,6 @@ use const E_USER_DEPRECATED;
  *     Shortcut to the `Age` header.
  * @property Headers\Date|mixed $expires
  *     Adjusts the `Expires` header and the `max_age` directive of the `Cache-Control` header.
- * @property string|null $location
- *     Shortcut to the `Location` header.
  * @property-read bool $is_cacheable
  *     Whether the response is worth caching under any circumstance.
  *     Responses marked _private_ with an explicit `Cache-Control` directive are considered
@@ -80,6 +78,8 @@ class Response implements ResponseStatus
      * @uses get_is_validateable
      * @uses get_last_modified
      * @uses set_last_modified
+     * @uses get_location
+     * @uses set_location
      * @uses get_status
      * @uses set_status
      * @uses get_ttl
@@ -245,30 +245,6 @@ class Response implements ResponseStatus
     private function get_status(): Status
     {
         return $this->status;
-    }
-
-    /**
-     * Sets the value of the `Location` header field.
-     *
-     * @param string|null $url
-     */
-    protected function set_location(?string $url)
-    {
-        if ($url !== null && !$url) {
-            throw new InvalidArgumentException('Cannot redirect to an empty URL.');
-        }
-
-        $this->headers['Location'] = $url;
-    }
-
-    /**
-     * Returns the value of the `Location` header field.
-     *
-     * @return string|null
-     */
-    protected function get_location(): ?string
-    {
-        return $this->headers['Location'];
     }
 
     /**
@@ -474,6 +450,34 @@ class Response implements ResponseStatus
         );
 
         $this->headers->last_modified = $value;
+    }
+
+    /**
+     * @deprecated 6.0
+     * @see Headers::$location
+     */
+    private function get_location(): ?string
+    {
+        trigger_error(
+            '$response->location is deprecated, use $response->headers->location instead.',
+            E_USER_DEPRECATED
+        );
+
+        return $this->headers->location;
+    }
+
+    /**
+     * @deprecated 6.0
+     * @see Headers::$location
+     */
+    private function set_location(?string $url)
+    {
+        trigger_error(
+            '$response->location is deprecated, use $response->headers->location instead.',
+            E_USER_DEPRECATED
+        );
+
+        $this->headers->location = $url;
     }
 
     private function get_ttl(): ?int

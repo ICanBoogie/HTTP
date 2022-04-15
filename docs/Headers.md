@@ -30,6 +30,17 @@ $headers->cache_control->max_age = 3600;
 $headers->cache_control->no_transform = true;
 ```
 
+Assigning `null` to a header removes that header:
+
+```php
+
+use ICanBoogie\HTTP\Headers;
+
+$headers = new Headers();
+$headers->location = '/to/the/moon';
+$headers->location = null; // Removes the `Location` header
+```
+
 ## Cache-Control
 
 The `Cache-Control` header is represented by a [CacheControl][] instance. Directives can be set at
@@ -111,7 +122,7 @@ $headers->content_length = 123;
 
 ## ETag
 
-A pair getter/setter is offered to support `ETag`, for type safety.
+A pair getter/setter is offered to support the `ETag` header, for type safety.
 
 ```php
 <?php
@@ -120,6 +131,23 @@ use ICanBoogie\HTTP\Headers;
 
 $headers = new Headers();
 $headers->etag = "ABC123";
+```
+
+## Location
+
+A pair getter/setter is offered to support the `Location` header, for type safety.
+
+**Note:** An exception is thrown when attempting to assign a blank string e.g. `""`, because redirecting to an empty
+location is impossible.
+
+```php
+<?php
+
+use ICanBoogie\HTTP\Headers;
+
+$headers = new Headers();
+$headers->location = "/to/the/moon";
+$headers->location = ""; // Throws an exception
 ```
 
 ## Date, Expires, If-Modified-Since, If-Unmodified-Since, Last-Modified, and Retry-After

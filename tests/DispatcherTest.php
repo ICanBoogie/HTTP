@@ -30,7 +30,7 @@ use ICanBoogie\HTTP\WeightedDispatcher;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 
-class DispatcherTest extends TestCase
+final class DispatcherTest extends TestCase
 {
     private EventCollection $events;
 
@@ -177,7 +177,7 @@ class DispatcherTest extends TestCase
         $this->assertEquals(1234, $response->content_length);
     }
 
-    public function test_head_strip_body()
+    public function test_head_strip_body(): void
     {
         $original_response = null;
         $dispatcher = new RequestDispatcher([
@@ -203,7 +203,7 @@ class DispatcherTest extends TestCase
         $this->assertEquals($expected, (string) $response);
     }
 
-    public function test_array_access_interface()
+    public function test_array_access_interface(): void
     {
         $dispatcher = new RequestDispatcher();
         $d1 = function () {
@@ -226,7 +226,7 @@ class DispatcherTest extends TestCase
         }
     }
 
-    public function test_rescue_force_redirect()
+    public function test_rescue_force_redirect(): void
     {
         $location = '/path/to/location/' . uniqid();
 
@@ -243,6 +243,6 @@ class DispatcherTest extends TestCase
         $response = $dispatcher->rescue($force_redirect, Request::from('/'));
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
-        $this->assertSame($location, $response->location);
+        $this->assertSame($location, $response->headers->location);
     }
 }

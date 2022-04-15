@@ -620,6 +620,8 @@ $headers->if_modified_since = '-1 hour';
 $headers->if_unmodified_since = '-1 hour';
 $headers->last_modified = '2022-01-01';
 
+$headers->location = 'to/the/moon';
+
 $headers['X-My-Header'] = 'Some value';
 echo $headers['X-My-Header']; // 'Some value';
 ```

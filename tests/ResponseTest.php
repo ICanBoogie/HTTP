@@ -39,25 +39,6 @@ class ResponseTest extends TestCase
         $this->assertNotSame($clone->status, $response->status);
     }
 
-    public function test_should_throw_exception_setting_empty_string_location()
-    {
-        $response = new Response();
-
-        $this->expectException(InvalidArgumentException::class);
-
-        $response->location = '';
-    }
-
-    public function test_should_remove_location_with_null()
-    {
-        $location = '/path/to/resource';
-        $response = new Response();
-        $response->location = $location;
-        $this->assertEquals($location, $response->location);
-        $response->location = null;
-        $this->assertNull($response->location);
-    }
-
     public function test_should_set_content_type()
     {
         $expected = 'application/json';

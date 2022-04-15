@@ -11,6 +11,8 @@
 
 namespace ICanBoogie\HTTP;
 
+use InvalidArgumentException;
+
 use function ICanBoogie\escape;
 
 /**
@@ -25,14 +27,14 @@ class RedirectResponse extends Response
      * @param int $status Status code (default to {@link Status::FOUND}).
      * @param array $headers Additional headers.
      *
-     * @throws \InvalidArgumentException if the provided status code is not a redirect.
+     * @throws InvalidArgumentException if the provided status code is not a redirect.
      */
     public function __construct(string $url, int $status = Status::FOUND, array $headers = [])
     {
         parent::__construct(
             function (Response $response) {
 
-                $location = $response->location;
+                $location = $response->headers->location;
                 $title = escape($location);
 
                 echo <<<EOT
@@ -52,7 +54,7 @@ EOT
                 ; // @codeCoverageIgnore
             },
             $status,
-            [ 'Location' => $url ] + $headers
+            [ Headers::HEADER_LOCATION => $url ] + $headers
         );
 
         if (!$this->status->is_redirect) {

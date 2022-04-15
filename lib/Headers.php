@@ -15,6 +15,7 @@ use ArrayAccess;
 use ArrayIterator;
 use ICanBoogie\Accessor\AccessorTrait;
 use ICanBoogie\HTTP\Headers\Header;
+use InvalidArgumentException;
 use IteratorAggregate;
 
 use function header;
@@ -56,6 +57,8 @@ use function substr;
  *     Shortcut to the `If-Unmodified-Since` header field definition.
  * @property Headers\Date|mixed $last_modified
  *     Shortcut to the `Last-Modified` header field definition.
+ * @property string|null $location
+ *     Shortcut to the `Location` header field definition.
  */
 class Headers implements ArrayAccess, IteratorAggregate
 {
@@ -80,6 +83,8 @@ class Headers implements ArrayAccess, IteratorAggregate
      * @uses set_if_unmodified_since
      * @uses get_last_modified
      * @uses set_last_modified
+     * @uses get_location
+     * @uses set_location
      */
     use AccessorTrait;
 
@@ -94,6 +99,7 @@ class Headers implements ArrayAccess, IteratorAggregate
     public const HEADER_IF_UNMODIFIED_SINCE = 'If-Unmodified-Since';
     public const HEADER_IF_NONE_MATCH = 'If-None-Match';
     public const HEADER_LAST_MODIFIED = 'Last-Modified';
+    public const HEADER_LOCATION = 'Location';
 
     private const MAPPING = [
 
@@ -280,6 +286,12 @@ class Headers implements ArrayAccess, IteratorAggregate
                 }
                 break;
 
+            case self::HEADER_LOCATION:
+                if ($value === '') {
+                    throw new InvalidArgumentException('Cannot redirect to a blank URL.');
+                }
+                break;
+
             # http://tools.ietf.org/html/rfc2616#section-14.37
             case 'Retry-After':
                 $value = is_numeric($value) ? $value : Headers\Date::from($value);
@@ -409,5 +421,15 @@ class Headers implements ArrayAccess, IteratorAggregate
     private function set_last_modified(mixed $value): void
     {
         $this->offsetSet(self::HEADER_LAST_MODIFIED, $value);
+    }
+
+    private function get_location(): ?string
+    {
+        return $this->offsetGet(self::HEADER_LOCATION);
+    }
+
+    private function set_location(?string $value): void
+    {
+        $this->offsetSet(self::HEADER_LOCATION, $value);
     }
 }

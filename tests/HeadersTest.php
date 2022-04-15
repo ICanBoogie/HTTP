@@ -17,6 +17,7 @@ use ICanBoogie\DateTime;
 use ICanBoogie\HTTP\Headers;
 use ICanBoogie\HTTP\Headers\Date;
 use ICanBoogie\HTTP\Headers\Date as DateHeader;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 use function uniqid;
@@ -140,6 +141,23 @@ final class HeadersTest extends TestCase
 
         $headers->last_modified = null;
         $this->assertEmpty((string) $headers->last_modified);
+    }
+
+    public function test_should_remove_location_with_null(): void
+    {
+        $location = '/path/to/resource';
+        $headers = new Headers();
+        $headers->location = $location;
+        $this->assertEquals($location, $headers->location);
+        $headers->location = null;
+        $this->assertNull($headers->location);
+    }
+
+    public function test_should_fail_on_blank_location(): void
+    {
+        $headers = new Headers();
+        $this->expectException(InvalidArgumentException::class);
+        $headers->location = '';
     }
 
     /**
