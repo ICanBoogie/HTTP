@@ -94,27 +94,15 @@ class ResponseTest extends TestCase
         }, explode(' ', $properties));
     }
 
-    public function test_date()
-    {
-        $response = new Response();
-        $this->assertInstanceOf(Headers\Date::class, $response->date);
-        $this->assertTrue(DateTime::right_now()->as_iso8601 == $response->date->as_iso8601);
-
-        $response->date = 'now';
-        $this->assertInstanceOf(Headers\Date::class, $response->date);
-        $this->assertEquals('UTC', $response->date->zone->name);
-        $this->assertTrue(DateTime::right_now()->as_iso8601 == $response->date->as_iso8601);
-    }
-
     public function test_age()
     {
         $response = new Response();
         $this->assertEquals(0, $response->age);
 
-        $response->date = '-3 second';
+        $response->headers->date = '-3 second';
         $this->assertEquals(3, $response->age);
 
-        $response->date = null;
+        $response->headers->date = null;
         $this->assertNull($response->age);
 
         $response->age = 123;
@@ -191,7 +179,7 @@ class ResponseTest extends TestCase
         $response = new Response($body);
         $response_string = (string) $response;
 
-        $this->assertStringStartsWith("HTTP/1.1 200 OK\r\nDate: {$response->date}\r\n", $response_string);
+        $this->assertStringStartsWith("HTTP/1.1 200 OK\r\nDate: {$response->headers->date}\r\n", $response_string);
         $this->assertStringNotContainsString("Content-Length", $response_string);
         $this->assertNull($response->content_length);
     }
@@ -217,7 +205,7 @@ class ResponseTest extends TestCase
     {
         $response = new Response();
 
-        $this->assertEquals("HTTP/1.1 200 OK\r\nDate: {$response->date}\r\n\r\n", (string) $response);
+        $this->assertEquals("HTTP/1.1 200 OK\r\nDate: {$response->headers->date}\r\n\r\n", (string) $response);
         $this->assertNull($response->content_length);
     }
 
@@ -230,7 +218,7 @@ class ResponseTest extends TestCase
         ]);
 
         $this->assertEquals(123, $response->content_length);
-        $this->assertEquals("HTTP/1.1 200 OK\r\nContent-Length: 123\r\nDate: {$response->date}\r\n\r\n", (string) $response);
+        $this->assertEquals("HTTP/1.1 200 OK\r\nContent-Length: 123\r\nDate: {$response->headers->date}\r\n\r\n", (string) $response);
     }
 
     public function test_is_validateable()

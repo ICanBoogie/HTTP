@@ -42,6 +42,8 @@ use function substr;
  *     Shortcut to the `Content-Disposition` header field definition.
  *  @property Headers\ContentType|mixed $content_type
  *     Shortcut to the `Content-Type` header field definition.
+ *  @property Headers\Date|mixed $date
+ *     Shortcut to the `Date` header field definition.
  */
 class Headers implements ArrayAccess, IteratorAggregate
 {
@@ -52,6 +54,8 @@ class Headers implements ArrayAccess, IteratorAggregate
      * @uses set_content_disposition
      * @uses get_content_type
      * @uses set_content_type
+     * @uses get_date
+     * @uses set_date
      */
     use AccessorTrait;
 
@@ -276,37 +280,46 @@ class Headers implements ArrayAccess, IteratorAggregate
         return new ArrayIterator($this->fields);
     }
 
-    public function get_cache_control(): Headers\CacheControl
+    private function get_cache_control(): Headers\CacheControl
     {
         return $this->offsetGet('Cache-Control');
     }
 
-    public function set_cache_control(mixed $value): void
+    private function set_cache_control(mixed $value): void
     {
         $this->offsetSet('Cache-Control', $value);
     }
 
-    public function get_content_disposition(): Headers\ContentDisposition
+    private function get_content_disposition(): Headers\ContentDisposition
     {
         return $this->offsetGet('Content-Disposition');
     }
 
-    public function set_content_disposition(mixed $value): void
+    private function set_content_disposition(mixed $value): void
     {
         $this->offsetSet('Content-Disposition', $value);
     }
 
-    public function get_content_type(): Headers\ContentType
+    private function get_content_type(): Headers\ContentType
     {
         return $this->offsetGet('Content-Type');
     }
 
-    public function set_content_type(mixed $value): void
+    private function set_content_type(mixed $value): void
     {
         $this->offsetSet('Content-Type', $value);
     }
 
-//'Date' => Headers\Date::class,
+    private function get_date(): Headers\Date
+    {
+        return $this->offsetGet('Date');
+    }
+
+    private function set_date(mixed $value): void
+    {
+        $this->offsetSet('Date', $value);
+    }
+
 //'Expires' => Headers\Date::class,
 //'If-Modified-Since' => Headers\Date::class,
 //'If-Unmodified-Since' => Headers\Date::class,

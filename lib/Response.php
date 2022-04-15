@@ -15,7 +15,10 @@ use Closure;
 use ICanBoogie\Accessor\AccessorTrait;
 use ICanBoogie\DateTime;
 
+use InvalidArgumentException;
+
 use function ICanBoogie\format;
+use function is_array;
 use function is_object;
 use function method_exists;
 use function trigger_error;
@@ -33,7 +36,7 @@ use const E_USER_DEPRECATED;
  *     the `Age` header field definition.
  * @property int|null $age Shortcut to the `Age` header field definition.
  * @property int $content_length Shortcut to the `Content-Length` header field definition.
- * @property Headers\Date|string $date Shortcut to the `Date` header field definition.
+ * @property Headers\Date|string $date @deprecated Shortcut to the `Date` header field definition.
  * @property string|null $etag Shortcut to the `ETag` header field definition.
  * @property Headers\Date $expires Shortcut to the `Expires` header field definition.
  * @property Headers\Date $last_modified Shortcut to the `Last-Modified` header field definition.
@@ -71,10 +74,10 @@ class Response implements ResponseStatus
         int|Status $status = self::STATUS_OK,
         Headers|array $headers = []
     ) {
-        if (\is_array($headers)) {
+        if (is_array($headers)) {
             $headers = new Headers($headers);
         } elseif (!$headers instanceof Headers) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 "\$headers must be an array or a ICanBoogie\\HTTP\\Headers instance. Given: " . gettype(
                     $headers
                 )
@@ -83,8 +86,8 @@ class Response implements ResponseStatus
 
         $this->headers = $headers;
 
-        if ($this->date->is_empty) {
-            $this->date = 'now';
+        if ($this->headers->date->is_empty) {
+            $this->headers->date = 'now';
         }
 
         $this->set_status($status);
@@ -309,7 +312,7 @@ class Response implements ResponseStatus
     protected function set_location(?string $url)
     {
         if ($url !== null && !$url) {
-            throw new \InvalidArgumentException('Cannot redirect to an empty URL.');
+            throw new InvalidArgumentException('Cannot redirect to an empty URL.');
         }
 
         $this->headers['Location'] = $url;
@@ -376,7 +379,9 @@ class Response implements ResponseStatus
      */
     protected function set_date($time): void
     {
-        $this->headers['Date'] = $time;
+        trigger_error('$response->date is deprecated use $response->headers->date instead.', E_USER_DEPRECATED);
+
+        $this->headers->date = $time;
     }
 
     /**
@@ -386,7 +391,9 @@ class Response implements ResponseStatus
      */
     protected function get_date(): Headers\Date
     {
-        return $this->headers['Date']; // @phpstan-ignore-line
+        trigger_error('$response->date is deprecated use $response->headers->date instead.', E_USER_DEPRECATED);
+
+        return $this->headers->date;
     }
 
     /**
@@ -412,8 +419,8 @@ class Response implements ResponseStatus
             return (int) $age;
         }
 
-        if (!$this->date->is_empty) {
-            return max(0, time() - $this->date->utc->timestamp);
+        if (!$this->headers->date->is_empty) {
+            return max(0, time() - $this->headers->date->utc->timestamp);
         }
 
         return null;

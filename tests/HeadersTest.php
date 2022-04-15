@@ -14,6 +14,7 @@ namespace Test\ICanBoogie\HTTP;
 use ICanBoogie\DateTime;
 use ICanBoogie\HTTP\Headers;
 use ICanBoogie\HTTP\Headers\Date as DateHeader;
+use ICanBoogie\HTTP\Response;
 use PHPUnit\Framework\TestCase;
 
 final class HeadersTest extends TestCase
@@ -83,6 +84,17 @@ final class HeadersTest extends TestCase
         $this->assertEquals('iso-8859-1', $headers->content_type->charset);
     }
 
+    public function test_date(): void
+    {
+        $headers = new Headers();
+        $this->assertInstanceOf(Headers\Date::class, $headers->date);
+
+        $now = new DateTime();
+        $headers->date = $now;
+        $this->assertInstanceOf(Headers\Date::class, $headers->date);
+        $this->assertEquals($now, $headers->date);
+    }
+
     /**
      * @dataProvider provide_test_date_header
      *
@@ -104,7 +116,7 @@ final class HeadersTest extends TestCase
         $this->assertEquals($expected, (string) $headers[$field]);
     }
 
-    public function provide_test_date_header()
+    public function provide_test_date_header(): array
     {
         $value1 = new \ICanBoogie\DateTime();
         $value2 = new \DateTime();
