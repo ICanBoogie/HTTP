@@ -15,6 +15,12 @@ use ICanBoogie\DateTime;
 use LogicException;
 use SplFileInfo;
 
+use function finfo_file;
+use function finfo_open;
+use function function_exists;
+
+use const FILEINFO_MIME_TYPE;
+
 /**
  * Representation of an HTTP response delivering a file.
  *
@@ -77,7 +83,7 @@ class FileResponse extends Response
      */
     public function __construct(
         string|SplFileInfo $file,
-        private Request $request,
+        private readonly Request $request,
         array $options = [],
         array $headers = []
     ) {
@@ -85,13 +91,14 @@ class FileResponse extends Response
         $this->apply_options($options, $headers);
 
         parent::__construct(function () {
-
             if (!$this->status->is_successful) {
                 return;
             }
 
             $this->send_file($this->file);
         }, Status::OK, $headers);
+
+        $this->ensure_content_type($this->file);
     }
 
     /**
@@ -164,7 +171,6 @@ class FileResponse extends Response
         $headers['Expires'] = $expires;
         $headers->cache_control->cacheable = 'public';
         $headers->cache_control->max_age = $expires->timestamp - DateTime::now()->timestamp;
-        $headers['Content-Type'] = $this->content_type;
         $headers['Etag'] = $this->etag;
 
         if ($status === Status::NOT_MODIFIED) {
@@ -262,29 +268,6 @@ class FileResponse extends Response
     }
 
     /**
-     * If the content type returned by the parent is empty the method tries to obtain it from
-     * the file, if it fails {@link DEFAULT_MIME} is used as fallback.
-     *
-     * @inheritdoc
-     */
-    protected function get_content_type(): Headers\ContentType
-    {
-        $content_type = parent::get_content_type();
-
-        if ($content_type->value) {
-            return $content_type;
-        }
-
-        $mime = null;
-
-        if (\function_exists('finfo_file')) {
-            $mime = \finfo_file(\finfo_open(FILEINFO_MIME_TYPE), $this->file);
-        }
-
-        return new Headers\ContentType($mime ?: self::DEFAULT_MIME);
-    }
-
-    /**
      * If the etag returned by the parent is empty the method returns a SHA-384 of the file.
      *
      * @return string|null
@@ -371,7 +354,7 @@ class FileResponse extends Response
                     $headers['Content-Description'] = 'File Transfer';
                     $headers['Content-Disposition'] = new Headers\ContentDisposition('attachment', [
 
-                        'filename' => $value === true ? $this->file->getFilename() : $value
+                        'filename' => $value === true ? $this->file->getFilename() : $value,
 
                     ]);
                     break;
@@ -381,5 +364,24 @@ class FileResponse extends Response
                     break;
             }
         }
+    }
+
+    /**
+     * If the content type is empty in the headers the method tries to obtain it from
+     * the file, if it fails {@link DEFAULT_MIME} is used as fallback.
+     */
+    private function ensure_content_type(SplFileInfo $file): void
+    {
+        if ($this->headers->content_type->value) {
+            return;
+        }
+
+        $mime = null;
+
+        if (function_exists('finfo_file')) {
+            $mime = finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file);
+        }
+
+        $this->headers->content_type = $mime ?? self::DEFAULT_MIME;
     }
 }

@@ -79,8 +79,8 @@ final class HeadersTest extends TestCase
         $this->assertInstanceOf(Headers\ContentType::class, $headers['Content-Type']);
         $headers['Content-Type'] = 'text/plain; charset=iso-8859-1';
         $this->assertInstanceOf(Headers\ContentType::class, $headers['Content-Type']);
-        $this->assertEquals('text/plain', $headers['Content-Type']->type);
-        $this->assertEquals('iso-8859-1', $headers['Content-Type']->charset);
+        $this->assertEquals('text/plain', $headers->content_type->type);
+        $this->assertEquals('iso-8859-1', $headers->content_type->charset);
     }
 
     /**

@@ -33,17 +33,15 @@ use const E_USER_DEPRECATED;
  *     the `Age` header field definition.
  * @property int|null $age Shortcut to the `Age` header field definition.
  * @property int $content_length Shortcut to the `Content-Length` header field definition.
- * @property Headers\ContentType $content_type
- *     Shortcut to the `Content-Type` header field definition.
  * @property Headers\Date|string $date Shortcut to the `Date` header field definition.
  * @property string|null $etag Shortcut to the `ETag` header field definition.
  * @property Headers\Date $expires Shortcut to the `Expires` header field definition.
  * @property Headers\Date $last_modified Shortcut to the `Last-Modified` header field definition.
  * @property string|null $location Shortcut to the `Location` header field definition.
  *
- * @property-read boolean $is_cacheable {@link get_is_cacheable()}
- * @property-read boolean $is_fresh {@link get_is_fresh()}
- * @property-read boolean $is_validateable {@link get_is_validateable()}
+ * @property-read bool $is_cacheable {@link get_is_cacheable()}
+ * @property-read bool $is_fresh {@link get_is_fresh()}
+ * @property-read bool $is_validateable {@link get_is_validateable()}
  *
  * @see http://tools.ietf.org/html/rfc2616
  */
@@ -334,6 +332,8 @@ class Response implements ResponseStatus
      */
     protected function set_content_type(?string $content_type): void
     {
+        trigger_error('$response->content_type is deprecated use $response->headers->content_type instead.', E_USER_DEPRECATED);
+
         $this->headers['Content-Type'] = $content_type;
     }
 
@@ -344,6 +344,8 @@ class Response implements ResponseStatus
      */
     protected function get_content_type(): Headers\ContentType
     {
+        trigger_error('$response->content_type is deprecated use $response->headers->content_type instead.', E_USER_DEPRECATED);
+
         return $this->headers['Content-Type']; // @phpstan-ignore-line
     }
 

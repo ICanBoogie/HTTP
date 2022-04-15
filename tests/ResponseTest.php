@@ -69,10 +69,10 @@ class ResponseTest extends TestCase
     {
         $expected = 'application/json';
         $response = new Response();
-        $response->content_type = $expected;
-        $this->assertEquals($expected, $response->content_type);
-        $response->content_type = null;
-        $this->assertNull($response->content_type->value);
+        $response->headers->content_type = $expected;
+        $this->assertEquals($expected, $response->headers->content_type);
+        $response->headers->content_type = null;
+        $this->assertNull($response->headers->content_type->value);
     }
 
     /**

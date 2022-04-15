@@ -40,12 +40,18 @@ use function substr;
  *     Shortcut to the `Cache-Control` header field definition.
  *  @property Headers\ContentDisposition|mixed $content_disposition
  *     Shortcut to the `Content-Disposition` header field definition.
+ *  @property Headers\ContentType|mixed $content_type
+ *     Shortcut to the `Content-Type` header field definition.
  */
 class Headers implements ArrayAccess, IteratorAggregate
 {
     /**
      * @uses get_cache_control
      * @uses set_cache_control
+     * @uses get_content_disposition
+     * @uses set_content_disposition
+     * @uses get_content_type
+     * @uses set_content_type
      */
     use AccessorTrait;
 
@@ -290,7 +296,16 @@ class Headers implements ArrayAccess, IteratorAggregate
         $this->offsetSet('Content-Disposition', $value);
     }
 
-//'Content-Type' => Headers\ContentType::class,
+    public function get_content_type(): Headers\ContentType
+    {
+        return $this->offsetGet('Content-Type');
+    }
+
+    public function set_content_type(mixed $value): void
+    {
+        $this->offsetSet('Content-Type', $value);
+    }
+
 //'Date' => Headers\Date::class,
 //'Expires' => Headers\Date::class,
 //'If-Modified-Since' => Headers\Date::class,

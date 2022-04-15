@@ -35,6 +35,7 @@ these headers have been moved from `Request` and `Response` to `Headers`.
 
 $request->cache_control;
 $response->cache_control;
+$response->content_type;
 $headers['Cache-Control'];
 $headers['Content-Disposition'];
 ```
@@ -47,6 +48,7 @@ $headers['Content-Disposition'];
 
 $request->headers->cache_control;
 $response->headers->cache_control;
+$response->headers->content_type;
 $headers['Cache-Control']; $headers->cache_control;
 $headers['Content-Disposition']; $headers->content_disposition;
 ```

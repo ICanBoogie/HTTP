@@ -35,6 +35,7 @@
 	},
 	"require-dev": {
 		"ext-gd": "*",
+		"ext-fileinfo": "*",
 		"phpunit/phpunit": "^9.5",
 		"phpstan/phpstan": "^1.5"
 	},

@@ -189,7 +189,7 @@ final class FileResponseTest extends TestCase
     public function test_get_content_type(string $expected, string $file, array $options = [], array $headers = [])
     {
         $response = new FileResponse($file, Request::from(), $options, $headers);
-        $this->assertEquals($expected, (string) $response->content_type);
+        $this->assertEquals($expected, (string) $response->headers->content_type);
     }
 
     public function provide_test_get_content_type(): array
