@@ -171,6 +171,7 @@ final class HeadersTest extends TestCase
             [ 'date', Headers\Date::class ],
             [ 'expires', Headers\Date::class ],
             [ 'if_modified_since', Headers\Date::class ],
+            [ 'if_unmodified_since', Headers\Date::class ],
 
         ];
     }

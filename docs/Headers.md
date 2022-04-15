@@ -114,10 +114,10 @@ All date related headers can be specified as Unix timestamp, strings or `DateTim
 use ICanBoogie\HTTP\Headers;
 
 $headers = new Headers();
-$headers['Date'] = 'now';
-$headers['Expires'] = '+1 hour';
 $headers->date = 'now';
 $headers->expires = '+1 hour';
+$headers->if_modified_since = '-1 hour';
+$headers->if_unmodified_since = '-1 hour';
 ```
 
 

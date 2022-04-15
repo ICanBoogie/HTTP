@@ -48,6 +48,8 @@ use function substr;
  *     Shortcut to the `Expires` header field definition.
  * @property Headers\Date|mixed $if_modified_since
  *     Shortcut to the `If-Modified-Since` header field definition.
+ * @property Headers\Date|mixed $if_unmodified_since
+ *     Shortcut to the `If-Unmodified-Since` header field definition.
  */
 class Headers implements ArrayAccess, IteratorAggregate
 {
@@ -64,6 +66,8 @@ class Headers implements ArrayAccess, IteratorAggregate
      * @uses set_expires
      * @uses get_if_modified_since
      * @uses set_if_modified_since
+     * @uses get_if_unmodified_since
+     * @uses set_if_unmodified_since
      */
     use AccessorTrait;
 
@@ -348,7 +352,16 @@ class Headers implements ArrayAccess, IteratorAggregate
         $this->offsetSet('If-Modified-Since', $value);
     }
 
-//'If-Unmodified-Since' => Headers\Date::class,
+    private function get_if_unmodified_since(): Headers\Date
+    {
+        return $this->offsetGet('If-Unmodified-Since');
+    }
+
+    private function set_if_unmodified_since(mixed $value): void
+    {
+        $this->offsetSet('If-Unmodified-Since', $value);
+    }
+
 //'Last-Modified' => Headers\Date::class,
 
 }
