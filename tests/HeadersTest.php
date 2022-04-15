@@ -13,8 +13,8 @@ namespace Test\ICanBoogie\HTTP;
 
 use ICanBoogie\DateTime;
 use ICanBoogie\HTTP\Headers;
+use ICanBoogie\HTTP\Headers\Date;
 use ICanBoogie\HTTP\Headers\Date as DateHeader;
-use ICanBoogie\HTTP\Response;
 use PHPUnit\Framework\TestCase;
 
 final class HeadersTest extends TestCase
@@ -93,6 +93,20 @@ final class HeadersTest extends TestCase
         $headers->date = $now;
         $this->assertInstanceOf(Headers\Date::class, $headers->date);
         $this->assertEquals($now, $headers->date);
+    }
+
+    public function test_last_modified()
+    {
+        $headers = new Headers();
+        $this->assertInstanceOf(Headers\Date::class, $headers->last_modified);
+        $this->assertEmpty((string) $headers->last_modified);
+
+        $value = DateTime::now();
+        $headers->last_modified = $value;
+        $this->assertEquals($value, $headers->last_modified);
+
+        $headers->last_modified = null;
+        $this->assertEmpty((string) $headers->last_modified);
     }
 
     /**

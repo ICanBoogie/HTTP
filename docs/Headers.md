@@ -30,8 +30,6 @@ $headers->cache_control->max_age = 3600;
 $headers->cache_control->no_transform = true;
 ```
 
-
-
 ## Cache-Control header
 
 The `Cache-Control` header is represented by a [CacheControl][] instance. Directives can be set at
@@ -58,8 +56,6 @@ $headers->cache_control->max_age = 7200;
 echo $headers->cache_control; // public, max-age=7200
 ```
 
-
-
 ## Content-Type header
 
 The `Content-Type` header is represented by a [ContentType][] instance.
@@ -81,8 +77,6 @@ $headers->content_type->type = 'application/xml';
 echo $headers->content_type; // application/xml; charset=utf-8
 ```
 
-
-
 ## Content-Disposition header
 
 The `Content-Disposition` header is represented by a [ContentDisposition][] instance. UTF-8 file names are supported.
@@ -102,11 +96,10 @@ echo $headers->content_disposition->filename; // été.jpg
 echo $headers->content_disposition; // attachment; filename="ete.jpg"; filename*=UTF-8''%C3%A9t%C3%A9.jpg
 ```
 
+## Date, Expires, If-Modified-Since, If-Unmodified-Since, Last-Modified, and Retry-After headers
 
-
-## Date, Expires, If-Modified-Since, If-Unmodified-Since and Retry-After headers
-
-All date related headers can be specified as Unix timestamp, strings or `DateTimeInterface` instances.
+All date related headers are represented by a [Date][] instance, and can be specified as Unix timestamp, strings
+or `DateTimeInterface` instances.
 
 ```php
 <?php
@@ -118,11 +111,11 @@ $headers->date = 'now';
 $headers->expires = '+1 hour';
 $headers->if_modified_since = '-1 hour';
 $headers->if_unmodified_since = '-1 hour';
+$headers->last_modified = '2022-01-01';
 ```
-
-
 
 [Headers]:            ../lib/Headers.php
 [CacheControl]:       ../lib/Headers/CacheControl.php
 [ContentDisposition]: ../lib/Headers/ContentDisposition.php
 [ContentType]:        ../lib/Headers/ContentType.php
+[Date]:               ../lib/Headers/Date.php

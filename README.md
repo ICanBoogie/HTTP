@@ -612,6 +612,9 @@ echo $headers->content_disposition; // attachment; filename="ete.jpg"; filename*
 
 $headers->date = 'now';
 $headers->expires = '+1 hour';
+$headers->if_modified_since = '-1 hour';
+$headers->if_unmodified_since = '-1 hour';
+$headers->last_modified = '2022-01-01';
 
 $headers['X-My-Header'] = 'Some value';
 echo $headers['X-My-Header']; // 'Some value';

@@ -38,7 +38,6 @@ use const E_USER_DEPRECATED;
  * @property string|null $etag Shortcut to the `ETag` header field definition.
  * @property Headers\Date $expires
  *     Adjusts the `Expires` header and the `max_age` directive of the `Cache-Control` header.
- * @property Headers\Date $last_modified Shortcut to the `Last-Modified` header field definition.
  * @property string|null $location Shortcut to the `Location` header field definition.
  *
  * @property-read bool $is_cacheable {@link get_is_cacheable()}
@@ -52,8 +51,12 @@ class Response implements ResponseStatus
     /**
      * @uses get_cache_control
      * @uses set_cache_control
+     * @uses get_content_type
+     * @uses set_content_type
      * @uses get_expires
      * @uses set_expires
+     * @uses get_last_modified
+     * @uses set_last_modified
      */
     use AccessorTrait;
 
@@ -331,32 +334,6 @@ class Response implements ResponseStatus
     }
 
     /**
-     * Sets the value of the `Content-Type` header field.
-     *
-     * @deprecated 6.0
-     * @see Headers::$content_type
-     */
-    protected function set_content_type(?string $content_type): void
-    {
-        trigger_error('$response->content_type is deprecated use $response->headers->content_type instead.', E_USER_DEPRECATED);
-
-        $this->headers->content_type = $content_type;
-    }
-
-    /**
-     * Returns the value of the `Content-Type` header field.
-     *
-     * @deprecated 6.0
-     * @see Headers::$content_type
-     */
-    protected function get_content_type(): Headers\ContentType
-    {
-        trigger_error('$response->content_type is deprecated use $response->headers->content_type instead.', E_USER_DEPRECATED);
-
-        return $this->headers->content_type;
-    }
-
-    /**
      * Sets the value of the `Content-Length` header field.
      *
      * @param int|null $length
@@ -427,26 +404,6 @@ class Response implements ResponseStatus
     }
 
     /**
-     * Sets the value of the `Last-Modified` header field.
-     *
-     * @param mixed $time
-     */
-    protected function set_last_modified($time): void
-    {
-        $this->headers['Last-Modified'] = $time;
-    }
-
-    /**
-     * Returns the value of the `Last-Modified` header field.
-     *
-     * @return Headers\Date
-     */
-    protected function get_last_modified(): Headers\Date
-    {
-        return $this->headers['Last-Modified']; // @phpstan-ignore-line
-    }
-
-    /**
      * Sets the value of the `Expires` header field.
      *
      * The method updates the `max-age` Cache Control directive accordingly.
@@ -488,10 +445,17 @@ class Response implements ResponseStatus
     }
 
     /**
-     * Sets the directives of the `Cache-Control` header field.
-     *
-     * @param string|null $cache_directives
-     *
+     * @deprecated 6.0
+     * @see Headers::$cache_control
+     */
+    protected function get_cache_control(): Headers\CacheControl
+    {
+        trigger_error('$response->cache_control is deprecated, use $response->headers->cache_control instead.', E_USER_DEPRECATED);
+
+        return $this->headers->cache_control;
+    }
+
+    /**
      * @deprecated 6.0
      * @see Headers::$cache_control
      */
@@ -503,16 +467,47 @@ class Response implements ResponseStatus
     }
 
     /**
-     * Returns the `Cache-Control` header field.
-     *
      * @deprecated 6.0
-     * @see Headers::$cache_control
+     * @see Headers::$content_type
      */
-    protected function get_cache_control(): Headers\CacheControl
+    protected function get_content_type(): Headers\ContentType
     {
-        trigger_error('$response->cache_control is deprecated, use $response->headers->cache_control instead.', E_USER_DEPRECATED);
+        trigger_error('$response->content_type is deprecated use $response->headers->content_type instead.', E_USER_DEPRECATED);
 
-        return $this->headers->cache_control;
+        return $this->headers->content_type;
+    }
+
+    /**
+     * @deprecated 6.0
+     * @see Headers::$content_type
+     */
+    protected function set_content_type(mixed $content_type): void
+    {
+        trigger_error('$response->content_type is deprecated use $response->headers->content_type instead.', E_USER_DEPRECATED);
+
+        $this->headers->content_type = $content_type;
+    }
+
+    /**
+     * @deprecated 6.0
+     * @see Headers::$last_modified
+     */
+    private function get_last_modified(): Headers\Date
+    {
+        trigger_error('$response->last_modified is deprecated, use $response->headers->last_modified instead.', E_USER_DEPRECATED);
+
+        return $this->headers->last_modified;
+    }
+
+    /**
+     * @deprecated 6.0
+     * @see Headers::$last_modified
+     */
+    private function set_last_modified(mixed $value): void
+    {
+        trigger_error('$response->last_modified is deprecated, use $response->headers->last_modified instead.', E_USER_DEPRECATED);
+
+        $this->headers->last_modified = $value;
     }
 
     /**

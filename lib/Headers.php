@@ -50,6 +50,8 @@ use function substr;
  *     Shortcut to the `If-Modified-Since` header field definition.
  * @property Headers\Date|mixed $if_unmodified_since
  *     Shortcut to the `If-Unmodified-Since` header field definition.
+ * @property Headers\Date|mixed $last_modified
+ *     Shortcut to the `Last-Modified` header field definition.
  */
 class Headers implements ArrayAccess, IteratorAggregate
 {
@@ -68,6 +70,8 @@ class Headers implements ArrayAccess, IteratorAggregate
      * @uses set_if_modified_since
      * @uses get_if_unmodified_since
      * @uses set_if_unmodified_since
+     * @uses get_last_modified
+     * @uses set_last_modified
      */
     use AccessorTrait;
 
@@ -90,7 +94,7 @@ class Headers implements ArrayAccess, IteratorAggregate
     }
 
     /**
-     * Header fields.
+     * @var array<string, Header|mixed>
      */
     private array $fields = [];
 
@@ -100,7 +104,7 @@ class Headers implements ArrayAccess, IteratorAggregate
      * starting with the `HTTP_` prefix. Also, header field names are normalized. For instance,
      * `HTTP_CONTENT_TYPE` becomes `Content-Type`.
      *
-     * @param array $fields The initial headers.
+     * @param array<string, mixed> $fields The initial headers.
      */
     public function __construct(array $fields = [])
     {
@@ -125,9 +129,6 @@ class Headers implements ArrayAccess, IteratorAggregate
         }
     }
 
-    /**
-     * Clone instantiated fields.
-     */
     public function __clone()
     {
         foreach ($this->fields as &$field) {
@@ -143,10 +144,8 @@ class Headers implements ArrayAccess, IteratorAggregate
      * Returns the header as a string.
      *
      * Header fields with empty string values are discarded.
-     *
-     * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         $header = '';
 
@@ -209,7 +208,7 @@ class Headers implements ArrayAccess, IteratorAggregate
     {
         if (isset(self::MAPPING[$offset])) {
             if (empty($this->fields[$offset])) {
-                /* @var $class Headers\Header|string */
+                /* @var $class Headers\Header|class-string */
                 $class = self::MAPPING[$offset];
                 $this->fields[$offset] = $class::from(null);
             }
@@ -217,7 +216,7 @@ class Headers implements ArrayAccess, IteratorAggregate
             return $this->fields[$offset];
         }
 
-        return $this->offsetExists($offset) ? $this->fields[$offset] : null;
+        return $this->fields[$offset] ?? null;
     }
 
     /**
@@ -362,6 +361,13 @@ class Headers implements ArrayAccess, IteratorAggregate
         $this->offsetSet('If-Unmodified-Since', $value);
     }
 
-//'Last-Modified' => Headers\Date::class,
+    private function get_last_modified(): Headers\Date
+    {
+        return $this->offsetGet('Last-Modified');
+    }
 
+    private function set_last_modified(mixed $value): void
+    {
+        $this->offsetSet('Last-Modified', $value);
+    }
 }

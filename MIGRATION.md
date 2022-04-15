@@ -23,7 +23,7 @@ $context->request;
 $context->get(Request::class);
 ```
 
-Headers with extended support, such as `Cache-Headers`, can now be accessed with special properties. Accessor related to
+Headers with extended support, such as `Cache-Control`, can now be accessed with special properties. Accessor related to
 these headers have been moved from `Request` and `Response` to `Headers`.
 
 ```php
@@ -37,9 +37,11 @@ $request->cache_control;
 $response->cache_control;
 $response->content_type;
 $response->date;
+$response->last_modified;
 $headers['Cache-Control'];
 $headers['Content-Disposition'];
 ```
+
 ```php
 <?php
 
@@ -51,6 +53,7 @@ $request->headers->cache_control;
 $response->headers->cache_control;
 $response->headers->content_type;
 $response->headers->date;
+$response->headers->last_modified;
 $headers['Cache-Control']; $headers->cache_control;
 $headers['Content-Disposition']; $headers->content_disposition;
 ```

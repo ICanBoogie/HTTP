@@ -136,20 +136,6 @@ class ResponseTest extends TestCase
         $this->assertEmpty((string) $response->headers->cache_control);
     }
 
-    public function test_last_modified()
-    {
-        $response = new Response();
-        $this->assertInstanceOf(Date::class, $response->last_modified);
-        $this->assertEmpty((string) $response->last_modified);
-
-        $value = DateTime::now();
-        $response->last_modified = $value;
-        $this->assertEquals($value, $response->last_modified);
-
-        $response->last_modified = null;
-        $this->assertEmpty((string) $response->last_modified);
-    }
-
     public function test_expires()
     {
         $response = new Response();
