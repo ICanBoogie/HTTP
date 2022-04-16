@@ -20,7 +20,7 @@ use RuntimeException;
  * This is a general purpose container used to store the objects and variables related to a
  * request.
  */
-class Context
+final class Context
 {
     /**
      * @var object[]
@@ -32,13 +32,26 @@ class Context
     ) {
     }
 
+    /**
+     * Add an object to the top of the context.
+     *
+     * Multiple objects of the same type can be added.
+     */
     public function add(object $value): void
     {
         array_unshift($this->values, $value);
     }
 
     /**
-     * @param class-string $class
+     * Get an object from the context.
+     *
+     * The method will fail if there's no object matching the specified class or interface.
+     *
+     * @template T of object
+     *
+     * @param class-string<T> $class A class or interface.
+     *
+     * @return T
      */
     public function get(string $class): object
     {
@@ -52,7 +65,13 @@ class Context
     }
 
     /**
-     * @param class-string $class
+     * Find an object in the context.
+     *
+     * @template T of object
+     *
+     * @param class-string<T> $class A class or interface.
+     *
+     * @return T|null
      */
     public function find(string $class): ?object
     {
