@@ -14,20 +14,17 @@ namespace ICanBoogie\HTTP;
 use Throwable;
 
 /**
- * Exception thrown when the HTTP method is not supported.
+ * Exception thrown when an HTTP method is not allowed.
  */
-class MethodNotSupported extends ClientError implements Exception
+class MethodNotAllowed extends ClientError implements Exception
 {
-    /**
-     * @param string $method The unsupported HTTP method.
-     */
     public function __construct(
         public readonly string $method,
         Throwable $previous = null
     ) {
         parent::__construct(
-            "Unsupported HTTP method: $method.",
-            ResponseStatus::STATUS_INTERNAL_SERVER_ERROR,
+            "Method not allowed: $method.",
+            ResponseStatus::STATUS_METHOD_NOT_ALLOWED,
             $previous
         );
     }

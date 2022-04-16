@@ -284,7 +284,7 @@ class Request implements RequestOptions
      * @param array $properties Initial properties.
      * @param array $env Environment of the request, usually the `$_SERVER` super global.
      *
-     * @throws MethodNotSupported when the request method is not supported.
+     * @throws MethodNotAllowed when the request method is not supported.
      */
     protected function __construct(array $properties, array $env = [])
     {

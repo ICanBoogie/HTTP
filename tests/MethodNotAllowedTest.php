@@ -11,15 +11,15 @@
 
 namespace Test\ICanBoogie\HTTP;
 
-use ICanBoogie\HTTP\MethodNotSupported;
+use ICanBoogie\HTTP\MethodNotAllowed;
 use PHPUnit\Framework\TestCase;
 
-final class MethodNotSupportedTest extends TestCase
+final class MethodNotAllowedTest extends TestCase
 {
     public function test_get_method()
     {
         $method = 'UNSUPPORTED';
-        $exception = new MethodNotSupported($method);
+        $exception = new MethodNotAllowed($method);
         $this->assertEquals($method, $exception->method);
     }
 }
