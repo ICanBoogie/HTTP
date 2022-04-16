@@ -13,17 +13,14 @@ namespace Test\ICanBoogie\HTTP;
 
 use ICanBoogie\DateTime;
 use ICanBoogie\HTTP\Headers;
-use ICanBoogie\HTTP\Headers\CacheControl;
 use ICanBoogie\HTTP\Headers\Date;
 use ICanBoogie\HTTP\Response;
 use ICanBoogie\PropertyNotWritable;
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use UnexpectedValueException;
 
 class ResponseTest extends TestCase
 {
-    private static $response;
+    private static Response $response;
 
     public static function setupBeforeClass(): void
     {
@@ -166,7 +163,6 @@ class ResponseTest extends TestCase
     }
 
     /**
-     * @covers \Test\ICanBoogie\HTTP\Response::get_is_cacheable
      * @dataProvider provide_test_is_cacheable
      *
      * @param Response $response
