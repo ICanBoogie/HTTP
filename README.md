@@ -42,7 +42,7 @@ the `$_SERVER` array, while sub requests are created from arrays of `Request::OP
 ```php
 <?php
 
-use ICanBoogie\HTTP\Request;
+namespace ICanBoogie\HTTP;
 
 $initial_request = Request::from($_SERVER);
 
@@ -55,8 +55,8 @@ $request = Request::from('path/to/file.html', $_SERVER);
 $request = Request::from([
 
     Request::OPTION_PATH => 'path/to/file.html',
-    Request::OPTION_IS_LOCAL => true,            // or OPTION_IP => '::1'
-    Request::OPTION_IS_POST => true,             // or OPTION_METHOD => Request::METHOD_POST
+    Request::OPTION_IS_LOCAL => true, // or OPTION_IP => '::1'
+    Request::OPTION_METHOD => RequestMethod::METHOD_POST,
     Request::OPTION_HEADERS => [
 
         'Cache-Control' => 'no-cache'
@@ -115,11 +115,11 @@ changed properties.
 ```php
 <?php
 
-use ICanBoogie\HTTP\Request;
+namespace ICanBoogie\HTTP;
 
 $request = Request::from($_SERVER)->with([
 
-    Request::OPTION_IS_HEAD => true,
+    Request::OPTION_METHOD => RequestMethod::METHOD_HEAD => true,
     Request::OPTION_IS_XHR => true
 
 ]);
@@ -130,16 +130,18 @@ $request = Request::from($_SERVER)->with([
 
 ### Request parameters
 
-Whether they are sent as part of the query string, the post body, or the path info, parameters
-sent along a request are collected in arrays. The `query_params`, `request_params`,
-and `path_params` properties give you access to these parameters.
+Whether they are sent as part of the query string, the post body, or the path info, parameters sent
+along a request are collected in arrays. The `query_params`, `request_params`, and `path_params`
+properties give you access to these parameters.
 
 You can access each type of parameter as follows:
 
 ```php
 <?php
 
-/* @var $request \ICanBoogie\HTTP\Request */
+namespace ICanBoogie\HTTP;
+
+/* @var $request Request */
 
 $id = $request->query_params['id'];
 $method = $request->request_params['method'];
@@ -152,7 +154,9 @@ _query_, _request_ and _path_ parameters:
 ```php
 <?php
 
-/* @var $request \ICanBoogie\HTTP\Request */
+namespace ICanBoogie\HTTP;
+
+/* @var $request Request */
 
 $id = $request->params['id'];
 $method = $request->params['method'];
@@ -165,7 +169,9 @@ when a parameter is not defined:
 ```php
 <?php
 
-/* @var $request \ICanBoogie\HTTP\Request */
+namespace ICanBoogie\HTTP;
+
+/* @var $request Request */
 
 $id = $request['id'];
 $method = $request['method'];
@@ -179,7 +185,9 @@ Of course, the request is also an iterator:
 ```php
 <?php
 
-/* @var $request \ICanBoogie\HTTP\Request */
+namespace ICanBoogie\HTTP;
+
+/* @var $request Request */
 
 foreach ($request as $parameter => $value)
 {
@@ -200,8 +208,7 @@ using `OPTION_FILES`.
 ```php
 <?php
 
-use ICanBoogie\HTTP\FileOptions as File;
-use ICanBoogie\HTTP\Request;
+namespace ICanBoogie\HTTP;
 
 $request = Request::from($_SERVER);
 
@@ -211,7 +218,7 @@ $request = Request::from([
 
     Request::OPTION_FILES => [
 
-        'uploaded' => [ File::OPTION_PATHNAME => '/path/to/my/example.zip' ]
+        'uploaded' => [ FileOptions::OPTION_PATHNAME => '/path/to/my/example.zip' ]
 
     ]
 
@@ -234,7 +241,7 @@ let's you move the file out of the temporary folder or around the filesystem.
 ```php
 <?php
 
-use ICanBoogie\HTTP\File;
+namespace ICanBoogie\HTTP;
 
 /* @var $file File */
 
@@ -257,7 +264,9 @@ extension:
 ```php
 <?php
 
-/* @var $file \ICanBoogie\HTTP\File */
+namespace ICanBoogie\HTTP;
+
+/* @var $file File */
 
 echo $file->match('application/zip');             // true
 echo $file->match('application');                 // true
@@ -270,16 +279,19 @@ echo $file->match('.png');                        // false
 The method also handles sets, and returns `true` if there's any match:
 
 ```php
+<?php
+
 echo $file->match([ '.png', 'application/zip' ]); // true
 echo $file->match([ '.png', '.zip' ]);            // true
 echo $file->match([ 'image/png', '.zip' ]);       // true
 echo $file->match([ 'image/png', 'text/plain' ]); // false
 ```
 
-[File][] instances implement the [ToArray][] interface and can be converted into arrays
-with the `to_array()` method:
+[File][] instances can be converted into arrays with the `to_array()` method:
 
 ```php
+<?php
+
 $file->to_array();
 /*
 [
@@ -310,7 +322,7 @@ The following example demonstrates how to store a value in a request context:
 ```php
 <?php
 
-use ICanBoogie\HTTP\Request;
+namespace ICanBoogie\HTTP;
 
 $request = Request::from($_SERVER);
 $request->context['site'] = $app->models['sites']->one;
@@ -322,7 +334,8 @@ requested from the context:
 ```php
 <?php
 
-use ICanBoogie\HTTP\Request;
+namespace ICanBoogie\HTTP;
+
 use ICanBoogie\HTTP\Request\Context;
 use ICanBoogie\Prototype;
 
@@ -353,7 +366,9 @@ thrown otherwise.
 ```php
 <?php
 
-/* @var $request \ICanBoogie\HTTP\Request */
+namespace ICanBoogie\HTTP;
+
+/* @var $request Request */
 
 $response = $request();
 
@@ -376,7 +391,7 @@ either be `null`, a string, an object implementing `__toString()`, or a closure.
 ```php
 <?php
 
-use ICanBoogie\HTTP\Response;
+namespace ICanBoogie\HTTP;
 
 $response = new Response('<!DOCTYPE html><html><body><h1>Hello world!</h1></body></html>', Response::STATUS_OK, [
 
@@ -384,7 +399,6 @@ $response = new Response('<!DOCTYPE html><html><body><h1>Hello world!</h1></body
     'Cache-Control' => 'public, max-age=3600'
 
 ]);
-
 ```
 
 The header and body are sent by invoking the response:
@@ -392,7 +406,9 @@ The header and body are sent by invoking the response:
 ```php
 <?php
 
-/* @var $response \ICanBoogie\HTTP\Response */
+namespace ICanBoogie\HTTP;
+
+/* @var $response Response */
 
 $response();
 ```
@@ -409,8 +425,7 @@ code such as `200`, an array such as `[ 200, "Ok" ]`, or a string such as `"200 
 ```php
 <?php
 
-use ICanBoogie\HTTP\Response;
-use ICanBoogie\HTTP\Status;
+namespace ICanBoogie\HTTP;
 
 $response = new Response;
 
@@ -439,8 +454,7 @@ body instead of a huge string that would consume a lot of memory.
 ```php
 <?php
 
-use ICanBoogie\HTTP\Response;
-use ICanBoogie\HTTP\Status;
+namespace ICanBoogie\HTTP;
 
 $records = $app->models->order('created_at DESC');
 
@@ -485,7 +499,7 @@ A redirect response may be created using a [RedirectResponse][] instance.
 ```php
 <?php
 
-use ICanBoogie\HTTP\RedirectResponse;
+namespace ICanBoogie\HTTP;
 
 $response = new RedirectResponse('/to/redirect/location');
 $response->status->code;        // 302
@@ -505,9 +519,9 @@ instance, and a request.
 ```php
 <?php
 
-use ICanBoogie\HTTP\FileResponse;
+namespace ICanBoogie\HTTP;
 
-/* @var $request \ICanBoogie\HTTP\Request */
+/* @var $request Request */
 
 $response = new FileResponse("/absolute/path/to/my/file", $request);
 $response();
@@ -519,9 +533,9 @@ supported:
 ```php
 <?php
 
-use ICanBoogie\HTTP\FileResponse;
+namespace ICanBoogie\HTTP;
 
-/* @var $request \ICanBoogie\HTTP\Request */
+/* @var $request Request */
 
 $response = new FileResponse("/absolute/path/to/my/file", $request, [
 
@@ -564,7 +578,7 @@ Here's an overview of headers usage, details are available in the [Headers docum
 ```php
 <?php
 
-use ICanBoogie\HTTP\Headers;
+namespace ICanBoogie\HTTP;
 
 $headers = new Headers();
 
@@ -703,8 +717,6 @@ test suite. Alternatively, run `make test-coverage` to run the test suite with t
 
 
 
-
-
 ## License
 
 **icanboogie/http** is released under the [BSD-3-Clause](LICENSE).
@@ -713,28 +725,27 @@ test suite. Alternatively, run `make test-coverage` to run the test suite with t
 
 
 
-[ToArray]:                       https://icanboogie.org/api/common/1.2/class-ICanBoogie.ToArray.html
-[AuthenticationRequired]:        https://icanboogie.org/api/http/3.0/class-ICanBoogie.HTTP.AuthenticationRequired.html
-[CacheControl]:                  https://icanboogie.org/api/http/3.0/class-ICanBoogie.HTTP.Headers.CacheControl.html
-[ClientError]:                   https://icanboogie.org/api/http/3.0/class-ICanBoogie.HTTP.ClientError.html
-[ContentType]:                   https://icanboogie.org/api/http/3.0/class-ICanBoogie.HTTP.Headers.ContentType.html
-[Headers]:                       https://icanboogie.org/api/http/3.0/class-ICanBoogie.HTTP.Headers.html
-[File]:                          https://icanboogie.org/api/http/3.0/class-ICanBoogie.HTTP.File.html
-[FileList]:                      https://icanboogie.org/api/http/3.0/class-ICanBoogie.HTTP.FileList.html
-[FileResponse]:                  https://icanboogie.org/api/http/3.0/class-ICanBoogie.HTTP.FileResponse.html
-[ForceRedirect]:                 https://icanboogie.org/api/http/3.0/class-ICanBoogie.HTTP.ForceRedirect.html
-[MethodNotAllowed]:              https://icanboogie.org/api/http/3.0/class-ICanBoogie.HTTP.MethodNotAllowed.html
-[NotFound]:                      https://icanboogie.org/api/http/3.0/class-ICanBoogie.HTTP.NotFound.html
-[PermissionRequired]:            https://icanboogie.org/api/http/3.0/class-ICanBoogie.HTTP.PemissionRequired.html
-[RedirectResponse]:              https://icanboogie.org/api/http/3.0/class-ICanBoogie.HTTP.RedirectResponse.html
-[Request]:                       https://icanboogie.org/api/http/3.0/class-ICanBoogie.HTTP.Request.html
-[Response]:                      https://icanboogie.org/api/http/3.0/class-ICanBoogie.HTTP.Response.html
-[SecurityError]:                 https://icanboogie.org/api/http/3.0/class-ICanBoogie.HTTP.SecurityError.html
-[ServerError]:                   https://icanboogie.org/api/http/3.0/class-ICanBoogie.HTTP.ServerError.html
-[ServiceUnavailable]:            https://icanboogie.org/api/http/3.0/class-ICanBoogie.HTTP.ServiceUnavailable.html
-[StatusCodeNotValid]:            https://icanboogie.org/api/http/3.0/class-ICanBoogie.HTTP.StatusCodeNotValid.html
-[Status]:                        https://icanboogie.org/api/http/3.0/class-ICanBoogie.HTTP.Status.html
-[`get_initial_request()`]:       https://icanboogie.org/api/http/3.0/function-ICanBoogie.HTTP.get_initial_request.html
+[AuthenticationRequired]:        lib/AuthenticationRequired.php
+[CacheControl]:                  lib/Headers/CacheControl.php
+[ClientError]:                   lib/ClientError.php
+[ContentType]:                   lib/Headers/ContentType.php
+[Headers]:                       lib/Headers.php
+[File]:                          lib/File.php
+[FileList]:                      lib/FileList.php
+[FileResponse]:                  lib/FileResponse.php
+[ForceRedirect]:                 lib/ForceRedirect.php
+[MethodNotAllowed]:              lib/MethodNotAllowed.php
+[NotFound]:                      lib/NotFound.php
+[PermissionRequired]:            lib/PermissionRequired.php
+[RedirectResponse]:              lib/RedirectResponse.php
+[Request]:                       lib/Request.php
+[Response]:                      lib/Response.php
+[SecurityError]:                 lib/SecurityError.php
+[ServerError]:                   lib/ServerError.php
+[ServiceUnavailable]:            lib/ServiceUnavailable.php
+[StatusCodeNotValid]:            lib/StatusCodeNotValid.php
+[Status]:                        lib/Status.php
+[`get_initial_request()`]:       helpers.php
 
 [ICanBoogie]:         https://icanboogie.org/
 [icanboogie/routing]: https://github.com/ICanBoogie/Routing
