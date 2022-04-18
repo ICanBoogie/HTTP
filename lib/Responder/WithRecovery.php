@@ -17,6 +17,8 @@ use ICanBoogie\HTTP\Responder;
 use ICanBoogie\HTTP\Response;
 use Throwable;
 
+use function ICanBoogie\emit;
+
 /**
  * Decorates another responder to provide an exception recovery mechanism.
  *
@@ -44,7 +46,7 @@ final class WithRecovery implements Responder
      */
     private function rescue(Throwable $exception, Request $request): Response
     {
-        new RecoverEvent($exception, $request, $response);
+        emit(new RecoverEvent($exception, $request, $response));
 
         return $response ?? throw $exception;
     }
