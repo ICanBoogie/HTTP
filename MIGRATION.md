@@ -159,3 +159,5 @@ namespace ICanBoogie\HTTP;
 
 $request = Request::from([ RequestOptions::OPTION_METHOD => RequestMethod::METHOD_DELETE ]);
 ```
+
+Added `WithRecovery` to replace previous recovery feature. Renamed `RescueEvent` as `RecoverEvent`.
