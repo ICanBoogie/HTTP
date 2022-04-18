@@ -41,20 +41,5 @@ test-container:
 
 .PHONY: lint
 lint:
-	@phpcs -s
-	@vendor/bin/phpstan
-
-.PHONY: doc
-doc: vendor
-	@mkdir -p build/docs
-	@apigen generate \
-	--source lib \
-	--destination build/docs/ \
-	--title "$(PACKAGE_NAME)" \
-	--template-theme "bootstrap"
-
-.PHONY: clean
-clean:
-	@rm -fR build
-	@rm -fR vendor
-	@rm -f composer.lock
+	@XDEBUG_MODE=off phpcs -s
+	@XDEBUG_MODE=off vendor/bin/phpstan

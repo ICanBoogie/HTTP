@@ -202,9 +202,8 @@ class Response implements ResponseStatus
         if (headers_sent($file, $line)) {
             trigger_error(
                 format("Cannot modify header information because it was already sent. Output started at !at.", [
-                        'at' => $file . ':' . $line,
-                    ]
-                )
+                    'at' => $file . ':' . $line,
+                ])
             );
 
             return false;

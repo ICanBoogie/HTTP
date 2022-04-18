@@ -15,7 +15,7 @@ use ICanBoogie\DateTime;
 use ICanBoogie\HTTP\Headers\Date;
 use PHPUnit\Framework\TestCase;
 
-class DateTest extends TestCase
+class DateTimeHeaderTest extends TestCase
 {
     /**
      * @dataProvider provider_test_to_string

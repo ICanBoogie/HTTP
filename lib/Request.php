@@ -317,81 +317,18 @@ class Request implements RequestOptions
     }
 
     /**
-     * Alias for {@link send()}.
-     *
-     * @return Response The response to the request.
-     */
-    public function __invoke()
-    {
-        return $this->send();
-    }
-
-    /**
-     * Dispatch the request.
-     *
-     * The {@link parent} property is used for request chaining.
-     *
-     * Note: If an exception is thrown during dispatch {@link $current_request} is not updated!
-     *
-     * Note: If the request is changed because of the `$method` or `$params` parameters, it
-     * is the _changed_ instance that is dispatched, not the actual instance.
-     *
-     * @param string|null $method Use this parameter to change the request method.
-     * @param array|null $params Use this parameter to change the {@link $request_params}
-     * property of the request.
-     *
-     * @return Response The response to the request.
-     *
-     * @throws \Throwable re-throws exception raised during dispatch.
-     */
-    public function send($method = null, array $params = null)
-    {
-        $request = $this->adapt($method, $params);
-
-        $this->parent = self::$current_request;
-
-        self::$current_request = $request;
-
-        try {
-            $response = $request->dispatch();
-
-            self::$current_request = $request->parent;
-
-            return $response;
-        } catch (\Throwable $e) {
-            self::$current_request = $request->parent;
-
-            throw $e;
-        }
-    }
-
-    /**
-     * Dispatches the request using the {@link dispatch()} helper.
-     *
-     * @return Response
-     */
-    protected function dispatch()
-    {
-        return dispatch($this); // @codeCoverageIgnore
-    }
-
-    /**
      * Asserts that a method is supported.
      */
-    private function assert_method(RequestMethod $method)
+    private function assert_method(RequestMethod $method): void
     {
     }
 
     /**
      * Returns a new instance with the specified changed properties.
      *
-     * @param array $options
-     *
-     * @return Request
-     * @throws \InvalidArgumentException
-     *
+     * @param array<RequestOptions::*, mixed> $options
      */
-    public function with(array $options)
+    public function with(array $options): self
     {
         $changed = clone $this;
 
@@ -434,26 +371,6 @@ class Request implements RequestOptions
         }
 
         return $this->with($properties);
-    }
-
-    /**
-     * Overrides the method to provide a virtual method for each request method.
-     *
-     * Example:
-     *
-     * ```php
-     * <?php
-     *
-     * Request::from('/api/core/aloha')->get();
-     * ```
-     */
-    public function __call($method, $arguments)
-    {
-        $http_method = RequestMethod::from(strtoupper($method));
-
-        array_unshift($arguments, $http_method);
-
-        return $this->send(...$arguments);
     }
 
     /**

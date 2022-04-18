@@ -3,6 +3,7 @@
          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
     <file>lib</file>
     <file>tests</file>
+    <exclude-pattern>lib/RequestMethod.php</exclude-pattern><!-- analysis is broken with enums -->
 
 	<arg name="colors"/>
 

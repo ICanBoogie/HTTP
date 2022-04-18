@@ -41,7 +41,7 @@ class FileListTest extends \PHPUnit\Framework\TestCase
     {
         $expected = [
 
-            [ 'pathname' => __DIR__ . '/DispatcherTest.php' ],
+            [ 'pathname' => __DIR__ . '/PermissionRequiredTest.php' ],
             [ 'pathname' => __DIR__ . '/ExceptionTest.php' ],
             [ 'pathname' => __DIR__ . '/FileListTest.php' ]
 

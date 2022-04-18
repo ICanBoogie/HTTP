@@ -11,9 +11,7 @@
 
 namespace Test\ICanBoogie\HTTP\Request;
 
-use ICanBoogie\HTTP\Dispatcher;
 use ICanBoogie\HTTP\Request;
-use ICanBoogie\HTTP\RequestDispatcher;
 use PHPUnit\Framework\TestCase;
 
 final class ContextTest extends TestCase
@@ -27,9 +25,11 @@ final class ContextTest extends TestCase
 
     public function test_set_dispatcher(): void
     {
+        $something = new class () {
+        };
+
         $context = new Request\Context(Request::from('/'));
-        $dispatcher = new RequestDispatcher();
-        $context->add($dispatcher);
-        $this->assertSame($dispatcher, $context->get(Dispatcher::class));
+        $context->add($something);
+        $this->assertSame($something, $context->get($something::class));
     }
 }

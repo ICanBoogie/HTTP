@@ -79,3 +79,23 @@ ICanBoogie\HTTP\ResponseStatus::STATUS_OK;
 or
 ICanBoogie\HTTP\Response::STATUS_OK;
 ```
+
+Dropped everything related to Dispatchers in favor of Responder providers and Responders.
+
+```php
+<?php
+
+/* @var ICanBoogie\HTTP\RequestDispatcher $dispatcher */
+/* @var ICanBoogie\HTTP\Request $request */
+
+$response = $dispatcher->dispatch($request);
+```
+
+```php
+<?php
+
+/* @var ICanBoogie\HTTP\Responder $responder */
+/* @var ICanBoogie\HTTP\Request $request */
+
+$response = $responder->respond($request);
+```

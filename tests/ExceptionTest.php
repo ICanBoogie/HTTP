@@ -12,6 +12,11 @@
 namespace Test\ICanBoogie\HTTP;
 
 use ICanBoogie\HTTP\Exception;
+use ICanBoogie\HTTP\ForceRedirect;
+use ICanBoogie\HTTP\MethodNotAllowed;
+use ICanBoogie\HTTP\NotFound;
+use ICanBoogie\HTTP\ServiceUnavailable;
+use ICanBoogie\HTTP\StatusCodeNotValid;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -22,7 +27,7 @@ class ExceptionTest extends TestCase
      */
     public function test_implements($class, $args)
     {
-        $reflection = new ReflectionClass('ICanBoogie\\HTTP\\' . $class);
+        $reflection = new ReflectionClass($class);
         $exception = $reflection->newInstanceArgs($args);
 
         $this->assertInstanceOf(Exception::class, $exception);
@@ -32,11 +37,11 @@ class ExceptionTest extends TestCase
     {
         return [
 
-            [ 'NotFound', [] ],
-            [ 'ServiceUnavailable', [] ],
-            [ 'MethodNotSupported', [ 'UNSUPPORTED' ] ],
-            [ 'StatusCodeNotValid', [ 123 ] ],
-            [ 'ForceRedirect', [ 'to/location.html' ] ],
+            [ NotFound::class, [] ],
+            [ ServiceUnavailable::class, [] ],
+            [ MethodNotAllowed::class, [ 'UNSUPPORTED' ] ],
+            [ StatusCodeNotValid::class, [ 123 ] ],
+            [ ForceRedirect::class, [ 'to/location.html' ] ],
 
         ];
     }

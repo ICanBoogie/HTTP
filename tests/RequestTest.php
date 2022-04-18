@@ -498,8 +498,8 @@ class RequestTest extends TestCase
 
     public function test_path_when_uri_is_missing_query_string()
     {
-        $request = Request::from([], [ 'QUERY_STRING' => 'redirect_to=haven', 'REQUEST_URI' => '/api/users/login' ]);
-        $this->assertEquals('redirect_to=haven', $request->query_string);
+        $request = Request::from([], [ 'QUERY_STRING' => 'redirect_to=the-moon', 'REQUEST_URI' => '/api/users/login' ]);
+        $this->assertEquals('redirect_to=the-moon', $request->query_string);
         $this->assertEquals('/api/users/login', $request->uri);
         $this->assertEquals('/api/users/login', $request->path);
     }
@@ -627,147 +627,12 @@ class RequestTest extends TestCase
         $this->assertSame([ ], $request3->params);
     }
 
-    public function test_should_throw_exception_when_changing_with_unsupported_property()
+    public function test_should_throw_exception_when_changing_with_unsupported_property(): void
     {
         $request = Request::from();
 
         $this->expectException(InvalidArgumentException::class);
 
         $request->with([ 'unsupported_property' => uniqid() ]);
-    }
-
-    public function test_send()
-    {
-        $response = $this
-            ->getMockBuilder(Response::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $request_params = [
-
-            'p1' => uniqid(),
-            'p2' => uniqid()
-
-        ];
-
-        $properties = [
-
-            Request::OPTION_METHOD => RequestMethod::METHOD_POST,
-            Request::OPTION_REQUEST_PARAMS => $request_params,
-            Request::OPTION_PATH_PARAMS => [],
-            Request::OPTION_QUERY_PARAMS => []
-
-        ];
-
-        $request1 = $this
-            ->getMockBuilder(Request::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods([ 'with' ])
-            ->getMock();
-
-        $request2 = $this
-            ->getMockBuilder(Request::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods([ 'dispatch' ])
-            ->getMock();
-
-        $request2->expects($this->once())
-            ->method('dispatch')
-            ->willReturn($response);
-
-        $request1->expects($this->once())
-            ->method('with')
-            ->with($properties)
-            ->willReturn($request2);
-
-        /* @var $request1 Request */
-
-        $this->assertSame($response, $request1->post($request_params));
-    }
-
-    public function test_invoke()
-    {
-        $response = new Response();
-
-        $request = $this
-            ->getMockBuilder(Request::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods([ 'dispatch' ])
-            ->getMock();
-
-        $request->expects($this->once())
-            ->method('dispatch')
-            ->willReturn($response);
-
-        /* @var $request Request */
-
-        $this->assertSame($response, $request());
-    }
-
-    public function test_invoke_with_exception()
-    {
-        $exception = new \Exception();
-
-        $request = $this
-            ->getMockBuilder(Request::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods([ 'dispatch' ])
-            ->getMock();
-
-        $request->expects($this->once())
-            ->method('dispatch')
-            ->willThrowException($exception);
-
-        /* @var $request Request */
-
-        try {
-            $request();
-
-            $this->fail("Expected exception.");
-        } catch (\Exception $e) {
-            $this->assertNull(Request::get_current_request());
-            $this->assertSame($exception, $e);
-        }
-    }
-
-    public function test_parent()
-    {
-        $response = new Response();
-
-        $request1 = $this
-            ->getMockBuilder(Request::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods([ 'dispatch' ])
-            ->getMock();
-
-        $request2 = $this
-            ->getMockBuilder(Request::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods([ 'dispatch' ])
-            ->getMock();
-
-        $request1->expects($this->once())
-            ->method('dispatch')
-            ->willReturnCallback(function () use ($request2) {
-
-                /* @var $request2 Request */
-
-                return $request2();
-            });
-
-        $request2->expects($this->once())
-            ->method('dispatch')
-            ->willReturnCallback(function () use ($response, $request1, $request2) {
-
-                /* @var $request2 Request */
-
-                $this->assertEquals($request2->parent, $request1);
-
-                return $response;
-            });
-
-        /* @var $request1 Request */
-
-        $this->assertSame($response, $request1());
     }
 }
