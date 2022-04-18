@@ -26,15 +26,6 @@ interface RequestOptions
     public const OPTION_CONTENT_LENGTH = 'content_length';
     public const OPTION_IP = 'ip';
     public const OPTION_IS_LOCAL = 'is_local';
-    public const OPTION_IS_DELETE = 'is_delete';
-    public const OPTION_IS_CONNECT = 'is_connect';
-    public const OPTION_IS_GET = 'is_get';
-    public const OPTION_IS_HEAD = 'is_head';
-    public const OPTION_IS_OPTIONS = 'is_options';
-    public const OPTION_IS_PATCH = 'is_patch';
-    public const OPTION_IS_POST = 'is_post';
-    public const OPTION_IS_PUT = 'is_put';
-    public const OPTION_IS_TRACE = 'is_trace';
     public const OPTION_IS_XHR = 'is_xhr';
     public const OPTION_METHOD = 'method';
     public const OPTION_PATH = 'path';

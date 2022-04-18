@@ -250,15 +250,15 @@ class Request implements RequestOptions
     /**
      * Creates an instance from an array of properties.
      *
-     * @param array $options
-     * @param array $env
+     * @param array<RequestOptions::*, mixed> $options
+     * @param array<string, mixed> $env
      *
-     * @return Request
+     * @throws MethodNotAllowed
      */
-    protected static function from_options(array $options, array $env)
+    protected static function from_options(array $options, array $env): self
     {
         if ($options) {
-            static::get_options_mapper()->map($options, $env);
+            RequestOptionsMapper::map($options, $env);
         }
 
         if (!empty($env['QUERY_STRING'])) {
@@ -266,13 +266,6 @@ class Request implements RequestOptions
         }
 
         return new self($options, $env);
-    }
-
-    private static RequestOptionsMapper $options_mapper;
-
-    protected static function get_options_mapper(): RequestOptionsMapper
-    {
-        return self::$options_mapper ??= new RequestOptionsMapper();
     }
 
     /**
@@ -333,7 +326,7 @@ class Request implements RequestOptions
         $changed = clone $this;
 
         if ($options) {
-            static::get_options_mapper()->map($options, $changed->env);
+            RequestOptionsMapper::map($options, $changed->env);
 
             foreach ($options as $option => &$value) {
                 $changed->$option = $value;

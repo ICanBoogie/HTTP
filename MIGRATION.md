@@ -2,14 +2,27 @@
 
 ## v5.x to v6.x
 
-The interface `RequestOptions` is replaced with the enum `RequestOption`.
+The interface `RequestMethods` is replaced with the enum `RequestMethod`. `is_*` method related to HTTP methods have
+been moved from `Request` to the enum.
 
 ```php
+<?php
+
+namespace ICanBoogie\HTTP;
+
+/* @var Request $request */
+
 $request->is_delete;
 $request->is_safe;
 ```
 
 ```php
+<?php
+
+namespace ICanBoogie\HTTP;
+
+/* @var Request $request */
+
 $request->method->is_delete();
 $request->method->is_safe();
 ```
@@ -17,10 +30,27 @@ $request->method->is_safe();
 `Context` no longer implements `ArrayAccess` and no longer extends `Prototype`.
 
 ```php
+<?php
+
+namespace ICanBoogie\HTTP;
+
+/* @var Request\Context $context */
+
 $context['request']
+$context['something'] = $something;
+$something_back = $context['something'];
+```
+
+```php
+<?php
+
+namespace ICanBoogie\HTTP;
+
+/* @var Request\Context $context */
+
 $context->request;
-```regexp
-$context->get(Request::class);
+$context->add($something);
+$something_back = $context->get($something::class);
 ```
 
 Headers with extended support, such as `Cache-Control`, can now be accessed with special properties. Accessor related to
@@ -29,9 +59,11 @@ these headers have been moved from `Request` and `Response` to `Headers`.
 ```php
 <?php
 
-/* @var \ICanBoogie\HTTP\Request $request */
-/* @var \ICanBoogie\HTTP\Response $response */
-/* @var \ICanBoogie\HTTP\Headers $headers */
+namespace ICanBoogie\HTTP;
+
+/* @var Request $request */
+/* @var Response $response */
+/* @var Headers $headers */
 
 $request->cache_control;
 $response->cache_control;
@@ -48,9 +80,11 @@ $headers['Content-Disposition'];
 ```php
 <?php
 
-/* @var \ICanBoogie\HTTP\Request $request */
-/* @var \ICanBoogie\HTTP\Response $response */
-/* @var \ICanBoogie\HTTP\Headers $headers */
+namespace ICanBoogie\HTTP;
+
+/* @var Request $request */
+/* @var Response $response */
+/* @var Headers $headers */
 
 $request->headers->cache_control;
 $response->headers->cache_control;
@@ -69,15 +103,19 @@ $headers['Content-Disposition']; $headers->content_disposition;
 ```php
 <?php
 
-ICanBoogie\HTTP\Status::OK;
+namespace ICanBoogie\HTTP;
+
+Status::OK;
 ```
 
 ```php
 <?php
 
-ICanBoogie\HTTP\ResponseStatus::STATUS_OK;
+namespace ICanBoogie\HTTP;
+
+ResponseStatus::STATUS_OK;
 or
-ICanBoogie\HTTP\Response::STATUS_OK;
+Response::STATUS_OK;
 ```
 
 Dropped everything related to Dispatchers in favor of Responder providers and Responders.
@@ -85,8 +123,10 @@ Dropped everything related to Dispatchers in favor of Responder providers and Re
 ```php
 <?php
 
-/* @var ICanBoogie\HTTP\RequestDispatcher $dispatcher */
-/* @var ICanBoogie\HTTP\Request $request */
+namespace ICanBoogie\HTTP;
+
+/* @var RequestDispatcher $dispatcher */
+/* @var Request $request */
 
 $response = $dispatcher->dispatch($request);
 ```
@@ -94,8 +134,28 @@ $response = $dispatcher->dispatch($request);
 ```php
 <?php
 
-/* @var ICanBoogie\HTTP\Responder $responder */
-/* @var ICanBoogie\HTTP\Request $request */
+namespace ICanBoogie\HTTP;
+
+/* @var Responder $responder */
+/* @var Request $request */
 
 $response = $responder->respond($request);
+```
+
+Dropped all `RequestOptions::OPTION_IS_` related to HTTP methods, use `RequestOptions::OPTION_METHOD` instead:
+
+```php
+<?php
+
+namespace ICanBoogie\HTTP;
+
+$request = Request::from([ RequestOptions::OPTION_IS_DELETE => true ]);
+```
+
+```php
+<?php
+
+namespace ICanBoogie\HTTP;
+
+$request = Request::from([ RequestOptions::OPTION_METHOD => RequestMethod::METHOD_DELETE ]);
 ```

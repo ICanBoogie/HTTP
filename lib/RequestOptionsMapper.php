@@ -11,154 +11,121 @@
 
 namespace ICanBoogie\HTTP;
 
+use InvalidArgumentException;
+
 /**
  * Maps options to the environment.
  */
-class RequestOptionsMapper implements RequestOptions
+final class RequestOptionsMapper
 {
     /**
      * Maps options to environment.
      *
      * The options mapped to the environment are removed from the `$options` array.
      *
-     * @param array $options Reference to the options.
-     * @param array $env Reference to the environment.
+     * @param array<RequestOptions::*, mixed> $options Reference to the options.
+     * @param array<string, mixed> $env Reference to the environment.
      *
-     * @throws \InvalidArgumentException on invalid option.
+     * @throws InvalidArgumentException on invalid option.
      */
-    public function map(array &$options, array &$env): void
+    public static function map(array &$options, array &$env): void
     {
-        $mappers = $this->get_mappers();
-
         foreach ($options as $option => &$value) {
-            if (empty($mappers[$option])) {
-                throw new \InvalidArgumentException("Option not supported: `$option`.");
+            $mapper = self::get_value_mapper($option);
+
+            if ($mapper) {
+                $value = $mapper($value);
+
+                if ($value === null) {
+                    unset($options[$option]);
+                }
+
+                continue;
             }
 
-            $value = $mappers[$option]($value, $env);
+            $mapper = self::get_env_mapper($option);
 
-            if ($value === null) {
+            if ($mapper) {
+                $mapper($value, $env);
+
                 unset($options[$option]);
+
+                continue;
             }
+
+            throw new InvalidArgumentException("Option not supported: `$option`.");
         }
+    }
+
+    /**
+     * @phpstan-return (callable(mixed $value): mixed)|null
+     */
+    private static function get_value_mapper(string $option): ?callable
+    {
+        return [
+
+            RequestOptions::OPTION_PATH_PARAMS => fn($value) => $value,
+            RequestOptions::OPTION_QUERY_PARAMS => fn($value) => $value,
+            RequestOptions::OPTION_REQUEST_PARAMS => fn($value) => $value,
+            RequestOptions::OPTION_COOKIE => fn($value) => $value,
+            RequestOptions::OPTION_FILES => fn($value) => $value,
+            RequestOptions::OPTION_HEADERS => fn($value) => ($value instanceof Headers) ? $value : new Headers($value),
+
+        ][$option] ?? null;
     }
 
     /**
      * Returns request properties mappers.
      *
-     * @return \Closure[]
+     * @phpstan-return (callable(mixed $value, array &$env): mixed)|null
      */
-    protected function get_mappers(): array
+    private static function get_env_mapper(string $option): ?callable
     {
         return [
 
-            self::OPTION_PATH_PARAMS =>    function ($value) {
-                return $value;
-            },
-            self::OPTION_QUERY_PARAMS =>   function ($value) {
-                return $value;
-            },
-            self::OPTION_REQUEST_PARAMS => function ($value) {
-                return $value;
-            },
-            self::OPTION_COOKIE =>         function ($value) {
-                return $value;
-            },
-            self::OPTION_FILES =>          function ($value) {
-                return $value;
-            },
-            self::OPTION_HEADERS =>        function ($value) {
-                return ($value instanceof Headers) ? $value : new Headers($value);
-            },
-
-            self::OPTION_CACHE_CONTROL =>  function ($value, array &$env) {
+            RequestOptions::OPTION_CACHE_CONTROL => function ($value, array &$env) {
                 $env['HTTP_CACHE_CONTROL'] = $value;
             },
-            self::OPTION_CONTENT_LENGTH => function ($value, array &$env) {
+            RequestOptions::OPTION_CONTENT_LENGTH => function ($value, array &$env) {
                 $env['CONTENT_LENGTH'] = $value;
             },
-            self::OPTION_IP =>             function ($value, array &$env) {
+            RequestOptions::OPTION_IP => function ($value, array &$env) {
                 if ($value) {
                     $env['REMOTE_ADDR'] = $value;
                 }
             },
-            self::OPTION_IS_LOCAL =>       function ($value, array &$env) {
+            RequestOptions::OPTION_IS_LOCAL => function ($value, array &$env) {
                 if ($value) {
                     $env['REMOTE_ADDR'] = '::1';
                 }
             },
-            self::OPTION_IS_DELETE =>      function ($value, array &$env) {
-                if ($value) {
-                    $env['REQUEST_METHOD'] = RequestMethod::METHOD_DELETE;
-                }
-            },
-            self::OPTION_IS_CONNECT =>     function ($value, array &$env) {
-                if ($value) {
-                    $env['REQUEST_METHOD'] = RequestMethod::METHOD_CONNECT;
-                }
-            },
-            self::OPTION_IS_GET =>         function ($value, array &$env) {
-                if ($value) {
-                    $env['REQUEST_METHOD'] = RequestMethod::METHOD_GET;
-                }
-            },
-            self::OPTION_IS_HEAD =>        function ($value, array &$env) {
-                if ($value) {
-                    $env['REQUEST_METHOD'] = RequestMethod::METHOD_HEAD;
-                }
-            },
-            self::OPTION_IS_OPTIONS =>     function ($value, array &$env) {
-                if ($value) {
-                    $env['REQUEST_METHOD'] = RequestMethod::METHOD_OPTIONS;
-                }
-            },
-            self::OPTION_IS_PATCH =>       function ($value, array &$env) {
-                if ($value) {
-                    $env['REQUEST_METHOD'] = RequestMethod::METHOD_PATCH;
-                }
-            },
-            self::OPTION_IS_POST =>        function ($value, array &$env) {
-                if ($value) {
-                    $env['REQUEST_METHOD'] = RequestMethod::METHOD_POST;
-                }
-            },
-            self::OPTION_IS_PUT =>         function ($value, array &$env) {
-                if ($value) {
-                    $env['REQUEST_METHOD'] = RequestMethod::METHOD_PUT;
-                }
-            },
-            self::OPTION_IS_TRACE =>       function ($value, array &$env) {
-                if ($value) {
-                    $env['REQUEST_METHOD'] = RequestMethod::METHOD_TRACE;
-                }
-            },
-            self::OPTION_IS_XHR =>         function ($value, array &$env) {
+            RequestOptions::OPTION_IS_XHR => function ($value, array &$env) {
                 if ($value) {
                     $env['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
                 } else {
                     unset($env['HTTP_X_REQUESTED_WITH']);
                 }
             },
-            self::OPTION_METHOD =>         function ($value, array &$env) {
+            RequestOptions::OPTION_METHOD => function ($value, array &$env) {
                 if ($value) {
                     $env['REQUEST_METHOD'] = $value;
                 }
             },
-            self::OPTION_PATH =>           function ($value, array &$env) {
+            RequestOptions::OPTION_PATH => function ($value, array &$env) {
                 $env['REQUEST_URI'] = $value;
             }, // TODO-20130521: handle query string
-            self::OPTION_REFERER =>        function ($value, array &$env) {
+            RequestOptions::OPTION_REFERER => function ($value, array &$env) {
                 $env['HTTP_REFERER'] = $value;
             },
-            self::OPTION_URI =>            function ($value, array &$env) {
+            RequestOptions::OPTION_URI => function ($value, array &$env) {
                 $env['REQUEST_URI'] = $value;
                 $qs = strpos($value, '?');
                 $env['QUERY_STRING'] = $qs === false ? '' : substr($value, $qs + 1);
             },
-            self::OPTION_USER_AGENT =>     function ($value, array &$env) {
+            RequestOptions::OPTION_USER_AGENT => function ($value, array &$env) {
                 $env['HTTP_USER_AGENT'] = $value;
-            }
+            },
 
-        ];
+        ][$option] ?? null;
     }
 }
