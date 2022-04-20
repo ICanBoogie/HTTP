@@ -81,6 +81,48 @@ $responder_with_recovery = new Responder\WithRecovery($responder);
 ```
 
 
+## Events around respond
+
+[WithEvents][] decorates another responder to emit events around the `respond()` method.
+
+- [BeforeRespondEvent][] is emitted before the `respond()` method. Listeners can use the event to
+  alter the request or provide a response. If a response is provided the `respond()` method is *not*
+  invoked.
+- [RespondEvent][] is emitted after the `respond()` method. Listeners can use the event to alter the
+  response.
+
+The following example demonstrate how to decorate a responder:
+
+```php
+<?php
+
+namespace ICanBoogie\HTTP;
+
+/* @var Responder $responder */
+
+$responder_with_events = new Responder\WithEvents($responder);
+```
+
+The following example demonstrate how to attach listeners:
+
+```php
+<?php
+
+namespace ICanBoogie\HTTP;
+
+/* @var \ICanBoogie\EventCollection $events */
+
+$events->attach(function (BeforeRespondEvent $event) {
+    // …
+});
+
+$events->attach(function (RespondEvent $event) {
+    // …
+});
+```
+
+
+
 
 [ICanBoogie/Routing]: https://github.com/ICanBoogie/Routing
 [WithRecovery]: ../lib/Responder/WithRecovery.php

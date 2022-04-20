@@ -21,8 +21,6 @@ use Throwable;
  */
 class RecoverEvent extends Event
 {
-    public const TYPE = 'recover';
-
     public ?Response $response;
     public Throwable $exception;
     public readonly Request $request;
@@ -33,6 +31,6 @@ class RecoverEvent extends Event
         $this->exception = &$target;
         $this->request = $request;
 
-        parent::__construct($target, self::TYPE);
+        parent::__construct($target);
     }
 }
