@@ -88,7 +88,7 @@ final class WithRescueTest extends TestCase
         $this->responder->respond($this->request)
             ->willThrow($this->exception);
 
-        $this->events->attach(function (RecoverEvent $event, NotFound $target) use ($new_exception) {
+        $this->events->attach(function (RecoverEvent $event, NotFound $sender) use ($new_exception) {
             $event->exception = $new_exception;
         });
 
@@ -110,7 +110,7 @@ final class WithRescueTest extends TestCase
         $this->responder->respond($this->request)
             ->willThrow($this->exception);
 
-        $this->events->attach(function (RecoverEvent $event, NotFound $target) use ($new_response) {
+        $this->events->attach(function (RecoverEvent $event, NotFound $sender) use ($new_response) {
             $event->response = $new_response;
         });
 
