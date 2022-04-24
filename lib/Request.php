@@ -51,7 +51,6 @@ use function ICanBoogie\normalize_url_path;
  * @method Response trace(array $params = null)
  *
  * @property-read Request\Context $context the request's context.
- * @property-read Request $parent Parent request.
  * @property-read FileList $files The files associated with the request.
  *
  * @property-read bool $authorization Authorization of the request.
@@ -80,23 +79,6 @@ class Request implements RequestOptions
      * @uses
      */
     use AccessorTrait;
-
-    /**
-     * Current request.
-     *
-     * @var Request
-     */
-    private static $current_request;
-
-    /**
-     * Returns the current request.
-     *
-     * @return Request
-     */
-    public static function get_current_request()
-    {
-        return self::$current_request;
-    }
 
     /**
      * Parameters extracted from the request path.
@@ -164,11 +146,6 @@ class Request implements RequestOptions
     }
 
     public $cookie;
-
-    /**
-     * Parent request.
-     */
-    private ?Request $parent = null;
 
     /**
      * A request may be created from the `$_SERVER` super global array. In that case `$_SERVER` is
@@ -364,14 +341,6 @@ class Request implements RequestOptions
         }
 
         return $this->with($properties);
-    }
-
-    /**
-     * Returns the parent request.
-     */
-    protected function get_parent()
-    {
-        return $this->parent;
     }
 
     /**

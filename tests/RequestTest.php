@@ -54,7 +54,7 @@ class RequestTest extends TestCase
     {
         $properties = 'authorization content_length context extension ip'
         . ' is_local is_xhr'
-        . ' normalized_path method path port parent query_string referer script_name uri'
+        . ' normalized_path method path port query_string referer script_name uri'
         . ' user_agent files';
 
         return array_map(function ($name) {
