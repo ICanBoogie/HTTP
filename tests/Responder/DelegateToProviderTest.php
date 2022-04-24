@@ -14,14 +14,14 @@ namespace Test\ICanBoogie\HTTP\Responder;
 use ICanBoogie\HTTP\NotFound;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Responder;
-use ICanBoogie\HTTP\Responder\WithProvider;
+use ICanBoogie\HTTP\Responder\DelegateToProvider;
 use ICanBoogie\HTTP\ResponderProvider;
 use ICanBoogie\HTTP\Response;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 
-final class WithProviderTest extends TestCase
+final class DelegateToProviderTest extends TestCase
 {
     private MockObject|ResponderProvider $responders;
 
@@ -76,6 +76,6 @@ final class WithProviderTest extends TestCase
 
     private function makeSTU(): Responder
     {
-        return new WithProvider($this->responders);
+        return new DelegateToProvider($this->responders);
     }
 }

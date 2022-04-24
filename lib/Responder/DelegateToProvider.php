@@ -18,15 +18,18 @@ use ICanBoogie\HTTP\ResponderProvider;
 use ICanBoogie\HTTP\Response;
 
 /**
- * A responder that delegates the response to a matching responder.
+ * A {@link Responder} that delegates to a matching {@link Responder}, via a {@link ResponderProvider}.
  */
-final class WithProvider implements Responder
+final class DelegateToProvider implements Responder
 {
     public function __construct(
         private readonly ResponderProvider $responders
     ) {
     }
 
+    /**
+     * @throws NotFound if there's no responder for the request.
+     */
     public function respond(Request $request): Response
     {
         $responder = $this->responders->responder_for_request($request);
