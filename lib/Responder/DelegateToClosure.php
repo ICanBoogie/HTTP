@@ -9,17 +9,21 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP;
+namespace ICanBoogie\HTTP\Responder;
 
 use Closure;
+use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\Responder;
+use ICanBoogie\HTTP\Response;
 
 /**
- * Turns any Closure into a Responder.
+ * A {@link Responder} that delegates to a {@link Closure}.
  */
-final class ResponderClosure implements Responder
+final class DelegateToClosure implements Responder
 {
-    public function __construct(private Closure $closure)
-    {
+    public function __construct(
+        private readonly Closure $closure
+    ) {
     }
 
     public function respond(Request $request): Response
