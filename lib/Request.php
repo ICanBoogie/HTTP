@@ -13,6 +13,8 @@ namespace ICanBoogie\HTTP;
 
 use ICanBoogie\Accessor\AccessorTrait;
 
+use InvalidArgumentException;
+
 use function ICanBoogie\normalize_url_path;
 
 /**
@@ -73,61 +75,76 @@ use function ICanBoogie\normalize_url_path;
  *
  * @see http://en.wikipedia.org/wiki/Uniform_resource_locator
  */
-class Request implements RequestOptions
+final class Request implements RequestOptions
 {
     /**
-     * @uses
+     * @uses get_context
+     * @uses get_files
+     * @uses get_script_name
+     * @uses get_method
+     * @uses get_query_string
+     * @uses get_content_length
+     * @uses get_referer
+     * @uses get_user_agent
+     * @uses get_is_xhr
+     * @uses get_is_local
+     * @uses get_ip
+     * @uses get_authorization
+     * @uses get_uri
+     * @uses get_port
+     * @uses get_path
+     * @uses get_normalized_path
+     * @uses get_extension
+     * @uses lazy_get_params
      */
     use AccessorTrait;
 
     /**
      * Parameters extracted from the request path.
      *
-     * @var array
+     * @var array<int|string, mixed>
      */
-    public $path_params = [];
+    public array $path_params = [];
 
     /**
      * Parameters defined by the query string.
      *
-     * @var array
+     * @var array<string, mixed>
      */
-    public $query_params = [];
+    public array $query_params = [];
 
     /**
      * Parameters defined by the request body.
      *
-     * @var array
+     * @var array<string, mixed>
      */
-    public $request_params = [];
+    public mixed $request_params = [];
 
     /**
      * Union of {@link $path_params}, {@link $request_params} and {@link $query_params}.
      *
-     * @var array
+     * @var array<string, mixed>
      */
     public $params;
 
-    /**
-     * General purpose container.
-     *
-     * @var Request\Context
-     */
-    private $context;
+    private Request\Context $context;
+
+    private function get_context(): Request\Context
+    {
+        return $this->context;
+    }
 
     /**
      * The headers of the request.
-     *
-     * @var Headers
      */
-    public $headers;
+    public Headers $headers;
 
     /**
      * Request environment.
      *
-     * @var array
+     * @var array<string, mixed>
      */
-    private $env;
+    private array $env;
 
     /**
      * Files associated with the request.
@@ -136,7 +153,7 @@ class Request implements RequestOptions
      */
     private $files;
 
-    protected function get_files()
+    private function get_files(): FileList
     {
         if ($this->files instanceof FileList) {
             return $this->files;
@@ -169,38 +186,34 @@ class Request implements RequestOptions
      * - Request::OPTION_HEADERS: The header fields of the request. If specified, the headers
      * available in the environment are ignored.
      *
-     * @param array|null $properties Properties of the request.
-     * @param array $env Environment, usually the `$_SERVER` array.
+     * @param array|string|null $properties Properties of the request.
+     * @param array<string, mixed> $env Environment, usually the `$_SERVER` array.
      *
-     * @return Request
-     *
-     * @throws \InvalidArgumentException in attempt to use an unsupported option.
+     * @throws InvalidArgumentException in attempt to use an unsupported option.
      */
-    public static function from(array|string $properties = null, array $env = [])
+    public static function from(array|string $properties = null, array $env = []): self
     {
         if (!$properties) {
             return new self([], $env);
         }
 
         if ($properties === $_SERVER) {
-            return static::from_server();
+            return self::from_server();
         }
 
         if (is_string($properties)) {
-            return static::from_uri($properties, $env);
+            return self::from_uri($properties, $env);
         }
 
-        return static::from_options($properties, $env);
+        return self::from_options($properties, $env);
     }
 
     /**
      * Creates an instance from the `$_SERVER` array.
-     *
-     * @return Request
      */
-    protected static function from_server()
+    private static function from_server(): self
     {
-        return static::from([
+        return self::from([
 
             self::OPTION_COOKIE => &$_COOKIE,
             self::OPTION_PATH_PARAMS => [],
@@ -214,14 +227,11 @@ class Request implements RequestOptions
     /**
      * Creates an instance from an URI.
      *
-     * @param string $uri
-     * @param array $env
-     *
-     * @return Request
+     * @param array<string, mixed> $env
      */
-    protected static function from_uri($uri, array $env)
+    private static function from_uri(string $uri, array $env): self
     {
-        return static::from([ self::OPTION_URI => $uri ], $env);
+        return self::from([ self::OPTION_URI => $uri ], $env);
     }
 
     /**
@@ -232,7 +242,7 @@ class Request implements RequestOptions
      *
      * @throws MethodNotAllowed
      */
-    protected static function from_options(array $options, array $env): self
+    private static function from_options(array $options, array $env): self
     {
         if ($options) {
             RequestOptionsMapper::map($options, $env);
@@ -251,12 +261,13 @@ class Request implements RequestOptions
      * If the {@link $params} property is `null` it is set with an union of {@link $path_params},
      * {@link $request_params} and {@link $query_params}.
      *
-     * @param array $properties Initial properties.
-     * @param array $env Environment of the request, usually the `$_SERVER` super global.
+     * @phpstan-param array<string, mixed> $properties Initial properties.
+     *
+     * @param array<string, mixed> $env Environment of the request, usually the `$_SERVER` super global.
      *
      * @throws MethodNotAllowed when the request method is not supported.
      */
-    protected function __construct(array $properties, array $env = [])
+    private function __construct(array $properties, array $env = [])
     {
         $this->context = new Request\Context($this);
         $this->env = $env;
@@ -267,13 +278,8 @@ class Request implements RequestOptions
 
         $this->assert_method($this->method);
 
-        if (!$this->headers) {
-            $this->headers = new Headers($env);
-        }
-
-        if ($this->params === null) {
-            $this->params = $this->path_params + $this->request_params + $this->query_params;
-        }
+        $this->headers ??= new Headers($env);
+        $this->params ??= $this->path_params + $this->request_params + $this->query_params;
     }
 
     /**
@@ -283,6 +289,7 @@ class Request implements RequestOptions
     {
         $this->headers = clone $this->headers;
         $this->context = clone $this->context;
+
         unset($this->params);
     }
 
@@ -314,53 +321,11 @@ class Request implements RequestOptions
     }
 
     /**
-     * Adapts the request to the specified method and params.
-     *
-     * @param string $method The method.
-     * @param array $params The params.
-     *
-     * @return Request The same instance is returned if the method is the same and the params
-     * are `null`. Otherwise a _changed_ request is returned.
-     */
-    protected function adapt($method, array $params = null)
-    {
-        if ((!$method || $method == $this->method) && !$params) {
-            return $this;
-        }
-
-        $properties = [];
-
-        if ($method) {
-            $properties = [ self::OPTION_METHOD => $method ];
-        }
-
-        if ($params !== null) {
-            $properties[self::OPTION_REQUEST_PARAMS] = $params;
-            $properties[self::OPTION_PATH_PARAMS] = [];
-            $properties[self::OPTION_QUERY_PARAMS] = [];
-        }
-
-        return $this->with($properties);
-    }
-
-    /**
-     * Returns the request's context.
-     *
-     * @return Request\Context
-     */
-    protected function get_context()
-    {
-        return $this->context;
-    }
-
-    /**
      * Returns the script name.
      *
      * The setter is volatile, the value is returned from the ENV key `SCRIPT_NAME`.
-     *
-     * @return string
      */
-    protected function get_script_name()
+    private function get_script_name(): string
     {
         return $this->env['SCRIPT_NAME'];
     }
@@ -373,7 +338,7 @@ class Request implements RequestOptions
      * The method is retrieved from {@link $env}, if the key `REQUEST_METHOD` is not defined,
      * the method defaults to {@link METHOD_GET}.
      */
-    protected function get_method(): RequestMethod
+    private function get_method(): RequestMethod
     {
         $method = RequestMethod::from_mixed($this->env['REQUEST_METHOD'] ?? 'GET');
 
@@ -388,36 +353,30 @@ class Request implements RequestOptions
      * Returns the query string of the request.
      *
      * The value is obtained from the `QUERY_STRING` key of the {@link $env} array.
-     *
-     * @return string|null
      */
-    protected function get_query_string()
+    private function get_query_string(): ?string
     {
-        return isset($this->env['QUERY_STRING']) ? $this->env['QUERY_STRING'] : null;
+        return $this->env['QUERY_STRING'] ?? null;
     }
 
     /**
      * Returns the content length of the request.
      *
      * The value is obtained from the `CONTENT_LENGTH` key of the {@link $env} array.
-     *
-     * @return int|null
      */
-    protected function get_content_length()
+    private function get_content_length(): ?int
     {
-        return isset($this->env['CONTENT_LENGTH']) ? $this->env['CONTENT_LENGTH'] : null;
+        return $this->env['CONTENT_LENGTH'] ?? null;
     }
 
     /**
      * Returns the referer of the request.
      *
      * The value is obtained from the `HTTP_REFERER` key of the {@link $env} array.
-     *
-     * @return string|null
      */
-    protected function get_referer()
+    private function get_referer(): ?string
     {
-        return isset($this->env['HTTP_REFERER']) ? $this->env['HTTP_REFERER'] : null;
+        return $this->env['HTTP_REFERER'] ?? null;
     }
 
     /**
@@ -427,15 +386,15 @@ class Request implements RequestOptions
      *
      * @return string|null
      */
-    protected function get_user_agent()
+    private function get_user_agent(): ?string
     {
-        return isset($this->env['HTTP_USER_AGENT']) ? $this->env['HTTP_USER_AGENT'] : null;
+        return $this->env['HTTP_USER_AGENT'] ?? null;
     }
 
     /**
      * Checks if the request is a `XMLHTTPRequest`.
      */
-    protected function get_is_xhr(): bool
+    private function get_is_xhr(): bool
     {
         return !empty($this->env['HTTP_X_REQUESTED_WITH'])
             && str_contains($this->env['HTTP_X_REQUESTED_WITH'], 'XMLHttpRequest');
@@ -444,7 +403,7 @@ class Request implements RequestOptions
     /**
      * Checks if the request is local.
      */
-    protected function get_is_local(): bool
+    private function get_is_local(): bool
     {
         $ip = $this->ip;
 
@@ -464,7 +423,7 @@ class Request implements RequestOptions
      *
      * @see http://en.wikipedia.org/wiki/X-Forwarded-For
      */
-    protected function get_ip(): string
+    private function get_ip(): string
     {
         $forwarded_for = $this->headers['X-Forwarded-For'];
 
@@ -477,7 +436,7 @@ class Request implements RequestOptions
         return $this->env['REMOTE_ADDR'] ?? '::1';
     }
 
-    protected function get_authorization()
+    private function get_authorization(): ?string
     {
         if (isset($this->env['HTTP_AUTHORIZATION'])) {
             return $this->env['HTTP_AUTHORIZATION'];
@@ -498,7 +457,7 @@ class Request implements RequestOptions
      * If the `REQUEST_URI` key is not defined by the environment, the value is fetched from
      * the `$_SERVER` array. If the key is not defined in the `$_SERVER` array `null` is returned.
      */
-    protected function get_uri(): ?string
+    private function get_uri(): ?string
     {
         return $this->env['REQUEST_URI'] ?? ($_SERVER['REQUEST_URI'] ?? null);
     }
@@ -506,7 +465,7 @@ class Request implements RequestOptions
     /**
      * Returns the port of the request.
      */
-    protected function get_port(): int
+    private function get_port(): int
     {
         return $this->env['REQUEST_PORT'];
     }
@@ -514,7 +473,7 @@ class Request implements RequestOptions
     /**
      * Returns the path of the request, that is the `REQUEST_URI` without the query string.
      */
-    protected function get_path(): string
+    private function get_path(): string
     {
         $uri = $this->uri;
         $qs_pos = strpos($uri, '?');
@@ -526,7 +485,7 @@ class Request implements RequestOptions
      * Returns the {@link $path} property normalized using the
      * `ICanBoogie\normalize_url_path()` function.
      */
-    protected function get_normalized_path(): string
+    private function get_normalized_path(): string
     {
         return normalize_url_path($this->path);
     }
@@ -536,12 +495,12 @@ class Request implements RequestOptions
      *
      * @return mixed
      */
-    protected function get_extension()
+    private function get_extension()
     {
         return pathinfo($this->path, PATHINFO_EXTENSION);
     }
 
-    protected function lazy_set_params($params)
+    private function lazy_set_params($params)
     {
         return $params;
     }
@@ -552,9 +511,9 @@ class Request implements RequestOptions
      *
      * This method is the getter of the {@link $params} magic property.
      *
-     * @return array
+     * @return array<string|int, mixed>
      */
-    protected function lazy_get_params()
+    private function lazy_get_params(): array
     {
         return $this->path_params + $this->request_params + $this->query_params;
     }
