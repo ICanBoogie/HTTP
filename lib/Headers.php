@@ -62,6 +62,9 @@ use function substr;
  *     Shortcut to the `Location` header field definition.
  * @property Headers\Date|int|mixed $retry_after
  *     Shortcut to the `Retry-After` header field definition.
+ *
+ * @implements ArrayAccess<string, mixed>
+ * @implements IteratorAggregate<string, mixed>
  */
 class Headers implements ArrayAccess, IteratorAggregate
 {

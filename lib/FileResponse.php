@@ -33,7 +33,7 @@ use const FILEINFO_MIME_TYPE;
  *
  * @property-read SplFileInfo $file
  * @property-read int $modified_time
- * @property-read RequestRange $range
+ * @property-read RequestRange|null $range
  * @property-read bool $is_modified
  */
 class FileResponse extends Response
@@ -310,6 +310,8 @@ class FileResponse extends Response
 
     /**
      * Resolves `max_length` and `offset` parameters for stream copy.
+     *
+     * @return array{ 0: int, 1: int }
      */
     private function resolve_max_length_and_offset(): array
     {

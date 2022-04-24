@@ -77,7 +77,7 @@ final class RequestOptionsMapper
     /**
      * Returns request properties mappers.
      *
-     * @phpstan-return (callable(mixed $value, array &$env): mixed)|null
+     * @phpstan-return (callable(mixed $value, array<string, mixed> &$env): mixed)|null
      */
     private static function get_env_mapper(string $option): ?callable
     {

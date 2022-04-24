@@ -12,7 +12,6 @@
 namespace ICanBoogie\HTTP;
 
 use ICanBoogie\Accessor\AccessorTrait;
-
 use InvalidArgumentException;
 
 use function ICanBoogie\normalize_url_path;
@@ -159,10 +158,10 @@ final class Request implements RequestOptions
             return $this->files;
         }
 
-        return $this->files = FileList::from($this->files);
+        return $this->files = FileList::from($this->files); // @phpstan-ignore-line
     }
 
-    public $cookie;
+    public $cookie; // @phpstan-ignore-line
 
     /**
      * A request may be created from the `$_SERVER` super global array. In that case `$_SERVER` is
@@ -186,12 +185,12 @@ final class Request implements RequestOptions
      * - Request::OPTION_HEADERS: The header fields of the request. If specified, the headers
      * available in the environment are ignored.
      *
-     * @param array|string|null $properties Properties of the request.
+     * @phpstan-param array<RequestOptions::*, mixed>|string|null $properties Properties of the request.
      * @param array<string, mixed> $env Environment, usually the `$_SERVER` array.
      *
      * @throws InvalidArgumentException in attempt to use an unsupported option.
      */
-    public static function from(array|string $properties = null, array $env = []): self
+    public static function from(array|string|null $properties = null, array $env = []): self
     {
         if (!$properties) {
             return new self([], $env);
@@ -279,7 +278,7 @@ final class Request implements RequestOptions
         $this->assert_method($this->method);
 
         $this->headers ??= new Headers($env);
-        $this->params ??= $this->path_params + $this->request_params + $this->query_params;
+        $this->params ??= $this->path_params + $this->request_params + $this->query_params; // @phpstan-ignore-line
     }
 
     /**
@@ -500,7 +499,12 @@ final class Request implements RequestOptions
         return pathinfo($this->path, PATHINFO_EXTENSION);
     }
 
-    private function lazy_set_params($params)
+    /**
+     * @param array<string, mixed> $params
+     *
+     * @return array<string, mixed>
+     */
+    private function lazy_set_params(array $params): array
     {
         return $params;
     }

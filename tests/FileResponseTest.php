@@ -17,6 +17,7 @@ use PHPUnit\Framework\MockObject\Rule\InvokedCount;
 use PHPUnit\Framework\TestCase;
 
 use function filemtime;
+use function var_dump;
 
 final class FileResponseTest extends TestCase
 {
@@ -106,20 +107,16 @@ final class FileResponseTest extends TestCase
      */
     public function test_invoke_with_range(string $cache_control, bool $is_modified, bool $is_satisfiable, bool $is_total, int $expected)
     {
-        $range = $this
-            ->getMockBuilder(RequestRange::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods([ 'get_is_satisfiable', 'get_is_total' ])
-            ->getMock();
-        $range
-            ->expects($this->any())
-            ->method('get_is_satisfiable')
-            ->willReturn($is_satisfiable);
-        $range
-            ->expects($this->any())
-            ->method('get_is_total')
-            ->willReturn($is_total);
+        $headers = new Headers();
+        $headers['If-Range'] = $etag = "123";
 
+        if ($is_satisfiable) {
+            $headers['Range'] = $is_total ? "bytes=0-399" : "bytes=10-200";
+        } else {
+            $headers['Range'] = "bytes=20-10";
+        }
+
+        $range = RequestRange::from($headers, 400, $etag);
         $request = Request::from([ Request::OPTION_HEADERS => [ 'Cache-Control' => $cache_control ] ]);
 
         $response = $this

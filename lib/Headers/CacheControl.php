@@ -282,6 +282,8 @@ final class CacheControl
      * Scope: request, response.
      *
      * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.6
+     *
+     * @var array<string, string>
      */
     public array $extensions = [];
 

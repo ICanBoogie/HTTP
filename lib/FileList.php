@@ -20,6 +20,9 @@ use function count;
 
 /**
  * Representation of a list of request files.
+ *
+ * @implements ArrayAccess<string, File>
+ * @implements IteratorAggregate<string, File>
  */
 class FileList implements ArrayAccess, IteratorAggregate, Countable
 {
@@ -65,7 +68,7 @@ class FileList implements ArrayAccess, IteratorAggregate, Countable
     /**
      * Checks if a file exists.
      *
-     * @param string $offset File identifier.
+     * @param mixed $offset File identifier.
      */
     public function offsetExists(mixed $offset): bool
     {
@@ -75,7 +78,7 @@ class FileList implements ArrayAccess, IteratorAggregate, Countable
     /**
      * Returns a file.
      *
-     * @param string $offset File identifier.
+     * @param mixed $offset File identifier.
      *
      * @return File|null A {@link File} instance, or `null` if it does not exist.
      */
@@ -91,8 +94,8 @@ class FileList implements ArrayAccess, IteratorAggregate, Countable
     /**
      * Adds a file.
      *
-     * @param string $offset File identifier.
-     * @param string|array|File $value File.
+     * @param mixed $offset File identifier.
+     * @param mixed|array|File|FileList $value File.
      */
     public function offsetSet(mixed $offset, mixed $value): void
     {
@@ -106,7 +109,7 @@ class FileList implements ArrayAccess, IteratorAggregate, Countable
     /**
      * Removes a file.
      *
-     * @param string $offset File identifier.
+     * @param mixed $offset File identifier.
      */
     public function offsetUnset(mixed $offset): void
     {
@@ -116,7 +119,7 @@ class FileList implements ArrayAccess, IteratorAggregate, Countable
     /**
      * @inheritdoc
      *
-     * @return ArrayIterator
+     * @return ArrayIterator<string, File>
      */
     public function getIterator(): ArrayIterator
     {

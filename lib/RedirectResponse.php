@@ -24,7 +24,7 @@ class RedirectResponse extends Response
      * Initializes the `Location` header.
      *
      * @param string $url URL to redirect to.
-     * @param array $headers Additional headers.
+     * @param array<string, mixed> $headers Additional headers.
      *
      * @throws InvalidArgumentException if the provided status code is not a redirect.
      */

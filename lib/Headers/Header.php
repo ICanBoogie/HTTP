@@ -77,6 +77,8 @@ use function trim;
  *     const VALUE_ALIAS = 'type';
  * }
  * </pre>
+ *
+ * @implements ArrayAccess<string, mixed>
  */
 abstract class Header implements ArrayAccess
 {
@@ -215,15 +217,15 @@ abstract class Header implements ArrayAccess
      * To enable future extensions, unrecognized parameters are ignored. Supported parameters must
      * be defined by a child class before it calls its parent.
      *
-     * @param array<string, mixed> $parameters
+     * @param array<string, mixed> $attributes
      */
-    public function __construct(mixed $value = null, array $parameters = [])
+    public function __construct(mixed $value = null, array $attributes = [])
     {
         $this->value = $value;
 
-        $parameters = array_intersect_key($parameters, $this->parameters);
+        $attributes = array_intersect_key($attributes, $this->parameters);
 
-        foreach ($parameters as $attribute => $value) {
+        foreach ($attributes as $attribute => $value) {
             $this[$attribute] = $value;
         }
     }
@@ -259,7 +261,7 @@ abstract class Header implements ArrayAccess
      *
      * @throws PropertyNotDefined in attempt to access a parameter that is not defined.
      */
-    public function __set(string $property, mixed $value)
+    public function __set(string $property, mixed $value): void
     {
         if ($property === static::VALUE_ALIAS) {
             $this->value = $value;
@@ -281,7 +283,7 @@ abstract class Header implements ArrayAccess
      *
      * @throws PropertyNotDefined in attempt to access a parameter that is not defined.
      */
-    public function __unset(string $property)
+    public function __unset(string $property): void
     {
         if (!isset($this->parameters[$property])) {
             return;
@@ -292,10 +294,8 @@ abstract class Header implements ArrayAccess
 
     /**
      * Renders the instance's value and parameters into a string.
-     *
-     * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         $value = $this->value;
 

@@ -97,7 +97,7 @@ class Response implements ResponseStatus
      * Initializes the `$body`,  `$status`, `$headers`, and `$date` properties.
      *
      * @param int|Status $status The status code of the response.
-     * @param array|Headers $headers The initial header fields of the response.
+     * @param array<string, mixed>|Headers $headers The initial header fields of the response.
      */
     public function __construct(
         public string|Stringable|Closure|null $body = null,
@@ -468,7 +468,7 @@ class Response implements ResponseStatus
      * @deprecated 6.0
      * @see Headers::$location
      */
-    private function set_location(?string $url)
+    private function set_location(?string $url): void
     {
         trigger_error(
             '$response->location is deprecated, use $response->headers->location instead.',

@@ -11,25 +11,16 @@
 
 namespace ICanBoogie\HTTP;
 
-use ICanBoogie\Accessor\AccessorTrait;
-
 use function preg_match;
+use function sprintf;
 
 /**
  * Representation of a request range.
  *
- * @property bool $is_satisfiable Whether the range is satisfiable.
- * @property bool $is_total Whether the range is actually the total.
- * @property int $length Length of the range, suitable for the `Content-Length` header field.
- * @property int $max_length Maximum bytes to copy, suitable for the `stream_copy_to_stream()`
- *     function.
- * @property int $offset The offset where to start to copy data, suitable for the
- *     `stream_copy_to_stream()` function.
+ * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Range
  */
 class RequestRange
 {
-    use AccessorTrait;
-
     /**
      * Creates a new instance.
      *
@@ -66,11 +57,11 @@ class RequestRange
     /**
      * Resolves the range.
      *
-     * @return array|null An array with `[ $start, $end ]`, or `null` if the range is invalid.
+     * @return array{ 0: int, 1: int }|null An array with `[ $start, $end ]`, or `null` if the range is invalid.
      */
-    private static function resolve_range(string $range, int $total)
+    private static function resolve_range(string $range, int $total): ?array
     {
-        if (!preg_match('/^bytes\=(\d*)\-(\d*)$/', $range, $matches)) {
+        if (!preg_match('/^bytes=(\d*)-(\d*)$/', $range, $matches)) {
             return null;
         }
 
@@ -93,93 +84,49 @@ class RequestRange
     }
 
     /**
-     * @var int
+     * @var int The offset where to start to copy data, suitable for the `stream_copy_to_stream()` function.
      */
-    private $start;
+    public readonly int $offset;
 
     /**
-     * @var int
+     * @var int Length of the range, suitable for the `Content-Length` header field.
      */
-    private $end;
+    public readonly int $length;
 
     /**
-     * @var int
+     * @var int Maximum bytes to copy, suitable for the `stream_copy_to_stream()` function.
      */
-    private $total;
+    public readonly int $max_length;
 
     /**
-     * @param int $start
-     * @param int $end
-     * @param int $total
+     * @var bool Whether the range is satisfiable.
      */
-    protected function __construct(int $start, int $end, int $total)
-    {
-        $this->start = $start;
-        $this->end = $end;
-        $this->total = $total;
+    public readonly bool $is_satisfiable;
+
+    /**
+     * @var bool Whether the range is actually the total.
+     */
+    public readonly bool $is_total;
+
+    protected function __construct(
+        private readonly int $start,
+        private readonly int $end,
+        private readonly int $total
+    ) {
+        $this->offset = $start;
+        $this->length = $length = $this->end - $this->start + 1;
+        $this->max_length = $end < $total ? $length : -1;
+        $this->is_satisfiable = !($start < 0 || $start >= $end || $end > $total - 1);
+        $this->is_total = $start === 0 && $end === $total - 1;
     }
 
     /**
      * Formats the instance as a string suitable for the `Content-Range` header field.
      *
-     * @return string
+     * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Range
      */
-    public function __toString()
+    public function __toString(): string
     {
-        return \sprintf('bytes %s-%s/%s', $this->start, $this->end, $this->total);
-    }
-
-    /**
-     * Whether the range is satisfiable.
-     *
-     * @return bool
-     */
-    protected function get_is_satisfiable(): bool
-    {
-        $start = $this->start;
-        $end = $this->end;
-
-        return !($start < 0 || $start >= $end || $end > $this->total - 1);
-    }
-
-    /**
-     * Whether the range is actually the total.
-     *
-     * @return bool
-     */
-    protected function get_is_total(): bool
-    {
-        return $this->start === 0 && $this->end === $this->total - 1;
-    }
-
-    /**
-     * Returns the length of the range, suitable for the `Content-Length` header field.
-     *
-     * @return int
-     */
-    protected function get_length(): int
-    {
-        return $this->end - $this->start + 1;
-    }
-
-    /**
-     * Maximum bytes to copy, suitable for the `stream_copy_to_stream()` function.
-     *
-     * @return int
-     */
-    protected function get_max_length(): int
-    {
-        return $this->end < $this->total ? $this->length : -1;
-    }
-
-    /**
-     * Returns the offset where to start to copy data, suitable for the
-     * `stream_copy_to_stream()` function.
-     *
-     * @return int
-     */
-    protected function get_offset(): int
-    {
-        return $this->start;
+        return sprintf('bytes %s-%s/%s', $this->start, $this->end, $this->total);
     }
 }

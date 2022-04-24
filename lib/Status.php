@@ -250,7 +250,7 @@ final class Status
     /**
      * HTTP status codes and messages.
      *
-     * @var array
+     * @var array<int, string>
      */
     public const CODES_AND_MESSAGES = [
 
@@ -305,13 +305,13 @@ final class Status
     /**
      * Creates a new instance from the provided status.
      *
-     * @param int|array|self $status
+     * @param array{ 0: int, 1: string }|int|string|self $status
      *
      * @return Status
      *
      * @throws InvalidArgumentException When the HTTP status code is not valid.
      */
-    public static function from($status): self
+    public static function from(array|int|string|Status $status): self
     {
         if ($status instanceof self) {
             return $status;
@@ -320,9 +320,9 @@ final class Status
         $message = null;
 
         if (is_array($status)) {
-            list($code, $message) = $status;
+            [ $code, $message ] = $status;
         } elseif (is_numeric($status)) {
-            $code = (int)$status;
+            $code = (int) $status;
         } else {
             if (!preg_match('/^(\d{3})\s+(.+)$/', $status, $matches)) {
                 throw new InvalidArgumentException("Invalid status: $status.");
