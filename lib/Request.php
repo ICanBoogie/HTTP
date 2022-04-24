@@ -94,7 +94,6 @@ final class Request implements RequestOptions
      * @uses get_path
      * @uses get_normalized_path
      * @uses get_extension
-     * @uses lazy_get_params
      */
     use AccessorTrait;
 
@@ -122,9 +121,13 @@ final class Request implements RequestOptions
     /**
      * Union of {@link $path_params}, {@link $request_params} and {@link $query_params}.
      *
+     * **Note:** The property is created during construct and is not updated after. If you modify one of
+     * {@link $path_params}, {@link $request_params} and {@link $query_params}, remember to modify {@link $params} as
+     * well.
+     *
      * @var array<string, mixed>
      */
-    public $params;
+    public array $params;
 
     private Request\Context $context;
 
@@ -133,9 +136,6 @@ final class Request implements RequestOptions
         return $this->context;
     }
 
-    /**
-     * The headers of the request.
-     */
     public Headers $headers;
 
     /**
@@ -278,7 +278,7 @@ final class Request implements RequestOptions
         $this->assert_method($this->method);
 
         $this->headers ??= new Headers($env);
-        $this->params ??= $this->path_params + $this->request_params + $this->query_params; // @phpstan-ignore-line
+        $this->params = $this->path_params + $this->request_params + $this->query_params; // @phpstan-ignore-line
     }
 
     /**
@@ -288,8 +288,6 @@ final class Request implements RequestOptions
     {
         $this->headers = clone $this->headers;
         $this->context = clone $this->context;
-
-        unset($this->params);
     }
 
     /**
@@ -315,6 +313,8 @@ final class Request implements RequestOptions
                 $changed->$option = $value;
             }
         }
+
+        $changed->params = $changed->path_params + $changed->request_params + $changed->query_params;
 
         return $changed;
     }
@@ -497,28 +497,5 @@ final class Request implements RequestOptions
     private function get_extension()
     {
         return pathinfo($this->path, PATHINFO_EXTENSION);
-    }
-
-    /**
-     * @param array<string, mixed> $params
-     *
-     * @return array<string, mixed>
-     */
-    private function lazy_set_params(array $params): array
-    {
-        return $params;
-    }
-
-    /**
-     * Returns the union of the {@link path_params}, {@link request_params} and
-     * {@link query_params} properties.
-     *
-     * This method is the getter of the {@link $params} magic property.
-     *
-     * @return array<string|int, mixed>
-     */
-    private function lazy_get_params(): array
-    {
-        return $this->path_params + $this->request_params + $this->query_params;
     }
 }

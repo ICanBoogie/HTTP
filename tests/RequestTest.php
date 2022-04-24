@@ -437,7 +437,7 @@ class RequestTest extends TestCase
 
         $expected = [ 'p1' => 1, 'p2' => 2, 'p3' => 3, 'p4' => 4 ];
         $this->assertSame($expected, $request->params);
-        unset($request->params);
+        $request->params['p5'] = 5;
         $expected = [ 'p1' => 1, 'p2' => 2, 'p3' => 3, 'p4' => 4, 'p5' => 5 ];
         $this->assertEquals($expected, $request->params);
 
