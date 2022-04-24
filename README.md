@@ -5,21 +5,28 @@
 [![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/HTTP.svg)](https://coveralls.io/r/ICanBoogie/HTTP)
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/http.svg)](https://packagist.org/packages/icanboogie/http)
 
-The **icanboogie/http** package provides an API to handle HTTP requests, with representations for
-requests, request files, responses, and headers. A request dispatcher is also provided, that can be
-used with your favorite routing solution with very little effort.
+The **icanboogie/http** package provides a foundation to handle HTTP requests, with representations
+for requests, request files, responses, and headers. The package also lay the foundation of
 
-The following example demonstrates the lifetime of a request:
+The following example is an overview of a request processing:
 
 ```php
+<?php
 
-use ICanBoogie\HTTP\Request;
+namespace ICanBoogie\HTTP;
 
-/* @var ICanBoogie\HTTP\ResponderProvider $responders */
-
+// The request is usually created from the $_SERVER super global.
 $request = Request::from($_SERVER);
-$responder = $responders->responder_for_request($request);
+
+/* @var ResponderProvider $responder_provider */
+
+// The Responder Provider matches a request with a Responder
+$responder = $responder_provider->responder_for_request($request);
+
+// The Responder responds to the request with a Response, it might also throw an exception.
 $response = $responder->respond($request);
+
+// The response is sent to the client.
 $response();
 ```
 
@@ -109,8 +116,8 @@ Request::from([ Request::OPTION_METHOD => Request::METHOD_DELETE ])->is_idempote
 
 ### A request with changed properties
 
-Requests are for the most part immutable, the `with()` method creates an instance copy with
-changed properties.
+Requests are for the most part immutable, the `with()` method creates an instance copy with changed
+properties.
 
 ```php
 <?php
@@ -236,7 +243,7 @@ tries its best to provide the same API for both. The `is_uploaded` property help
 them apart.
 
 The `is_valid` property is a simple way to check if a file is valid. The `move()` method
-let's you move the file out of the temporary folder or around the filesystem.
+lets you move the file out of the temporary folder or around the filesystem.
 
 ```php
 <?php
@@ -384,7 +391,7 @@ $response = $request->post([ 'param' => 'value' ]);
 ## Response
 
 The response to a request is represented by a [Response][] instance. The response body can
-either be `null`, a string, an object implementing `__toString()`, or a closure.
+either be `null`, a string (or `Stringable`), or a `Closure`.
 
 > **Note:** Contrary to [Request][] instances, [Response][] instances or completely mutable.
 
@@ -395,8 +402,8 @@ namespace ICanBoogie\HTTP;
 
 $response = new Response('<!DOCTYPE html><html><body><h1>Hello world!</h1></body></html>', Response::STATUS_OK, [
 
-    'Content-Type' => 'text/html',
-    'Cache-Control' => 'public, max-age=3600'
+    Headers::HEADER_CONTENT_TYPE => 'text/html',
+    Headers::HEADER_CACHE_CONTROL => 'public, max-age=3600',
 
 ]);
 ```
@@ -485,7 +492,7 @@ for instance when the body was a string or an instance implementing `__toString(
 Starting v2.3.2 this is no longer the case and the header field has to be defined when required.
 This was decided to prevent a bug with Apache+FastCGI+DEFLATE where the `Content-Length` field
 was not adjusted although the body was compressed. Also, in most cases it's not such a good idea
-to define that field for generated content because it prevents the response to be send as
+to define that field for generated content because it prevents the response to be sent as
 [compressed chunks](http://en.wikipedia.org/wiki/Chunked_transfer_encoding).
 
 
@@ -698,8 +705,8 @@ The project is continuously tested by [GitHub actions](https://github.com/ICanBo
 
 ## Code of Conduct
 
-This project adheres to a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project and its
-community, you are expected to uphold this code.
+This project adheres to a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in
+this project and its community, you are expected to uphold this code.
 
 
 

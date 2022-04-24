@@ -15,21 +15,20 @@ use ICanBoogie\Event;
 use Throwable;
 
 /**
- * Event class for the `Exception:recover` event type.
- *
- * Third parties may use this event to provide a response or replace the exception.
+ * Listeners may use this event to provide a response or replace the exception.
  */
 class RecoverEvent extends Event
 {
     public ?Response $response;
     public Throwable $exception;
-    public readonly Request $request;
 
-    public function __construct(Throwable &$sender, Request $request, Response &$response = null)
-    {
+    public function __construct(
+        Throwable &$sender,
+        public readonly Request $request,
+        Response &$response = null
+    ) {
         $this->response = &$response;
         $this->exception = &$sender;
-        $this->request = $request;
 
         parent::__construct($sender);
     }

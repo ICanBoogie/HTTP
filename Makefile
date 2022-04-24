@@ -2,6 +2,7 @@
 
 PACKAGE_NAME = icanboogie/http
 PHPUNIT = vendor/bin/phpunit
+
 # do not edit the following lines
 
 .PHONY: usage
@@ -23,7 +24,7 @@ test: test-dependencies
 .PHONY: test-coverage
 test-coverage: test-dependencies
 	@mkdir -p build/coverage
-	@XDEBUG_MODE=coverage $(PHPUNIT) --coverage-html build/coverage --coverage-text
+	@XDEBUG_MODE=coverage $(PHPUNIT) --coverage-html build/coverage
 
 .PHONY: test-coveralls
 test-coveralls: test-dependencies
@@ -36,7 +37,7 @@ test-cleanup:
 
 .PHONY: test-container
 test-container:
-	@docker-compose run --rm app bash
+	@-docker-compose run --rm app bash
 	@docker-compose down -v
 
 .PHONY: lint

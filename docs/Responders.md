@@ -14,7 +14,7 @@ namespace ICanBoogie\HTTP;
 /* @var ResponderProvider $responders */
 /* @var Request $request */
 
-$responder = new Responder\WithProvider($provider);
+$responder = new Responder\DelegateToProvider($provider);
 $response = $responder->respond($request);
 ```
 
