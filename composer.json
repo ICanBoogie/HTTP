@@ -24,10 +24,7 @@
 		"source": "https://github.com/ICanBoogie/HTTP"
 	},
     "config": {
-        "sort-packages": true,
-        "allow-plugins": {
-            "phpstan/extension-installer": true
-        }
+        "sort-packages": true
     },
 	"minimum-stability": "dev",
 	"prefer-stable": true,
@@ -42,9 +39,6 @@
 	"require-dev": {
 		"ext-fileinfo": "*",
 		"ext-gd": "*",
-		"jangregor/phpstan-prophecy": "^1.0",
-		"phpspec/prophecy-phpunit": "^2.0",
-		"phpstan/extension-installer": "^1.1",
 		"phpstan/phpstan": "^1.5",
 		"phpunit/phpunit": "^9.5"
 	},

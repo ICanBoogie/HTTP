@@ -19,20 +19,15 @@ use ICanBoogie\HTTP\Responder\WithEvent;
 use ICanBoogie\HTTP\Responder\WithEvent\BeforeRespondEvent;
 use ICanBoogie\HTTP\Responder\WithEvent\RespondEvent;
 use ICanBoogie\HTTP\Response;
+use PHPUnit\Framework\Assert;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Prophecy\Argument;
-use Prophecy\PhpUnit\ProphecyTrait;
-use Prophecy\Prophecy\ObjectProphecy;
-use Throwable;
 
 final class WithEventTest extends TestCase
 {
-    use ProphecyTrait;
-
     private Request $request;
     private Response $response;
-    private Throwable $exception;
-    private ObjectProphecy|Responder $responder;
+    private MockObject|Responder $responder;
     private EventCollection $events;
 
     protected function setUp(): void
@@ -41,7 +36,7 @@ final class WithEventTest extends TestCase
 
         $this->request = Request::from();
         $this->response = new Response();
-        $this->responder = $this->prophesize(Responder::class);
+        $this->responder = $this->createMock(Responder::class);
         $this->events = new EventCollection();
 
         EventCollectionProvider::define(fn() => $this->events);
@@ -49,7 +44,9 @@ final class WithEventTest extends TestCase
 
     public function test_no_changes(): void
     {
-        $this->responder->respond($this->request)
+        $this->responder
+            ->method('respond')
+            ->with($this->request)
             ->willReturn($this->response);
 
         $actual = $this->makeSTU()->respond($this->request);
@@ -59,8 +56,10 @@ final class WithEventTest extends TestCase
 
     public function test_response_provided_before(): void
     {
-        $this->responder->respond(Argument::any())
-            ->shouldNotBeCalled();
+        $this->responder
+            ->expects($this->never())
+            ->method('respond')
+            ->with(Assert::anything());
 
         $response = new Response();
 
@@ -75,7 +74,9 @@ final class WithEventTest extends TestCase
 
     public function test_response_provided_after(): void
     {
-        $this->responder->respond($this->request)
+        $this->responder
+            ->method('respond')
+            ->with($this->request)
             ->willReturn($this->response);
 
         $response = new Response();
@@ -91,6 +92,6 @@ final class WithEventTest extends TestCase
 
     private function makeSTU(): Responder
     {
-        return new WithEvent($this->responder->reveal());
+        return new WithEvent($this->responder);
     }
 }

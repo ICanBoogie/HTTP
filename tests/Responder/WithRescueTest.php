@@ -20,19 +20,16 @@ use ICanBoogie\HTTP\RecoverEvent;
 use ICanBoogie\HTTP\Responder;
 use ICanBoogie\HTTP\Responder\WithRecovery;
 use ICanBoogie\HTTP\Response;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Prophecy\PhpUnit\ProphecyTrait;
-use Prophecy\Prophecy\ObjectProphecy;
 use Throwable;
 
 final class WithRescueTest extends TestCase
 {
-    use ProphecyTrait;
-
     private Request $request;
     private Response $response;
     private Throwable $exception;
-    private ObjectProphecy|Responder $responder;
+    private MockObject|Responder $responder;
     private EventCollection $events;
 
     protected function setUp(): void
@@ -42,7 +39,7 @@ final class WithRescueTest extends TestCase
         $this->request = Request::from();
         $this->response = new Response();
         $this->exception = new NotFound();
-        $this->responder = $this->prophesize(Responder::class);
+        $this->responder = $this->createMock(Responder::class);
         $this->events = new EventCollection();
 
         EventCollectionProvider::define(fn() => $this->events);
@@ -53,7 +50,9 @@ final class WithRescueTest extends TestCase
      */
     public function test_nothing_to_rescue(): void
     {
-        $this->responder->respond($this->request)
+        $this->responder
+            ->method('respond')
+            ->with($this->request)
             ->willReturn($this->response);
 
         $this->assertSame(
@@ -67,8 +66,10 @@ final class WithRescueTest extends TestCase
      */
     public function test_rescue_failed(): void
     {
-        $this->responder->respond($this->request)
-            ->willThrow($this->exception);
+        $this->responder
+            ->method('respond')
+            ->with($this->request)
+            ->willThrowException($this->exception);
 
         try {
             $this->makeSTU()->respond($this->request);
@@ -85,8 +86,10 @@ final class WithRescueTest extends TestCase
     {
         $new_exception = new Exception();
 
-        $this->responder->respond($this->request)
-            ->willThrow($this->exception);
+        $this->responder
+            ->method('respond')
+            ->with($this->request)
+            ->willThrowException($this->exception);
 
         $this->events->attach(function (RecoverEvent $event, NotFound $sender) use ($new_exception) {
             $event->exception = $new_exception;
@@ -107,8 +110,10 @@ final class WithRescueTest extends TestCase
     {
         $new_response = new Response();
 
-        $this->responder->respond($this->request)
-            ->willThrow($this->exception);
+        $this->responder
+            ->method('respond')
+            ->with($this->request)
+            ->willThrowException($this->exception);
 
         $this->events->attach(function (RecoverEvent $event, NotFound $sender) use ($new_response) {
             $event->response = $new_response;
@@ -122,6 +127,6 @@ final class WithRescueTest extends TestCase
 
     private function makeSTU(): Responder
     {
-        return new WithRecovery($this->responder->reveal());
+        return new WithRecovery($this->responder);
     }
 }
