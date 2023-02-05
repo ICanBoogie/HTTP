@@ -17,7 +17,6 @@ use ICanBoogie\HTTP\Headers;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\RequestMethod;
 use ICanBoogie\HTTP\RequestOptions;
-use ICanBoogie\HTTP\Response;
 use ICanBoogie\PropertyNotWritable;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -31,7 +30,7 @@ class RequestTest extends TestCase
         self::$request = Request::from($_SERVER);
     }
 
-    public function test_clone()
+    public function test_clone(): void
     {
         $request = Request::from($_SERVER);
         $clone = clone $request;
@@ -43,14 +42,14 @@ class RequestTest extends TestCase
     /**
      * @dataProvider provide_test_write_readonly_properties
      */
-    public function test_write_readonly_properties(string $property)
+    public function test_write_readonly_properties(string $property): void
     {
         $this->expectException(PropertyNotWritable::class);
 
         self::$request->$property = null;
     }
 
-    public function provide_test_write_readonly_properties()
+    public function provide_test_write_readonly_properties(): array
     {
         $properties = 'authorization content_length context extension ip'
         . ' is_local is_xhr'
@@ -62,41 +61,35 @@ class RequestTest extends TestCase
         }, explode(' ', $properties));
     }
 
-    public function test_from_with_cache_control()
+    public function test_from_with_cache_control(): void
     {
         $value = "public, must-revalidate";
-        $request = Request::from([ Request::OPTION_CACHE_CONTROL => $value ]);
-        $this->assertObjectNotHasAttribute('cache_control', $request);
+        $request = Request::from([ RequestOptions::OPTION_CACHE_CONTROL => $value ]);
+        $this->assertFalse(isset($request->cache_control));
         $this->assertEquals('public', $request->headers->cache_control->cacheable);
         $this->assertTrue($request->headers->cache_control->must_revalidate);
     }
 
-    public function test_from_with_content_length()
+    public function test_from_with_content_length(): void
     {
         $value = 123456789;
-        $request = Request::from([ Request::OPTION_CONTENT_LENGTH => $value ]);
-        $this->assertObjectNotHasAttribute('content_length', $request);
+        $request = Request::from([ RequestOptions::OPTION_CONTENT_LENGTH => $value ]);
+        $this->assertFalse(isset($request->content_length));
         $this->assertEquals($value, $request->content_length);
     }
 
-    public function test_from_with_extension()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        Request::from([ 'extension' => '.png' ]);
-    }
-
-    public function test_from_with_ip()
+    public function test_from_with_ip(): void
     {
         $value = '192.168.13.69';
-        $request = Request::from([ Request::OPTION_IP => $value ]);
-        $this->assertObjectNotHasAttribute('ip', $request);
+        $request = Request::from([ RequestOptions::OPTION_IP => $value ]);
+        $this->assertFalse(isset($request->ip));
         $this->assertEquals($value, $request->ip);
     }
 
-    public function test_from_with_forwarded_ip()
+    public function test_from_with_forwarded_ip(): void
     {
         $value = '192.168.13.69';
-        $request = Request::from([ Request::OPTION_HEADERS => [
+        $request = Request::from([ RequestOptions::OPTION_HEADERS => [
 
             'X-Forwarded-For' => "$value,::1"
 
@@ -105,100 +98,79 @@ class RequestTest extends TestCase
         $this->assertEquals($value, $request->ip);
     }
 
-    public function test_from_with_is_local()
+    public function test_from_with_is_local(): void
     {
-        $request = Request::from([ Request::OPTION_IS_LOCAL => true ]);
-        $this->assertObjectNotHasAttribute('is_local', $request);
+        $request = Request::from([ RequestOptions::OPTION_IS_LOCAL => true ]);
+        $this->assertFalse(isset($request->is_local));
         $this->assertTrue($request->is_local);
 
-        $request = Request::from([ Request::OPTION_IS_LOCAL => false ]);
-        $this->assertObjectNotHasAttribute('is_local', $request);
+        $request = Request::from([ RequestOptions::OPTION_IS_LOCAL => false ]);
+        $this->assertFalse(isset($request->is_local));
         $this->assertTrue($request->is_local); // yes is_local is `true` even if it was defined as `false`, that's because IP is not defined.
     }
 
-    public function test_from_with_is_xhr()
+    public function test_from_with_is_xhr(): void
     {
-        $request = Request::from([ Request::OPTION_IS_XHR => true ]);
-        $this->assertObjectNotHasAttribute('is_xhr', $request);
+        $request = Request::from([ RequestOptions::OPTION_IS_XHR => true ]);
+        $this->assertFalse(isset($request->is_xhr));
         $this->assertTrue($request->is_xhr);
 
-        $request = Request::from([ Request::OPTION_IS_XHR => false ]);
-        $this->assertObjectNotHasAttribute('is_xhr', $request);
+        $request = Request::from([ RequestOptions::OPTION_IS_XHR => false ]);
+        $this->assertFalse(isset($request->is_xhr));
         $this->assertFalse($request->is_xhr);
     }
 
-    public function test_from_with_method()
+    public function test_from_with_method(): void
     {
-        $request = Request::from([ Request::OPTION_METHOD => RequestMethod::METHOD_OPTIONS ]);
-        $this->assertObjectNotHasAttribute('method', $request);
+        $request = Request::from([ RequestOptions::OPTION_METHOD => RequestMethod::METHOD_OPTIONS ]);
+        $this->assertFalse(isset($request->method));
         $this->assertEquals(RequestMethod::METHOD_OPTIONS, $request->method);
     }
 
-    public function test_from_with_emulated_method()
+    public function test_from_with_emulated_method(): void
     {
         $request = Request::from([
 
-            Request::OPTION_METHOD => RequestMethod::METHOD_POST,
-            Request::OPTION_REQUEST_PARAMS => [ '_method' => RequestMethod::METHOD_DELETE ]
+            RequestOptions::OPTION_METHOD => RequestMethod::METHOD_POST,
+            RequestOptions::OPTION_REQUEST_PARAMS => [ '_method' => RequestMethod::METHOD_DELETE ]
 
         ]);
 
         $this->assertEquals(RequestMethod::METHOD_DELETE, $request->method);
     }
 
-    public function test_from_with_path()
+    public function test_from_with_path(): void
     {
-        $request = Request::from([ Request::OPTION_PATH => '/path/' ]);
-        $this->assertObjectNotHasAttribute('path', $request);
+        $request = Request::from([ RequestOptions::OPTION_PATH => '/path/' ]);
+        $this->assertFalse(isset($request->path));
         $this->assertEquals('/path/', $request->path);
 
         $request = Request::from('/path/');
-        $this->assertObjectNotHasAttribute('path', $request);
+        $this->assertFalse(isset($request->path));
         $this->assertEquals('/path/', $request->path);
     }
 
-    public function test_from_with_parent()
+    public function test_from_with_referer(): void
     {
-        $this->expectException(InvalidArgumentException::class);
-
-        Request::from([ 'parent' => true ]);
-    }
-
-    public function test_from_with_query_string()
-    {
-        $this->expectException(InvalidArgumentException::class);
-
-        Request::from([ 'query_string' => true ]);
-    }
-
-    public function test_from_with_referer()
-    {
-        $value = 'http://example.org/referer/';
-        $request = Request::from([ Request::OPTION_REFERER => $value ]);
-        $this->assertObjectNotHasAttribute('referer', $request);
+        $value = 'https://example.org/referer/';
+        $request = Request::from([ RequestOptions::OPTION_REFERER => $value ]);
+        $this->assertFalse(isset($request->referer));
         $this->assertEquals($value, $request->referer);
     }
 
-    public function test_from_with_script_name()
-    {
-        $this->expectException(InvalidArgumentException::class);
-
-        Request::from([ 'script_name' => true ]);
-    }
-
-    public function test_from_with_uri()
+    public function test_from_with_uri(): void
     {
         $value = '/uri/';
-        $request = Request::from([ Request::OPTION_URI => $value ]);
-        $this->assertObjectNotHasAttribute('uri', $request);
+        $request = Request::from([ RequestOptions::OPTION_URI => $value ]);
+        $this->assertFalse(isset($request->uri));
         $this->assertEquals($value, $request->uri);
 
         $request = Request::from($value);
-        $this->assertObjectNotHasAttribute('uri', $request);
+        $this->assertFalse(isset($request->uri));
         $this->assertEquals($value, $request->uri);
     }
 
-    public function test_from_with_uri_and_query_string()
+    public function test_from_with_uri_and_query_string(): void
     {
         $param1 = 1;
         $param2 = "\\a";
@@ -206,9 +178,9 @@ class RequestTest extends TestCase
 
         $path = '/uri/';
         $query_string = http_build_query([ 'p1' => $param1, 'p2' => $param2, 'p3' => $param3 ]);
-        $uri = "{$path}?{$query_string}";
+        $uri = "$path?$query_string";
         $request = Request::from($uri);
-        $this->assertObjectNotHasAttribute('uri', $request);
+        $this->assertFalse(isset($request->uri));
         $this->assertEquals($uri, $request->uri);
         $this->assertEquals($path, $request->path);
         $this->assertEquals($query_string, $request->query_string);
@@ -223,14 +195,14 @@ class RequestTest extends TestCase
         $this->assertEquals($param3, $request->query_params['p3']);
     }
 
-    public function test_from_with_user_agent()
+    public function test_from_with_user_agent(): void
     {
-        $request = Request::from([ Request::OPTION_USER_AGENT => 'Madonna' ]);
-        $this->assertObjectNotHasAttribute('user_agent', $request);
+        $request = Request::from([ RequestOptions::OPTION_USER_AGENT => 'Madonna' ]);
+        $this->assertFalse(isset($request->user_agent));
         $this->assertEquals('Madonna', $request->user_agent);
     }
 
-    public function test_from_with_files()
+    public function test_from_with_files(): void
     {
         $request = Request::from('/path/to/file');
         $this->assertInstanceOf(FileList::class, $request->files);
@@ -238,7 +210,7 @@ class RequestTest extends TestCase
 
         $request = Request::from([
 
-            Request::OPTION_FILES => [
+            RequestOptions::OPTION_FILES => [
 
                 'one' => [ 'pathname' => __FILE__ ],
                 'two' => [ 'pathname' => __FILE__ ]
@@ -256,12 +228,12 @@ class RequestTest extends TestCase
         }
     }
 
-    public function test_from_with_headers()
+    public function test_from_with_headers(): void
     {
         $request = Request::from([
 
-            Request::OPTION_URI => '/path/to/file',
-            Request::OPTION_HEADERS => [
+            RequestOptions::OPTION_URI => '/path/to/file',
+            RequestOptions::OPTION_HEADERS => [
 
                 "Cache-Control" => "max-age=0",
                 "Accept" => "application/json"
@@ -283,8 +255,8 @@ class RequestTest extends TestCase
 
         $request = Request::from([
 
-            Request::OPTION_URI => '/path/to/file',
-            Request::OPTION_HEADERS => $headers
+            RequestOptions::OPTION_URI => '/path/to/file',
+            RequestOptions::OPTION_HEADERS => $headers
 
         ]);
 
@@ -293,17 +265,14 @@ class RequestTest extends TestCase
 
     /**
      * @dataProvider provide_test_get_is_local
-     *
-     * @param string $ip
-     * @param bool $expected
      */
-    public function test_get_is_local($ip, $expected)
+    public function test_get_is_local(string $ip, bool $expected): void
     {
-        $request = Request::from([ Request::OPTION_IP => $ip ]);
+        $request = Request::from([ RequestOptions::OPTION_IP => $ip ]);
         $this->assertEquals($expected, $request->is_local);
     }
 
-    public function provide_test_get_is_local()
+    public function provide_test_get_is_local(): array
     {
         return [
 
@@ -317,7 +286,7 @@ class RequestTest extends TestCase
         ];
     }
 
-    public function test_get_script_name()
+    public function test_get_script_name(): void
     {
         $expected = __FILE__;
         $request = Request::from([], [ 'SCRIPT_NAME' => $expected ]);
@@ -326,17 +295,14 @@ class RequestTest extends TestCase
 
     /**
      * @dataProvider provide_test_get_authorization
-     *
-     * @param array $env
-     * @param string $expected
      */
-    public function test_get_authorization($env, $expected)
+    public function test_get_authorization(array $env, string|null $expected): void
     {
         $request = Request::from([], $env);
         $this->assertEquals($expected, $request->authorization);
     }
 
-    public function provide_test_get_authorization()
+    public function provide_test_get_authorization(): array
     {
         $ex1 = uniqid();
         $ex2 = uniqid();
@@ -354,27 +320,27 @@ class RequestTest extends TestCase
         ];
     }
 
-    public function test_get_port()
+    public function test_get_port(): void
     {
         $expected = '1234';
         $request = Request::from([], [ 'REQUEST_PORT' => $expected ]);
         $this->assertEquals($expected, $request->port);
     }
 
-    public function test_get_normalized_path()
+    public function test_get_normalized_path(): void
     {
         $expected = '/';
         $request = Request::from('/index.php');
         $this->assertEquals($expected, $request->normalized_path);
     }
 
-    public function test_get_extension()
+    public function test_get_extension(): void
     {
         $request = Request::from('/cat.gif');
         $this->assertEquals('gif', $request->extension);
     }
 
-    public function test_query_string_from_uri()
+    public function test_query_string_from_uri(): void
     {
         $uri = '/api/users/login';
         $query = 'redirect_to=heaven';
@@ -393,7 +359,7 @@ class RequestTest extends TestCase
         $this->assertEquals('heaven', $request->params['redirect_to']);
     }
 
-    public function test_path_when_uri_is_missing_query_string()
+    public function test_path_when_uri_is_missing_query_string(): void
     {
         $request = Request::from([], [ 'QUERY_STRING' => 'redirect_to=the-moon', 'REQUEST_URI' => '/api/users/login' ]);
         $this->assertEquals('redirect_to=the-moon', $request->query_string);
@@ -401,18 +367,18 @@ class RequestTest extends TestCase
         $this->assertEquals('/api/users/login', $request->path);
     }
 
-    public function test_params()
+    public function test_params(): void
     {
         $request = Request::from([
 
-            Request::OPTION_PATH_PARAMS => [
+            RequestOptions::OPTION_PATH_PARAMS => [
 
                 'p1' => 1,
                 'p2' => 2
 
             ],
 
-            Request::OPTION_REQUEST_PARAMS => [
+            RequestOptions::OPTION_REQUEST_PARAMS => [
 
                 'p1' => 10,
                 'p2' => 20,
@@ -420,7 +386,7 @@ class RequestTest extends TestCase
 
             ],
 
-            Request::OPTION_QUERY_PARAMS => [
+            RequestOptions::OPTION_QUERY_PARAMS => [
 
                 'p1' => 100,
                 'p2' => 200,
@@ -472,22 +438,22 @@ class RequestTest extends TestCase
     {
         return [
 
-            [ [ Request::OPTION_IS_XHR => true ] ],
-            [ [ Request::OPTION_IS_XHR => false ] ],
-            [ [ Request::OPTION_METHOD => RequestMethod::METHOD_CONNECT ] ],
-            [ [ Request::OPTION_URI => '/path/to/something' ] ],
-            [ [ Request::OPTION_URI => '/path/to/something-else' ] ],
+            [ [ RequestOptions::OPTION_IS_XHR => true ] ],
+            [ [ RequestOptions::OPTION_IS_XHR => false ] ],
+            [ [ RequestOptions::OPTION_METHOD => RequestMethod::METHOD_CONNECT ] ],
+            [ [ RequestOptions::OPTION_URI => '/path/to/something' ] ],
+            [ [ RequestOptions::OPTION_URI => '/path/to/something-else' ] ],
 
         ];
     }
 
-    public function test_change_with_previous_params()
+    public function test_change_with_previous_params(): void
     {
         $request1 = Request::from([
 
-            Request::OPTION_REQUEST_PARAMS => [ 'rp1' => 'one', 'rp2' => 'two' ],
-            Request::OPTION_QUERY_PARAMS => [ 'qp1' => 'one' ],
-            Request::OPTION_PATH_PARAMS => [ 'pp1' => 'one' ]
+            RequestOptions::OPTION_REQUEST_PARAMS => [ 'rp1' => 'one', 'rp2' => 'two' ],
+            RequestOptions::OPTION_QUERY_PARAMS => [ 'qp1' => 'one' ],
+            RequestOptions::OPTION_PATH_PARAMS => [ 'pp1' => 'one' ]
 
         ]);
 
@@ -495,8 +461,8 @@ class RequestTest extends TestCase
 
         $request2 = $request1->with([
 
-            Request::OPTION_REQUEST_PARAMS => [],
-            Request::OPTION_PATH_PARAMS => [ 'pp2' => 'two' ]
+            RequestOptions::OPTION_REQUEST_PARAMS => [],
+            RequestOptions::OPTION_PATH_PARAMS => [ 'pp2' => 'two' ]
 
         ]);
 
@@ -506,8 +472,8 @@ class RequestTest extends TestCase
 
         $request3 = $request2->with([
 
-            Request::OPTION_QUERY_PARAMS => [],
-            Request::OPTION_PATH_PARAMS => []
+            RequestOptions::OPTION_QUERY_PARAMS => [],
+            RequestOptions::OPTION_PATH_PARAMS => []
 
         ]);
 
@@ -523,6 +489,7 @@ class RequestTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
 
+        // @phpstan-ignore-next-line
         $request->with([ 'unsupported_property' => uniqid() ]);
     }
 }

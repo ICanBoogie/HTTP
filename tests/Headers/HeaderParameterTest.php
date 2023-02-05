@@ -14,9 +14,9 @@ namespace Test\ICanBoogie\HTTP\Headers;
 use ICanBoogie\HTTP\Headers\HeaderParameter;
 use PHPUnit\Framework\TestCase;
 
-class HeaderParameterTest extends TestCase
+final class HeaderParameterTest extends TestCase
 {
-    public function test_is_token()
+    public function test_is_token(): void
     {
         $this->assertTrue(HeaderParameter::is_token("token"));
         $this->assertFalse(HeaderParameter::is_token("token!?"));
@@ -28,12 +28,13 @@ class HeaderParameterTest extends TestCase
         $this->assertFalse(HeaderParameter::is_token("token\x7f"));
         $this->assertFalse(HeaderParameter::is_token("tökèn"));
         $this->assertFalse(HeaderParameter::is_token(mb_convert_encoding("tökèn", 'ISO-8859-1')));
+        $this->assertFalse(HeaderParameter::is_token(mb_convert_encoding("tökèn", 'UNICODE')));
     }
 
     /**
      * @depends test_is_token
      */
-    public function test_render_with_token()
+    public function test_render_with_token(): void
     {
         $value = 'token';
         $parameter = new HeaderParameter('title', $value);
@@ -44,7 +45,7 @@ class HeaderParameterTest extends TestCase
     /**
      * @depends test_is_token
      */
-    public function test_render_with_quoted_string()
+    public function test_render_with_quoted_string(): void
     {
         $value = 'quoted string';
         $parameter = new HeaderParameter('title', $value);
@@ -55,7 +56,7 @@ class HeaderParameterTest extends TestCase
     /**
      * @depends test_is_token
      */
-    public function test_render_with_quoted_string_with_double_quote()
+    public function test_render_with_quoted_string_with_double_quote(): void
     {
         $value = 'quoted"string';
         $parameter = new HeaderParameter('title', $value);
@@ -66,7 +67,7 @@ class HeaderParameterTest extends TestCase
     /**
      * @depends test_is_token
      */
-    public function test_render_with_utf_string()
+    public function test_render_with_utf_string(): void
     {
         $value = "L'été est là";
         $parameter = new HeaderParameter('title', $value);
@@ -77,7 +78,7 @@ class HeaderParameterTest extends TestCase
     /**
      * @depends test_is_token
      */
-    public function test_from()
+    public function test_from(): void
     {
         $str = 'title=Economy';
         $parameter = HeaderParameter::from($str);

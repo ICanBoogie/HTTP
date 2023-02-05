@@ -23,7 +23,6 @@ use function str_replace;
 use function strpos;
 use function substr;
 use function urldecode;
-use function utf8_encode;
 
 /**
  * Representation of a header parameter.
@@ -76,10 +75,7 @@ class HeaderParameter
             }
 
             $value = urldecode($matches[5]);
-
-            if ($matches[1] === 'iso-8859-1') {
-                $value = utf8_encode($value);
-            }
+            $value = mb_convert_encoding($value, 'UTF-8', $matches[1]);
         } else {
             $attribute = substr($source, 0, $equal_pos);
             $value = substr($source, $equal_pos + 1);
@@ -119,10 +115,10 @@ class HeaderParameter
     }
 
     /**
-     * Converts a string to the ASCI charset.
+     * Converts a string to the ASCII charset.
      *
-     * Accents are converted using {@link \ICanBoogie\remove_accents()}. Characters that are not
-     * in the ASCII range are discarted.
+     * Accents are converted using {@link remove_accents()}. Characters that are not
+     * in the ASCII range are discarded.
      *
      * @param string $str The string to convert.
      */
@@ -206,10 +202,8 @@ class HeaderParameter
      * Returns the value of the parameter.
      *
      * Note: {@link render()} to render the attribute and value of the parameter.
-     *
-     * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string) $this->value;
     }

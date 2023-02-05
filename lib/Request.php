@@ -161,7 +161,7 @@ final class Request implements RequestOptions
         return $this->files = FileList::from($this->files); // @phpstan-ignore-line
     }
 
-    public $cookie; // @phpstan-ignore-line
+    public $cookie;
 
     /**
      * A request may be created from the `$_SERVER` super global array. In that case `$_SERVER` is
@@ -278,7 +278,7 @@ final class Request implements RequestOptions
         $this->assert_method($this->method);
 
         $this->headers ??= new Headers($env);
-        $this->params = $this->path_params + $this->request_params + $this->query_params; // @phpstan-ignore-line
+        $this->params = $this->path_params + $this->request_params + $this->query_params;
     }
 
     /**
