@@ -12,9 +12,14 @@
 namespace ICanBoogie\HTTP;
 
 use ICanBoogie\Accessor\AccessorTrait;
+use ICanBoogie\HTTP\Headers\ContentType;
 use InvalidArgumentException;
 
+use function file_get_contents;
 use function ICanBoogie\normalize_url_path;
+use function json_decode;
+
+use const JSON_THROW_ON_ERROR;
 
 /**
  * An HTTP request.
@@ -212,12 +217,23 @@ final class Request implements RequestOptions
      */
     private static function from_server(): self
     {
+        $content_type = isset($_SERVER['HTTP_CONTENT_TYPE'])
+            ? new ContentType($_SERVER['HTTP_CONTENT_TYPE'])
+            : null;
+
+        if ($content_type?->type === 'application/json') {
+            $json = file_get_contents('php://input');
+            $request_params = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
+        } else {
+            $request_params = &$_POST;
+        }
+
         return self::from([
 
             self::OPTION_COOKIE => &$_COOKIE,
             self::OPTION_PATH_PARAMS => [],
             self::OPTION_QUERY_PARAMS => &$_GET,
-            self::OPTION_REQUEST_PARAMS => &$_POST,
+            self::OPTION_REQUEST_PARAMS => $request_params,
             self::OPTION_FILES => &$_FILES // @codeCoverageIgnore
 
         ], $_SERVER);
