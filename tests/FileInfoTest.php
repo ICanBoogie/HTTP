@@ -11,20 +11,21 @@
 
 namespace ICanBoogie\HTTP;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 class FileInfoTest extends \PHPUnit\Framework\TestCase
 {
     /**
-     * @dataProvider provide_test_resolve_type
-     *
      * @param $pathname
      * @param $expected
      */
+    #[DataProvider('provide_test_resolve_type')]
     public function test_resolve_type($pathname, $expected)
     {
         $this->assertEquals($expected, FileInfo::resolve_type($pathname));
     }
 
-    public function provide_test_resolve_type()
+    public static function provide_test_resolve_type()
     {
         $bytes = create_file();
 

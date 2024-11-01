@@ -15,6 +15,7 @@ use ICanBoogie\HTTP\ResponseStatus;
 use ICanBoogie\HTTP\Status;
 use ICanBoogie\HTTP\StatusCodeNotValid;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class StatusTest extends TestCase
@@ -32,16 +33,14 @@ final class StatusTest extends TestCase
         $this->assertEquals("301 Moved Permanently", (string) $status);
     }
 
-    /**
-     * @dataProvider provide_test_from
-     */
+    #[DataProvider('provide_test_from')]
     public function test_from(mixed $source, string $expected): void
     {
         $status = Status::from($source);
         $this->assertEquals($expected, (string) $status);
     }
 
-    public function provide_test_from(): array
+    public static function provide_test_from(): array
     {
         return [
 
@@ -191,16 +190,14 @@ final class StatusTest extends TestCase
         $this->assertTrue($status->is_empty);
     }
 
-    /**
-     * @dataProvider provide_test_is_cacheable
-     */
+    #[DataProvider('provide_test_is_cacheable')]
     public function test_is_cacheable(int $code, bool $expected): void
     {
         $status = new Status($code);
         $this->assertEquals($expected, $status->is_cacheable);
     }
 
-    public function provide_test_is_cacheable(): array
+    public static function provide_test_is_cacheable(): array
     {
         return [
 

@@ -12,6 +12,7 @@
 namespace Test\ICanBoogie\HTTP\Headers;
 
 use ICanBoogie\HTTP\Headers\HeaderParameter;
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 
 final class HeaderParameterTest extends TestCase
@@ -31,9 +32,7 @@ final class HeaderParameterTest extends TestCase
         $this->assertFalse(HeaderParameter::is_token(mb_convert_encoding("tökèn", 'UNICODE')));
     }
 
-    /**
-     * @depends test_is_token
-     */
+    #[Depends('test_is_token')]
     public function test_render_with_token(): void
     {
         $value = 'token';
@@ -42,9 +41,7 @@ final class HeaderParameterTest extends TestCase
         $this->assertEquals('title=token', $parameter->render());
     }
 
-    /**
-     * @depends test_is_token
-     */
+    #[Depends('test_is_token')]
     public function test_render_with_quoted_string(): void
     {
         $value = 'quoted string';
@@ -53,9 +50,7 @@ final class HeaderParameterTest extends TestCase
         $this->assertEquals('title="quoted string"', $parameter->render());
     }
 
-    /**
-     * @depends test_is_token
-     */
+    #[Depends('test_is_token')]
     public function test_render_with_quoted_string_with_double_quote(): void
     {
         $value = 'quoted"string';
@@ -64,9 +59,7 @@ final class HeaderParameterTest extends TestCase
         $this->assertEquals('title="quotedstring"; title*=ASCII\'\'quoted%22string', $parameter->render());
     }
 
-    /**
-     * @depends test_is_token
-     */
+    #[Depends('test_is_token')]
     public function test_render_with_utf_string(): void
     {
         $value = "L'été est là";
@@ -75,9 +68,7 @@ final class HeaderParameterTest extends TestCase
         $this->assertEquals("title=\"L'ete est la\"; title*=UTF-8''L%27%C3%A9t%C3%A9%20est%20l%C3%A0", $parameter->render());
     }
 
-    /**
-     * @depends test_is_token
-     */
+    #[Depends('test_is_token')]
     public function test_from(): void
     {
         $str = 'title=Economy';

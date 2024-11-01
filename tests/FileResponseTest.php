@@ -13,11 +13,11 @@ namespace ICanBoogie\HTTP;
 
 use ICanBoogie\DateTime;
 use LogicException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Rule\InvokedCount;
 use PHPUnit\Framework\TestCase;
 
 use function filemtime;
-use function var_dump;
 
 final class FileResponseTest extends TestCase
 {
@@ -37,11 +37,12 @@ final class FileResponseTest extends TestCase
         new FileResponse(uniqid(), Request::from());
     }
 
-    /**
-     * @dataProvider provide_test_closure_body
-     */
-    public function test_closure_body(int $status, InvokedCount $expected)
+    #[DataProvider('provide_test_closure_body')]
+    public function test_closure_body(int $status, \Closure $expected_provider)
     {
+        /** @var InvokedCount $expected */
+        $expected = $expected_provider($this);
+
         $response = $this
             ->getMockBuilder(FileResponse::class)
             ->setConstructorArgs([ __FILE__, Request::from()])
@@ -55,13 +56,13 @@ final class FileResponseTest extends TestCase
         $response();
     }
 
-    public function provide_test_closure_body(): array
+    public static function provide_test_closure_body(): array
     {
         return [
 
-            [ ResponseStatus::STATUS_OK, $this->once() ],
-            [ ResponseStatus::STATUS_NOT_MODIFIED, $this->never() ],
-            [ ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE, $this->never() ]
+            [ ResponseStatus::STATUS_OK, fn(self $t) => $t->once() ],
+            [ ResponseStatus::STATUS_NOT_MODIFIED, fn(self $t) => $t->never() ],
+            [ ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE, fn(self $t) => $t->never() ]
 
         ];
     }
@@ -74,9 +75,7 @@ final class FileResponseTest extends TestCase
         $this->assertEquals(__FILE__, $response->file->getPathname());
     }
 
-    /**
-     * @dataProvider provide_test_invoke
-     */
+    #[DataProvider('provide_test_invoke')]
     public function test_invoke(string $cache_control, bool $is_modified, int $expected): void
     {
         $request = Request::from([ Request::OPTION_HEADERS => [ 'Cache-Control' => $cache_control ] ]);
@@ -85,7 +84,7 @@ final class FileResponseTest extends TestCase
             ->getMockBuilder(FileResponse::class)
             ->setConstructorArgs([ create_file(), $request ])
             ->onlyMethods([ 'get_is_modified', 'send_headers', 'send_body' ])
-            ->getMockForAbstractClass();
+            ->getMock();
         $response
             ->expects($this->any())
             ->method('get_is_modified')
@@ -102,9 +101,7 @@ final class FileResponseTest extends TestCase
         $this->assertEquals($expected, $response->status->code);
     }
 
-    /**
-     * @dataProvider provide_test_invoke_with_range
-     */
+    #[DataProvider('provide_test_invoke_with_range')]
     public function test_invoke_with_range(string $cache_control, bool $is_modified, bool $is_satisfiable, bool $is_total, int $expected)
     {
         $headers = new Headers();
@@ -138,7 +135,7 @@ final class FileResponseTest extends TestCase
         $this->assertEquals($expected, $response->status->code);
     }
 
-    public function provide_test_invoke_with_range(): array
+    public static function provide_test_invoke_with_range(): array
     {
         return [
 
@@ -151,7 +148,7 @@ final class FileResponseTest extends TestCase
         ];
     }
 
-    public function provide_test_invoke(): array
+    public static function provide_test_invoke(): array
     {
         return [
 
@@ -169,7 +166,7 @@ final class FileResponseTest extends TestCase
             ->getMockBuilder(FileResponse::class)
             ->setConstructorArgs([ create_file(), Request::from() ])
             ->onlyMethods([ 'send_headers', 'send_file' ])
-            ->getMockForAbstractClass();
+            ->getMock();
         $response
             ->expects($this->once())
             ->method('send_headers');
@@ -182,16 +179,14 @@ final class FileResponseTest extends TestCase
         $response();
     }
 
-    /**
-     * @dataProvider provide_test_get_content_type
-     */
+    #[DataProvider('provide_test_get_content_type')]
     public function test_get_content_type(string $expected, string $file, array $options = [], array $headers = [])
     {
         $response = new FileResponse($file, Request::from(), $options, $headers);
         $this->assertEquals($expected, (string) $response->headers->content_type);
     }
 
-    public function provide_test_get_content_type(): array
+    public static function provide_test_get_content_type(): array
     {
         return [
 
@@ -205,16 +200,14 @@ final class FileResponseTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provide_test_get_etag
-     */
+    #[DataProvider('provide_test_get_etag')]
     public function test_get_etag(string $expected, string $file, array $options = [], array $headers = []): void
     {
         $response = new FileResponse($file, Request::from(), $options, $headers);
         $this->assertEquals($expected, $response->headers->etag);
     }
 
-    public function provide_test_get_etag(): array
+    public static function provide_test_get_etag(): array
     {
         $file = create_file();
         $file_hash = FileResponse::hash_file($file);
@@ -229,16 +222,14 @@ final class FileResponseTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provide_test_get_expires
-     */
+    #[DataProvider('provide_test_get_expires')]
     public function test_get_expires(DateTime $expected, string $file, array $options = [], array $headers = []): void
     {
         $response = new FileResponse($file, Request::from(), $options, $headers);
         $this->assertGreaterThanOrEqual($expected->utc->format('YmdHi'), $response->expires->utc->format('YmdHi'));
     }
 
-    public function provide_test_get_expires(): array
+    public static function provide_test_get_expires(): array
     {
         $file = create_file();
         $expires_default = DateTime::from(FileResponse::DEFAULT_EXPIRES);
@@ -263,9 +254,7 @@ final class FileResponseTest extends TestCase
         $this->assertEquals(filemtime($file), $response->modified_time);
     }
 
-    /**
-     * @dataProvider provide_test_get_is_modified
-     */
+    #[DataProvider('provide_test_get_is_modified')]
     public function test_get_is_modified(
         bool $expected,
         array $request_headers,
@@ -284,7 +273,7 @@ final class FileResponseTest extends TestCase
         $this->assertSame($expected, $response->is_modified);
     }
 
-    public function provide_test_get_is_modified(): array
+    public static function provide_test_get_is_modified(): array
     {
         $modified_since = DateTime::from('-2 month');
         $modified_time_older = DateTime::from('-6 month')->timestamp;
@@ -304,9 +293,7 @@ final class FileResponseTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provide_test_filename
-     */
+    #[DataProvider('provide_test_filename')]
     public function test_filename(string $file, string|bool $filename, string $expected): void
     {
         $response = new FileResponse($file, Request::from(), [ FileResponse::OPTION_FILENAME => $filename ]);
@@ -317,7 +304,7 @@ final class FileResponseTest extends TestCase
         $this->assertEquals($expected, $response->headers->content_disposition->filename);
     }
 
-    public function provide_test_filename()
+    public static function provide_test_filename()
     {
         $file = create_file();
         $filename = "Filename" . uniqid() . ".png";
@@ -330,13 +317,8 @@ final class FileResponseTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provide_test_accept_ranges
-     *
-     * @param string $method
-     * @param string $type
-     */
-    public function test_accept_ranges($method, $type)
+    #[DataProvider('provide_test_accept_ranges')]
+    public function test_accept_ranges(RequestMethod $method, string $type)
     {
         $request = Request::from([ Request::OPTION_URI => '/', 'method' => $method ]);
 
@@ -351,7 +333,7 @@ final class FileResponseTest extends TestCase
         $this->assertStringContainsString("Accept-Ranges: $type", (string) $response);
     }
 
-    public function provide_test_accept_ranges()
+    public static function provide_test_accept_ranges()
     {
         return [
 
@@ -363,14 +345,8 @@ final class FileResponseTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provide_test_range_response
-     *
-     * @param string $bytes
-     * @param string $pathname
-     * @param string $expected
-     */
-    public function test_range_response($bytes, $pathname, $expected)
+    #[DataProvider('provide_test_range_response')]
+    public function test_range_response(string $bytes, string $pathname, string $expected)
     {
         $etag = sha1_file($pathname);
 
@@ -402,7 +378,7 @@ final class FileResponseTest extends TestCase
         $this->assertSame($expected, $content);
     }
 
-    public function provide_test_range_response()
+    public static function provide_test_range_response()
     {
         $pathname = create_file();
         $data = file_get_contents($pathname);

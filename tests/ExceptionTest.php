@@ -17,14 +17,13 @@ use ICanBoogie\HTTP\MethodNotAllowed;
 use ICanBoogie\HTTP\NotFound;
 use ICanBoogie\HTTP\ServiceUnavailable;
 use ICanBoogie\HTTP\StatusCodeNotValid;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
 class ExceptionTest extends TestCase
 {
-    /**
-     * @dataProvider provide_test_implements
-     */
+    #[DataProvider('provide_test_implements')]
     public function test_implements($class, $args)
     {
         $reflection = new ReflectionClass($class);
@@ -33,7 +32,7 @@ class ExceptionTest extends TestCase
         $this->assertInstanceOf(Exception::class, $exception);
     }
 
-    public function provide_test_implements(): array
+    public static function provide_test_implements(): array
     {
         return [
 

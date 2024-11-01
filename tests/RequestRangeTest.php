@@ -11,21 +11,17 @@
 
 namespace ICanBoogie\HTTP;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 class RequestRangeTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @dataProvider provide_invalid_range
-     *
-     * @param $headers
-     * @param $total
-     * @param $etag
-     */
+    #[DataProvider('provide_invalid_range')]
     public function test_should_return_null_when_undefined_or_modified($headers, $total, $etag)
     {
         $this->assertNull(RequestRange::from(new Headers($headers), $total, $etag));
     }
 
-    public function provide_invalid_range()
+    public static function provide_invalid_range()
     {
         $etag = uniqid();
 
@@ -40,12 +36,8 @@ class RequestRangeTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider provide_unsatisfiable
-     *
-     * @param string $range
-     */
-    public function test_should_be_unsatisfiable($range)
+    #[DataProvider('provide_unsatisfiable')]
+    public function test_should_be_unsatisfiable(string $range)
     {
         $etag = uniqid();
         $headers = new Headers([ 'Range' => $range, 'If-Range' => $etag ]);
@@ -53,7 +45,7 @@ class RequestRangeTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse(RequestRange::from($headers, 10000, $etag)->is_satisfiable);
     }
 
-    public function provide_unsatisfiable()
+    public static function provide_unsatisfiable()
     {
         return [
 
@@ -64,13 +56,8 @@ class RequestRangeTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider provide_valid_range
-     *
-     * @param string $range
-     * @param string $expected
-     */
-    public function test_should_return_range($range, $expected)
+    #[DataProvider('provide_valid_range')]
+    public function test_should_return_range(string $range, string $expected)
     {
         $etag = uniqid();
         $headers = new Headers([ 'Range' => $range, 'If-Range' => $etag ]);
@@ -80,7 +67,7 @@ class RequestRangeTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expected, (string) $range);
     }
 
-    public function provide_valid_range()
+    public static function provide_valid_range()
     {
         return [
 
@@ -92,12 +79,7 @@ class RequestRangeTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider provide_test_is_total
-     *
-     * @param $range
-     * @param $expected
-     */
+    #[DataProvider('provide_test_is_total')]
     public function test_is_total($range, $expected)
     {
         $etag = uniqid();
@@ -106,7 +88,7 @@ class RequestRangeTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expected, RequestRange::from($headers, 10000, $etag)->is_total);
     }
 
-    public function provide_test_is_total()
+    public static function provide_test_is_total()
     {
         return [
 
@@ -119,12 +101,7 @@ class RequestRangeTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider provide_test_length
-     *
-     * @param $range
-     * @param $expected
-     */
+    #[DataProvider('provide_test_length')]
     public function test_length($range, $expected)
     {
         $etag = uniqid();
@@ -133,7 +110,7 @@ class RequestRangeTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expected, RequestRange::from($headers, 10000, $etag)->length);
     }
 
-    public function provide_test_length()
+    public static function provide_test_length()
     {
         return [
 
@@ -146,12 +123,7 @@ class RequestRangeTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider provide_test_max_length
-     *
-     * @param $range
-     * @param $expected
-     */
+    #[DataProvider('provide_test_max_length')]
     public function test_max_length($range, $expected)
     {
         $etag = uniqid();
@@ -160,7 +132,7 @@ class RequestRangeTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expected, RequestRange::from($headers, 10000, $etag)->max_length);
     }
 
-    public function provide_test_max_length()
+    public static function provide_test_max_length()
     {
         return [
 
@@ -174,12 +146,7 @@ class RequestRangeTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider provide_test_offset
-     *
-     * @param $range
-     * @param $expected
-     */
+    #[DataProvider('provide_test_offset')]
     public function test_offset($range, $expected)
     {
         $etag = uniqid();
@@ -188,7 +155,7 @@ class RequestRangeTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expected, RequestRange::from($headers, 10000, $etag)->offset);
     }
 
-    public function provide_test_offset()
+    public static function provide_test_offset()
     {
         return [
 

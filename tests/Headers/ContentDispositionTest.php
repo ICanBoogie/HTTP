@@ -13,13 +13,12 @@ namespace Test\ICanBoogie\HTTP\Headers;
 
 use ICanBoogie\HTTP\Headers\ContentDisposition;
 use ICanBoogie\HTTP\Headers\HeaderParameter;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ContentDispositionTest extends TestCase
 {
-    /**
-     * @dataProvider provider_from
-     */
+    #[DataProvider('provide_from')]
     public function test_from($source, $values)
     {
         $h = ContentDisposition::from($source);
@@ -34,7 +33,7 @@ class ContentDispositionTest extends TestCase
         $this->assertEquals($source, (string) $h);
     }
 
-    public function provider_from(): array
+    public static function provide_from(): array
     {
         return [
 

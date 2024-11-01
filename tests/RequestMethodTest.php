@@ -12,19 +12,18 @@
 namespace Test\ICanBoogie\HTTP;
 
 use ICanBoogie\HTTP\RequestMethod;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class RequestMethodTest extends TestCase
 {
-    /**
-     * @dataProvider provide_is
-     */
+    #[DataProvider('provide_is')]
     public function test_is(RequestMethod $method, string $is, bool $expected): void
     {
         $this->assertSame($expected, $method->{'is_' . $is}());
     }
 
-    public function provide_is(): array
+    public static function provide_is(): array
     {
         return [
 

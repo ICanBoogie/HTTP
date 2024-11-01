@@ -13,6 +13,7 @@ namespace ICanBoogie\HTTP;
 
 use ICanBoogie\FormattedString;
 use ICanBoogie\PropertyNotWritable;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 use function uniqid;
@@ -21,9 +22,7 @@ use const UPLOAD_ERR_CANT_WRITE;
 
 class FileTest extends TestCase
 {
-    /**
-     * @dataProvider provide_test_get_extension
-     */
+    #[DataProvider('provide_test_get_extension')]
     public function test_get_extension($expected, $pathname)
     {
         $file = File::from([ File::OPTION_PATHNAME => $pathname ]);
@@ -31,7 +30,7 @@ class FileTest extends TestCase
         $this->assertEquals($expected, $file->extension);
     }
 
-    public function provide_test_get_extension()
+    public static function provide_test_get_extension(): array
     {
         return [
 
@@ -45,9 +44,7 @@ class FileTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provide_test_match
-     */
+    #[DataProvider('provide_test_match')]
     public function test_match($expected, $against)
     {
         $file = File::from([ File::OPTION_PATHNAME => '/path/to/example.zip' ]);
@@ -55,7 +52,7 @@ class FileTest extends TestCase
         $this->assertEquals($expected, $file->match($against));
     }
 
-    public function provide_test_match()
+    public static function provide_test_match()
     {
         return [
 
@@ -80,9 +77,7 @@ class FileTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provide_test_error_message
-     */
+    #[DataProvider('provide_test_error_message')]
     public function test_error_message($error, $expected)
     {
         $file = File::from([ File::OPTION_ERROR => $error ]);
@@ -99,7 +94,7 @@ class FileTest extends TestCase
         }
     }
 
-    public function provide_test_error_message()
+    public static function provide_test_error_message()
     {
         return [
 
@@ -116,15 +111,13 @@ class FileTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provide_test_to_array
-     */
+    #[DataProvider('provide_test_to_array')]
     public function test_to_array($properties, $expected)
     {
         $this->assertSame($expected, File::from($properties)->to_array());
     }
 
-    public function provide_test_to_array()
+    public static function provide_test_to_array()
     {
         return [
 
@@ -201,9 +194,7 @@ class FileTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provide_readonly_properties
-     */
+    #[DataProvider('provide_readonly_properties')]
     public function test_write_readonly_properties(string $property)
     {
         $file = File::from([ File::OPTION_PATHNAME => __FILE__ ]);
@@ -213,9 +204,7 @@ class FileTest extends TestCase
         $file->$property = null;
     }
 
-    /**
-     * @dataProvider provide_readonly_properties
-     */
+    #[DataProvider('provide_readonly_properties')]
     public function test_read_readonly_properties(string $property)
     {
         $file = File::from([
@@ -226,7 +215,7 @@ class FileTest extends TestCase
         $this->assertNotNull($file->$property);
     }
 
-    public function provide_readonly_properties()
+    public static function provide_readonly_properties()
     {
         $properties = 'error error_message extension is_uploaded is_valid name pathname size type'
         . ' unsuffixed_name';

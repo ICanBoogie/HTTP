@@ -13,17 +13,13 @@ namespace Test\ICanBoogie\HTTP\Headers;
 
 use ICanBoogie\HTTP\Headers\CacheControl;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class CacheControlTest extends TestCase
 {
-    /**
-     * @dataProvider provide_properties
-     *
-     * @param string $expect
-     * @param array $properties
-     */
-    public function test_properties($expect, $properties)
+    #[DataProvider('provide_properties')]
+    public function test_properties(string $expect, array $properties)
     {
         $cache_control = new CacheControl();
 
@@ -34,10 +30,8 @@ class CacheControlTest extends TestCase
         $this->assertEquals($expect, (string) $cache_control);
     }
 
-    /**
-     * @dataProvider provide_properties
-     */
-    public function test_from(string $from, array $properties)
+    #[DataProvider('provide_properties')]
+    public function test_from(string $from, array $properties): void
     {
         $cache_control = CacheControl::from($from);
 
@@ -46,7 +40,7 @@ class CacheControlTest extends TestCase
         }
     }
 
-    public function provide_properties(): array
+    public static function provide_properties(): array
     {
         return [
 

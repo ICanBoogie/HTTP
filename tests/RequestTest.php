@@ -19,6 +19,7 @@ use ICanBoogie\HTTP\RequestMethod;
 use ICanBoogie\HTTP\RequestOptions;
 use ICanBoogie\PropertyNotWritable;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class RequestTest extends TestCase
@@ -39,9 +40,7 @@ class RequestTest extends TestCase
         $this->assertNotSame($request->context, $clone->context);
     }
 
-    /**
-     * @dataProvider provide_test_write_readonly_properties
-     */
+    #[DataProvider('provide_test_write_readonly_properties')]
     public function test_write_readonly_properties(string $property): void
     {
         $this->expectException(PropertyNotWritable::class);
@@ -49,7 +48,7 @@ class RequestTest extends TestCase
         self::$request->$property = null;
     }
 
-    public function provide_test_write_readonly_properties(): array
+    public static function provide_test_write_readonly_properties(): array
     {
         $properties = 'authorization content_length context extension ip'
         . ' is_local is_xhr'
@@ -263,16 +262,14 @@ class RequestTest extends TestCase
         $this->assertSame($headers, $request->headers);
     }
 
-    /**
-     * @dataProvider provide_test_get_is_local
-     */
+    #[DataProvider('provide_test_get_is_local')]
     public function test_get_is_local(string $ip, bool $expected): void
     {
         $request = Request::from([ RequestOptions::OPTION_IP => $ip ]);
         $this->assertEquals($expected, $request->is_local);
     }
 
-    public function provide_test_get_is_local(): array
+    public static function provide_test_get_is_local(): array
     {
         return [
 
@@ -293,16 +290,14 @@ class RequestTest extends TestCase
         $this->assertEquals($expected, $request->script_name);
     }
 
-    /**
-     * @dataProvider provide_test_get_authorization
-     */
+    #[DataProvider('provide_test_get_authorization')]
     public function test_get_authorization(array $env, string|null $expected): void
     {
         $request = Request::from([], $env);
         $this->assertEquals($expected, $request->authorization);
     }
 
-    public function provide_test_get_authorization(): array
+    public static function provide_test_get_authorization(): array
     {
         $ex1 = uniqid();
         $ex2 = uniqid();
@@ -413,10 +408,9 @@ class RequestTest extends TestCase
     }
 
     /**
-     * @dataProvider provide_test_change
-     *
      * @param array<RequestOptions::*, mixed> $properties
      */
+    #[DataProvider('provide_test_change')]
     public function test_change(array $properties): void
     {
         static $iterated;
@@ -434,7 +428,7 @@ class RequestTest extends TestCase
         }
     }
 
-    public function provide_test_change(): array
+    public static function provide_test_change(): array
     {
         return [
 

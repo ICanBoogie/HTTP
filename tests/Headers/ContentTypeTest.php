@@ -12,13 +12,12 @@
 namespace Test\ICanBoogie\HTTP\Headers;
 
 use ICanBoogie\HTTP\Headers\ContentType;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ContentTypeTest extends TestCase
 {
-    /**
-     * @dataProvider provider_from
-     */
+    #[DataProvider('provide_from')]
     public function test_from($source, $values)
     {
         /* @var $h ContentType */
@@ -32,7 +31,7 @@ class ContentTypeTest extends TestCase
         $this->assertEquals($source, (string) $h);
     }
 
-    public function provider_from()
+    public static function provide_from(): array
     {
         return [
 

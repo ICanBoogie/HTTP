@@ -16,6 +16,7 @@ use ICanBoogie\HTTP\Headers;
 use ICanBoogie\HTTP\Headers\Date;
 use ICanBoogie\HTTP\Response;
 use ICanBoogie\PropertyNotWritable;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ResponseTest extends TestCase
@@ -46,9 +47,7 @@ class ResponseTest extends TestCase
         $this->assertNull($response->headers->content_type->value);
     }
 
-    /**
-     * @dataProvider provide_test_write_readonly_properties
-     */
+    #[DataProvider('provide_test_write_readonly_properties')]
     public function test_write_readonly_properties(string $property)
     {
         $this->expectException(PropertyNotWritable::class);
@@ -56,7 +55,7 @@ class ResponseTest extends TestCase
         self::$response->$property = null;
     }
 
-    public function provide_test_write_readonly_properties()
+    public static function provide_test_write_readonly_properties()
     {
         $properties = 'is_validateable is_cacheable is_fresh';
 
@@ -99,12 +98,9 @@ class ResponseTest extends TestCase
     /**
      * The `Content-Length` header field MUST NOT be present, and MUST NOT be added to the header
      * instance.
-     *
-     * @dataProvider provide_test_no_content_length
-     *
-     * @param mixed $body
      */
-    public function test_no_content_length($body)
+    #[DataProvider('provide_test_no_content_length')]
+    public function test_no_content_length(mixed $body): void
     {
         $response = new Response($body);
         $response_string = (string) $response;
@@ -113,7 +109,7 @@ class ResponseTest extends TestCase
         $this->assertStringNotContainsString("Content-Length", $response_string);
     }
 
-    public function provide_test_no_content_length(): array
+    public static function provide_test_no_content_length(): array
     {
         $now = DateTime::now();
 
@@ -162,18 +158,13 @@ class ResponseTest extends TestCase
         $this->assertTrue($response->is_validateable);
     }
 
-    /**
-     * @dataProvider provide_test_is_cacheable
-     *
-     * @param Response $response
-     * @param bool $expected
-     */
-    public function test_is_cacheable($response, $expected)
+    #[DataProvider('provide_test_is_cacheable')]
+    public function test_is_cacheable(Response $response, bool $expected): void
     {
         $this->assertEquals($expected, $response->is_cacheable);
     }
 
-    public function provide_test_is_cacheable()
+    public static function provide_test_is_cacheable()
     {
         return [
 

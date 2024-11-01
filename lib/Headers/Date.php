@@ -24,7 +24,10 @@ use function is_numeric;
  */
 class Date extends DateTime
 {
-    public static function from($source, $timezone = null): self|parent
+    public static function from(
+        self|\DateTimeInterface|string|null $source,
+        DateTimeZone|string|null $timezone = null
+    ): static
     {
         if ($source === null) {
             return static::none();

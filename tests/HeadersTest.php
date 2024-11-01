@@ -18,6 +18,7 @@ use ICanBoogie\HTTP\Headers;
 use ICanBoogie\HTTP\Headers\Date;
 use ICanBoogie\HTTP\Headers\Date as DateHeader;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 use function uniqid;
@@ -163,9 +164,7 @@ final class HeadersTest extends TestCase
         $this->assertEquals($value, $headers->retry_after);
     }
 
-    /**
-     * @dataProvider provide_test_date_header
-     */
+    #[DataProvider('provide_test_date_header')]
     public function test_date_header(string $field, mixed $value, string $expected): void
     {
         $headers = new Headers();
@@ -180,7 +179,7 @@ final class HeadersTest extends TestCase
         $this->assertEquals($expected, (string) $headers[$field]);
     }
 
-    public function provide_test_date_header(): array
+    public static function provide_test_date_header(): array
     {
         $value1 = new DateTime();
         $value2 = new \DateTime();
@@ -214,10 +213,9 @@ final class HeadersTest extends TestCase
     }
 
     /**
-     * @dataProvider provide_getters
-     *
      * @param class-string $expected
      */
+    #[DataProvider('provide_getters')]
     public function test_getters(string $getter, string $expected): void
     {
         $headers = new Headers();
@@ -225,7 +223,7 @@ final class HeadersTest extends TestCase
         $this->assertInstanceOf($expected, $headers->$getter);
     }
 
-    public function provide_getters(): array
+    public static function provide_getters(): array
     {
         return [
 
@@ -240,9 +238,7 @@ final class HeadersTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provide_test_empty_date
-     */
+    #[DataProvider('provide_test_empty_date')]
     public function test_empty_date(string $field)
     {
         $headers = new Headers();
@@ -251,7 +247,7 @@ final class HeadersTest extends TestCase
         $this->assertTrue($headers[$field]->is_empty);
     }
 
-    public function provide_test_empty_date(): array
+    public static function provide_test_empty_date(): array
     {
         return [
 
@@ -319,13 +315,20 @@ final class HeadersTest extends TestCase
             ->onlyMethods([ 'send_header' ])
             ->getMock();
 
-        $headers->expects($this->exactly(4))
+        $headers->expects($invocation = $this->exactly(4))
             ->method('send_header')
-            ->withConsecutive(
-                [ "Cache-Control", "public" ],
-                [ "X-Empty-3", "0" ],
-                [ "Date", $now->as_rfc1123 ],
-                [ "Expires", $in_one_month->as_rfc1123 ]
+            ->willReturnCallback(
+                function ($a, $b) use ($now, $in_one_month, $invocation) {
+                    $i = $invocation->numberOfInvocations() - 1;
+                    $expected = [
+                        [ "Cache-Control", "public" ],
+                        [ "X-Empty-3", "0" ],
+                        [ "Date", $now->as_rfc1123 ],
+                        [ "Expires", $in_one_month->as_rfc1123 ],
+                    ][$i];
+
+                    $this->assertEquals($expected, [ $a, $b ]);
+                }
             );
 
         /* @var $headers Headers */

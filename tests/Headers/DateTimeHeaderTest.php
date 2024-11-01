@@ -13,13 +13,12 @@ namespace Test\ICanBoogie\HTTP\Headers;
 
 use ICanBoogie\DateTime;
 use ICanBoogie\HTTP\Headers\Date;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class DateTimeHeaderTest extends TestCase
 {
-    /**
-     * @dataProvider provider_test_to_string
-     */
+    #[DataProvider('provide_test_to_string')]
     public function test_to_string($expected, $datetime)
     {
         $field = Date::from($datetime);
@@ -27,7 +26,7 @@ class DateTimeHeaderTest extends TestCase
         $this->assertEquals($expected, (string) $field);
     }
 
-    public function provider_test_to_string(): array
+    public static function provide_test_to_string(): array
     {
         $now = DateTime::now();
 
