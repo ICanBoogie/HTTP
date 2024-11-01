@@ -182,7 +182,7 @@ abstract class Header implements ArrayAccess
     public function offsetSet(mixed $offset, mixed $value): void
     {
         if (!$this->offsetExists($offset)) {
-            throw new OffsetNotDefined([ $offset, $this ]);
+            throw new OffsetNotDefined($offset, $this);
         }
 
         if ($value instanceof HeaderParameter) {
@@ -205,7 +205,7 @@ abstract class Header implements ArrayAccess
     public function offsetGet(mixed $offset): HeaderParameter
     {
         if (!$this->offsetExists($offset)) {
-            throw new OffsetNotDefined([ $offset, $this ]);
+            throw new OffsetNotDefined($offset, $this);
         }
 
         return $this->parameters[$offset];
@@ -251,7 +251,7 @@ abstract class Header implements ArrayAccess
             return $this[$property]->value;
         }
 
-        throw new PropertyNotDefined([ $property, $this ]);
+        throw new PropertyNotDefined($property, $this);
     }
 
     /**
@@ -275,7 +275,7 @@ abstract class Header implements ArrayAccess
             return;
         }
 
-        throw new PropertyNotDefined([ $property, $this ]);
+        throw new PropertyNotDefined($property, $this);
     }
 
     /**
