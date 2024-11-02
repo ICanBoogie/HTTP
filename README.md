@@ -651,25 +651,6 @@ catch (\Exception $e)
 
 
 
-## Helpers
-
-The following helpers are available:
-
-* [`get_initial_request()`][]: Returns the initial request.
-
-```php
-<?php
-
-namespace ICanBoogie\HTTP;
-
-$request = get_initial_request();
-$response = dispatch($request);
-```
-
-
-
-
-
 ----------
 
 
@@ -726,7 +707,6 @@ See [CONTRIBUTING](CONTRIBUTING.md) for details.
 [ServiceUnavailable]:            lib/ServiceUnavailable.php
 [StatusCodeNotValid]:            lib/StatusCodeNotValid.php
 [Status]:                        lib/Status.php
-[`get_initial_request()`]:       helpers.php
 
 [ICanBoogie]:         https://icanboogie.org/
 [icanboogie/routing]: https://github.com/ICanBoogie/Routing

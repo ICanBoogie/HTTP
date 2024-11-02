@@ -2,8 +2,14 @@
 
 ## v4.x to v6.0
 
-The interface `RequestMethods` is replaced with the enum `RequestMethod`. `is_*` method related to HTTP methods have
-been moved from `Request` to the enum.
+### New requirements
+
+- PHP 8.2+
+
+### Backward incompatible changes
+
+The interface `RequestMethods` is replaced with the enum `RequestMethod`. `is_*` method related to
+HTTP methods have been moved from `Request` to the enum.
 
 ```php
 <?php
@@ -114,11 +120,12 @@ Status::OK;
 namespace ICanBoogie\HTTP;
 
 ResponseStatus::STATUS_OK;
-or
+# or
 Response::STATUS_OK;
 ```
 
 Dropped everything related to Dispatchers in favor of Responder providers and Responders.
+That includes helper functions such as `dispatch` and `get_initial_request`.
 
 ```php
 <?php
@@ -142,7 +149,8 @@ namespace ICanBoogie\HTTP;
 $response = $responder->respond($request);
 ```
 
-Dropped all `RequestOptions::OPTION_IS_` related to HTTP methods, use `RequestOptions::OPTION_METHOD` instead:
+Dropped all `RequestOptions::OPTION_IS_` related to HTTP methods,
+use `RequestOptions::OPTION_METHOD` instead:
 
 ```php
 <?php
