@@ -1,10 +1,8 @@
 # Responders
 
-A responder takes a request and returns a response. It's a simple concept that can be implemented in many ways, of
-which this package only provides the foundation.
-
-This package only provides an implementation that delegates the response to a matching responder found by a provider.
-The package [ICanBoogie/Routing][] provides more exciting implementations.
+A responder takes a request and returns a response.
+It is a simple concept that can be implemented in many ways,
+of which this package only provides the foundation.
 
 ```php
 <?php
@@ -18,14 +16,19 @@ $responder = new Responder\DelegateToProvider($provider);
 $response = $responder->respond($request);
 ```
 
+> [!NOTE]
+> [ICanBoogie/HTTP][] only provides an implementation that delegates the response to a matching
+> responder found by a provider.
+> The package [ICanBoogie/Routing][] provides more exciting implementations.
+
 ## Rescuing exceptions
 
 [WithRecovery][] decorates another responder to provide an exception recovery mechanism.
 
-The exception thrown by the responder is caught and a [RecoverEvent][] is emitted. Third parties can
-use that event to provide a response or replace the exception.
+The exception thrown by the responder is caught, and a [RecoverEvent][] is emitted.
+Third parties can use that event to provide a response or replace the exception.
 
-The following example demonstrate how to decorate a responder:
+The following example demonstrates how to decorate a responder:
 
 ```php
 <?php
@@ -37,7 +40,7 @@ namespace ICanBoogie\HTTP;
 $responder_with_recovery = new Responder\WithRecovery($responder);
 ```
 
-The following example demonstrate how to recover [NotFound][] exceptions:
+The following example demonstrates how to recover [NotFound][] exceptions:
 
 ```php
 <?php
@@ -60,7 +63,7 @@ $events->attach(function (RecoverEvent $event, NotFound $target) {
 $responder_with_recovery = new Responder\WithRecovery($responder);
 ```
 
-Alternatively you can provide another exception to throw instead:
+Alternatively, you can provide another exception to throw instead:
 
 ```php
 <?php
@@ -81,17 +84,17 @@ $responder_with_recovery = new Responder\WithRecovery($responder);
 ```
 
 
-## Events around respond
+## Events around respond()
 
-[WithEvents][] decorates another responder to emit events around the `respond()` method.
+[WithEvent][] decorates another responder to emit events around the `respond()` method.
 
-- [BeforeRespondEvent][] is emitted before the `respond()` method. Listeners can use the event to
-  alter the request or provide a response. If a response is provided the `respond()` method is *not*
-  invoked.
-- [RespondEvent][] is emitted after the `respond()` method. Listeners can use the event to alter the
-  response.
+1. [BeforeRespondEvent][] is emitted before the `respond()` method.
+    Listeners can use the event to alter the request or provide a response.
+    If a response is provided the `respond()` method is NOT invoked.
+2. [RespondEvent][] is emitted after the `respond()` method.
+    Listeners can use the event to alter the response.
 
-The following example demonstrate how to decorate a responder:
+The following example demonstrates how to decorate a responder:
 
 ```php
 <?php
@@ -100,10 +103,10 @@ namespace ICanBoogie\HTTP;
 
 /* @var Responder $responder */
 
-$responder_with_events = new Responder\WithEvents($responder);
+$responder_with_event = new Responder\WithEvent($responder);
 ```
 
-The following example demonstrate how to attach listeners:
+The following example demonstrates how to attach listeners:
 
 ```php
 <?php
@@ -124,7 +127,11 @@ $events->attach(function (RespondEvent $event) {
 
 
 
+[ICanBoogie/HTTP]: https://github.com/ICanBoogie/HTTP
 [ICanBoogie/Routing]: https://github.com/ICanBoogie/Routing
 [WithRecovery]: ../lib/Responder/WithRecovery.php
 [RecoverEvent]: ../lib/RecoverEvent.php
 [NotFound]: ../lib/NotFound.php
+[WithEvent]: ../lib/Responder/WithEvent
+[BeforeRespondEvent]: ../lib/Responder/WithEvent/BeforeRespondEvent.php
+[RespondEvent]: ../lib/Responder/WithEvent/RespondEvent.php
