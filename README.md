@@ -7,7 +7,7 @@
 The **icanboogie/http** package provides a foundation to handle HTTP requests, with representations
 for requests, request files, responses, and headers. The package also lay the foundation of
 
-The following example is an overview of a request processing:
+The following example is an overview of request processing:
 
 ```php
 <?php
@@ -78,8 +78,8 @@ $request = Request::from([
 
 ### Safe and idempotent requests
 
-Safe methods are HTTP methods that do not modify resources. For instance, using `GET` or `HEAD` on a
-resource URL, should NEVER change the resource.
+Safe methods are HTTP methods that don't modify resources.
+For instance, using `GET` or `HEAD` on a resource URL, should NEVER change the resource.
 
 The `is_safe` property may be used to check if a request is safe or not.
 
@@ -93,9 +93,9 @@ Request::from([ Request::OPTION_METHOD => Request::METHOD_POST ])->is_safe; // f
 Request::from([ Request::OPTION_METHOD => Request::METHOD_DELETE ])->is_safe; // false
 ```
 
-An idempotent HTTP method is a HTTP method that can be called many times without different outcomes.
-It would not matter if the method is called only once, or ten times over. The result should be the
-same.
+An idempotent HTTP method is an HTTP method that can be called many times without different
+outcomes. It would not matter if the method is called only once, or ten times over. The result
+should be the same.
 
 The `is_idempotent` property may be used to check if a request is idempotent or not.
 
@@ -136,7 +136,7 @@ $request = Request::from($_SERVER)->with([
 
 ### Request parameters
 
-Whether they are sent as part of the query string, the post body, or the path info, parameters sent
+Whether they're sent as part of the query string, the POST body, or the path info, parameters sent
 along a request are collected in arrays. The `query_params`, `request_params`, and `path_params`
 properties give you access to these parameters.
 
@@ -237,9 +237,8 @@ $file = $files['uploaded'];  // instanceof File
 $file = $files['undefined']; // null
 ```
 
-Uploaded files, and _pretend_ uploaded files, are represented by [File][] instances. The class
-tries its best to provide the same API for both. The `is_uploaded` property helps you set
-them apart.
+[File][] represents uploaded files, and _pretend_ uploaded files, with a single API.
+The `is_uploaded` property helps you set them apart.
 
 The `is_valid` property is a simple way to check if a file is valid. The `move()` method
 lets you move the file out of the temporary folder or around the filesystem.
@@ -282,7 +281,7 @@ echo $file->match('image');                       // false
 echo $file->match('.png');                        // false
 ```
 
-The method also handles sets, and returns `true` if there's any match:
+The method also handles sets, and returns `true` if there is any match:
 
 ```php
 <?php
@@ -319,9 +318,9 @@ $file->to_array();
 
 ### Request context
 
-Because requests may be nested the request context offers a safe place where you can store the state
-of your application that is relative to a request, for instance a request relative site, page,
-route, dispatcher… The context may be used as an array, but is also a prototyped instance.
+Because requests may be nested, the request context offers a safe place where you can store the
+state of your application that is relative to a request. For instance, the context can store the
+relative site, page, route, dispatcher…
 
 The following example demonstrates how to store a value in a request context:
 
@@ -330,32 +329,16 @@ The following example demonstrates how to store a value in a request context:
 
 namespace ICanBoogie\HTTP;
 
-$request = Request::from($_SERVER);
-$request->context['site'] = $app->models['sites']->one;
-```
+/** @var Request $request */
+/** @var \ICanBoogie\Routing\Route $route */
 
-The following example demonstrates how to use the prototype feature to provide a value when it is
-requested from the context:
+$request->context->add($route);
 
-```php
-<?php
+// …
 
-namespace ICanBoogie\HTTP;
-
-use ICanBoogie\HTTP\Request\Context;
-use ICanBoogie\Prototype;
-
-Prototype::from(Context::class)['lazy_get_site'] = function(Context $context) use ($site_model) {
-
-    return $site_model->resolve_from_request($context->request);
-
-};
-
-$request = Request::from($_SERVER);
-
-$site = $request->context['site'];
-# or
-$site = $request->context->site;
+$route = $request->conntext->find(Route::class);
+# or, if the value is required
+$route = $request->conntext->get(Route::class);
 ```
 
 
@@ -364,10 +347,8 @@ $site = $request->context->site;
 
 ### Obtaining a response
 
-A response is obtained from a request simply by invoking the request, or by invoking one of the
-available HTTP methods. The `dispatch()` helper is used to dispatch the request. A [Response][]
-instance is returned if the dispatching is successful, a [NotFound][] exception is
-thrown otherwise.
+A response is the result of a [Responder][]'s `respond()` method. An exception is thrown when a
+response can't be provided; for example, [NotFound][].
 
 ```php
 <?php
@@ -375,12 +356,16 @@ thrown otherwise.
 namespace ICanBoogie\HTTP;
 
 /* @var $request Request */
+/* @var ResponderProvider $responder_provider */
 
-$response = $request();
+// The Responder Provider matches a request with a Responder
+$responder = $responder_provider->responder_for_request($request);
 
-# using the POST method and additional parameters
+// The Responder responds to the request with a Response, it might also throw an exception.
+$response = $responder->respond($request);
 
-$response = $request->post([ 'param' => 'value' ]);
+// The response is sent to the client.
+$response();
 ```
 
 
@@ -425,7 +410,7 @@ $response();
 
 ### Response status
 
-The response status is represented by a [Status][] instance. It may be defined as a HTTP response
+The response status is represented by a [Status][] instance. It may be defined as an HTTP response
 code such as `200`, an array such as `[ 200, "Ok" ]`, or a string such as `"200 Ok"`.
 
 ```php
@@ -454,7 +439,7 @@ $response->status->is_not_found;      // true
 
 ### Streaming the response body
 
-When a large response body needs to be streamed, it is recommended to use a closure as response
+When a large response body needs to be streamed, it is recommended to use a closure as a response
 body instead of a huge string that would consume a lot of memory.
 
 ```php
@@ -488,10 +473,10 @@ $response = new Response($output, Response::STATUS_OK, [ 'Content-Type' => 'text
 
 Before v2.3.2 the `Content-Length` header field was added automatically when it was computable,
 for instance when the body was a string or an instance implementing `__toString()`.
-Starting v2.3.2 this is no longer the case and the header field has to be defined when required.
+Starting v2.3.2, this is no longer the case, and the header field has to be defined when required.
 This was decided to prevent a bug with Apache+FastCGI+DEFLATE where the `Content-Length` field
-was not adjusted although the body was compressed. Also, in most cases it's not such a good idea
-to define that field for generated content because it prevents the response to be sent as
+wasn't adjusted although the body was compressed. Also, in most cases it is not such a good idea
+to define that field for generated content because it prevents the response from being sent as
 [compressed chunks](http://en.wikipedia.org/wiki/Chunked_transfer_encoding).
 
 
@@ -519,7 +504,7 @@ $response->status->is_redirect; // true
 ### Delivering a file
 
 A file may be delivered using a [FileResponse][] instance. Cache control and _range_ requests
-are handled automatically, you just need to provide the pathname of the file, or a `SplFileInfo`
+are handled automatically; you only have to provide the pathname of the file, or a `SplFileInfo`
 instance, and a request.
 
 ```php
@@ -533,7 +518,7 @@ $response = new FileResponse("/absolute/path/to/my/file", $request);
 $response();
 ```
 
-The `OPTION_FILENAME` option may be used to force downloading. Of course, utf-8 string are
+The `OPTION_FILENAME` option may be used to force downloading. Of course, utf-8 strings are
 supported:
 
 ```php
@@ -554,11 +539,11 @@ $response();
 
 The following options are also available:
 
-- `OPTION_ETAG`: Specifies the `ETag` header field of the response. If it is not defined the
+- `OPTION_ETAG`: Specifies the `ETag` header field of the response. If it is not defined, the
 [SHA-384][] of the file is used instead.
 
 - `OPTION_EXPIRES`: Specifies the expiration date as a `DateTime` instance or a relative date
-such as "+3 month", which maps to the `Expires` header field. The `max-age` directive of the
+such as `+3 month`, which maps to the `Expires` header field. The `max-age` directive of the
 `Cache-Control` header field is computed from the current time. If it is not defined
 `DEFAULT_EXPIRES` is used instead ("+1 month").
 
@@ -569,7 +554,7 @@ The following properties are available:
 
 - `modified_time`: Returns the last modified timestamp of the file.
 
-- `is_modified`: Whether the file was modified since the last response. The value is computed
+- `is_modified`: Whether the file has been modified since the last response. The value is computed
 using the request header fields `If-None-Match` and `If-Modified-Since`, and the properties
 `modified_time` and `etag`.
 
@@ -579,7 +564,8 @@ using the request header fields `If-None-Match` and `If-Modified-Since`, and the
 
 ## Headers
 
-Here's an overview of headers usage, details are available in the [Headers documentation](docs/Headers.md).
+Here is an overview of header usage.
+Details are available in the [Headers documentation](docs/Headers.md).
 
 ```php
 <?php
@@ -627,22 +613,22 @@ echo $headers['X-My-Header']; // 'Some value';
 
 ## Exceptions
 
-The following exceptions are defined by the HTTP package:
+The HTTP package defines the following exceptions:
 
 * [ClientError][]: thrown when a client error occurs.
     * [NotFound][]: thrown when a resource is not found. For instance, this exception is
     thrown by the dispatcher when it fails to resolve a request into a response.
     * [AuthenticationRequired][]: thrown when the authentication of the client is required. Implements [SecurityError][].
     * [PermissionRequired][]: thrown when the client lacks a required permission. Implements [SecurityError][].
-    * [MethodNotAllowed][]: thrown when a HTTP method is not supported.
+    * [MethodNotAllowed][]: thrown when an HTTP method is not supported.
 * [ServerError][]: throw when a server error occurs.
     * [ServiceUnavailable][]: thrown when a server is currently unavailable
     (because it is overloaded or down for maintenance).
 * [ForceRedirect][]: thrown when a redirect is absolutely required.
-* [StatusCodeNotValid][]: thrown when a HTTP status code is not valid.
+* [StatusCodeNotValid][]: thrown when an HTTP status code is not valid.
 
 Exceptions defined by the package implement the `ICanBoogie\HTTP\Exception` interface.
-Using this interface one can easily catch HTTP related exceptions:
+Using this interface, one can easily catch HTTP-related exceptions:
 
 ```php
 <?php
@@ -669,10 +655,6 @@ catch (\Exception $e)
 
 The following helpers are available:
 
-* [`dispatch()`][]: Dispatches a request using the dispatcher returned by [`get_dispatcher()`][].
-* [`get_dispatcher()`][]: Returns the request dispatcher. If no dispatcher provider is defined,
-the method defines a new instance of [DispatcherProvider][] as provider and use it to retrieve the
-dispatcher.
 * [`get_initial_request()`][]: Returns the initial request.
 
 ```php
@@ -737,6 +719,7 @@ See [CONTRIBUTING](CONTRIBUTING.md) for details.
 [PermissionRequired]:            lib/PermissionRequired.php
 [RedirectResponse]:              lib/RedirectResponse.php
 [Request]:                       lib/Request.php
+[Responder]:                     lib/Responder.php
 [Response]:                      lib/Response.php
 [SecurityError]:                 lib/SecurityError.php
 [ServerError]:                   lib/ServerError.php
