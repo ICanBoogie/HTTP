@@ -28,7 +28,7 @@ class AuthenticationRequired extends ClientError implements SecurityError
     public function __construct(
         string $message = self::DEFAULT_MESSAGE,
         int $code = ResponseStatus::STATUS_UNAUTHORIZED,
-        Throwable $previous = null
+        ?Throwable $previous = null
     ) {
         parent::__construct($message, $code, $previous);
     }

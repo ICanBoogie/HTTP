@@ -25,7 +25,7 @@ class RecoverEvent extends Event
     public function __construct(
         Throwable &$sender,
         public readonly Request $request,
-        Response &$response = null
+        ?Response &$response = null
     ) {
         $this->response = &$response;
         $this->exception = &$sender;

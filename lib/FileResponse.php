@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the ICanBoogie package.
- *
- * (c) Olivier Laviale <olivier.laviale@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace ICanBoogie\HTTP;
 
 use ICanBoogie\DateTime;
@@ -332,11 +323,6 @@ class FileResponse extends Response
         return self::hash_file($this->file->getPathname());
     }
 
-    private function ensure_etag(): string
-    {
-        return $this->headers->etag ??= $this->make_etag();
-    }
-
     /**
      * If the date returned by the parent is empty the method returns a date created from
      * {@link DEFAULT_EXPIRES}.
@@ -349,7 +335,7 @@ class FileResponse extends Response
             return $expires;
         }
 
-        return Headers\Date::from(self::DEFAULT_EXPIRES); // @phpstan-ignore-line
+        return Headers\Date::from(self::DEFAULT_EXPIRES);
     }
 
     /**

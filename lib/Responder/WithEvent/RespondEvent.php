@@ -24,7 +24,7 @@ class RespondEvent extends Event
 
     public function __construct(
         public readonly Request $request,
-        Response &$response = null
+        ?Response &$response = null
     ) {
         $this->response = &$response;
 

@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the ICanBoogie package.
- *
- * (c) Olivier Laviale <olivier.laviale@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace ICanBoogie\HTTP\Headers;
 
 use DateTimeInterface;
@@ -27,8 +18,7 @@ class Date extends DateTime
     public static function from(
         self|\DateTimeInterface|string|null $source,
         DateTimeZone|string|null $timezone = null
-    ): static
-    {
+    ): static {
         if ($source === null) {
             return static::none();
         }
@@ -62,7 +52,7 @@ class Date extends DateTime
      *
      * @inheritdoc
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->is_empty ? '' : $this->utc->as_rfc1123;
     }

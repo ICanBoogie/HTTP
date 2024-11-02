@@ -1,6 +1,6 @@
-# Migration
+# CHANGELOG
 
-## v4.x to v6.x
+## v4.x to v6.0
 
 The interface `RequestMethods` is replaced with the enum `RequestMethod`. `is_*` method related to HTTP methods have
 been moved from `Request` to the enum.

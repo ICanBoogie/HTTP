@@ -20,7 +20,7 @@ class MethodNotAllowed extends ClientError implements Exception
 {
     public function __construct(
         public readonly string $method,
-        Throwable $previous = null
+        ?Throwable $previous = null
     ) {
         parent::__construct(
             "Method not allowed: $method.",

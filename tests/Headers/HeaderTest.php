@@ -152,7 +152,7 @@ class A extends Header
 {
     public const VALUE_ALIAS = 'type';
 
-    public function __construct($value = null, array $attributes = [])
+    public function __construct(mixed $value = null, array $attributes = [])
     {
         $this->parameters['p'] = new HeaderParameter('p');
 

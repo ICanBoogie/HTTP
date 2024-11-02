@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the ICanBoogie package.
- *
- * (c) Olivier Laviale <olivier.laviale@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace ICanBoogie\HTTP;
 
 use ICanBoogie\Accessor\AccessorTrait;
@@ -37,8 +28,8 @@ use function unlink;
  *
  * @property-read string $name Name of the file.
  * @property-read string $type MIME type of the file.
- * @property-read string $size Size of the file.
- * @property-read string $error Error code, one of `UPLOAD_ERR_*`.
+ * @property-read int|false $size Size of the file.
+ * @property-read int|null $error Error code, one of `UPLOAD_ERR_*`.
  * @property-read string $error_message A formatted message representing the error.
  * @property-read string $pathname Pathname of the file.
  * @property-read string $extension The extension of the file. If any, the dot is included e.g.
@@ -116,17 +107,15 @@ class File implements ToArray, FileOptions
      *
      * @param string $format The format of the string.
      * @param array $args The arguments.
-     * @param array $options Some options.
      *
      * @return FormattedString|string
      */
     private static function format(
         string $format,
         array $args = [],
-        array $options = []
     ): string|FormattedString {
-        if (class_exists(FormattedString::class, true)) {
-            return new FormattedString($format, $args, $options);
+        if (class_exists(FormattedString::class)) {
+            return new FormattedString($format, $args);
         }
 
         return format($format, $args); // @codeCoverageIgnore

@@ -47,7 +47,7 @@ final class ChainTest extends TestCase
         $this->assertNull($chain->responder_for_request(Request::from()));
     }
 
-    public function makeProvider(Responder $responder = null, bool $shouldNotBeCalled = false): ResponderProvider
+    public function makeProvider(?Responder $responder = null, bool $shouldNotBeCalled = false): ResponderProvider
     {
         $provider = $this->createMock(ResponderProvider::class);
         $provider

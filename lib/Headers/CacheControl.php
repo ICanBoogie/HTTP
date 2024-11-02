@@ -45,7 +45,7 @@ use function substr;
  * echo $cc;                      // no-cache, no-store, must-revalidate
  * </pre>
  *
- * @property bool $cacheable
+ * @property bool|string|null $cacheable
  *
  * @see http://tools.ietf.org/html/rfc2616#section-14.9
  */
@@ -169,8 +169,6 @@ final class CacheControl
      * Scope: request, response.
      *
      * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.1
-     *
-     * @var string|null
      */
     private ?string $cacheable = null;
 
@@ -290,7 +288,7 @@ final class CacheControl
     /**
      * If they are defined, the object is initialized with the cache directives.
      */
-    public function __construct(string $cache_directives = null)
+    public function __construct(?string $cache_directives = null)
     {
         if ($cache_directives) {
             $this->modify($cache_directives);

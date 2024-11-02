@@ -1,8 +1,7 @@
 # HTTP
 
 [![Release](https://img.shields.io/packagist/v/icanboogie/http.svg)](https://packagist.org/packages/icanboogie/http)
-[![Code Quality](https://img.shields.io/scrutinizer/g/ICanBoogie/HTTP/6.0.svg)](https://scrutinizer-ci.com/g/ICanBoogie/HTTP)
-[![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/HTTP.svg)](https://coveralls.io/r/ICanBoogie/HTTP)
+[![Code Coverage](https://coveralls.io/repos/github/ICanBoogie/HTTP/badge.svg?branch6.0)](https://coveralls.io/r/ICanBoogie/HTTP?branch=6.0)
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/http.svg)](https://packagist.org/packages/icanboogie/http)
 
 The **icanboogie/http** package provides a foundation to handle HTTP requests, with representations
@@ -697,9 +696,9 @@ $response = dispatch($request);
 
 The project is continuously tested by [GitHub actions](https://github.com/ICanBoogie/HTTP/actions).
 
-[![Tests](https://github.com/ICanBoogie/HTTP/workflows/test/badge.svg?branch=6.0)](https://github.com/ICanBoogie/HTTP/actions?query=workflow%3Atest)
-[![Static Analysis](https://github.com/ICanBoogie/HTTP/workflows/static-analysis/badge.svg?branch=6.0)](https://github.com/ICanBoogie/HTTP/actions?query=workflow%3Astatic-analysis)
-[![Code Style](https://github.com/ICanBoogie/HTTP/workflows/code-style/badge.svg?branch=6.0)](https://github.com/ICanBoogie/HTTP/actions?query=workflow%3Acode-style)
+[![Test](https://github.com/ICanBoogie/HTTP/actions/workflows/test.yml/badge.svg?branch=6.0)](https://github.com/ICanBoogie/HTTP/actions/workflows/test.yml)
+[![Static Analysis](https://github.com/ICanBoogie/HTTP/actions/workflows/static-analysis.yml/badge.svg?branch=6.0)](https://github.com/ICanBoogie/HTTP/actions/workflows/static-analysis.yml)
+[![Code Style](https://github.com/ICanBoogie/HTTP/actions/workflows/code-style.yml/badge.svg?branch=6.0)](https://github.com/ICanBoogie/HTTP/actions/workflows/code-style.yml)
 
 
 

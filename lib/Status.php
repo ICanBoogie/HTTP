@@ -521,7 +521,7 @@ final class Status
         return $message;
     }
 
-    public function __construct(int $code = ResponseStatus::STATUS_OK, string $message = null)
+    public function __construct(int $code = ResponseStatus::STATUS_OK, ?string $message = null)
     {
         self::assert_code_is_valid($code);
 

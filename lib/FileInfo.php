@@ -64,7 +64,7 @@ class FileInfo
      * @return string The MIME type of the file, or `application/octet-stream` if it could not
      * be determined.
      */
-    public static function resolve_type(string $pathname, string &$extension = null): string
+    public static function resolve_type(string $pathname, ?string &$extension = null): string
     {
         $extension = '.' . \strtolower(\pathinfo($pathname, PATHINFO_EXTENSION));
         $types = self::TYPES;
