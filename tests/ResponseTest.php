@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the ICanBoogie package.
- *
- * (c) Olivier Laviale <olivier.laviale@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace Test\ICanBoogie\HTTP;
 
 use ICanBoogie\DateTime;
@@ -28,7 +19,7 @@ class ResponseTest extends TestCase
         self::$response = new Response();
     }
 
-    public function test_clone()
+    public function test_clone(): void
     {
         $response = new Response();
         $clone = clone $response;
@@ -37,7 +28,7 @@ class ResponseTest extends TestCase
         $this->assertNotSame($clone->status, $response->status);
     }
 
-    public function test_should_set_content_type()
+    public function test_should_set_content_type(): void
     {
         $expected = 'application/json';
         $response = new Response();
@@ -48,14 +39,14 @@ class ResponseTest extends TestCase
     }
 
     #[DataProvider('provide_test_write_readonly_properties')]
-    public function test_write_readonly_properties(string $property)
+    public function test_write_readonly_properties(string $property): void
     {
         $this->expectException(PropertyNotWritable::class);
 
         self::$response->$property = null;
     }
 
-    public static function provide_test_write_readonly_properties()
+    public static function provide_test_write_readonly_properties(): array
     {
         $properties = 'is_validateable is_cacheable is_fresh';
 
@@ -64,7 +55,7 @@ class ResponseTest extends TestCase
         }, explode(' ', $properties));
     }
 
-    public function test_age()
+    public function test_age(): void
     {
         $response = new Response();
         $this->assertEquals(0, $response->age);
@@ -79,7 +70,7 @@ class ResponseTest extends TestCase
         $this->assertSame(123, $response->age);
     }
 
-    public function test_expires()
+    public function test_expires(): void
     {
         $response = new Response();
         $this->assertInstanceOf(Date::class, $response->expires);
@@ -126,14 +117,14 @@ class ResponseTest extends TestCase
         ];
     }
 
-    public function test_auto_content_length_with_null()
+    public function test_auto_content_length_with_null(): void
     {
         $response = new Response();
 
         $this->assertEquals("HTTP/1.1 200 OK\r\nDate: {$response->headers->date}\r\n\r\n", (string) $response);
     }
 
-    public function test_preserve_content_length()
+    public function test_preserve_content_length(): void
     {
         $response = new Response(null, Response::STATUS_OK, [
 
@@ -144,7 +135,7 @@ class ResponseTest extends TestCase
         $this->assertEquals("HTTP/1.1 200 OK\r\nContent-Length: 123\r\nDate: {$response->headers->date}\r\n\r\n", (string) $response);
     }
 
-    public function test_is_validateable()
+    public function test_is_validateable(): void
     {
         $response = new Response();
         $this->assertFalse($response->is_validateable);
@@ -164,7 +155,7 @@ class ResponseTest extends TestCase
         $this->assertEquals($expected, $response->is_cacheable);
     }
 
-    public static function provide_test_is_cacheable()
+    public static function provide_test_is_cacheable(): array
     {
         return [
 
@@ -181,7 +172,7 @@ class ResponseTest extends TestCase
         ];
     }
 
-    public function test_invoke()
+    public function test_invoke(): void
     {
         $body = uniqid();
 
@@ -215,7 +206,7 @@ class ResponseTest extends TestCase
         $response();
     }
 
-    public function test_invoke_empty_body()
+    public function test_invoke_empty_body(): void
     {
         $body = null;
 
@@ -249,7 +240,7 @@ class ResponseTest extends TestCase
         $response();
     }
 
-    public function test_to_string_with_exception()
+    public function test_to_string_with_exception(): void
     {
         $body = uniqid();
 

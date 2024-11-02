@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the ICanBoogie package.
- *
- * (c) Olivier Laviale <olivier.laviale@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace ICanBoogie\HTTP;
 
 use ArrayAccess;
@@ -19,7 +10,7 @@ use IteratorAggregate;
 use function count;
 
 /**
- * Representation of a list of request files.
+ * Represents a list of request files.
  *
  * @implements ArrayAccess<string, File>
  * @implements IteratorAggregate<string, File>

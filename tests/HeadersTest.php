@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the ICanBoogie package.
- *
- * (c) Olivier Laviale <olivier.laviale@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace Test\ICanBoogie\HTTP;
 
 use DateTimeZone;
@@ -25,7 +16,7 @@ use function uniqid;
 
 final class HeadersTest extends TestCase
 {
-    public function testDateTimeFromDateTime()
+    public function testDateTimeFromDateTime(): void
     {
         $datetime = new \DateTime();
         $headers_datetime = new DateHeader($datetime);
@@ -37,7 +28,7 @@ final class HeadersTest extends TestCase
     /**
      * @throws Exception
      */
-    public function testDateTimeFromDateTimeString()
+    public function testDateTimeFromDateTimeString(): void
     {
         $datetime = new \DateTime('now', new DateTimeZone('GMT'));
 
@@ -57,7 +48,7 @@ final class HeadersTest extends TestCase
         );
     }
 
-    public function test_cache_control()
+    public function test_cache_control(): void
     {
         $headers = new Headers();
         $this->assertInstanceOf(Headers\CacheControl::class, $headers['Cache-Control']);
@@ -73,7 +64,7 @@ final class HeadersTest extends TestCase
         $this->assertTrue($headers->cache_control->no_transform);
     }
 
-    public function test_content_disposition()
+    public function test_content_disposition(): void
     {
         $headers = new Headers();
         $this->assertInstanceOf(Headers\ContentDisposition::class, $headers['Content-Disposition']);
@@ -83,7 +74,7 @@ final class HeadersTest extends TestCase
         $this->assertEquals('test.txt', $headers->content_disposition->filename);
     }
 
-    public function test_content_length()
+    public function test_content_length(): void
     {
         $headers = new Headers();
         $this->assertNull($headers['Content-Length']);
@@ -96,7 +87,7 @@ final class HeadersTest extends TestCase
         $this->assertEquals(123, $headers->content_length);
     }
 
-    public function test_content_type()
+    public function test_content_type(): void
     {
         $headers = new Headers();
         $this->assertInstanceOf(Headers\ContentType::class, $headers['Content-Type']);
@@ -130,7 +121,7 @@ final class HeadersTest extends TestCase
         $this->assertNull($headers->etag);
     }
 
-    public function test_last_modified()
+    public function test_last_modified(): void
     {
         $headers = new Headers();
         $this->assertInstanceOf(Headers\Date::class, $headers->last_modified);
@@ -239,7 +230,7 @@ final class HeadersTest extends TestCase
     }
 
     #[DataProvider('provide_test_empty_date')]
-    public function test_empty_date(string $field)
+    public function test_empty_date(string $field): void
     {
         $headers = new Headers();
 

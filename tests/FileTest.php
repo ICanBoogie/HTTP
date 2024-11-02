@@ -1,17 +1,9 @@
 <?php
 
-/*
- * This file is part of the ICanBoogie package.
- *
- * (c) Olivier Laviale <olivier.laviale@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
-namespace ICanBoogie\HTTP;
+namespace Test\ICanBoogie\HTTP;
 
 use ICanBoogie\FormattedString;
+use ICanBoogie\HTTP\File;
 use ICanBoogie\PropertyNotWritable;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -23,7 +15,7 @@ use const UPLOAD_ERR_CANT_WRITE;
 class FileTest extends TestCase
 {
     #[DataProvider('provide_test_get_extension')]
-    public function test_get_extension($expected, $pathname)
+    public function test_get_extension($expected, $pathname): void
     {
         $file = File::from([ File::OPTION_PATHNAME => $pathname ]);
 
@@ -34,39 +26,39 @@ class FileTest extends TestCase
     {
         return [
 
-            [ '.c',        '/path/to/example.c' ],
-            [ '.zip',      '/path/to/example.zip' ],
+            [ '.c', '/path/to/example.c' ],
+            [ '.zip', '/path/to/example.zip' ],
             [ '.document', '/path/to/example.document' ],
-            [ '.png',      '/path/to/example.zip.png' ],
-            [ '.gz',       '/path/to/example.tar.gz' ],
-            [ '',          '/path/to/example' ]
+            [ '.png', '/path/to/example.zip.png' ],
+            [ '.gz', '/path/to/example.tar.gz' ],
+            [ '', '/path/to/example' ]
 
         ];
     }
 
     #[DataProvider('provide_test_match')]
-    public function test_match($expected, $against)
+    public function test_match($expected, $against): void
     {
         $file = File::from([ File::OPTION_PATHNAME => '/path/to/example.zip' ]);
 
         $this->assertEquals($expected, $file->match($against));
     }
 
-    public static function provide_test_match()
+    public static function provide_test_match(): array
     {
         return [
 
-            [ true,  null ],
-            [ true,  false ],
-            [ true,  '' ],
-            [ true,  [] ],
-            [ true,  '.zip' ],
-            [ true,  'application/zip' ],
-            [ true,  'application' ],
-            [ true,  [ '.mp3', '.zip' ] ],
-            [ true,  [ '.mp3', 'application' ] ],
-            [ true,  [ '.mp3', 'application/zip' ] ],
-            [ true,  [ '.zip', 'application/zip' ] ],
+            [ true, null ],
+            [ true, false ],
+            [ true, '' ],
+            [ true, [] ],
+            [ true, '.zip' ],
+            [ true, 'application/zip' ],
+            [ true, 'application' ],
+            [ true, [ '.mp3', '.zip' ] ],
+            [ true, [ '.mp3', 'application' ] ],
+            [ true, [ '.mp3', 'application/zip' ] ],
+            [ true, [ '.zip', 'application/zip' ] ],
             [ false, '.png' ],
             [ false, 'image/png' ],
             [ false, 'image' ],
@@ -78,7 +70,7 @@ class FileTest extends TestCase
     }
 
     #[DataProvider('provide_test_error_message')]
-    public function test_error_message($error, $expected)
+    public function test_error_message($error, $expected): void
     {
         $file = File::from([ File::OPTION_ERROR => $error ]);
 
@@ -90,47 +82,44 @@ class FileTest extends TestCase
             $message = $file->error_message;
 
             $this->assertInstanceOf(FormattedString::class, $message);
-            $this->assertStringStartsWith($expected, (string) $message);
+            $this->assertStringStartsWith($expected, (string)$message);
         }
     }
 
-    public static function provide_test_error_message()
+    public static function provide_test_error_message(): array
     {
         return [
 
-            [ UPLOAD_ERR_OK,         null ],
-            [ UPLOAD_ERR_INI_SIZE,   "Maximum file size is" ],
-            [ UPLOAD_ERR_FORM_SIZE,  "Maximum file size is" ],
-            [ UPLOAD_ERR_PARTIAL,    "The uploaded file was only partially uploaded." ],
-            [ UPLOAD_ERR_NO_FILE,    "No file was uploaded." ],
+            [ UPLOAD_ERR_OK, null ],
+            [ UPLOAD_ERR_INI_SIZE, "Maximum file size is" ],
+            [ UPLOAD_ERR_FORM_SIZE, "Maximum file size is" ],
+            [ UPLOAD_ERR_PARTIAL, "The uploaded file was only partially uploaded." ],
+            [ UPLOAD_ERR_NO_FILE, "No file was uploaded." ],
             [ UPLOAD_ERR_NO_TMP_DIR, "Missing a temporary folder." ],
             [ UPLOAD_ERR_CANT_WRITE, "Failed to write file to disk." ],
-            [ UPLOAD_ERR_EXTENSION,  "A PHP extension stopped the file upload." ],
-            [ 123456,                "An error has occurred."]
+            [ UPLOAD_ERR_EXTENSION, "A PHP extension stopped the file upload." ],
+            [ 123456, "An error has occurred." ]
 
         ];
     }
 
     #[DataProvider('provide_test_to_array')]
-    public function test_to_array($properties, $expected)
+    public function test_to_array($properties, $expected): void
     {
         $this->assertSame($expected, File::from($properties)->to_array());
     }
 
-    public static function provide_test_to_array()
+    public static function provide_test_to_array(): array
     {
         return [
 
             [
 
                 [
-
                     File::OPTION_PATHNAME => __FILE__
-
                 ],
 
                 [
-
                     'name' => basename(__FILE__),
                     'unsuffixed_name' => basename(__FILE__, '.php'),
                     'extension' => '.php',
@@ -139,7 +128,6 @@ class FileTest extends TestCase
                     'pathname' => __FILE__,
                     'error' => null,
                     'error_message' => null
-
                 ]
 
             ],
@@ -147,14 +135,11 @@ class FileTest extends TestCase
             [
 
                 [
-
                     File::OPTION_PATHNAME => '/path/to/image.png',
                     File::OPTION_SIZE => 1234
-
                 ],
 
                 [
-
                     'name' => 'image.png',
                     'unsuffixed_name' => 'image',
                     'extension' => '.png',
@@ -163,7 +148,6 @@ class FileTest extends TestCase
                     'pathname' => '/path/to/image.png',
                     'error' => null,
                     'error_message' => null
-
                 ]
 
             ],
@@ -171,13 +155,10 @@ class FileTest extends TestCase
             [
 
                 [
-
                     File::OPTION_ERROR => UPLOAD_ERR_NO_FILE
-
                 ],
 
                 [
-
                     'name' => null,
                     'unsuffixed_name' => null,
                     'extension' => null,
@@ -186,7 +167,6 @@ class FileTest extends TestCase
                     'pathname' => null,
                     'error' => UPLOAD_ERR_NO_FILE,
                     'error_message' => "No file was uploaded."
-
                 ]
 
             ]
@@ -205,7 +185,7 @@ class FileTest extends TestCase
     }
 
     #[DataProvider('provide_readonly_properties')]
-    public function test_read_readonly_properties(string $property)
+    public function test_read_readonly_properties(string $property): void
     {
         $file = File::from([
             File::OPTION_PATHNAME => __FILE__,
@@ -215,17 +195,17 @@ class FileTest extends TestCase
         $this->assertNotNull($file->$property);
     }
 
-    public static function provide_readonly_properties()
+    public static function provide_readonly_properties(): array
     {
         $properties = 'error error_message extension is_uploaded is_valid name pathname size type'
-        . ' unsuffixed_name';
+            . ' unsuffixed_name';
 
         return array_map(function ($v) {
-            return (array) $v;
+            return (array)$v;
         }, explode(' ', $properties));
     }
 
-    public function test_fake_file()
+    public function test_fake_file(): void
     {
         $sandbox = __DIR__ . DIRECTORY_SEPARATOR . 'sandbox' . DIRECTORY_SEPARATOR;
         $pathname = $sandbox . uniqid() . '.php';
@@ -251,7 +231,7 @@ class FileTest extends TestCase
         unlink($file->pathname);
     }
 
-    public function test_empty_slot()
+    public function test_empty_slot(): void
     {
         $file = File::from('example');
 
@@ -265,7 +245,7 @@ class FileTest extends TestCase
         $this->assertFalse($file->is_uploaded);
     }
 
-    public function test_should_get_defined_type()
+    public function test_should_get_defined_type(): void
     {
         $expected = 'application/x-bytes';
 
@@ -279,7 +259,7 @@ class FileTest extends TestCase
         $this->assertEquals($expected, $file->type);
     }
 
-    public function test_should_get_defined_size()
+    public function test_should_get_defined_size(): void
     {
         $expected = 123456;
 
@@ -293,7 +273,7 @@ class FileTest extends TestCase
         $this->assertEquals($expected, $file->size);
     }
 
-    public function test_move_overwrite()
+    public function test_move_overwrite(): void
     {
         $file1 = create_file();
         $file2 = create_file();
@@ -305,7 +285,7 @@ class FileTest extends TestCase
         $file->move($file2);
     }
 
-    public function test_move_overwrite_force()
+    public function test_move_overwrite_force(): void
     {
         $file1 = create_file();
         $file2 = create_file();

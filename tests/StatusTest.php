@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the ICanBoogie package.
- *
- * (c) Olivier Laviale <olivier.laviale@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace Test\ICanBoogie\HTTP;
 
 use ICanBoogie\HTTP\ResponseStatus;
@@ -20,24 +11,24 @@ use PHPUnit\Framework\TestCase;
 
 final class StatusTest extends TestCase
 {
-    public function test_constructor()
+    public function test_constructor(): void
     {
         $status = new Status(ResponseStatus::STATUS_MOVED_PERMANENTLY, "Over the rainbow");
 
         $this->assertEquals(ResponseStatus::STATUS_MOVED_PERMANENTLY, $status->code);
         $this->assertEquals("Over the rainbow", $status->message);
-        $this->assertEquals("301 Over the rainbow", (string) $status);
+        $this->assertEquals("301 Over the rainbow", (string)$status);
 
         $status->message = null;
         $this->assertEquals("Moved Permanently", $status->message);
-        $this->assertEquals("301 Moved Permanently", (string) $status);
+        $this->assertEquals("301 Moved Permanently", (string)$status);
     }
 
     #[DataProvider('provide_test_from')]
     public function test_from(mixed $source, string $expected): void
     {
         $status = Status::from($source);
-        $this->assertEquals($expected, (string) $status);
+        $this->assertEquals($expected, (string)$status);
     }
 
     public static function provide_test_from(): array
@@ -65,14 +56,14 @@ final class StatusTest extends TestCase
         Status::from("987 Invalid");
     }
 
-    public function test_constructor_with_invalid_code()
+    public function test_constructor_with_invalid_code(): void
     {
         $this->expectException(StatusCodeNotValid::class);
 
         new Status(987);
     }
 
-    public function test_set_code_invalid()
+    public function test_set_code_invalid(): void
     {
         $status = new Status();
 
@@ -81,14 +72,14 @@ final class StatusTest extends TestCase
         $status->code = 12345;
     }
 
-    public function test_set_code()
+    public function test_set_code(): void
     {
         $status = new Status();
         $status->code = ResponseStatus::STATUS_NOT_FOUND;
         $this->assertEquals(ResponseStatus::STATUS_NOT_FOUND, $status->code);
     }
 
-    public function test_is_valid()
+    public function test_is_valid(): void
     {
         $status = new Status(ResponseStatus::STATUS_OK);
         $this->assertTrue($status->is_valid);

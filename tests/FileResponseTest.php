@@ -1,8 +1,15 @@
 <?php
 
-namespace ICanBoogie\HTTP;
+namespace Test\ICanBoogie\HTTP;
 
 use ICanBoogie\DateTime;
+use ICanBoogie\HTTP\FileResponse;
+use ICanBoogie\HTTP\Headers;
+use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\RequestMethod;
+use ICanBoogie\HTTP\RequestOptions;
+use ICanBoogie\HTTP\RequestRange;
+use ICanBoogie\HTTP\ResponseStatus;
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Rule\InvokedCount;
@@ -36,7 +43,7 @@ final class FileResponseTest extends TestCase
 
         $response = $this
             ->getMockBuilder(FileResponse::class)
-            ->setConstructorArgs([ __FILE__, Request::from()])
+            ->setConstructorArgs([ __FILE__, Request::from() ])
             ->onlyMethods([ 'send_file', 'send_headers' ])
             ->getMock();
         $response
@@ -93,8 +100,13 @@ final class FileResponseTest extends TestCase
     }
 
     #[DataProvider('provide_test_invoke_with_range')]
-    public function test_invoke_with_range(string $cache_control, bool $is_modified, bool $is_satisfiable, bool $is_total, int $expected)
-    {
+    public function test_invoke_with_range(
+        string $cache_control,
+        bool $is_modified,
+        bool $is_satisfiable,
+        bool $is_total,
+        int $expected
+    ): void {
         $headers = new Headers();
         $headers['If-Range'] = $etag = "123";
 
@@ -171,10 +183,14 @@ final class FileResponseTest extends TestCase
     }
 
     #[DataProvider('provide_test_get_content_type')]
-    public function test_get_content_type(string $expected, string $file, array $options = [], array $headers = [])
-    {
+    public function test_get_content_type(
+        string $expected,
+        string $file,
+        array $options = [],
+        array $headers = []
+    ): void {
         $response = new FileResponse($file, Request::from(), $options, $headers);
-        $this->assertEquals($expected, (string) $response->headers->content_type);
+        $this->assertEquals($expected, (string)$response->headers->content_type);
     }
 
     public static function provide_test_get_content_type(): array
@@ -182,11 +198,11 @@ final class FileResponseTest extends TestCase
         return [
 
             [ 'application/octet-stream', create_file() ],
-            [ 'text/plain', create_file(), [ FileResponse::OPTION_MIME => 'text/plain'] ],
-            [ 'text/plain', create_file(), [], [ 'Content-Type' => 'text/plain'] ],
+            [ 'text/plain', create_file(), [ FileResponse::OPTION_MIME => 'text/plain' ] ],
+            [ 'text/plain', create_file(), [], [ 'Content-Type' => 'text/plain' ] ],
             [ 'image/png', create_image('.png') ],
-            [ 'text/plain', create_image('.png'), [ FileResponse::OPTION_MIME => 'text/plain'] ],
-            [ 'text/plain', create_image('.png'), [], [ 'Content-Type' => 'text/plain'] ],
+            [ 'text/plain', create_image('.png'), [ FileResponse::OPTION_MIME => 'text/plain' ] ],
+            [ 'text/plain', create_image('.png'), [], [ 'Content-Type' => 'text/plain' ] ],
 
         ];
     }
@@ -208,7 +224,7 @@ final class FileResponseTest extends TestCase
 
             [ $file_hash, $file ],
             [ $file_hash_custom, $file, [ FileResponse::OPTION_ETAG => $file_hash_custom ] ],
-            [ $file_hash_custom, $file, [ ], [ 'ETag' => $file_hash_custom ] ],
+            [ $file_hash_custom, $file, [], [ 'ETag' => $file_hash_custom ] ],
 
         ];
     }
@@ -232,8 +248,8 @@ final class FileResponseTest extends TestCase
             [ $expires_default, $file ],
             [ $expires2, $file, [ FileResponse::OPTION_EXPIRES => $expires2_str ] ],
             [ $expires2, $file, [ FileResponse::OPTION_EXPIRES => $expires2 ] ],
-            [ $expires2, $file, [ ], [ 'Expires' => $expires2_str ] ],
-            [ $expires2, $file, [ ], [ 'Expires' => $expires2 ] ],
+            [ $expires2, $file, [], [ 'Expires' => $expires2_str ] ],
+            [ $expires2, $file, [], [ 'Expires' => $expires2 ] ],
 
         ];
     }
@@ -273,13 +289,31 @@ final class FileResponseTest extends TestCase
 
         return [
 
-            [ true, [ ] ],
-            [ true, [ 'If-Modified-Since' => (string) $modified_since ] ],
-            [ true, [ 'If-Modified-Since' => (string) $modified_since ], $modified_time_older ],
-            [ true, [ 'If-Modified-Since' => (string) $modified_since, 'If-None-Match' => uniqid() ], $modified_time_older ],
-            [ true, [ 'If-Modified-Since' => (string) $modified_since, 'If-None-Match' => uniqid() ], $modified_time_older ],
-            [ true, [ 'If-Modified-Since' => (string) $modified_since, 'If-None-Match' => $etag ], $modified_time_newer, $etag ],
-            [ false, [ 'If-Modified-Since' => (string) $modified_since, 'If-None-Match' => $etag ], $modified_time_older, $etag ],
+            [ true, [] ],
+            [ true, [ 'If-Modified-Since' => (string)$modified_since ] ],
+            [ true, [ 'If-Modified-Since' => (string)$modified_since ], $modified_time_older ],
+            [
+                true,
+                [ 'If-Modified-Since' => (string)$modified_since, 'If-None-Match' => uniqid() ],
+                $modified_time_older
+            ],
+            [
+                true,
+                [ 'If-Modified-Since' => (string)$modified_since, 'If-None-Match' => uniqid() ],
+                $modified_time_older
+            ],
+            [
+                true,
+                [ 'If-Modified-Since' => (string)$modified_since, 'If-None-Match' => $etag ],
+                $modified_time_newer,
+                $etag
+            ],
+            [
+                false,
+                [ 'If-Modified-Since' => (string)$modified_since, 'If-None-Match' => $etag ],
+                $modified_time_older,
+                $etag
+            ],
 
         ];
     }
@@ -289,13 +323,13 @@ final class FileResponseTest extends TestCase
     {
         $response = new FileResponse($file, Request::from(), [ FileResponse::OPTION_FILENAME => $filename ]);
 
-        $this->assertEquals('binary', (string) $response->headers['Content-Transfer-Encoding']);
-        $this->assertEquals('File Transfer', (string) $response->headers['Content-Description']);
+        $this->assertEquals('binary', (string)$response->headers['Content-Transfer-Encoding']);
+        $this->assertEquals('File Transfer', (string)$response->headers['Content-Description']);
         $this->assertEquals('attachment', $response->headers->content_disposition->type);
         $this->assertEquals($expected, $response->headers->content_disposition->filename);
     }
 
-    public static function provide_test_filename()
+    public static function provide_test_filename(): array
     {
         $file = create_file();
         $filename = "Filename" . uniqid() . ".png";
@@ -309,7 +343,7 @@ final class FileResponseTest extends TestCase
     }
 
     #[DataProvider('provide_test_accept_ranges')]
-    public function test_accept_ranges(RequestMethod $method, string $type)
+    public function test_accept_ranges(RequestMethod $method, string $type): void
     {
         $request = Request::from([ Request::OPTION_URI => '/', 'method' => $method ]);
 
@@ -321,10 +355,10 @@ final class FileResponseTest extends TestCase
 
         /* @var $response FileResponse */
 
-        $this->assertStringContainsString("Accept-Ranges: $type", (string) $response);
+        $this->assertStringContainsString("Accept-Ranges: $type", (string)$response);
     }
 
-    public static function provide_test_accept_ranges()
+    public static function provide_test_accept_ranges(): array
     {
         return [
 
@@ -337,7 +371,7 @@ final class FileResponseTest extends TestCase
     }
 
     #[DataProvider('provide_test_range_response')]
-    public function test_range_response(string $bytes, string $pathname, string $expected)
+    public function test_range_response(string $bytes, string $pathname, string $expected): void
     {
         $etag = sha1_file($pathname);
 
@@ -369,7 +403,7 @@ final class FileResponseTest extends TestCase
         $this->assertSame($expected, $content);
     }
 
-    public static function provide_test_range_response()
+    public static function provide_test_range_response(): array
     {
         $pathname = create_file();
         $data = file_get_contents($pathname);

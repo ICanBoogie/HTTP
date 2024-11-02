@@ -1,10 +1,14 @@
 <?php
 
-namespace ICanBoogie\HTTP;
+namespace Test\ICanBoogie\HTTP;
 
-class FileListTest extends \PHPUnit\Framework\TestCase
+use ICanBoogie\HTTP\File;
+use ICanBoogie\HTTP\FileList;
+use PHPUnit\Framework\TestCase;
+
+class FileListTest extends TestCase
 {
-    public function test_from_self_should_return_clone()
+    public function test_from_self_should_return_clone(): void
     {
         $files1 = new FileList();
         $files2 = FileList::from($files1);
@@ -13,13 +17,13 @@ class FileListTest extends \PHPUnit\Framework\TestCase
         $this->assertNotSame($files1, $files2);
     }
 
-    public function test_should_return_null_if_offset_not_defined()
+    public function test_should_return_null_if_offset_not_defined(): void
     {
         $files = new FileList();
         $this->assertNull($files['undefined']);
     }
 
-    public function test_should_create_instance_by_setting_offset()
+    public function test_should_create_instance_by_setting_offset(): void
     {
         $files = new FileList();
         $files['one'] = [ 'pathname' => __FILE__ ];
@@ -28,7 +32,7 @@ class FileListTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(__FILE__, $files['one']->pathname);
     }
 
-    public function test_should_remove_offset()
+    public function test_should_remove_offset(): void
     {
         $files = new FileList();
         $files['one'] = [ 'pathname' => __FILE__ ];
@@ -37,7 +41,7 @@ class FileListTest extends \PHPUnit\Framework\TestCase
         $this->assertNull($files['one']);
     }
 
-    public function test_should_iterate()
+    public function test_should_iterate(): void
     {
         $expected = [
 
