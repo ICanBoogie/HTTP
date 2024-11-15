@@ -1,7 +1,7 @@
 {
   "name": "icanboogie/http",
   "type": "library",
-  "version": "6.0",
+  "version": "7.0",
   "description": "Provides an API to handle HTTP requests.",
   "keywords": [
     "http",
@@ -29,17 +29,17 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "php": ">=8.2",
+    "php": ">=8.4",
     "ext-mbstring": "*",
     "icanboogie/accessor": "^6.0",
-    "icanboogie/event": "^6.0"
+    "icanboogie/event": "^7.0"
   },
   "require-dev": {
     "ext-fileinfo": "*",
     "ext-gd": "*",
     "icanboogie/datetime": "^3.0",
-    "phpstan/phpstan": "^2.0",
-    "phpunit/phpunit": "^11.4"
+    "phpstan/phpstan": "^2.1",
+    "phpunit/phpunit": "11.4.4"
   },
   "autoload": {
     "psr-4": {

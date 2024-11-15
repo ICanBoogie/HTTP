@@ -2,7 +2,6 @@
 
 namespace ICanBoogie\HTTP;
 
-use ICanBoogie\Accessor\AccessorTrait;
 use ICanBoogie\FormattedString;
 use ICanBoogie\ToArray;
 use Throwable;
@@ -25,40 +24,13 @@ use function unlink;
 
 /**
  * Representation of a POST file.
- *
- * @property-read string $name Name of the file.
- * @property-read string $type MIME type of the file.
- * @property-read int|false $size Size of the file.
- * @property-read int|null $error Error code, one of `UPLOAD_ERR_*`.
- * @property-read FormattedString|null $error_message A formatted message representing the error.
- * @property-read string $pathname Pathname of the file.
- * @property-read string $extension The extension of the file. If any, the dot is included e.g.
- * ".zip".
- * @property-read string $unsuffixed_name The name of the file without its extension.
- * @property-read bool $is_uploaded `true` if the file is uploaded, `false` otherwise.
- * @property-read bool $is_valid `true` if the file is valid, `false` otherwise.
- * See: {@see get_is_valid()}.
  */
 class File implements ToArray, FileOptions
 {
-    /**
-     * @uses get_name
-     * @uses get_unsuffixed_name
-     * @uses get_type
-     * @uses get_size
-     * @uses get_error
-     * @uses get_error_message
-     * @uses get_is_valid
-     * @uses get_pathname
-     * @uses get_extension
-     * @uses get_is_uploaded
-     */
-    use AccessorTrait;
+    public const true MOVE_OVERWRITE = true;
+    public const false MOVE_NO_OVERWRITE = false;
 
-    public const MOVE_OVERWRITE = true;
-    public const MOVE_NO_OVERWRITE = false;
-
-    private const INITIAL_PROPERTIES = [
+    private const array INITIAL_PROPERTIES = [
 
         self::OPTION_NAME,
         self::OPTION_TYPE,
@@ -130,110 +102,97 @@ class File implements ToArray, FileOptions
      *
      * @var string|null
      */
-    private ?string $name = null;
+    private(set) ?string $name = null;
 
-    protected function get_name(): ?string
-    {
-        return $this->name;
+    public ?string $unsuffixed_name {
+        get => $this->name ? basename($this->name, $this->extension) : null;
     }
-
-    protected function get_unsuffixed_name(): ?string
-    {
-        return $this->name ? basename($this->name, $this->extension) : null;
-    }
-
-    private $type;
 
     /**
-     * Returns the type of the file.
+     * The MIME type of the file, or `null` if it can't be determined.
      *
-     * If the {@see $type} property was not defined during construct, the type
+     * If the {@see $type} property wasn't defined during construct, the type
      * is guessed from the name or the pathname of the file.
-     *
-     * @return string|null The MIME type of the file, or `null` if it cannot be determined.
      */
-    protected function get_type(): ?string
-    {
-        if (!empty($this->type)) {
-            return $this->type;
-        }
+    private(set) ?string $type {
+        get {
+            if (!empty($this->type)) {
+                return $this->type;
+            }
 
-        if (!$this->pathname && !$this->tmp_name) {
-            return null;
-        }
+            if (!$this->pathname && !$this->tmp_name) {
+                return null;
+            }
 
-        return FileInfo::resolve_type($this->pathname ?: $this->tmp_name);
+            return $this->type = FileInfo::resolve_type($this->pathname ?: $this->tmp_name);
+        }
     }
 
-    private $size;
-
     /**
-     * Returns the size of the file.
+     * The size of the file or `false` if it can't be determined.
      *
-     * If the {@see $size} property was not defined during construct, the size
-     * is guessed using the pathname of the file. If the pathname is not available the method
-     * returns `null`.
-     *
-     * @return int|false The size of the file or `false` if it cannot be determined.
+     * If the {@see $size} property wasn't defined during construct, the size
+     * is guessed using the pathname of the file.
+     * If the pathname is not available, the method returns `null`.
      */
-    protected function get_size()
-    {
-        if (!empty($this->size)) {
-            return $this->size;
-        }
+    private(set) int|false|null $size {
+        get {
+            if (!empty($this->size)) {
+                return $this->size;
+            }
 
-        if ($this->pathname) {
-            return \filesize($this->pathname);
-        }
+            if ($this->pathname) {
+                return \filesize($this->pathname);
+            }
 
-        return false;
+            return false;
+        }
     }
 
     private $tmp_name;
 
-    private ?int $error = null;
-
-    protected function get_error(): ?int
-    {
-        return $this->error;
-    }
+    /**
+     * Error code, one of `UPLOAD_ERR_*`.
+     */
+    private(set) ?int $error = null;
 
     /**
      * Returns the message associated with the error.
      */
-    protected function get_error_message(): ?FormattedString
-    {
-        switch ($this->error) {
-            case UPLOAD_ERR_OK:
-                return null;
+    public ?FormattedString $error_message {
+        get {
+            switch ($this->error) {
+                case UPLOAD_ERR_OK:
+                    return null;
 
-            case UPLOAD_ERR_INI_SIZE:
-                return $this->format("Maximum file size is :size Mb", [
-                    ':size' => (int)ini_get('upload_max_filesize'),
-                ]);
+                case UPLOAD_ERR_INI_SIZE:
+                    return $this->format("Maximum file size is :size Mb", [
+                        ':size' => (int)ini_get('upload_max_filesize'),
+                    ]);
 
-            case UPLOAD_ERR_FORM_SIZE:
-                return $this->format("Maximum file size is :size Mb", [
-                    ':size' => 'MAX_FILE_SIZE',
-                ]);
+                case UPLOAD_ERR_FORM_SIZE:
+                    return $this->format("Maximum file size is :size Mb", [
+                        ':size' => 'MAX_FILE_SIZE',
+                    ]);
 
-            case UPLOAD_ERR_PARTIAL:
-                return $this->format("The uploaded file was only partially uploaded.");
+                case UPLOAD_ERR_PARTIAL:
+                    return $this->format("The uploaded file was only partially uploaded.");
 
-            case UPLOAD_ERR_NO_FILE:
-                return $this->format("No file was uploaded.");
+                case UPLOAD_ERR_NO_FILE:
+                    return $this->format("No file was uploaded.");
 
-            case UPLOAD_ERR_NO_TMP_DIR:
-                return $this->format("Missing a temporary folder.");
+                case UPLOAD_ERR_NO_TMP_DIR:
+                    return $this->format("Missing a temporary folder.");
 
-            case UPLOAD_ERR_CANT_WRITE:
-                return $this->format("Failed to write file to disk.");
+                case UPLOAD_ERR_CANT_WRITE:
+                    return $this->format("Failed to write file to disk.");
 
-            case UPLOAD_ERR_EXTENSION:
-                return $this->format("A PHP extension stopped the file upload.");
+                case UPLOAD_ERR_EXTENSION:
+                    return $this->format("A PHP extension stopped the file upload.");
 
-            default:
-                return $this->format("An error has occurred.");
+                default:
+                    return $this->format("An error has occurred.");
+            }
         }
     }
 
@@ -243,18 +202,16 @@ class File implements ToArray, FileOptions
      * A file is considered valid if it has no error code, if it has a size,
      * if it has either a temporary name or a pathname and that the file actually exists.
      */
-    protected function get_is_valid(): bool
-    {
-        return !$this->error
-            && $this->size
-            && ($this->tmp_name || ($this->pathname && file_exists($this->pathname)));
+    public bool $is_valid {
+        get {
+            return !$this->error
+                && $this->size
+                && ($this->tmp_name || ($this->pathname && file_exists($this->pathname)));
+        }
     }
 
-    private ?string $pathname = null;
-
-    protected function get_pathname(): ?string
-    {
-        return $this->pathname ?? $this->tmp_name;
+    public ?string $pathname = null {
+        get => $this->pathname ?? $this->tmp_name;
     }
 
     private function __construct(array $properties)
@@ -286,14 +243,6 @@ class File implements ToArray, FileOptions
 
         if (!$this->name && $this->pathname) {
             $this->name = basename($this->pathname);
-        }
-
-        if (empty($this->type)) {
-            unset($this->type);
-        }
-
-        if (empty($this->size)) {
-            unset($this->size);
         }
     }
 
@@ -334,32 +283,33 @@ class File implements ToArray, FileOptions
     }
 
     /**
-     * Returns the extension of the file, if any.
+     * The extension of the file, if any.
      *
      * **Note**: The extension includes the dot e.g. ".zip". The extension is always in lower case.
      */
-    protected function get_extension(): ?string
-    {
-        if (!$this->name) {
-            return null;
+    public ?string $extension {
+        get {
+            if (!$this->name) {
+                return null;
+            }
+
+            $extension = pathinfo($this->name, PATHINFO_EXTENSION);
+
+            if (!$extension) {
+                return null;
+            }
+
+            return '.' . strtolower($extension);
         }
-
-        $extension = pathinfo($this->name, PATHINFO_EXTENSION);
-
-        if (!$extension) {
-            return null;
-        }
-
-        return '.' . strtolower($extension);
     }
 
     /**
-     * Checks if a file is uploaded.
+     * Whether the file was uploaded.
      */
-    protected function get_is_uploaded(): bool
-    {
-        return $this->tmp_name && is_uploaded_file($this->tmp_name);
-    }
+    public bool $is_uploaded
+        {
+            get => $this->tmp_name && is_uploaded_file($this->tmp_name);
+        }
 
     /**
      * Checks if the file matches a MIME class, a MIME type, or a file extension.

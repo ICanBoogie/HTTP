@@ -38,23 +38,6 @@ class ResponseTest extends TestCase
         $this->assertNull($response->headers->content_type->value);
     }
 
-    #[DataProvider('provide_test_write_readonly_properties')]
-    public function test_write_readonly_properties(string $property): void
-    {
-        $this->expectException(PropertyNotWritable::class);
-
-        self::$response->$property = null;
-    }
-
-    public static function provide_test_write_readonly_properties(): array
-    {
-        $properties = 'is_validateable is_cacheable is_fresh';
-
-        return array_map(function ($name) {
-            return (array) $name;
-        }, explode(' ', $properties));
-    }
-
     public function test_age(): void
     {
         $response = new Response();

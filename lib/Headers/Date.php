@@ -60,7 +60,7 @@ readonly class Date
     /**
      * The timestamp of a {@see \DateTime} or {@see DateTimeImmutable} created with "0000-00-00".
      */
-    private const EMPTY_TIMESTAMP = -62169984000;
+    private const int EMPTY_TIMESTAMP = -62169984000;
 
     public function __get($property)
     {

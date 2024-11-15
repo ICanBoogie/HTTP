@@ -10,27 +10,23 @@ use function sprintf;
  *
  * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Range
  */
-class RequestRange
+readonly class RequestRange
 {
     /**
      * Creates a new instance.
-     *
-     * @param Headers $headers
-     * @param int $total
-     * @param string $etag
      *
      * @return RequestRange|null A new instance, or `null` if the range is not defined or deprecated
      * (because `If-Range` doesn't match `$etag`).
      */
     public static function from(Headers $headers, int $total, string $etag): ?self
     {
-        $range = (string) $headers['Range'];
+        $range = (string) $headers[Headers::HEADER_RANGE];
 
         if (!$range) {
             return null;
         }
 
-        $if_range = (string) $headers['If-Range'];
+        $if_range = (string) $headers[Headers::HEADER_IF_RANGE];
 
         if ($if_range && $if_range !== $etag) {
             return null;
@@ -77,32 +73,32 @@ class RequestRange
     /**
      * @var int The offset where to start to copy data, suitable for the `stream_copy_to_stream()` function.
      */
-    public readonly int $offset;
+    public int $offset;
 
     /**
      * @var int Length of the range, suitable for the `Content-Length` header field.
      */
-    public readonly int $length;
+    public int $length;
 
     /**
      * @var int Maximum bytes to copy, suitable for the `stream_copy_to_stream()` function.
      */
-    public readonly int $max_length;
+    public int $max_length;
 
     /**
      * @var bool Whether the range is satisfiable.
      */
-    public readonly bool $is_satisfiable;
+    public bool $is_satisfiable;
 
     /**
      * @var bool Whether the range is actually the total.
      */
-    public readonly bool $is_total;
+    public bool $is_total;
 
     protected function __construct(
-        private readonly int $start,
-        private readonly int $end,
-        private readonly int $total
+        private int $start,
+        private int $end,
+        private int $total
     ) {
         $this->offset = $start;
         $this->length = $length = $this->end - $this->start + 1;

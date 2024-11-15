@@ -21,10 +21,17 @@ final class HeadersTest extends TestCase
         $headers = new Headers();
         $this->assertInstanceOf(Headers\CacheControl::class, $headers['Cache-Control']);
         $this->assertSame($headers['Cache-Control'], $headers->cache_control);
+
         $headers['Cache-Control'] = 'public, max-age=3600, no-transform';
         $this->assertInstanceOf(Headers\CacheControl::class, $headers['Cache-Control']);
         $this->assertEquals('public', $headers->cache_control->cacheable);
         $this->assertEquals('3600', $headers->cache_control->max_age);
+
+        $headers->cache_control = 'private, max-age=600, no-transform';
+        $this->assertInstanceOf(Headers\CacheControl::class, $headers['Cache-Control']);
+        $this->assertEquals('private', $headers->cache_control->cacheable);
+        $this->assertEquals('600', $headers->cache_control->max_age);
+
         $headers->cache_control->modify('public, max-age=3600, no-transform');
         $this->assertInstanceOf(Headers\CacheControl::class, $headers['Cache-Control']);
         $this->assertEquals('public', $headers->cache_control->cacheable);

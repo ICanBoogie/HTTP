@@ -11,7 +11,7 @@ use Throwable;
  */
 class AuthenticationRequired extends ClientError implements SecurityError
 {
-    public const DEFAULT_MESSAGE = "The requested URL requires authentication.";
+    public const string DEFAULT_MESSAGE = "The requested URL requires authentication.";
 
     /**
      * @inheritdoc

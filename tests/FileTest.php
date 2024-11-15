@@ -174,37 +174,6 @@ class FileTest extends TestCase
         ];
     }
 
-    #[DataProvider('provide_readonly_properties')]
-    public function test_write_readonly_properties(string $property)
-    {
-        $file = File::from([ File::OPTION_PATHNAME => __FILE__ ]);
-
-        $this->expectException(PropertyNotWritable::class);
-
-        $file->$property = null;
-    }
-
-    #[DataProvider('provide_readonly_properties')]
-    public function test_read_readonly_properties(string $property): void
-    {
-        $file = File::from([
-            File::OPTION_PATHNAME => __FILE__,
-            File::OPTION_ERROR => UPLOAD_ERR_CANT_WRITE,
-        ]);
-
-        $this->assertNotNull($file->$property);
-    }
-
-    public static function provide_readonly_properties(): array
-    {
-        $properties = 'error error_message extension is_uploaded is_valid name pathname size type'
-            . ' unsuffixed_name';
-
-        return array_map(function ($v) {
-            return (array)$v;
-        }, explode(' ', $properties));
-    }
-
     public function test_fake_file(): void
     {
         $sandbox = __DIR__ . DIRECTORY_SEPARATOR . 'sandbox' . DIRECTORY_SEPARATOR;

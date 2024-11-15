@@ -10,30 +10,30 @@ interface FileOptions
     /**
      * Name of the file.
      */
-    public const OPTION_NAME = 'name';
+    public const string OPTION_NAME = 'name';
 
     /**
      * MIME type of the file.
      */
-    public const OPTION_TYPE = 'type';
+    public const string OPTION_TYPE = 'type';
 
     /**
      * Size of the file.
      */
-    public const OPTION_SIZE = 'size';
+    public const string OPTION_SIZE = 'size';
 
     /**
      * Temporary filename.
      */
-    public const OPTION_TMP_NAME = 'tmp_name';
+    public const string OPTION_TMP_NAME = 'tmp_name';
 
     /**
      * Error code, one of `UPLOAD_ERR_*`.
      */
-    public const OPTION_ERROR = 'error';
+    public const string OPTION_ERROR = 'error';
 
     /**
      * Pathname of the file.
      */
-    public const OPTION_PATHNAME = 'pathname';
+    public const string OPTION_PATHNAME = 'pathname';
 }

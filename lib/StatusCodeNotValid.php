@@ -5,8 +5,6 @@ namespace ICanBoogie\HTTP;
 use InvalidArgumentException;
 use Throwable;
 
-use function ICanBoogie\format;
-
 /**
  * Exception thrown when the HTTP status code is not valid.
  */
@@ -23,6 +21,6 @@ class StatusCodeNotValid extends InvalidArgumentException implements Exception
 
     private function format_message(int $status_code): string
     {
-        return format("Status code not valid: %status_code.", [ 'status_code' => $status_code ]);
+        return "Status code not valid: $status_code";
     }
 }

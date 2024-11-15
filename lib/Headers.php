@@ -5,7 +5,6 @@ namespace ICanBoogie\HTTP;
 use ArrayAccess;
 use ArrayIterator;
 use DateTimeInterface;
-use ICanBoogie\Accessor\AccessorTrait;
 use ICanBoogie\HTTP\Headers\Header;
 use InvalidArgumentException;
 use IteratorAggregate;
@@ -29,79 +28,29 @@ use function substr;
  *
  * @link https://tools.ietf.org/html/rfc2616#section-14
  *
- * @property Headers\CacheControl|mixed $cache_control
- *     Shortcut to the `Cache-Control` header field definition.
- * @property Headers\ContentDisposition|mixed $content_disposition
- *     Shortcut to the `Content-Disposition` header field definition.
- * @property int|null $content_length
- *     Shortcut to the `Content-Length` header field definition.
- * @property Headers\ContentType|mixed $content_type
- *     Shortcut to the `Content-Type` header field definition.
- * @property Headers\Date|mixed $date
- *     Shortcut to the `Date` header field definition.
- * @property string|null $etag
- *     Shortcut to the `ETag` header field definition.
- * @property Headers\Date|mixed $expires
- *     Shortcut to the `Expires` header field definition.
- * @property Headers\Date|mixed $if_modified_since
- *     Shortcut to the `If-Modified-Since` header field definition.
- * @property Headers\Date|mixed $if_unmodified_since
- *     Shortcut to the `If-Unmodified-Since` header field definition.
- * @property Headers\Date|mixed $last_modified
- *     Shortcut to the `Last-Modified` header field definition.
- * @property string|null $location
- *     Shortcut to the `Location` header field definition.
- * @property Headers\Date|int|mixed $retry_after
- *     Shortcut to the `Retry-After` header field definition.
- *
  * @implements ArrayAccess<string, mixed>
  * @implements IteratorAggregate<string, mixed>
  */
 class Headers implements ArrayAccess, IteratorAggregate
 {
-    /**
-     * @uses get_cache_control
-     * @uses set_cache_control
-     * @uses get_content_disposition
-     * @uses set_content_disposition
-     * @uses get_content_length
-     * @uses set_content_length
-     * @uses get_content_type
-     * @uses set_content_type
-     * @uses get_date
-     * @uses set_date
-     * @uses get_etag
-     * @uses set_etag
-     * @uses get_expires
-     * @uses set_expires
-     * @uses get_if_modified_since
-     * @uses set_if_modified_since
-     * @uses get_if_unmodified_since
-     * @uses set_if_unmodified_since
-     * @uses get_last_modified
-     * @uses set_last_modified
-     * @uses get_location
-     * @uses set_location
-     * @uses get_retry_after
-     * @uses set_retry_after
-     */
-    use AccessorTrait;
+    public const string HEADER_ACCEPT_RANGES = 'Accept-Ranges';
+    public const string HEADER_CACHE_CONTROL = 'Cache-Control';
+    public const string HEADER_CONTENT_DISPOSITION = 'Content-Disposition';
+    public const string HEADER_CONTENT_LENGTH = 'Content-Length';
+    public const string HEADER_CONTENT_TYPE = 'Content-Type';
+    public const string HEADER_DATE = 'Date';
+    public const string HEADER_ETAG = 'ETag';
+    public const string HEADER_EXPIRES = 'Expires';
+    public const string HEADER_IF_MODIFIED_SINCE = 'If-Modified-Since';
+    public const string HEADER_IF_UNMODIFIED_SINCE = 'If-Unmodified-Since';
+    public const string HEADER_IF_NONE_MATCH = 'If-None-Match';
+    public const string HEADER_IF_RANGE = 'If-Range';
+    public const string HEADER_LAST_MODIFIED = 'Last-Modified';
+    public const string HEADER_LOCATION = 'Location';
+    public const string HEADER_RANGE = 'Range';
+    public const string HEADER_RETRY_AFTER = 'Retry-After';
 
-    public const HEADER_CACHE_CONTROL = 'Cache-Control';
-    public const HEADER_CONTENT_DISPOSITION = 'Content-Disposition';
-    public const HEADER_CONTENT_LENGTH = 'Content-Length';
-    public const HEADER_CONTENT_TYPE = 'Content-Type';
-    public const HEADER_DATE = 'Date';
-    public const HEADER_ETAG = 'ETag';
-    public const HEADER_EXPIRES = 'Expires';
-    public const HEADER_IF_MODIFIED_SINCE = 'If-Modified-Since';
-    public const HEADER_IF_UNMODIFIED_SINCE = 'If-Unmodified-Since';
-    public const HEADER_IF_NONE_MATCH = 'If-None-Match';
-    public const HEADER_LAST_MODIFIED = 'Last-Modified';
-    public const HEADER_LOCATION = 'Location';
-    public const HEADER_RETRY_AFTER = 'Retry-After';
-
-    private const MAPPING = [
+    private const array MAPPING = [
 
         self::HEADER_CACHE_CONTROL => Headers\CacheControl::class,
         self::HEADER_CONTENT_DISPOSITION => Headers\ContentDisposition::class,
@@ -176,7 +125,7 @@ class Headers implements ArrayAccess, IteratorAggregate
         $header = '';
 
         foreach ($this->fields as $field => $value) {
-            $value = (string) $value;
+            $value = (string)$value;
 
             if ($value === '') {
                 continue;
@@ -196,7 +145,7 @@ class Headers implements ArrayAccess, IteratorAggregate
     public function __invoke(): void
     {
         foreach ($this->fields as $field => $value) {
-            $value = (string) $value;
+            $value = (string)$value;
 
             if ($value === '') {
                 continue;
@@ -224,7 +173,7 @@ class Headers implements ArrayAccess, IteratorAggregate
      */
     public function offsetExists(mixed $offset): bool
     {
-        return isset($this->fields[(string) $offset]);
+        return isset($this->fields[(string)$offset]);
     }
 
     /**
@@ -234,7 +183,7 @@ class Headers implements ArrayAccess, IteratorAggregate
     {
         if (isset(self::MAPPING[$offset])) {
             if (empty($this->fields[$offset])) {
-                /* @var $class Headers\Header|class-string */
+                /* @var $class class-string<Headers\Header> */
                 $class = self::MAPPING[$offset];
                 $this->fields[$offset] = $class::from(null);
             }
@@ -248,14 +197,14 @@ class Headers implements ArrayAccess, IteratorAggregate
     /**
      * Sets a header field.
      *
-     * > **Note:** Setting a header field to `null` removes it, just like unset() would.
+     * > **Note**: Setting a header field to `null` removes it, just like unset() would.
      *
      * **Date, Expires, Last-Modified**
      *
      * The `Date`, `Expires` and `Last-Modified` header fields can be provided as a Unix
-     * timestamp, a string or a {@see \DateTime} object.
+     * timestamp, a string or a {@see DateTimeInterface} object.
      *
-     * **Cache-Control, Content-Disposition and Content-Type**
+     * **Cache-Control, Content-Disposition, Content-Type**
      *
      * Instances of the {@see Headers\CacheControl}, {@see Headers\ContentDisposition} and
      * {@see Headers\ContentType} are used to handle the values of the `Cache-Control`,
@@ -323,123 +272,147 @@ class Headers implements ArrayAccess, IteratorAggregate
         return new ArrayIterator($this->fields);
     }
 
-    private function get_cache_control(): Headers\CacheControl
-    {
-        return $this->offsetGet(self::HEADER_CACHE_CONTROL);
+    /**
+     * Shortcut to the `Cache-Control` header field definition.
+     *
+     * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
+     */
+    public Headers\CacheControl $cache_control {
+        get => $this->offsetGet(self::HEADER_CACHE_CONTROL);
+        set (Headers\CacheControl|string $value) {
+            $this->offsetSet(self::HEADER_CACHE_CONTROL, $value);
+        }
     }
 
-    private function set_cache_control(mixed $value): void
-    {
-        $this->offsetSet(self::HEADER_CACHE_CONTROL, $value);
+    /**
+     * Shortcut to the `Content-Length` header field definition.
+     *
+     * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Length
+     */
+    public ?int $content_length {
+        get => $this->offsetGet(self::HEADER_CONTENT_LENGTH);
+        set {
+            $this->offsetSet(self::HEADER_CONTENT_LENGTH, $value);
+        }
     }
 
-    private function get_content_length(): ?int
-    {
-        return $this->offsetGet(self::HEADER_CONTENT_LENGTH);
+    /**
+     * Shortcut to the `Content-Disposition` header field definition.
+     *
+     * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition
+     */
+    public Headers\ContentDisposition $content_disposition {
+        get => $this->offsetGet(self::HEADER_CONTENT_DISPOSITION);
+        set {
+            $this->offsetSet(self::HEADER_CONTENT_DISPOSITION, $value);
+        }
     }
 
-    private function set_content_length(?int $value): void
-    {
-        $this->offsetSet(self::HEADER_CONTENT_LENGTH, $value);
+    /**
+     * Shortcut to the `Content-Type` header field definition.
+     *
+     * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
+     */
+    public Headers\ContentType|string|null $content_type {
+        get => $this->offsetGet(self::HEADER_CONTENT_TYPE);
+        set {
+            $this->offsetSet(self::HEADER_CONTENT_TYPE, $value);
+        }
     }
 
-    private function get_content_disposition(): Headers\ContentDisposition
-    {
-        return $this->offsetGet(self::HEADER_CONTENT_DISPOSITION);
+    /**
+     * Shortcut to the `Date` header field definition.
+     *
+     * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Date
+     */
+    public Headers\Date|null $date {
+        get => $this->offsetGet(self::HEADER_DATE);
+        set(Headers\Date|DateTimeInterface|int|string|null $value) {
+            $this->offsetSet(self::HEADER_DATE, $value);
+        }
     }
 
-    private function set_content_disposition(mixed $value): void
-    {
-        $this->offsetSet(self::HEADER_CONTENT_DISPOSITION, $value);
+    /**
+     * Shortcut to the `ETag` header field definition.
+     *
+     * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag
+     */
+    public ?string $etag {
+        get => $this->offsetGet(self::HEADER_ETAG);
+        set {
+            $this->offsetSet(self::HEADER_ETAG, $value);
+        }
     }
 
-    private function get_content_type(): Headers\ContentType
-    {
-        return $this->offsetGet(self::HEADER_CONTENT_TYPE);
+    /**
+     * Shortcut to the `Expires` header field definition.
+     *
+     * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Expires
+     */
+    public Headers\Date|null $expires {
+        get => $this->offsetGet(self::HEADER_EXPIRES);
+        set(Headers\Date|DateTimeInterface|int|string|null $value) {
+            $this->offsetSet(self::HEADER_EXPIRES, $value);
+        }
     }
 
-    private function set_content_type(mixed $value): void
-    {
-        $this->offsetSet(self::HEADER_CONTENT_TYPE, $value);
+    /**
+     * Shortcut to the `If-Modified-Since` header field definition.
+     *
+     * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-Modified-Since
+     */
+    public Headers\Date|null $if_modified_since {
+        get => $this->offsetGet(self::HEADER_IF_MODIFIED_SINCE);
+        set(Headers\Date|DateTimeInterface|int|string|null $value) {
+            $this->offsetSet(self::HEADER_IF_MODIFIED_SINCE, $value);
+        }
     }
 
-    private function get_date(): Headers\Date
-    {
-        return $this->offsetGet(self::HEADER_DATE);
+    /**
+     * Shortcut to the `If-Unmodified-Since` header field definition.
+     *
+     * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-Unmodified-Since
+     */
+    public Headers\Date|null $if_unmodified_since {
+        get => $this->offsetGet(self::HEADER_IF_UNMODIFIED_SINCE);
+        set(Headers\Date|DateTimeInterface|int|string|null $value) {
+            $this->offsetSet(self::HEADER_IF_UNMODIFIED_SINCE, $value);
+        }
     }
 
-    private function set_date(mixed $value): void
-    {
-        $this->offsetSet(self::HEADER_DATE, $value);
+    /**
+     * Shortcut to the `Last-Modified` header field definition.
+     *
+     * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Last-Modified
+     */
+    public Headers\Date|null $last_modified {
+        get => $this->offsetGet(self::HEADER_LAST_MODIFIED);
+        set(Headers\Date|DateTimeInterface|int|string|null $value) {
+            $this->offsetSet(self::HEADER_LAST_MODIFIED, $value);
+        }
     }
 
-    private function get_etag(): ?string
-    {
-        return $this->offsetGet(self::HEADER_ETAG);
+    /**
+     * Shortcut to the `Location` header field definition.
+     * *
+     * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Location
+     */
+    public ?string $location {
+        get => $this->offsetGet(self::HEADER_LOCATION);
+        set {
+            $this->offsetSet(self::HEADER_LOCATION, $value);
+        }
     }
 
-    private function set_etag(?string $value): void
-    {
-        $this->offsetSet(self::HEADER_ETAG, $value);
-    }
-
-    private function get_expires(): Headers\Date
-    {
-        return $this->offsetGet(self::HEADER_EXPIRES);
-    }
-
-    private function set_expires(mixed $value): void
-    {
-        $this->offsetSet(self::HEADER_EXPIRES, $value);
-    }
-
-    private function get_if_modified_since(): Headers\Date
-    {
-        return $this->offsetGet(self::HEADER_IF_MODIFIED_SINCE);
-    }
-
-    private function set_if_modified_since(mixed $value): void
-    {
-        $this->offsetSet(self::HEADER_IF_MODIFIED_SINCE, $value);
-    }
-
-    private function get_if_unmodified_since(): Headers\Date
-    {
-        return $this->offsetGet(self::HEADER_IF_UNMODIFIED_SINCE);
-    }
-
-    private function set_if_unmodified_since(mixed $value): void
-    {
-        $this->offsetSet(self::HEADER_IF_UNMODIFIED_SINCE, $value);
-    }
-
-    private function get_last_modified(): Headers\Date
-    {
-        return $this->offsetGet(self::HEADER_LAST_MODIFIED);
-    }
-
-    private function set_last_modified(mixed $value): void
-    {
-        $this->offsetSet(self::HEADER_LAST_MODIFIED, $value);
-    }
-
-    private function get_location(): ?string
-    {
-        return $this->offsetGet(self::HEADER_LOCATION);
-    }
-
-    private function set_location(?string $value): void
-    {
-        $this->offsetSet(self::HEADER_LOCATION, $value);
-    }
-
-    private function get_retry_after(): int|Headers\Date|null
-    {
-        return $this->offsetGet(self::HEADER_RETRY_AFTER);
-    }
-
-    private function set_retry_after(int|DateTimeInterface|null $value): void
-    {
-        $this->offsetSet(self::HEADER_RETRY_AFTER, $value);
+    /**
+     * Shortcut to the `Retry-After` header field definition.
+     *
+     * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After
+     */
+    public Headers\Date|int|null $retry_after {
+        get => $this->offsetGet(self::HEADER_RETRY_AFTER);
+        set(Headers\Date|DateTimeInterface|int|string|null $value) {
+            $this->offsetSet(self::HEADER_RETRY_AFTER, $value);
+        }
     }
 }

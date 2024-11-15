@@ -2,7 +2,6 @@
 
 namespace ICanBoogie\HTTP;
 
-use ICanBoogie\Accessor\AccessorTrait;
 use ICanBoogie\HTTP\Headers\ContentType;
 use InvalidArgumentException;
 
@@ -15,7 +14,7 @@ use const JSON_THROW_ON_ERROR;
 /**
  * An HTTP request.
  *
- * ```php
+ * <pre>
  * <?php
  *
  * use ICanBoogie\HTTP\Request;
@@ -35,64 +34,12 @@ use const JSON_THROW_ON_ERROR;
  *     Request::OPTION_IS_LOCAL => true
  *
  * ], $_SERVER);
- * ```
- *
- * @method Response connect(array $params = null)
- * @method Response delete(array $params = null)
- * @method Response get(array $params = null)
- * @method Response head(array $params = null)
- * @method Response options(array $params = null)
- * @method Response post(array $params = null)
- * @method Response put(array $params = null)
- * @method Response patch(array $params = null)
- * @method Response trace(array $params = null)
- *
- * @property-read Request\Context $context the request's context.
- * @property-read Headers $headers the request's headers.
- * @property-read FileList $files the request's files.
- * @property-read bool $authorization Authorization of the request.
- * @property-read int $content_length Length of the request content.
- * @property-read string $ip Remote IP of the request.
- * @property-read bool $is_local Is this a local request?
- * @property-read bool $is_xhr Is this an Ajax request?
- * @property-read RequestMethod $method Method of the request.
- * @property-read string $normalized_path Path of the request normalized using the
- *     `\ICanBoogie\normalize_url_path` function.
- * @property-read string $path Path info of the request.
- * @property-read string $extension The extension of the path.
- * @property-read int $port Port of the request.
- * @property-read string $query_string Query string of the request.
- * @property-read string $script_name Name of the entered script.
- * @property-read string $referer Referer of the request.
- * @property-read string $user_agent User agent of the request.
- * @property-read string $uri URI of the request. The `QUERY_STRING` value of the environment
- * is overwritten when the instance is created with the `$uri` property.
+ * </pre>
  *
  * @link https://en.wikipedia.org/wiki/Uniform_resource_locator
  */
 final class Request implements RequestOptions
 {
-    /**
-     * @uses get_context
-     * @uses get_headers
-     * @uses get_script_name
-     * @uses get_method
-     * @uses get_query_string
-     * @uses get_content_length
-     * @uses get_referer
-     * @uses get_user_agent
-     * @uses get_is_xhr
-     * @uses get_is_local
-     * @uses get_ip
-     * @uses get_authorization
-     * @uses get_uri
-     * @uses get_port
-     * @uses get_path
-     * @uses get_normalized_path
-     * @uses get_extension
-     */
-    use AccessorTrait;
-
     /**
      * Parameters extracted from the request path.
      *
@@ -125,27 +72,8 @@ final class Request implements RequestOptions
      */
     public array $params;
 
-    /**
-     * TODO: The property should be readonly but cloning is only available from PHP 8.3:
-     * https://www.php.net/releases/8.3/en.php#readonly_classes
-     */
-    private Request\Context $context;
-
-    private function get_context(): Request\Context
-    {
-        return $this->context;
-    }
-
-    /**
-     * TODO: The property should be readonly but cloning is only available from PHP 8.3:
-     * https://www.php.net/releases/8.3/en.php#readonly_classes
-     */
-    private Headers $headers;
-
-    private function get_headers(): Headers
-    {
-        return $this->headers;
-    }
+    public readonly Request\Context $context;
+    public readonly Headers $headers;
 
     /**
      * Request environment.
@@ -156,15 +84,9 @@ final class Request implements RequestOptions
 
     /**
      * Files associated with the request.
-     *
-     * **Note**: The field is not readonly because it can be overwritten by `with()`.
      */
-    private FileList $files;
-
-    private function get_files(): FileList
-    {
-        return $this->files;
-    }
+    // The field is not readonly because it can be overwritten by `with()`.
+    private(set) FileList $files;
 
     public $cookie;
 
@@ -337,101 +259,98 @@ final class Request implements RequestOptions
     }
 
     /**
-     * Returns the script name.
+     * The script name.
      *
-     * The setter is volatile, the value is returned from the ENV key `SCRIPT_NAME`.
+     * The value is returned from the ENV key `SCRIPT_NAME`.
      */
-    private function get_script_name(): string
-    {
-        return $this->env['SCRIPT_NAME'];
+    public string $script_name {
+        get => $this->env['SCRIPT_NAME'];
     }
 
     /**
-     * Returns the request method.
+     * The request method.
      *
      * This is the getter for the `method` magic property.
      *
      * The method is retrieved from {@see $env}, if the key `REQUEST_METHOD` is not defined,
      * the method defaults to {@see METHOD_GET}.
      */
-    private function get_method(): RequestMethod
-    {
-        $method = RequestMethod::from_mixed($this->env['REQUEST_METHOD'] ?? 'GET');
+    public RequestMethod $method
+        {
+            get {
+                $method = RequestMethod::from_mixed($this->env['REQUEST_METHOD'] ?? 'GET');
 
-        if ($method === RequestMethod::METHOD_POST && !empty($this->request_params['_method'])) {
-            $method = RequestMethod::from_mixed($this->request_params['_method']);
+                if ($method === RequestMethod::METHOD_POST && !empty($this->request_params['_method'])) {
+                    $method = RequestMethod::from_mixed($this->request_params['_method']);
+                }
+
+                return $method;
+            }
         }
 
-        return $method;
-    }
-
     /**
-     * Returns the query string of the request.
+     * The query string of the request.
      *
      * The value is obtained from the `QUERY_STRING` key of the {@see $env} array.
      */
-    private function get_query_string(): ?string
-    {
-        return $this->env['QUERY_STRING'] ?? null;
+    public ?string $query_string {
+        get => $this->env['QUERY_STRING'] ?? null;
     }
 
     /**
-     * Returns the content length of the request.
+     * The content length of the request.
      *
      * The value is obtained from the `CONTENT_LENGTH` key of the {@see $env} array.
      */
-    private function get_content_length(): ?int
-    {
-        return $this->env['CONTENT_LENGTH'] ?? null;
+    public ?int $content_length {
+        get => $this->env['CONTENT_LENGTH'] ?? null;
     }
 
     /**
-     * Returns the referer of the request.
+     * The referer of the request.
      *
      * The value is obtained from the `HTTP_REFERER` key of the {@see $env} array.
      */
-    private function get_referer(): ?string
-    {
-        return $this->env['HTTP_REFERER'] ?? null;
+    public ?string $referer {
+        get => $this->env['HTTP_REFERER'] ?? null;
     }
 
     /**
-     * Returns the user agent of the request.
+     * The user agent of the request.
      *
      * The value is obtained from the `HTTP_USER_AGENT` key of the {@see $env} array.
-     *
-     * @return string|null
      */
-    private function get_user_agent(): ?string
-    {
-        return $this->env['HTTP_USER_AGENT'] ?? null;
+    public ?string $user_agent {
+        get => $this->env['HTTP_USER_AGENT'] ?? null;
     }
 
     /**
      * Checks if the request is a `XMLHTTPRequest`.
      */
-    private function get_is_xhr(): bool
-    {
-        return !empty($this->env['HTTP_X_REQUESTED_WITH'])
-            && str_contains($this->env['HTTP_X_REQUESTED_WITH'], 'XMLHttpRequest');
+    public bool $is_xhr {
+        get {
+            return !empty($this->env['HTTP_X_REQUESTED_WITH'])
+                && str_contains($this->env['HTTP_X_REQUESTED_WITH'], 'XMLHttpRequest');
+        }
     }
 
     /**
      * Checks if the request is local.
      */
-    private function get_is_local(): bool
-    {
-        $ip = $this->ip;
+    public bool $is_local {
+        get {
+            $ip = $this->ip;
 
-        if ($ip == '::1' || preg_match('/^127\.0\.0\.\d{1,3}$/', $ip)) {
-            return true;
+            if ($ip == '::1' || preg_match('/^127\.0\.0\.\d{1,3}$/', $ip)) {
+                return true;
+            }
+
+            return preg_match('/^0:0:0:0:0:0:0:1(%.*)?$/', $ip);
         }
-
-        return preg_match('/^0:0:0:0:0:0:0:1(%.*)?$/', $ip);
     }
 
     /**
-     * Returns the remote IP of the request.
+     * The remote IP of the request.
      *
      * If defined, the `HTTP_X_FORWARDED_FOR` header is used to retrieve the original IP.
      *
@@ -439,32 +358,37 @@ final class Request implements RequestOptions
      *
      * @link https://en.wikipedia.org/wiki/X-Forwarded-For
      */
-    private function get_ip(): string
-    {
-        $forwarded_for = $this->headers['X-Forwarded-For'];
+    public string $ip {
+        get {
+            $forwarded_for = $this->headers['X-Forwarded-For'];
 
-        if ($forwarded_for) {
-            [ $ip ] = explode(',', $forwarded_for);
+            if ($forwarded_for) {
+                [ $ip ] = explode(',', $forwarded_for);
 
-            return $ip;
+                return $ip;
+            }
+
+            return $this->env['REMOTE_ADDR'] ?? '::1';
         }
-
-        return $this->env['REMOTE_ADDR'] ?? '::1';
     }
 
-    private function get_authorization(): ?string
-    {
-        if (isset($this->env['HTTP_AUTHORIZATION'])) {
-            return $this->env['HTTP_AUTHORIZATION'];
-        } elseif (isset($this->env['X-HTTP_AUTHORIZATION'])) {
-            return $this->env['X-HTTP_AUTHORIZATION'];
-        } elseif (isset($this->env['X_HTTP_AUTHORIZATION'])) {
-            return $this->env['X_HTTP_AUTHORIZATION'];
-        } elseif (isset($this->env['REDIRECT_X_HTTP_AUTHORIZATION'])) {
-            return $this->env['REDIRECT_X_HTTP_AUTHORIZATION'];
-        }
+    /**
+     * Authorization of the request.
+     */
+    public ?string $authorization {
+        get {
+            if (isset($this->env['HTTP_AUTHORIZATION'])) {
+                return $this->env['HTTP_AUTHORIZATION'];
+            } elseif (isset($this->env['X-HTTP_AUTHORIZATION'])) {
+                return $this->env['X-HTTP_AUTHORIZATION'];
+            } elseif (isset($this->env['X_HTTP_AUTHORIZATION'])) {
+                return $this->env['X_HTTP_AUTHORIZATION'];
+            } elseif (isset($this->env['REDIRECT_X_HTTP_AUTHORIZATION'])) {
+                return $this->env['REDIRECT_X_HTTP_AUTHORIZATION'];
+            }
 
-        return null;
+            return null;
+        }
     }
 
     /**
@@ -473,46 +397,40 @@ final class Request implements RequestOptions
      * If the `REQUEST_URI` key is not defined by the environment, the value is fetched from
      * the `$_SERVER` array. If the key is not defined in the `$_SERVER` array `null` is returned.
      */
-    private function get_uri(): ?string
-    {
-        return $this->env['REQUEST_URI'] ?? ($_SERVER['REQUEST_URI'] ?? null);
+    public ?string $uri {
+        get => $this->env['REQUEST_URI'] ?? ($_SERVER['REQUEST_URI'] ?? null);
     }
 
     /**
-     * Returns the port of the request.
+     * The port of the request.
      */
-    private function get_port(): int
-    {
-        return $this->env['REQUEST_PORT'];
+    public int $port {
+        get => $this->env['REQUEST_PORT'];
     }
 
     /**
      * Returns the path of the request, that is the `REQUEST_URI` without the query string.
      */
-    private function get_path(): string
-    {
-        $uri = $this->uri;
-        $qs_pos = strpos($uri, '?');
+    public string $path {
+        get {
+            $uri = $this->uri;
+            $qs_pos = strpos($uri, '?');
 
-        return ($qs_pos === false) ? $uri : substr($uri, 0, $qs_pos);
+            return ($qs_pos === false) ? $uri : substr($uri, 0, $qs_pos);
+        }
     }
 
     /**
-     * Returns the {@see $path} property normalized using the
-     * `ICanBoogie\normalize_url_path()` function.
+     * The {@see $path} property normalized using the {@see normalize_url_path()} function.
      */
-    private function get_normalized_path(): string
-    {
-        return normalize_url_path($this->path);
+    public string $normalized_path {
+        get => normalize_url_path($this->path);
     }
 
     /**
-     * Returns the extension of the path info.
-     *
-     * @return mixed
+     * The extension of the path info.
      */
-    private function get_extension()
-    {
-        return pathinfo($this->path, PATHINFO_EXTENSION);
+    public string $extension {
+        get => pathinfo($this->path, PATHINFO_EXTENSION);
     }
 }

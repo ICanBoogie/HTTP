@@ -2,14 +2,12 @@
 
 namespace ICanBoogie\HTTP\Headers;
 
-use ICanBoogie\Accessor\AccessorTrait;
 use InvalidArgumentException;
 
 use function array_key_exists;
 use function array_map;
 use function explode;
 use function get_object_vars;
-use function ICanBoogie\format;
 use function in_array;
 use function is_array;
 use function is_numeric;
@@ -36,40 +34,31 @@ use function substr;
  * echo $cc;                      // no-cache, no-store, must-revalidate
  * </pre>
  *
- * @property bool|string|null $cacheable
- *
  * @link https://tools.ietf.org/html/rfc2616#section-14.9
  */
 final class CacheControl
 {
-    /**
-     * @uses get_cacheable
-     * @uses set_cacheable
-     * @uses get_default_values
-     */
-    use AccessorTrait;
-
-    private const CACHEABLE_VALUES = [
+    private const array CACHEABLE_VALUES = [
 
         'private',
         'public',
-        'no-cache'
+        'no-cache',
 
     ];
 
-    private const BOOLEANS = [
+    private const array BOOLEANS = [
 
         'no-store',
         'no-transform',
         'only-if-cached',
         'must-revalidate',
-        'proxy-revalidate'
+        'proxy-revalidate',
 
     ];
 
-    private const PLACEHOLDER = [
+    private const array PLACEHOLDER = [
 
-        'cacheable'
+        'cacheable',
 
     ];
 
@@ -91,7 +80,7 @@ final class CacheControl
             'only_if_cached' => false,
             'must_revalidate' => false,
             'proxy_revalidate' => false,
-            'extensions' => []
+            'extensions' => [],
 
         ];
     }
@@ -119,7 +108,7 @@ final class CacheControl
             if (in_array($value, self::CACHEABLE_VALUES)) {
                 $properties['cacheable'] = $value;
             } elseif (preg_match('#^([^=]+)=(.+)$#', $value, $matches)) {
-                list(, $directive, $value) = $matches;
+                [ , $directive, $value ] = $matches;
 
                 $property = strtr($directive, '-', '_');
 
@@ -161,32 +150,21 @@ final class CacheControl
      *
      * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.1
      */
-    private ?string $cacheable = null;
+    public ?string $cacheable {
+        get => $this->cacheable ?? null;
+        set(null|bool|string $value) {
+            if ($value === false) {
+                $value = 'no-cache';
+            }
 
-    private function get_cacheable(): ?string
-    {
-        return $this->cacheable;
-    }
+            if ($value !== null && !in_array($value, self::CACHEABLE_VALUES)) {
+                throw new InvalidArgumentException(
+                    "cacheable must be one of: public, private, no-cache. Given: $value",
+                );
+            }
 
-    private function set_cacheable(bool|string|null $value): void
-    {
-        if ($value === false) {
-            $value = 'no-cache';
+            $this->cacheable = $value;
         }
-
-        if ($value !== null && !in_array($value, self::CACHEABLE_VALUES)) {
-            throw new InvalidArgumentException(format(
-                "%var must be one of: public, private, no-cache. Give: %value",
-                [
-
-                    'var' => 'cacheable',
-                    'value' => $value
-
-                ]
-            ));
-        }
-
-        $this->cacheable = $value;
     }
 
     /**

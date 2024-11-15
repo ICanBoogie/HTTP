@@ -7,7 +7,7 @@ namespace ICanBoogie\HTTP;
  */
 class FileInfo
 {
-    public const TYPES = [
+    public const array TYPES = [
 
         '.doc'  => 'application/msword',
         '.docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -30,7 +30,7 @@ class FileInfo
 
     ];
 
-    public const FORCED_TYPES = [
+    public const array FORCED_TYPES = [
 
         '.js',
         '.json',
@@ -39,7 +39,7 @@ class FileInfo
 
     ];
 
-    public const TYPES_ALIAS = [
+    public const array TYPES_ALIAS = [
 
         'text/x-php' => 'application/x-php'
 

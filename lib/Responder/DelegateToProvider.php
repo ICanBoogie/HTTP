@@ -11,10 +11,10 @@ use ICanBoogie\HTTP\Response;
 /**
  * A {@see Responder} that delegates to a matching {@see Responder}, via a {@see ResponderProvider}.
  */
-final class DelegateToProvider implements Responder
+final readonly class DelegateToProvider implements Responder
 {
     public function __construct(
-        private readonly ResponderProvider $responders
+        private ResponderProvider $responders
     ) {
     }
 

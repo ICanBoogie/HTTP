@@ -10,17 +10,11 @@ use Throwable;
  */
 class RecoverEvent extends Event
 {
-    public ?Response $response;
-    public Throwable $exception;
-
     public function __construct(
-        Throwable &$sender,
+        public Throwable &$exception,
         public readonly Request $request,
-        ?Response &$response = null
+        public ?Response &$response = null
     ) {
-        $this->response = &$response;
-        $this->exception = &$sender;
-
-        parent::__construct($sender);
+        parent::__construct($exception);
     }
 }

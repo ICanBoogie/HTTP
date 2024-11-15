@@ -9,7 +9,7 @@ use Throwable;
  */
 class PermissionRequired extends ClientError implements SecurityError
 {
-    public const DEFAULT_MESSAGE = "You don't have the required permission.";
+    public const string DEFAULT_MESSAGE = "You don't have the required permission.";
 
     /**
      * @inheritdoc

@@ -16,10 +16,10 @@ use function ICanBoogie\emit;
  * When a {@see Throwable} is caught, a {@see RecoverEvent} is emitted. Listeners can provide a response or replace
  * the exception.
  */
-final class WithRecovery implements Responder
+final readonly class WithRecovery implements Responder
 {
     public function __construct(
-        private readonly Responder $responder
+        private Responder $responder
     ) {
     }
 

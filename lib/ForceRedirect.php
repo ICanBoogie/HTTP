@@ -4,8 +4,6 @@ namespace ICanBoogie\HTTP;
 
 use Throwable;
 
-use function ICanBoogie\format;
-
 /**
  * Exception thrown to force the redirect of the response.
  *
@@ -23,6 +21,6 @@ class ForceRedirect extends \Exception implements Exception
 
     private function format_message(string $location): string
     {
-        return format("Location: %location", [ 'location' => $location ]);
+        return "Location: $location";
     }
 }

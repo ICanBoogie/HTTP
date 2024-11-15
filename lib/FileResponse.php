@@ -20,19 +20,14 @@ use const FILEINFO_MIME_TYPE;
 
 /**
  * Representation of an HTTP response delivering a file.
- *
- * @property-read SplFileInfo $file
- * @property-read int $modified_time
- * @property-read RequestRange|null $range
- * @property-read bool $is_modified
  */
 class FileResponse extends Response
 {
     /**
-     * Specifies the `ETag` header field of the response. If it is not defined the
-     * SHA-384 of the file is used instead.
+     * Specifies the `ETag` header field of the response.
+     * If it is not defined, the SHA-384 of the file is used instead.
      */
-    public const OPTION_ETAG = 'etag';
+    public const string OPTION_ETAG = 'etag';
 
     /**
      * Specifies the expiration date as a {@see \DateTimeInterface} instance or a relative date
@@ -40,22 +35,22 @@ class FileResponse extends Response
      * the `Cache-Control` header field is computed from the current time. If it is not
      * defined {@see DEFAULT_EXPIRES} is used instead.
      */
-    public const OPTION_EXPIRES = 'expires';
+    public const string OPTION_EXPIRES = 'expires';
 
     /**
-     * Specifies the filename of the file and forces download. The following header are updated:
-     * `Content-Transfer-Encoding`, `Content-Description`, and `Content-Dispositon`.
+     * Specifies the filename of the file and forces download. The following headers are updated:
+     * `Content-Transfer-Encoding`, `Content-Description`, and `Content-Disposition`.
      */
-    public const OPTION_FILENAME = 'filename';
+    public const string OPTION_FILENAME = 'filename';
 
     /**
-     * Specifies the MIME of the file, which maps to the `Content-Type` header field. If it is
-     * not defined the MIME is guessed using `finfo::file()`.
+     * Specifies the MIME of the file, which maps to the `Content-Type` header field.
+     * If it is not defined, the MIME is guessed using `finfo::file()`.
      */
-    public const OPTION_MIME = 'mime';
+    public const string OPTION_MIME = 'mime';
 
-    public const DEFAULT_EXPIRES = '+1 month';
-    public const DEFAULT_MIME = 'application/octet-stream';
+    public const string DEFAULT_EXPIRES = '+1 month';
+    public const string DEFAULT_MIME = 'application/octet-stream';
 
     /**
      * Hashes a file using SHA-348.
@@ -67,12 +62,7 @@ class FileResponse extends Response
         return base64_encode(hash_file('sha384', $pathname, true));
     }
 
-    private SplFileInfo $file;
-
-    protected function get_file(): SplFileInfo
-    {
-        return $this->file;
-    }
+    public readonly SplFileInfo $file;
 
     /**
      * @param array<string, mixed> $options
@@ -82,7 +72,7 @@ class FileResponse extends Response
         string|SplFileInfo $file,
         private readonly Request $request,
         array $options = [],
-        Headers|array $headers = []
+        Headers|array $headers = [],
     ) {
         if (!$headers instanceof Headers) {
             $headers = new Headers($headers);
@@ -104,7 +94,7 @@ class FileResponse extends Response
     /**
      * Ensures the provided file is a {@see \SplFileInfo} instance.
      *
-     * @throws LogicException if the file is a directory, or does not exist.
+     * @throws LogicException if the file is a directory or doesn't exist.
      */
     private function ensure_file_info(mixed $file): SplFileInfo
     {
@@ -157,7 +147,7 @@ class FileResponse extends Response
     }
 
     /**
-     * If the content type is empty in the headers the method tries to obtain it from
+     * If the content type is empty in the headers, the method tries to get it from
      * the file, if it fails {@see DEFAULT_MIME} is used as fallback.
      */
     private function ensure_content_type(SplFileInfo $file, Headers $headers): void
@@ -176,7 +166,7 @@ class FileResponse extends Response
     }
 
     /**
-     * Changes the status to `Status::NOT_MODIFIED` if the request's Cache-Control has
+     * Changes the status to {@see Status::NOT_MODIFIED} if the request's Cache-Control has
      * 'no-cache' and `is_modified` is false.
      */
     public function __invoke(): void
@@ -204,7 +194,7 @@ class FileResponse extends Response
      * - `Cache-Control`: sets _cacheable_ to _public_.
      * - `Expires`: is set to "+1 month".
      *
-     * If the status code is `Stauts::NOT_MODIFIED` the following headers are unset:
+     * If the status code is {@see Status::NOT_MODIFIED} the following headers are unset:
      *
      * - `Content-Type`
      * - `Content-Length`
@@ -242,7 +232,7 @@ class FileResponse extends Response
     }
 
     /**
-     * Finalizes the response for `Status::NOT_MODIFIED`.
+     * Finalizes the response for {@see Status::NOT_MODIFIED}.
      */
     private function finalize_for_not_modified(Headers &$headers): void
     {
@@ -250,29 +240,30 @@ class FileResponse extends Response
     }
 
     /**
-     * Finalizes the response for `Status::PARTIAL_CONTENT`.
+     * Finalizes the response for {@see Status::PARTIAL_CONTENT}.
      */
     private function finalize_for_partial_content(Headers &$headers): void
     {
         $range = $this->range;
 
         $headers->last_modified = $this->modified_time;
-        $headers['Content-Range'] = (string) $range;
+        $headers['Content-Range'] = (string)$range;
         $headers->content_length = $range->length;
     }
 
     /**
-     * Finalizes the response for status other than `Status::NOT_MODIFIED` or
-     * `Status::PARTIAL_CONTENT`.
+     * Finalizes the response for status other than {@see Status::NOT_MODIFIED} or
+     * {@see Status::PARTIAL_CONTENT}.
      */
     private function finalize_for_other(Headers &$headers): void
     {
         $headers->last_modified = $this->modified_time;
 
-        if (!$headers['Accept-Ranges']) {
+        if (!$headers[Headers::HEADER_ACCEPT_RANGES]) {
             $request = $this->request;
 
-            $headers['Accept-Ranges'] = $request->method->is_get() || $request->method->is_head() ? 'bytes' : 'none';
+            $headers[Headers::HEADER_ACCEPT_RANGES] = $request->method->is_get()
+            || $request->method->is_head() ? 'bytes' : 'none';
         }
 
         $headers->content_length = $this->file->getSize();
@@ -280,8 +271,6 @@ class FileResponse extends Response
 
     /**
      * Sends the file.
-     *
-     * @param SplFileInfo $file
      *
      * @codeCoverageIgnore
      */
@@ -323,30 +312,31 @@ class FileResponse extends Response
     }
 
     /**
-     * If the date returned by the parent is empty the method returns a date created from
+     * If the date returned by the parent is empty, the method returns a date created from
      * {@see DEFAULT_EXPIRES}.
      */
-    protected function get_expires(): Headers\Date
-    {
-        $expires = parent::get_expires();
+    public Headers\Date|null $expires {
+        get {
+            $expires = parent::$expires::get();
 
-        if (!$expires->is_empty) {
-            return $expires;
+            if (!$expires->is_empty) {
+                return $expires;
+            }
+
+            return Headers\Date::from(self::DEFAULT_EXPIRES);
+        }
+    }
+
+    /**
+     * The timestamp at which the file was last modified.
+     */
+    public false|int $modified_time
+        {
+            get => $this->file->getMTime();
         }
 
-        return Headers\Date::from(self::DEFAULT_EXPIRES);
-    }
-
     /**
-     * Returns the timestamp at which the file was last modified.
-     */
-    protected function get_modified_time(): false|int
-    {
-        return $this->file->getMTime();
-    }
-
-    /**
-     * Whether the file as been modified since the last response.
+     * Whether the file has been modified since the last response.
      *
      * The file is considered modified if one of the following conditions is met:
      *
@@ -354,31 +344,32 @@ class FileResponse extends Response
      * - The `If-Modified-Since` value is inferior to `$modified_time`.
      * - The `If-None-Match` value doesn't match `$etag`.
      */
-    protected function get_is_modified(): bool
-    {
-        $headers = $this->request->headers;
+    public bool $is_modified
+        {
+            get {
+                $headers = $this->request->headers;
 
-        // HTTP/1.1
+                // HTTP/1.1
 
-        if ((string) $headers[Headers::HEADER_IF_NONE_MATCH] !== $this->headers->etag) {
-            return true;
+                if ((string)$headers[Headers::HEADER_IF_NONE_MATCH] !== $this->headers->etag) {
+                    return true;
+                }
+
+                // HTTP/1.0
+
+                $if_modified_since = $headers->if_modified_since;
+
+                return $if_modified_since->is_empty || $if_modified_since->timestamp < $this->modified_time;
+            }
         }
 
-        // HTTP/1.0
-
-        $if_modified_since = $headers->if_modified_since;
-
-        return $if_modified_since->is_empty || $if_modified_since->timestamp < $this->modified_time;
-    }
-
-    private ?RequestRange $range_;
-
-    protected function get_range(): ?RequestRange
-    {
-        return $this->range_ ??= RequestRange::from(
-            $this->request->headers,
-            $this->file->getSize(),
-            $this->headers->etag
-        );
+    public ?RequestRange $range {
+        get {
+            return $this->range ??= RequestRange::from(
+                $this->request->headers,
+                $this->file->getSize(),
+                $this->headers->etag,
+            );
+        }
     }
 }

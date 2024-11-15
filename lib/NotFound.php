@@ -9,7 +9,7 @@ use Throwable;
  */
 class NotFound extends ClientError implements Exception
 {
-    public const DEFAULT_MESSAGE = "The requested URL was not found on this server.";
+    public const string DEFAULT_MESSAGE = "The requested URL was not found on this server.";
 
     /**
      * @inheritdoc

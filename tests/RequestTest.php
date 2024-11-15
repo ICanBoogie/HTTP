@@ -31,26 +31,6 @@ class RequestTest extends TestCase
         $this->assertNotSame($request->context, $clone->context);
     }
 
-    #[DataProvider('provide_test_write_readonly_properties')]
-    public function test_write_readonly_properties(string $property): void
-    {
-        $this->expectException(PropertyNotWritable::class);
-
-        self::$request->$property = null;
-    }
-
-    public static function provide_test_write_readonly_properties(): array
-    {
-        $properties = 'authorization content_length context extension ip'
-        . ' is_local is_xhr'
-        . ' normalized_path method path port query_string referer script_name uri'
-        . ' user_agent';
-
-        return array_map(function ($name) {
-            return (array) $name;
-        }, explode(' ', $properties));
-    }
-
     public function test_from_with_cache_control(): void
     {
         $value = "public, must-revalidate";
@@ -64,7 +44,6 @@ class RequestTest extends TestCase
     {
         $value = 123456789;
         $request = Request::from([ RequestOptions::OPTION_CONTENT_LENGTH => $value ]);
-        $this->assertFalse(isset($request->content_length));
         $this->assertEquals($value, $request->content_length);
     }
 
@@ -72,7 +51,6 @@ class RequestTest extends TestCase
     {
         $value = '192.168.13.69';
         $request = Request::from([ RequestOptions::OPTION_IP => $value ]);
-        $this->assertFalse(isset($request->ip));
         $this->assertEquals($value, $request->ip);
     }
 
@@ -91,29 +69,24 @@ class RequestTest extends TestCase
     public function test_from_with_is_local(): void
     {
         $request = Request::from([ RequestOptions::OPTION_IS_LOCAL => true ]);
-        $this->assertFalse(isset($request->is_local));
         $this->assertTrue($request->is_local);
 
         $request = Request::from([ RequestOptions::OPTION_IS_LOCAL => false ]);
-        $this->assertFalse(isset($request->is_local));
         $this->assertTrue($request->is_local); // yes is_local is `true` even if it was defined as `false`, that's because IP is not defined.
     }
 
     public function test_from_with_is_xhr(): void
     {
         $request = Request::from([ RequestOptions::OPTION_IS_XHR => true ]);
-        $this->assertFalse(isset($request->is_xhr));
         $this->assertTrue($request->is_xhr);
 
         $request = Request::from([ RequestOptions::OPTION_IS_XHR => false ]);
-        $this->assertFalse(isset($request->is_xhr));
         $this->assertFalse($request->is_xhr);
     }
 
     public function test_from_with_method(): void
     {
         $request = Request::from([ RequestOptions::OPTION_METHOD => RequestMethod::METHOD_OPTIONS ]);
-        $this->assertFalse(isset($request->method));
         $this->assertEquals(RequestMethod::METHOD_OPTIONS, $request->method);
     }
 
@@ -132,11 +105,9 @@ class RequestTest extends TestCase
     public function test_from_with_path(): void
     {
         $request = Request::from([ RequestOptions::OPTION_PATH => '/path/' ]);
-        $this->assertFalse(isset($request->path));
         $this->assertEquals('/path/', $request->path);
 
         $request = Request::from('/path/');
-        $this->assertFalse(isset($request->path));
         $this->assertEquals('/path/', $request->path);
     }
 
@@ -144,7 +115,6 @@ class RequestTest extends TestCase
     {
         $value = 'https://example.org/referer/';
         $request = Request::from([ RequestOptions::OPTION_REFERER => $value ]);
-        $this->assertFalse(isset($request->referer));
         $this->assertEquals($value, $request->referer);
     }
 
@@ -152,11 +122,9 @@ class RequestTest extends TestCase
     {
         $value = '/uri/';
         $request = Request::from([ RequestOptions::OPTION_URI => $value ]);
-        $this->assertFalse(isset($request->uri));
         $this->assertEquals($value, $request->uri);
 
         $request = Request::from($value);
-        $this->assertFalse(isset($request->uri));
         $this->assertEquals($value, $request->uri);
     }
 
@@ -170,7 +138,6 @@ class RequestTest extends TestCase
         $query_string = http_build_query([ 'p1' => $param1, 'p2' => $param2, 'p3' => $param3 ]);
         $uri = "$path?$query_string";
         $request = Request::from($uri);
-        $this->assertFalse(isset($request->uri));
         $this->assertEquals($uri, $request->uri);
         $this->assertEquals($path, $request->path);
         $this->assertEquals($query_string, $request->query_string);
@@ -188,7 +155,6 @@ class RequestTest extends TestCase
     public function test_from_with_user_agent(): void
     {
         $request = Request::from([ RequestOptions::OPTION_USER_AGENT => 'Madonna' ]);
-        $this->assertFalse(isset($request->user_agent));
         $this->assertEquals('Madonna', $request->user_agent);
     }
 

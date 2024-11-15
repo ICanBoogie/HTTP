@@ -2,8 +2,6 @@
 
 namespace ICanBoogie\HTTP\Headers;
 
-use ICanBoogie\Accessor\AccessorTrait;
-
 use function ICanBoogie\remove_accents;
 use function mb_convert_encoding;
 use function mb_detect_encoding;
@@ -18,29 +16,17 @@ use function urldecode;
 /**
  * Representation of a header parameter.
  *
- * @property-read string $attribute The attribute of the parameter.
- * @property-read string $charset The charset of the parameter's value.
- *
- * @link https://tools.ietf.org/html/rfc2231
- * @link https://tools.ietf.org/html/rfc5987
- * @link https://greenbytes.de/tech/tc2231/#attwithfn2231utf8
+ * @see https://tools.ietf.org/html/rfc2231
+ * @see https://tools.ietf.org/html/rfc5987
+ * @see https://greenbytes.de/tech/tc2231/#attwithfn2231utf8
  */
 class HeaderParameter
 {
     /**
-     * @uses get_attribute
-     * @uses get_charset
+     * The charset of the parameter's value.
      */
-    use AccessorTrait;
-
-    protected function get_attribute(): string
-    {
-        return $this->attribute;
-    }
-
-    protected function get_charset(): string
-    {
-        return mb_detect_encoding($this->value) ?: 'ISO-8859-1';
+    public string $charset {
+        get => mb_detect_encoding($this->value) ?: 'ISO-8859-1';
     }
 
     /**
@@ -120,8 +106,11 @@ class HeaderParameter
         return preg_replace('/[^\x20-\x7F]+/', '', $str);
     }
 
+    /**
+     *@property-read string $attribute The attribute of the parameter.
+     */
     public function __construct(
-        protected string $attribute,
+        public readonly string $attribute,
         public ?string $value = null,
         public ?string $language = null
     ) {

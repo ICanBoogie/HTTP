@@ -10,10 +10,10 @@ use ICanBoogie\HTTP\Response;
 /**
  * A {@see Responder} that delegates to a {@see Closure}.
  */
-final class DelegateToClosure implements Responder
+final readonly class DelegateToClosure implements Responder
 {
     public function __construct(
-        private readonly Closure $closure
+        private Closure $closure
     ) {
     }
 

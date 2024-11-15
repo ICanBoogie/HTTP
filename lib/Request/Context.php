@@ -8,7 +8,7 @@ use RuntimeException;
 /**
  * The context of a request.
  *
- * This is a general purpose container used to store the objects and variables related to a
+ * This is a general-purpose container used to store the objects and variables related to a
  * request.
  */
 final class Context
@@ -36,7 +36,7 @@ final class Context
     /**
      * Get an object from the context.
      *
-     * The method will fail if there's no object matching the specified class or interface.
+     * The method will fail if there is no object matching the specified class or interface.
      *
      * @template T of object
      *
@@ -66,12 +66,6 @@ final class Context
      */
     public function find(string $class): ?object
     {
-        foreach ($this->values as $value) {
-            if ($value instanceof $class) {
-                return $value;
-            }
-        }
-
-        return null;
+        return array_find($this->values, fn($value) => $value instanceof $class);
     }
 }

@@ -9,13 +9,13 @@ use ICanBoogie\HTTP\ResponderProvider;
 /**
  * Tries a chain until a provider is found for a request.
  */
-final class Chain implements ResponderProvider
+final readonly class Chain implements ResponderProvider
 {
     /**
      * @param iterable<ResponderProvider> $chain
      */
     public function __construct(
-        private readonly iterable $chain
+        private iterable $chain
     ) {
     }
 

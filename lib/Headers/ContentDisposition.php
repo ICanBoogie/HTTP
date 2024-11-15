@@ -25,7 +25,7 @@ namespace ICanBoogie\HTTP\Headers;
  */
 class ContentDisposition extends Header
 {
-    public const VALUE_ALIAS = 'type';
+    public const string VALUE_ALIAS = 'type';
 
     /**
      * Defines the `filename` parameter.

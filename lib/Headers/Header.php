@@ -163,12 +163,12 @@ abstract class Header implements ArrayAccess
      * Sets the value of a parameter.
      *
      * If the value is an instance of {@see HeaderParameter} then the parameter is replaced,
-     * otherwise the value of the current parameter is updated and its language is set to `null`.
+     * otherwise the value of the current parameter is updated, and its language is set to `null`.
      *
      * @param string $offset An attribute.
      * @param mixed $value
      *
-     * @throws OffsetNotDefined in attempt to access a parameter that is not defined.
+     * @throws OffsetNotDefined in an attempt to access a parameter that is not defined.
      */
     public function offsetSet(mixed $offset, mixed $value): void
     {
@@ -191,7 +191,7 @@ abstract class Header implements ArrayAccess
      *
      * @return HeaderParameter
      *
-     * @throws OffsetNotDefined in attempt to access a parameter that is not defined.
+     * @throws OffsetNotDefined in an attempt to access a parameter that is not defined.
      */
     public function offsetGet(mixed $offset): HeaderParameter
     {
@@ -230,7 +230,7 @@ abstract class Header implements ArrayAccess
      *
      * @return mixed
      *
-     * @throws PropertyNotDefined in attempt to access a parameter that is not defined.
+     * @throws PropertyNotDefined in an attempt to access a parameter that is not defined.
      */
     public function __get(string $property)
     {
@@ -250,7 +250,7 @@ abstract class Header implements ArrayAccess
      *
      * The method also handles the alias of the {@see $value} property.
      *
-     * @throws PropertyNotDefined in attempt to access a parameter that is not defined.
+     * @throws PropertyNotDefined in an attempt to access a parameter that is not defined.
      */
     public function __set(string $property, mixed $value): void
     {
