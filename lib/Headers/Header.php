@@ -280,8 +280,6 @@ abstract class Header implements ArrayAccess
 
     /**
      * Unsets the matching parameter.
-     *
-     * @throws PropertyNotDefined in attempt to access a parameter that is not defined.
      */
     public function __unset(string $property): void
     {

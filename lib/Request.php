@@ -57,8 +57,8 @@ use const JSON_THROW_ON_ERROR;
  * @method Response trace(array $params = null)
  *
  * @property-read Request\Context $context the request's context.
- * @property-read FileList $files The files associated with the request.
- *
+ * @property-read Headers $headers the request's headers.
+ * @property-read FileList $files the request's files.
  * @property-read bool $authorization Authorization of the request.
  * @property-read int $content_length Length of the request content.
  * @property-read string $ip Remote IP of the request.
@@ -83,7 +83,7 @@ final class Request implements RequestOptions
 {
     /**
      * @uses get_context
-     * @uses get_files
+     * @uses get_headers
      * @uses get_script_name
      * @uses get_method
      * @uses get_query_string
@@ -126,7 +126,7 @@ final class Request implements RequestOptions
     /**
      * Union of {@see $path_params}, {@see $request_params} and {@see $query_params}.
      *
-     * **Note:** The property is created during construct and is not updated after. If you modify one of
+     * **Note**: The property is created during construct and is not updated after. If you modify one of
      * {@see $path_params}, {@see $request_params} and {@see $query_params}, remember to modify {@see $params} as
      * well.
      *
@@ -134,6 +134,10 @@ final class Request implements RequestOptions
      */
     public array $params;
 
+    /**
+     * TODO: The property should be readonly but cloning is only available from PHP 8.3:
+     * https://www.php.net/releases/8.3/en.php#readonly_classes
+     */
     private Request\Context $context;
 
     private function get_context(): Request\Context
@@ -141,7 +145,16 @@ final class Request implements RequestOptions
         return $this->context;
     }
 
-    public Headers $headers;
+    /**
+     * TODO: The property should be readonly but cloning is only available from PHP 8.3:
+     * https://www.php.net/releases/8.3/en.php#readonly_classes
+     */
+    private Headers $headers;
+
+    private function get_headers(): Headers
+    {
+        return $this->headers;
+    }
 
     /**
      * Request environment.
@@ -153,30 +166,26 @@ final class Request implements RequestOptions
     /**
      * Files associated with the request.
      *
-     * @var FileList
+     * **Note**: The field is not readonly because it can be overwritten by `with()`.
      */
-    private $files;
+    private FileList $files;
 
     private function get_files(): FileList
     {
-        if ($this->files instanceof FileList) {
-            return $this->files;
-        }
-
-        return $this->files = FileList::from($this->files); // @phpstan-ignore-line
+        return $this->files;
     }
 
     public $cookie;
 
     /**
      * A request may be created from the `$_SERVER` super global array. In that case `$_SERVER` is
-     * used as environment the request is created with the following properties:
+     * used as environment, the request is created with the following properties:
      *
-     * - {@see $cookie}: a reference to the `$_COOKIE` super global array.
+     * - {@see $cookie}: a reference to the `$_COOKIE` super global.
      * - {@see $path_params}: initialized to an empty array.
-     * - {@see $query_params}: a reference to the `$_GET` super global array.
-     * - {@see $request_params}: a reference to the `$_POST` super global array.
-     * - {@see $files}: a reference to the `$_FILES` super global array.
+     * - {@see $query_params}: a reference to the `$_GET` super global.
+     * - {@see $request_params}: a reference to the `$_POST` super global.
+     * - {@see $files}: a reference to the `$_FILES` super global.
      *
      * A request may also be created from an array of properties, in which case most of them are
      * mapped to the `$env` constructor param. For instance, `is_xhr` set the
@@ -191,9 +200,10 @@ final class Request implements RequestOptions
      * available in the environment are ignored.
      *
      * @phpstan-param array<RequestOptions::*, mixed>|string|null $properties Properties of the request.
+     *
      * @param array<string, mixed> $env Environment, usually the `$_SERVER` array.
      *
-     * @throws InvalidArgumentException in attempt to use an unsupported option.
+     * @throws InvalidArgumentException in an attempt to use an unsupported option.
      */
     public static function from(array|string|null $properties = null, array $env = []): self
     {
@@ -234,13 +244,13 @@ final class Request implements RequestOptions
             self::OPTION_PATH_PARAMS => [],
             self::OPTION_QUERY_PARAMS => &$_GET,
             self::OPTION_REQUEST_PARAMS => $request_params,
-            self::OPTION_FILES => &$_FILES // @codeCoverageIgnore
+            self::OPTION_FILES => &$_FILES, // @codeCoverageIgnore
 
         ], $_SERVER);
     }
 
     /**
-     * Creates an instance from an URI.
+     * Creates an instance from a URI.
      *
      * @param array<string, mixed> $env
      */
@@ -260,7 +270,7 @@ final class Request implements RequestOptions
     private static function from_options(array $options, array $env): self
     {
         if ($options) {
-            RequestOptionsMapper::map($options, $env);
+            $options = RequestOptionsMapper::map($options, $env);
         }
 
         if (!empty($env['QUERY_STRING'])) {
@@ -273,28 +283,28 @@ final class Request implements RequestOptions
     /**
      * Initialize the properties {@see $env}, {@see $headers} and {@see $context}.
      *
-     * If the {@see $params} property is `null` it is set with an union of {@see $path_params},
+     * If the {@see $params} property is `null` it is set with a union of {@see $path_params},
      * {@see $request_params} and {@see $query_params}.
      *
-     * @phpstan-param array<string, mixed> $properties Initial properties.
+     * @phpstan-param array<string, mixed> $options Initial properties.
      *
      * @param array<string, mixed> $env Environment of the request, usually the `$_SERVER` super global.
      *
      * @throws MethodNotAllowed when the request method is not supported.
      */
-    private function __construct(array $properties, array $env = [])
+    private function __construct(array $options, array $env = [])
     {
         $this->context = new Request\Context($this);
         $this->env = $env;
-
-        foreach ($properties as $property => $value) {
-            $this->$property = $value;
-        }
+        $this->headers = $options[self::OPTION_HEADERS] ?? new Headers($env);
+        $this->files = $options[self::OPTION_FILES] ?? new FileList();
+        $this->path_params = $options[self::OPTION_PATH_PARAMS] ?? [];
+        $this->query_params = $options[self::OPTION_QUERY_PARAMS] ?? [];
+        $this->request_params = $options[self::OPTION_REQUEST_PARAMS] ?? [];
+        $this->params = $this->path_params + $this->request_params + $this->query_params;
+        $this->cookie = $options[self::OPTION_COOKIE] ?? null;
 
         $this->assert_method($this->method);
-
-        $this->headers ??= new Headers($env);
-        $this->params = $this->path_params + $this->request_params + $this->query_params;
     }
 
     /**
@@ -323,7 +333,7 @@ final class Request implements RequestOptions
         $changed = clone $this;
 
         if ($options) {
-            RequestOptionsMapper::map($options, $changed->env);
+            $options = RequestOptionsMapper::map($options, $changed->env);
 
             foreach ($options as $option => &$value) {
                 $changed->$option = $value;
@@ -434,7 +444,7 @@ final class Request implements RequestOptions
      *
      * If defined, the `HTTP_X_FORWARDED_FOR` header is used to retrieve the original IP.
      *
-     * If the `REMOTE_ADDR` header is empty the request is considered local thus `::1` is returned.
+     * If the `REMOTE_ADDR` header is empty, the request is considered local; thus `::1` is returned.
      *
      * @link https://en.wikipedia.org/wiki/X-Forwarded-For
      */

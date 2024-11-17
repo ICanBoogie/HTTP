@@ -30,7 +30,7 @@ use function unlink;
  * @property-read string $type MIME type of the file.
  * @property-read int|false $size Size of the file.
  * @property-read int|null $error Error code, one of `UPLOAD_ERR_*`.
- * @property-read string $error_message A formatted message representing the error.
+ * @property-read FormattedString|null $error_message A formatted message representing the error.
  * @property-read string $pathname Pathname of the file.
  * @property-read string $extension The extension of the file. If any, the dot is included e.g.
  * ".zip".
@@ -200,10 +200,8 @@ class File implements ToArray, FileOptions
 
     /**
      * Returns the message associated with the error.
-     *
-     * @return FormattedString|null
      */
-    protected function get_error_message()
+    protected function get_error_message(): ?FormattedString
     {
         switch ($this->error) {
             case UPLOAD_ERR_OK:
@@ -211,7 +209,7 @@ class File implements ToArray, FileOptions
 
             case UPLOAD_ERR_INI_SIZE:
                 return $this->format("Maximum file size is :size Mb", [
-                    ':size' => (int) ini_get('upload_max_filesize'),
+                    ':size' => (int)ini_get('upload_max_filesize'),
                 ]);
 
             case UPLOAD_ERR_FORM_SIZE:
@@ -259,10 +257,31 @@ class File implements ToArray, FileOptions
         return $this->pathname ?? $this->tmp_name;
     }
 
-    protected function __construct(array $properties)
+    private function __construct(array $properties)
     {
         foreach ($properties as $property => $value) {
-            $this->$property = $value;
+            switch ($property) {
+                case self::OPTION_NAME:
+                    $this->name = $value;
+                    break;
+                case self::OPTION_TYPE:
+                    $this->type = $value;
+                    break;
+                case self::OPTION_SIZE:
+                    $this->size = $value;
+                    break;
+                case self::OPTION_TMP_NAME:
+                    $this->tmp_name = $value;
+                    break;
+                case self::OPTION_ERROR:
+                    $this->error = $value;
+                    break;
+                case self::OPTION_PATHNAME:
+                    $this->pathname = $value;
+                    break;
+                default:
+                    throw new \InvalidArgumentException("Unknown property: $property");
+            }
         }
 
         if (!$this->name && $this->pathname) {
@@ -297,7 +316,7 @@ class File implements ToArray, FileOptions
         $error_message = $this->error_message;
 
         if ($error_message !== null) {
-            $error_message = (string) $error_message;
+            $error_message = (string)$error_message;
         }
 
         return [
@@ -317,7 +336,7 @@ class File implements ToArray, FileOptions
     /**
      * Returns the extension of the file, if any.
      *
-     * **Note:** The extension includes the dot e.g. ".zip". The extension is always in lower case.
+     * **Note**: The extension includes the dot e.g. ".zip". The extension is always in lower case.
      */
     protected function get_extension(): ?string
     {
@@ -367,7 +386,7 @@ class File implements ToArray, FileOptions
         }
 
         if (!str_contains($type, '/')) {
-            return (bool) preg_match('#^' . \preg_quote($type) . '/#', $this->type);
+            return (bool)preg_match('#^' . \preg_quote($type) . '/#', $this->type);
         }
 
         return $type === $this->type;
@@ -413,7 +432,7 @@ class File implements ToArray, FileOptions
         if ($this->pathname) {
             if (!rename($this->pathname, $destination)) {
                 throw new \Exception(
-                    "Unable to move file to destination: $destination."
+                    "Unable to move file to destination: $destination.",
                 );  // @codeCoverageIgnore
             }
         }// @codeCoverageIgnoreStart

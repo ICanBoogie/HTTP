@@ -44,7 +44,7 @@ class RequestTest extends TestCase
         $properties = 'authorization content_length context extension ip'
         . ' is_local is_xhr'
         . ' normalized_path method path port query_string referer script_name uri'
-        . ' user_agent files';
+        . ' user_agent';
 
         return array_map(function ($name) {
             return (array) $name;
@@ -55,7 +55,7 @@ class RequestTest extends TestCase
     {
         $value = "public, must-revalidate";
         $request = Request::from([ RequestOptions::OPTION_CACHE_CONTROL => $value ]);
-        $this->assertFalse(isset($request->cache_control));
+        $this->assertObjectNotHasProperty('cache_control', $request);
         $this->assertEquals('public', $request->headers->cache_control->cacheable);
         $this->assertTrue($request->headers->cache_control->must_revalidate);
     }

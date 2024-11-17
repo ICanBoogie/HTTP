@@ -27,8 +27,17 @@ final class RequestOptionsMapper
      * @param array<string, mixed> $env Reference to the environment.
      *
      * @throws InvalidArgumentException on invalid option.
+     *
+     * @return array{
+     *     path_params?: array,
+     *     query_params?: array,
+     *     request_params?: array,
+     *     cookie?: string,
+     *     files?: FileList,
+     *     headers?: Headers
+     * }
      */
-    public static function map(array &$options, array &$env): void
+    public static function map(array $options, array &$env): array
     {
         foreach ($options as $option => &$value) {
             $mapper = self::get_value_mapper($option);
@@ -55,6 +64,8 @@ final class RequestOptionsMapper
 
             throw new InvalidArgumentException("Option not supported: `$option`.");
         }
+
+        return $options;
     }
 
     /**
@@ -68,7 +79,7 @@ final class RequestOptionsMapper
             RequestOptions::OPTION_QUERY_PARAMS => fn($value) => $value,
             RequestOptions::OPTION_REQUEST_PARAMS => fn($value) => $value,
             RequestOptions::OPTION_COOKIE => fn($value) => $value,
-            RequestOptions::OPTION_FILES => fn($value) => $value,
+            RequestOptions::OPTION_FILES => fn($value) => ($value instanceof FileList) ? $value : new FileList($value),
             RequestOptions::OPTION_HEADERS => fn($value) => ($value instanceof Headers) ? $value : new Headers($value),
 
         ][$option] ?? null;
