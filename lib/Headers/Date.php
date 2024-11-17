@@ -2,11 +2,8 @@
 
 namespace ICanBoogie\HTTP\Headers;
 
-use DateTimeInterface;
 use DateTimeZone;
 use ICanBoogie\DateTime;
-
-use function is_numeric;
 
 /**
  * A date time object that renders into a string formatted for HTTP header fields.
@@ -21,35 +18,34 @@ use function is_numeric;
 class Date extends DateTime
 {
     public static function from(
-        self|\DateTimeInterface|string|null $source,
-        DateTimeZone|string|null $timezone = null
+        self|\DateTimeInterface|int|string|null $source,
+        DateTimeZone|string|null $timezone = null,
     ): static {
         if ($source === null) {
-            return static::none();
+            $timezone = 'UTC';
+            $source = '0000-00-00';
+        } elseif ($source instanceof self) {
+            // @phpstan-ignore-next-line
+            return clone $source;
+        } elseif ($source instanceof \DateTimeInterface) {
+            $timezone = $source->getTimezone();
+            $source = $source->format('Y-m-d\TH:i:s.u');
+        } elseif (is_int($source)) {
+            $timezone = 'UTC';
+            $source = "@{$source}";
         }
 
-        return parent::from($source, $timezone);
+        if (is_string($timezone)) {
+            $timezone = new \DateTimeZone($timezone);
+        }
+
+        // @phpstan-ignore-next-line
+        return new self($source, $timezone);
     }
 
-    /**
-     * @param string|int|DateTimeInterface $time If time is provided as a numeric value it is used
-     *     as
-     * "@{$time}" and the time zone is set to UTC.
-     * @param DateTimeZone|string $timezone A {@link \DateTimeZone} object representing the desired
-     * time zone. If the time zone is empty `utc` is used instead.
-     */
-    public function __construct($time = 'now', $timezone = null)
+    private function __construct(string $time, ?DateTimeZone $timezone = null)
     {
-        if ($time instanceof DateTimeInterface) {
-            $time = $time->getTimestamp();
-        }
-
-        if (is_numeric($time)) {
-            $time = '@' . $time;
-            $timezone = null;
-        }
-
-        parent::__construct($time, $timezone ?? 'utc');
+        parent::__construct($time, $timezone);
     }
 
     /**

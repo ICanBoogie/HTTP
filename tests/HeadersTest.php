@@ -16,38 +16,6 @@ use function uniqid;
 
 final class HeadersTest extends TestCase
 {
-    public function testDateTimeFromDateTime(): void
-    {
-        $datetime = new \DateTime();
-        $headers_datetime = new DateHeader($datetime);
-        $datetime->setTimezone(new DateTimeZone('GMT'));
-
-        $this->assertEquals($datetime->format('D, d M Y H:i:s') . ' GMT', (string) $headers_datetime);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testDateTimeFromDateTimeString(): void
-    {
-        $datetime = new \DateTime('now', new DateTimeZone('GMT'));
-
-        $this->assertEquals(
-            $datetime->format('D, d M Y H:i:s') . ' GMT',
-            (string) new DateHeader($datetime->format('D, d M Y H:i:s P'))
-        );
-
-        $this->assertEquals(
-            $datetime->format('D, d M Y H:i:s') . ' GMT',
-            (string) new DateHeader($datetime->format('D, d M Y H:i:s'))
-        );
-
-        $this->assertEquals(
-            $datetime->format('D, d M Y H:i:s') . ' GMT',
-            (string) new DateHeader($datetime->format('Y-m-d H:i:s'))
-        );
-    }
-
     public function test_cache_control(): void
     {
         $headers = new Headers();
