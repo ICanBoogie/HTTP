@@ -7,7 +7,7 @@ use DateTimeInterface;
 use DateTimeZone;
 
 /**
- * A date time object that renders into a string formatted for HTTP header fields.
+ * Representation of a 'Date' header field.
  *
  * @property-read bool $is_empty
  *     Whether the value of the {@see Date} is empty.
@@ -19,14 +19,12 @@ use DateTimeZone;
 readonly class Date
 {
     public static function from(
-        self|DateTimeInterface|int|string|null $source
+        DateTimeInterface|int|string|null $source
     ): self {
         $timezone = null;
 
         if ($source === null) {
             return new self();
-        } elseif ($source instanceof self) {
-            return $source;
         } elseif ($source instanceof DateTimeInterface) {
             $timezone = $source->getTimezone();
             $source = $source->format('Y-m-d\TH:i:s.u');
