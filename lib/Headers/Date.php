@@ -11,6 +11,11 @@ use function is_numeric;
 /**
  * A date time object that renders into a string formatted for HTTP header fields.
  *
+ * @property-read bool $is_empty
+ *     Whether the value of the {@see Date} is empty.
+ * @property-read int $timestamp
+ *     The Unix timestamp in seconds.
+ *
  * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3.1
  */
 class Date extends DateTime
@@ -44,16 +49,30 @@ class Date extends DateTime
             $timezone = null;
         }
 
-        parent::__construct($time, $timezone ?: 'utc');
+        parent::__construct($time, $timezone ?? 'utc');
     }
 
     /**
      * Formats the instance according to the RFC 1123.
-     *
-     * @inheritdoc
      */
     public function __toString(): string
     {
-        return $this->is_empty ? '' : $this->utc->as_rfc1123;
+        return $this->is_empty
+            ? ''
+            : str_replace('+0000', 'GMT', $this->format(\DateTimeInterface::RFC1123));
+    }
+
+    /**
+     * The timestamp of a {@see \DateTime} or {@see \DateTimeImmutable} created with "0000-00-00".
+     */
+    private const EMPTY_TIMESTAMP = -62169984000;
+
+    public function __get($property)
+    {
+        return match ($property) {
+            'is_empty' => $this->timestamp == self::EMPTY_TIMESTAMP,
+            'timestamp' => parent::getTimestamp(),
+            default => throw new \BadMethodCallException('Undefined property: ' . get_class($this) . '::' . $property),
+        };
     }
 }

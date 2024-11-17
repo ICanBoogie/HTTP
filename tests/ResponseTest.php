@@ -78,7 +78,7 @@ class ResponseTest extends TestCase
 
         $value = new DateTime('+1 days');
         $response->expires = $value;
-        $this->assertEquals($value->as_iso8601, $response->expires->as_iso8601);
+        $this->assertEquals($value, $response->expires);
         $this->assertSame(86400, $response->headers->cache_control->max_age);
 
         $response->expires = null;

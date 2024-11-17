@@ -2,6 +2,7 @@
 
 namespace Test\ICanBoogie\HTTP;
 
+use DateTimeInterface;
 use ICanBoogie\DateTime;
 use ICanBoogie\HTTP\FileResponse;
 use ICanBoogie\HTTP\Headers;
@@ -230,10 +231,16 @@ final class FileResponseTest extends TestCase
     }
 
     #[DataProvider('provide_test_get_expires')]
-    public function test_get_expires(DateTime $expected, string $file, array $options = [], array $headers = []): void
-    {
+    public function test_get_expires(
+        DateTimeInterface $expected,
+        string $file,
+        array $options = [],
+        array $headers = [],
+    ): void {
         $response = new FileResponse($file, Request::from(), $options, $headers);
-        $this->assertGreaterThanOrEqual($expected->utc->format('YmdHi'), $response->expires->utc->format('YmdHi'));
+        $actual = $response->expires;
+
+        $this->assertGreaterThanOrEqual($expected, $actual);
     }
 
     public static function provide_test_get_expires(): array

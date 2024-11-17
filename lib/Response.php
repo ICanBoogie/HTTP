@@ -289,7 +289,7 @@ class Response implements ResponseStatus
         }
 
         if (!$this->headers->date->is_empty) {
-            return max(0, time() - $this->headers->date->utc->timestamp);
+            return max(0, time() - $this->headers->date->timestamp);
         }
 
         return null;
