@@ -20,14 +20,10 @@ use ICanBoogie\HTTP\Response;
  */
 class BeforeRespondEvent extends Event
 {
-    public ?Response $response;
-
     public function __construct(
         public readonly Request $request,
-        ?Response &$response = null
+        public ?Response &$response = null
     ) {
-        $this->response = &$response;
-
         parent::__construct();
     }
 }

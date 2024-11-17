@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the ICanBoogie package.
- *
- * (c) Olivier Laviale <olivier.laviale@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace ICanBoogie\HTTP\Responder;
 
 use ICanBoogie\HTTP\Request;
@@ -22,10 +13,10 @@ use function ICanBoogie\emit;
 /**
  * Decorates a {@see Responder} with {@see BeforeRespondEvent} and {@see RespondEvent}.
  */
-final class WithEvent implements Responder
+final readonly class WithEvent implements Responder
 {
     public function __construct(
-        private readonly Responder $responder
+        private Responder $responder
     ) {
     }
 
