@@ -20,9 +20,9 @@ use Throwable;
 use function ICanBoogie\emit;
 
 /**
- * Decorates a {@link Responder} with exception recovery mechanism.
+ * Decorates a {@see Responder} with exception recovery mechanism.
  *
- * When a {@link Throwable} is caught, a {@link RecoverEvent} is emitted. Listeners can provide a response or replace
+ * When a {@see Throwable} is caught, a {@see RecoverEvent} is emitted. Listeners can provide a response or replace
  * the exception.
  */
 final class WithRecovery implements Responder

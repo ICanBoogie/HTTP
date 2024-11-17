@@ -47,7 +47,7 @@ use function substr;
  *
  * @property bool|string|null $cacheable
  *
- * @see http://tools.ietf.org/html/rfc2616#section-14.9
+ * @link https://tools.ietf.org/html/rfc2616#section-14.9
  */
 final class CacheControl
 {
@@ -168,7 +168,7 @@ final class CacheControl
      *
      * Scope: request, response.
      *
-     * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.1
+     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.1
      */
     private ?string $cacheable = null;
 
@@ -203,7 +203,7 @@ final class CacheControl
      *
      * Scope: request, response.
      *
-     * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.2
+     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.2
      */
     public bool $no_store = false;
 
@@ -214,13 +214,13 @@ final class CacheControl
      *
      * Scope: request.
      *
-     * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3
-     * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.4
+     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3
+     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.4
      */
     public ?int $max_age = null;
 
     /**
-     * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3
+     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3
      */
     public ?int $s_maxage = null;
 
@@ -233,7 +233,7 @@ final class CacheControl
      *
      * Scope: request.
      *
-     * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3
+     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3
      */
     public ?string $max_stale = null;
 
@@ -244,12 +244,12 @@ final class CacheControl
      *
      * Scope: request.
      *
-     * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3
+     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3
      */
     public ?int $min_fresh = null;
 
     /**
-     * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.5
+     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.5
      *
      * Scope: request, response.
      */
@@ -258,28 +258,28 @@ final class CacheControl
     /**
      * Scope: request.
      *
-     * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.4
+     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.4
      */
     public bool $only_if_cached = false;
 
     /**
      * Scope: response.
      *
-     * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.4
+     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.4
      */
     public bool $must_revalidate = false;
 
     /**
      * Scope: response.
      *
-     * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.4
+     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.4
      */
     public bool $proxy_revalidate = false;
 
     /**
      * Scope: request, response.
      *
-     * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.6
+     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.6
      *
      * @var array<string, string>
      */
@@ -332,7 +332,7 @@ final class CacheControl
     /**
      * Sets the cache directives, updating the properties of the object.
      *
-     * Unknown directives are stashed in the {@link $extensions} property.
+     * Unknown directives are stashed in the {@see $extensions} property.
      */
     public function modify(string $cache_directive): void
     {

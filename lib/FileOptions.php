@@ -12,7 +12,7 @@
 namespace ICanBoogie\HTTP;
 
 /**
- * Options to create {@link File} instances.
+ * Options to create {@see File} instances.
  */
 interface FileOptions
 {

@@ -14,7 +14,7 @@ namespace ICanBoogie\HTTP;
 /**
  * Possible response status code.
  *
- * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+ * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
  */
 interface ResponseStatus
 {

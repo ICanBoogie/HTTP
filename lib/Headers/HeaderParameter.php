@@ -30,9 +30,9 @@ use function urldecode;
  * @property-read string $attribute The attribute of the parameter.
  * @property-read string $charset The charset of the parameter's value.
  *
- * @see http://tools.ietf.org/html/rfc2231
- * @see http://tools.ietf.org/html/rfc5987
- * @see http://greenbytes.de/tech/tc2231/#attwithfn2231utf8
+ * @link https://tools.ietf.org/html/rfc2231
+ * @link https://tools.ietf.org/html/rfc5987
+ * @link https://greenbytes.de/tech/tc2231/#attwithfn2231utf8
  */
 class HeaderParameter
 {
@@ -53,7 +53,7 @@ class HeaderParameter
     }
 
     /**
-     * Creates a {@link HeaderParameter} instance from the provided source.
+     * Creates a {@see HeaderParameter} instance from the provided source.
      */
     public static function from(mixed $source): self
     {
@@ -117,7 +117,7 @@ class HeaderParameter
     /**
      * Converts a string to the ASCII charset.
      *
-     * Accents are converted using {@link remove_accents()}. Characters that are not
+     * Accents are converted using {@see remove_accents()}. Characters that are not
      * in the ASCII range are discarded.
      *
      * @param string $str The string to convert.
@@ -183,7 +183,7 @@ class HeaderParameter
         #
         # escaped, with fallback
         #
-        # @see http://greenbytes.de/tech/tc2231/#encoding-2231-fb
+        # @link https://greenbytes.de/tech/tc2231/#encoding-2231-fb
         #
 
         if ($encoding !== 'UTF-8') {
@@ -201,7 +201,7 @@ class HeaderParameter
     /**
      * Returns the value of the parameter.
      *
-     * Note: {@link render()} to render the attribute and value of the parameter.
+     * Note: {@see render()} to render the attribute and value of the parameter.
      */
     public function __toString(): string
     {

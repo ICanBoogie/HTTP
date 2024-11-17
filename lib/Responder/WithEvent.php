@@ -20,7 +20,7 @@ use ICanBoogie\HTTP\Response;
 use function ICanBoogie\emit;
 
 /**
- * Decorates a {@link Responder} with {@link BeforeRespondEvent} and {@link RespondEvent}.
+ * Decorates a {@see Responder} with {@see BeforeRespondEvent} and {@see RespondEvent}.
  */
 final class WithEvent implements Responder
 {

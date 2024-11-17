@@ -431,7 +431,7 @@ final class Status
     /**
      * Whether the status is ok.
      *
-     * A status is considered ok when its code is {@link ResponseStatus::STATUS_OK}.
+     * A status is considered ok when its code is {@see ResponseStatus::STATUS_OK}.
      */
     protected function get_is_ok(): bool
     {
@@ -441,7 +441,7 @@ final class Status
     /**
      * Whether the status is forbidden.
      *
-     * A status is considered forbidden ok when its code is {@link ResponseStatus::STATUS_FORBIDDEN}.
+     * A status is considered forbidden ok when its code is {@see ResponseStatus::STATUS_FORBIDDEN}.
      */
     protected function get_is_forbidden(): bool
     {
@@ -451,7 +451,7 @@ final class Status
     /**
      * Whether the status is not found.
      *
-     * A status is considered not found when its code is {@link ResponseStatus::STATUS_NOT_FOUND}.
+     * A status is considered not found when its code is {@see ResponseStatus::STATUS_NOT_FOUND}.
      */
     protected function get_is_not_found(): bool
     {
@@ -461,8 +461,8 @@ final class Status
     /**
      * Whether the status is empty.
      *
-     * A status is considered empty when its code is {@link ResponseStatus::CREATED},
-     * {@link ResponseStatus::NO_CONTENT} or {@link ResponseStatus::NOT_MODIFIED}.
+     * A status is considered empty when its code is {@see ResponseStatus::CREATED},
+     * {@see ResponseStatus::NO_CONTENT} or {@see ResponseStatus::NOT_MODIFIED}.
      */
     protected function get_is_empty(): bool
     {

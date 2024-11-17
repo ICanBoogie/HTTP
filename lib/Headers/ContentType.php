@@ -32,7 +32,7 @@ namespace ICanBoogie\HTTP\Headers;
  * @property string $type Media type of the entity-body.
  * @property string $charset Charset of the entity-body.
  *
- * @see http://tools.ietf.org/html/rfc2616#section-14.17
+ * @link https://tools.ietf.org/html/rfc2616#section-14.17
  */
 class ContentType extends Header
 {

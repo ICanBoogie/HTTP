@@ -17,7 +17,7 @@ use function strtoupper;
 /**
  * HTTP request methods.
  *
- * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html
+ * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html
  */
 enum RequestMethod: string
 {
@@ -116,7 +116,7 @@ enum RequestMethod: string
     /**
      * Whether the method is idempotent.
      *
-     * @see https://developer.mozilla.org/en-US/docs/Glossary/Idempotent
+     * @link https://developer.mozilla.org/en-US/docs/Glossary/Idempotent
      */
     public function is_idempotent(): bool
     {
@@ -132,7 +132,7 @@ enum RequestMethod: string
     /**
      * Whether the method is safe.
      *
-     * @see https://developer.mozilla.org/en-US/docs/Glossary/Safe/HTTP
+     * @link https://developer.mozilla.org/en-US/docs/Glossary/Safe/HTTP
      */
     public function is_safe(): bool
     {

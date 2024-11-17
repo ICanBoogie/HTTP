@@ -18,7 +18,7 @@ use ICanBoogie\HTTP\ResponderProvider;
 use ICanBoogie\HTTP\Response;
 
 /**
- * A {@link Responder} that delegates to a matching {@link Responder}, via a {@link ResponderProvider}.
+ * A {@see Responder} that delegates to a matching {@see Responder}, via a {@see ResponderProvider}.
  */
 final class DelegateToProvider implements Responder
 {

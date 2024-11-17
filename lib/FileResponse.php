@@ -38,7 +38,7 @@ class FileResponse extends Response
      * Specifies the expiration date as a {@see \DateTimeInterface} instance or a relative date
      * such as "+3 month", which maps to the `Expires` header field. The `max-age` directive of
      * the `Cache-Control` header field is computed from the current time. If it is not
-     * defined {@link DEFAULT_EXPIRES} is used instead.
+     * defined {@see DEFAULT_EXPIRES} is used instead.
      */
     public const OPTION_EXPIRES = 'expires';
 
@@ -102,7 +102,7 @@ class FileResponse extends Response
     }
 
     /**
-     * Ensures the provided file is a {@link \SplFileInfo} instance.
+     * Ensures the provided file is a {@see \SplFileInfo} instance.
      *
      * @throws LogicException if the file is a directory, or does not exist.
      */
@@ -158,7 +158,7 @@ class FileResponse extends Response
 
     /**
      * If the content type is empty in the headers the method tries to obtain it from
-     * the file, if it fails {@link DEFAULT_MIME} is used as fallback.
+     * the file, if it fails {@see DEFAULT_MIME} is used as fallback.
      */
     private function ensure_content_type(SplFileInfo $file, Headers $headers): void
     {
@@ -324,7 +324,7 @@ class FileResponse extends Response
 
     /**
      * If the date returned by the parent is empty the method returns a date created from
-     * {@link DEFAULT_EXPIRES}.
+     * {@see DEFAULT_EXPIRES}.
      */
     protected function get_expires(): Headers\Date
     {

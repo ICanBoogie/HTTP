@@ -26,11 +26,11 @@ namespace ICanBoogie\HTTP\Headers;
  * echo $cd; // attachment; filename*=UTF-8''R%C3%A9sum%C3%A9%20en%20%E2%82%AC.csv
  * </pre>
  *
- * @property string $type The `disposition-type` part of the content disposition. Alias to {@link $value}.
+ * @property string $type The `disposition-type` part of the content disposition. Alias to {@see $value}.
  * @property string $filename The `filename-parm` part of the content disposition.
  *
- * @see http://tools.ietf.org/html/rfc2616#section-19.5.1
- * @see http://tools.ietf.org/html/rfc6266
+ * @link https://tools.ietf.org/html/rfc2616#section-19.5.1
+ * @link https://tools.ietf.org/html/rfc6266
  */
 class ContentDisposition extends Header
 {

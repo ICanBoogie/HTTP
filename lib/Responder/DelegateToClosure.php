@@ -17,7 +17,7 @@ use ICanBoogie\HTTP\Responder;
 use ICanBoogie\HTTP\Response;
 
 /**
- * A {@link Responder} that delegates to a {@link Closure}.
+ * A {@see Responder} that delegates to a {@see Closure}.
  */
 final class DelegateToClosure implements Responder
 {

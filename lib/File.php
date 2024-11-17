@@ -37,7 +37,7 @@ use function unlink;
  * @property-read string $unsuffixed_name The name of the file without its extension.
  * @property-read bool $is_uploaded `true` if the file is uploaded, `false` otherwise.
  * @property-read bool $is_valid `true` if the file is valid, `false` otherwise.
- * See: {@link get_is_valid()}.
+ * See: {@see get_is_valid()}.
  */
 class File implements ToArray, FileOptions
 {
@@ -70,7 +70,7 @@ class File implements ToArray, FileOptions
     ];
 
     /**
-     * Creates a {@link File} instance.
+     * Creates a {@see File} instance.
      *
      * @param array|string $properties_or_name An array of properties or a file identifier.
      */
@@ -147,7 +147,7 @@ class File implements ToArray, FileOptions
     /**
      * Returns the type of the file.
      *
-     * If the {@link $type} property was not defined during construct, the type
+     * If the {@see $type} property was not defined during construct, the type
      * is guessed from the name or the pathname of the file.
      *
      * @return string|null The MIME type of the file, or `null` if it cannot be determined.
@@ -170,7 +170,7 @@ class File implements ToArray, FileOptions
     /**
      * Returns the size of the file.
      *
-     * If the {@link $size} property was not defined during construct, the size
+     * If the {@see $size} property was not defined during construct, the size
      * is guessed using the pathname of the file. If the pathname is not available the method
      * returns `null`.
      *
@@ -283,14 +283,14 @@ class File implements ToArray, FileOptions
      *
      * The following properties are exported:
      *
-     * - {@link $name}
-     * - {@link $unsuffixed_name}
-     * - {@link $extension}
-     * - {@link $type}
-     * - {@link $size}
-     * - {@link $pathname}
-     * - {@link $error}
-     * - {@link $error_message}
+     * - {@see $name}
+     * - {@see $unsuffixed_name}
+     * - {@see $extension}
+     * - {@see $type}
+     * - {@see $size}
+     * - {@see $pathname}
+     * - {@see $error}
+     * - {@see $error_message}
      */
     public function to_array(): array
     {
@@ -395,8 +395,8 @@ class File implements ToArray, FileOptions
      * Moves the file.
      *
      * @param string $destination Pathname to the destination file.
-     * @param bool $overwrite Use {@link MOVE_OVERWRITE} to delete the destination before the file
-     * is moved. Defaults to {@link MOVE_NO_OVERWRITE}.
+     * @param bool $overwrite Use {@see MOVE_OVERWRITE} to delete the destination before the file
+     * is moved. Defaults to {@see MOVE_NO_OVERWRITE}.
      *
      * @throws Throwable if the file failed to be moved.
      */

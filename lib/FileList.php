@@ -18,7 +18,7 @@ use function count;
 class FileList implements ArrayAccess, IteratorAggregate, Countable
 {
     /**
-     * Creates a {@link FileList} instance.
+     * Creates a {@see FileList} instance.
      *
      * @param array|FileList|null $files
      *
@@ -71,7 +71,7 @@ class FileList implements ArrayAccess, IteratorAggregate, Countable
      *
      * @param mixed $offset File identifier.
      *
-     * @return File|null A {@link File} instance, or `null` if it does not exist.
+     * @return File|null A {@see File} instance, or `null` if it does not exist.
      */
     public function offsetGet(mixed $offset): ?File
     {

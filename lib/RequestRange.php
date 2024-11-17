@@ -17,7 +17,7 @@ use function sprintf;
 /**
  * Representation of a request range.
  *
- * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Range
+ * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Range
  */
 class RequestRange
 {
@@ -123,7 +123,7 @@ class RequestRange
     /**
      * Formats the instance as a string suitable for the `Content-Range` header field.
      *
-     * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Range
+     * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Range
      */
     public function __toString(): string
     {

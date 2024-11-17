@@ -33,10 +33,10 @@ use function substr;
  *
  * Instances of this class are used to collect and manipulate HTTP header field definitions.
  * Header field instances are used to handle the definition of complex header fields such as
- * `Content-Type` and `Cache-Control`. For instance a {@link Headers\CacheControl} instance
+ * `Content-Type` and `Cache-Control`. For instance a {@see Headers\CacheControl} instance
  * is used to handle the directives of the `Cache-Control` header field.
  *
- * @see http://tools.ietf.org/html/rfc2616#section-14
+ * @link https://tools.ietf.org/html/rfc2616#section-14
  *
  * @property Headers\CacheControl|mixed $cache_control
  *     Shortcut to the `Cache-Control` header field definition.
@@ -198,7 +198,7 @@ class Headers implements ArrayAccess, IteratorAggregate
     }
 
     /**
-     * Sends header fields using the {@link header()} function.
+     * Sends header fields using the {@see header()} function.
      *
      * Header fields with empty string values are discarded.
      */
@@ -262,12 +262,12 @@ class Headers implements ArrayAccess, IteratorAggregate
      * **Date, Expires, Last-Modified**
      *
      * The `Date`, `Expires` and `Last-Modified` header fields can be provided as a Unix
-     * timestamp, a string or a {@link \DateTime} object.
+     * timestamp, a string or a {@see \DateTime} object.
      *
      * **Cache-Control, Content-Disposition and Content-Type**
      *
-     * Instances of the {@link Headers\CacheControl}, {@link Headers\ContentDisposition} and
-     * {@link Headers\ContentType} are used to handle the values of the `Cache-Control`,
+     * Instances of the {@see Headers\CacheControl}, {@see Headers\ContentDisposition} and
+     * {@see Headers\ContentType} are used to handle the values of the `Cache-Control`,
      * `Content-Disposition` and `Content-Type` header fields.
      */
     public function offsetSet(mixed $offset, mixed $value): void

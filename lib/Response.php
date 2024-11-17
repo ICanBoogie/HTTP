@@ -53,7 +53,7 @@ use const E_USER_DEPRECATED;
  *     Whether the response includes header fields that can be used to validate the response
  *     with the origin server using a conditional GET request.
  *
- * @see http://tools.ietf.org/html/rfc2616
+ * @link https://tools.ietf.org/html/rfc2616
  */
 class Response implements ResponseStatus
 {
@@ -155,8 +155,8 @@ class Response implements ResponseStatus
     /**
      * Issues the HTTP response.
      *
-     * {@link finalize()} is invoked to finalize the headers (a cloned actually)
-     * and the body. {@link send_headers} is invoked to send the headers and {@link send_body()}
+     * {@see finalize()} is invoked to finalize the headers (a cloned actually)
+     * and the body. {@see send_headers} is invoked to send the headers and {@see send_body()}
      *is invoked to send the body, if the body is not `null`.
      *
      * The body is not send in the following instances:

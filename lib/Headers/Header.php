@@ -66,7 +66,7 @@ use function trim;
  * $cd['filename']->language = "en";
  * </pre>
  *
- * An alias to the {@link $value} property can be defined by using the `VALUE_ALIAS` constant. The
+ * An alias to the {@see $value} property can be defined by using the `VALUE_ALIAS` constant. The
  * following code defines `type` as an alias:
  *
  * <pre>
@@ -97,10 +97,10 @@ abstract class Header implements ArrayAccess
     protected array $parameters = [];
 
     /**
-     * Creates a {@link Header} instance from the provided source.
+     * Creates a {@see Header} instance from the provided source.
      *
      * @param string|Header|null $source The source to create the instance from. If the source is
-     * an instance of {@link Header} it is returned as is.
+     * an instance of {@see Header} it is returned as is.
      */
     public static function from(string|self|null $source): Header
     {
@@ -171,7 +171,7 @@ abstract class Header implements ArrayAccess
     /**
      * Sets the value of a parameter.
      *
-     * If the value is an instance of {@link HeaderParameter} then the parameter is replaced,
+     * If the value is an instance of {@see HeaderParameter} then the parameter is replaced,
      * otherwise the value of the current parameter is updated and its language is set to `null`.
      *
      * @param string $offset An attribute.
@@ -194,7 +194,7 @@ abstract class Header implements ArrayAccess
     }
 
     /**
-     * Returns a {@link HeaderParameter} instance.
+     * Returns a {@see HeaderParameter} instance.
      *
      * @param string $offset An attribute.
      *
@@ -212,7 +212,7 @@ abstract class Header implements ArrayAccess
     }
 
     /**
-     * Initializes the {@link $name}, {@link $value} and {@link $parameters} properties.
+     * Initializes the {@see $name}, {@see $value} and {@see $parameters} properties.
      *
      * To enable future extensions, unrecognized parameters are ignored. Supported parameters must
      * be defined by a child class before it calls its parent.
@@ -233,7 +233,7 @@ abstract class Header implements ArrayAccess
     /**
      * Returns the value of a defined parameter.
      *
-     * The method also handles the alias of the {@link $value} property.
+     * The method also handles the alias of the {@see $value} property.
      *
      * @param string $property
      *
@@ -257,7 +257,7 @@ abstract class Header implements ArrayAccess
     /**
      * Sets the value of a supported parameter.
      *
-     * The method also handles the alias of the {@link $value} property.
+     * The method also handles the alias of the {@see $value} property.
      *
      * @throws PropertyNotDefined in attempt to access a parameter that is not defined.
      */

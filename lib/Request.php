@@ -77,7 +77,7 @@ use const JSON_THROW_ON_ERROR;
  * @property-read string $uri URI of the request. The `QUERY_STRING` value of the environment
  * is overwritten when the instance is created with the `$uri` property.
  *
- * @see http://en.wikipedia.org/wiki/Uniform_resource_locator
+ * @link https://en.wikipedia.org/wiki/Uniform_resource_locator
  */
 final class Request implements RequestOptions
 {
@@ -124,10 +124,10 @@ final class Request implements RequestOptions
     public mixed $request_params = [];
 
     /**
-     * Union of {@link $path_params}, {@link $request_params} and {@link $query_params}.
+     * Union of {@see $path_params}, {@see $request_params} and {@see $query_params}.
      *
      * **Note:** The property is created during construct and is not updated after. If you modify one of
-     * {@link $path_params}, {@link $request_params} and {@link $query_params}, remember to modify {@link $params} as
+     * {@see $path_params}, {@see $request_params} and {@see $query_params}, remember to modify {@see $params} as
      * well.
      *
      * @var array<string, mixed>
@@ -172,11 +172,11 @@ final class Request implements RequestOptions
      * A request may be created from the `$_SERVER` super global array. In that case `$_SERVER` is
      * used as environment the request is created with the following properties:
      *
-     * - {@link $cookie}: a reference to the `$_COOKIE` super global array.
-     * - {@link $path_params}: initialized to an empty array.
-     * - {@link $query_params}: a reference to the `$_GET` super global array.
-     * - {@link $request_params}: a reference to the `$_POST` super global array.
-     * - {@link $files}: a reference to the `$_FILES` super global array.
+     * - {@see $cookie}: a reference to the `$_COOKIE` super global array.
+     * - {@see $path_params}: initialized to an empty array.
+     * - {@see $query_params}: a reference to the `$_GET` super global array.
+     * - {@see $request_params}: a reference to the `$_POST` super global array.
+     * - {@see $files}: a reference to the `$_FILES` super global array.
      *
      * A request may also be created from an array of properties, in which case most of them are
      * mapped to the `$env` constructor param. For instance, `is_xhr` set the
@@ -271,10 +271,10 @@ final class Request implements RequestOptions
     }
 
     /**
-     * Initialize the properties {@link $env}, {@link $headers} and {@link $context}.
+     * Initialize the properties {@see $env}, {@see $headers} and {@see $context}.
      *
-     * If the {@link $params} property is `null` it is set with an union of {@link $path_params},
-     * {@link $request_params} and {@link $query_params}.
+     * If the {@see $params} property is `null` it is set with an union of {@see $path_params},
+     * {@see $request_params} and {@see $query_params}.
      *
      * @phpstan-param array<string, mixed> $properties Initial properties.
      *
@@ -298,7 +298,7 @@ final class Request implements RequestOptions
     }
 
     /**
-     * Clone {@link $headers} and {@link $context}, and unset {@link $params}.
+     * Clone {@see $headers} and {@see $context}, and unset {@see $params}.
      */
     public function __clone()
     {
@@ -350,8 +350,8 @@ final class Request implements RequestOptions
      *
      * This is the getter for the `method` magic property.
      *
-     * The method is retrieved from {@link $env}, if the key `REQUEST_METHOD` is not defined,
-     * the method defaults to {@link METHOD_GET}.
+     * The method is retrieved from {@see $env}, if the key `REQUEST_METHOD` is not defined,
+     * the method defaults to {@see METHOD_GET}.
      */
     private function get_method(): RequestMethod
     {
@@ -367,7 +367,7 @@ final class Request implements RequestOptions
     /**
      * Returns the query string of the request.
      *
-     * The value is obtained from the `QUERY_STRING` key of the {@link $env} array.
+     * The value is obtained from the `QUERY_STRING` key of the {@see $env} array.
      */
     private function get_query_string(): ?string
     {
@@ -377,7 +377,7 @@ final class Request implements RequestOptions
     /**
      * Returns the content length of the request.
      *
-     * The value is obtained from the `CONTENT_LENGTH` key of the {@link $env} array.
+     * The value is obtained from the `CONTENT_LENGTH` key of the {@see $env} array.
      */
     private function get_content_length(): ?int
     {
@@ -387,7 +387,7 @@ final class Request implements RequestOptions
     /**
      * Returns the referer of the request.
      *
-     * The value is obtained from the `HTTP_REFERER` key of the {@link $env} array.
+     * The value is obtained from the `HTTP_REFERER` key of the {@see $env} array.
      */
     private function get_referer(): ?string
     {
@@ -397,7 +397,7 @@ final class Request implements RequestOptions
     /**
      * Returns the user agent of the request.
      *
-     * The value is obtained from the `HTTP_USER_AGENT` key of the {@link $env} array.
+     * The value is obtained from the `HTTP_USER_AGENT` key of the {@see $env} array.
      *
      * @return string|null
      */
@@ -436,7 +436,7 @@ final class Request implements RequestOptions
      *
      * If the `REMOTE_ADDR` header is empty the request is considered local thus `::1` is returned.
      *
-     * @see http://en.wikipedia.org/wiki/X-Forwarded-For
+     * @link https://en.wikipedia.org/wiki/X-Forwarded-For
      */
     private function get_ip(): string
     {
@@ -497,7 +497,7 @@ final class Request implements RequestOptions
     }
 
     /**
-     * Returns the {@link $path} property normalized using the
+     * Returns the {@see $path} property normalized using the
      * `ICanBoogie\normalize_url_path()` function.
      */
     private function get_normalized_path(): string
