@@ -238,7 +238,7 @@ final class FileResponseTest extends TestCase
         array $headers = [],
     ): void {
         $response = new FileResponse($file, Request::from(), $options, $headers);
-        $actual = $response->expires;
+        $actual = $response->expires->delegate;
 
         $this->assertGreaterThanOrEqual($expected, $actual);
     }

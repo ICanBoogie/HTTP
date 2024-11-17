@@ -2,32 +2,31 @@
 
 namespace ICanBoogie\HTTP\Headers;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use DateTimeZone;
-use ICanBoogie\DateTime;
 
 /**
  * A date time object that renders into a string formatted for HTTP header fields.
  *
  * @property-read bool $is_empty
  *     Whether the value of the {@see Date} is empty.
- * @property-read int $timestamp
- *     The Unix timestamp in seconds.
+ * @property-read int|null $timestamp
+ *     The Unix timestamp in seconds, or null if {@see Date} is empty.
  *
  * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3.1
  */
-class Date extends DateTime
+readonly class Date
 {
     public static function from(
-        self|\DateTimeInterface|int|string|null $source,
+        self|DateTimeInterface|int|string|null $source,
         DateTimeZone|string|null $timezone = null,
-    ): static {
+    ): self {
         if ($source === null) {
-            $timezone = 'UTC';
-            $source = '0000-00-00';
+            return new self();
         } elseif ($source instanceof self) {
-            // @phpstan-ignore-next-line
-            return clone $source;
-        } elseif ($source instanceof \DateTimeInterface) {
+            return $source;
+        } elseif ($source instanceof DateTimeInterface) {
             $timezone = $source->getTimezone();
             $source = $source->format('Y-m-d\TH:i:s.u');
         } elseif (is_int($source)) {
@@ -36,16 +35,17 @@ class Date extends DateTime
         }
 
         if (is_string($timezone)) {
-            $timezone = new \DateTimeZone($timezone);
+            $timezone = new DateTimeZone($timezone);
         }
 
-        // @phpstan-ignore-next-line
-        return new self($source, $timezone);
+        $datetime = new DateTimeImmutable($source, $timezone);
+
+        return new self($datetime);
     }
 
-    private function __construct(string $time, ?DateTimeZone $timezone = null)
-    {
-        parent::__construct($time, $timezone);
+    private function __construct(
+        public ?DateTimeInterface $delegate = null
+    ) {
     }
 
     /**
@@ -55,19 +55,19 @@ class Date extends DateTime
     {
         return $this->is_empty
             ? ''
-            : str_replace('+0000', 'GMT', $this->format(\DateTimeInterface::RFC1123));
+            : str_replace('+0000', 'GMT', $this->delegate->format(DateTimeInterface::RFC1123));
     }
 
     /**
-     * The timestamp of a {@see \DateTime} or {@see \DateTimeImmutable} created with "0000-00-00".
+     * The timestamp of a {@see \DateTime} or {@see DateTimeImmutable} created with "0000-00-00".
      */
     private const EMPTY_TIMESTAMP = -62169984000;
 
     public function __get($property)
     {
         return match ($property) {
-            'is_empty' => $this->timestamp == self::EMPTY_TIMESTAMP,
-            'timestamp' => parent::getTimestamp(),
+            'is_empty' => $this->delegate === null || $this->timestamp == self::EMPTY_TIMESTAMP,
+            'timestamp' => $this->delegate?->getTimestamp(),
             default => throw new \BadMethodCallException('Undefined property: ' . get_class($this) . '::' . $property),
         };
     }

@@ -73,7 +73,7 @@ final class HeadersTest extends TestCase
         $now = new DateTime();
         $headers->date = $now;
         $this->assertInstanceOf(Headers\Date::class, $headers->date);
-        $this->assertEquals($now, $headers->date);
+        $this->assertEquals($now, $headers->date->delegate);
     }
 
     public function test_etag(): void
@@ -97,7 +97,7 @@ final class HeadersTest extends TestCase
 
         $value = DateTime::now();
         $headers->last_modified = $value;
-        $this->assertEquals($value, $headers->last_modified);
+        $this->assertEquals($value->as_rfc1123, (string) $headers->last_modified);
 
         $headers->last_modified = null;
         $this->assertEmpty((string) $headers->last_modified);
@@ -120,7 +120,7 @@ final class HeadersTest extends TestCase
 
         $value = DateTime::now();
         $headers->retry_after = $value;
-        $this->assertEquals($value, $headers->retry_after);
+        $this->assertEquals($value->as_rfc1123, (string) $headers->retry_after);
     }
 
     #[DataProvider('provide_test_date_header')]
