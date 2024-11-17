@@ -31,7 +31,7 @@
   "require": {
     "php": ">=8.2",
     "ext-mbstring": "*",
-    "icanboogie/prototype": "^6.0",
+    "icanboogie/accessor": "^6.0",
     "icanboogie/event": "^6.0"
   },
   "require-dev": {
