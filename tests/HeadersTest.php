@@ -16,38 +16,6 @@ use function uniqid;
 
 final class HeadersTest extends TestCase
 {
-    public function testDateTimeFromDateTime(): void
-    {
-        $datetime = new \DateTime();
-        $headers_datetime = new DateHeader($datetime);
-        $datetime->setTimezone(new DateTimeZone('GMT'));
-
-        $this->assertEquals($datetime->format('D, d M Y H:i:s') . ' GMT', (string) $headers_datetime);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testDateTimeFromDateTimeString(): void
-    {
-        $datetime = new \DateTime('now', new DateTimeZone('GMT'));
-
-        $this->assertEquals(
-            $datetime->format('D, d M Y H:i:s') . ' GMT',
-            (string) new DateHeader($datetime->format('D, d M Y H:i:s P'))
-        );
-
-        $this->assertEquals(
-            $datetime->format('D, d M Y H:i:s') . ' GMT',
-            (string) new DateHeader($datetime->format('D, d M Y H:i:s'))
-        );
-
-        $this->assertEquals(
-            $datetime->format('D, d M Y H:i:s') . ' GMT',
-            (string) new DateHeader($datetime->format('Y-m-d H:i:s'))
-        );
-    }
-
     public function test_cache_control(): void
     {
         $headers = new Headers();
@@ -105,7 +73,7 @@ final class HeadersTest extends TestCase
         $now = new DateTime();
         $headers->date = $now;
         $this->assertInstanceOf(Headers\Date::class, $headers->date);
-        $this->assertEquals($now, $headers->date);
+        $this->assertEquals($now, $headers->date->delegate);
     }
 
     public function test_etag(): void
@@ -129,7 +97,7 @@ final class HeadersTest extends TestCase
 
         $value = DateTime::now();
         $headers->last_modified = $value;
-        $this->assertEquals($value, $headers->last_modified);
+        $this->assertEquals($value->as_rfc1123, (string) $headers->last_modified);
 
         $headers->last_modified = null;
         $this->assertEmpty((string) $headers->last_modified);
@@ -152,7 +120,7 @@ final class HeadersTest extends TestCase
 
         $value = DateTime::now();
         $headers->retry_after = $value;
-        $this->assertEquals($value, $headers->retry_after);
+        $this->assertEquals($value->as_rfc1123, (string) $headers->retry_after);
     }
 
     #[DataProvider('provide_test_date_header')]

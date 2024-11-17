@@ -2,7 +2,6 @@
 
 namespace ICanBoogie\HTTP;
 
-use ICanBoogie\DateTime;
 use InvalidArgumentException;
 use LogicException;
 use SplFileInfo;
@@ -36,7 +35,7 @@ class FileResponse extends Response
     public const OPTION_ETAG = 'etag';
 
     /**
-     * Specifies the expiration date as a {@link DateTime} instance or a relative date
+     * Specifies the expiration date as a {@see \DateTimeInterface} instance or a relative date
      * such as "+3 month", which maps to the `Expires` header field. The `max-age` directive of
      * the `Cache-Control` header field is computed from the current time. If it is not
      * defined {@link DEFAULT_EXPIRES} is used instead.
@@ -225,7 +224,7 @@ class FileResponse extends Response
 
         $headers->expires = $expires;
         $headers->cache_control->cacheable = 'public';
-        $headers->cache_control->max_age = $expires->timestamp - DateTime::now()->timestamp;
+        $headers->cache_control->max_age = $expires->timestamp - time();
 
         if ($status === ResponseStatus::STATUS_NOT_MODIFIED) {
             $this->finalize_for_not_modified($headers);

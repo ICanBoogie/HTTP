@@ -169,3 +169,9 @@ $request = Request::from([ RequestOptions::OPTION_METHOD => RequestMethod::METHO
 ```
 
 Added `WithRecovery` to replace previous recovery feature. Renamed `RescueEvent` as `RecoverEvent`.
+
+
+
+### Other changes
+
+The package `icanboogie/datetime` is only required for development.

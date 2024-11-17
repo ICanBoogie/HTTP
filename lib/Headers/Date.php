@@ -2,58 +2,72 @@
 
 namespace ICanBoogie\HTTP\Headers;
 
+use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
-use ICanBoogie\DateTime;
-
-use function is_numeric;
 
 /**
- * A date time object that renders into a string formatted for HTTP header fields.
+ * Representation of a 'Date' header field.
+ *
+ * @property-read bool $is_empty
+ *     Whether the value of the {@see Date} is empty.
+ * @property-read int|null $timestamp
+ *     The Unix timestamp in seconds, or null if {@see Date} is empty.
  *
  * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3.1
  */
-class Date extends DateTime
+readonly class Date
 {
     public static function from(
-        self|\DateTimeInterface|string|null $source,
-        DateTimeZone|string|null $timezone = null
-    ): static {
+        DateTimeInterface|int|string|null $source
+    ): self {
+        $timezone = null;
+
         if ($source === null) {
-            return static::none();
+            return new self();
+        } elseif ($source instanceof DateTimeInterface) {
+            $timezone = $source->getTimezone();
+            $source = $source->format('Y-m-d\TH:i:s.u');
+        } elseif (is_int($source)) {
+            $timezone = 'UTC';
+            $source = "@{$source}";
         }
 
-        return parent::from($source, $timezone);
+        if (is_string($timezone)) {
+            $timezone = new DateTimeZone($timezone);
+        }
+
+        $datetime = new DateTimeImmutable($source, $timezone);
+
+        return new self($datetime);
     }
 
-    /**
-     * @param string|int|DateTimeInterface $time If time is provided as a numeric value it is used
-     *     as
-     * "@{$time}" and the time zone is set to UTC.
-     * @param DateTimeZone|string $timezone A {@link \DateTimeZone} object representing the desired
-     * time zone. If the time zone is empty `utc` is used instead.
-     */
-    public function __construct($time = 'now', $timezone = null)
-    {
-        if ($time instanceof DateTimeInterface) {
-            $time = $time->getTimestamp();
-        }
-
-        if (is_numeric($time)) {
-            $time = '@' . $time;
-            $timezone = null;
-        }
-
-        parent::__construct($time, $timezone ?: 'utc');
+    private function __construct(
+        public ?DateTimeInterface $delegate = null
+    ) {
     }
 
     /**
      * Formats the instance according to the RFC 1123.
-     *
-     * @inheritdoc
      */
     public function __toString(): string
     {
-        return $this->is_empty ? '' : $this->utc->as_rfc1123;
+        return $this->is_empty
+            ? ''
+            : str_replace('+0000', 'GMT', $this->delegate->format(DateTimeInterface::RFC1123));
+    }
+
+    /**
+     * The timestamp of a {@see \DateTime} or {@see DateTimeImmutable} created with "0000-00-00".
+     */
+    private const EMPTY_TIMESTAMP = -62169984000;
+
+    public function __get($property)
+    {
+        return match ($property) {
+            'is_empty' => $this->delegate === null || $this->timestamp == self::EMPTY_TIMESTAMP,
+            'timestamp' => $this->delegate?->getTimestamp(),
+            default => throw new \BadMethodCallException('Undefined property: ' . get_class($this) . '::' . $property),
+        };
     }
 }
