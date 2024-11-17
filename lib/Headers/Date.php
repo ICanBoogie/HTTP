@@ -19,9 +19,10 @@ use DateTimeZone;
 readonly class Date
 {
     public static function from(
-        self|DateTimeInterface|int|string|null $source,
-        DateTimeZone|string|null $timezone = null,
+        self|DateTimeInterface|int|string|null $source
     ): self {
+        $timezone = null;
+
         if ($source === null) {
             return new self();
         } elseif ($source instanceof self) {
