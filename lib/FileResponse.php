@@ -210,7 +210,7 @@ class FileResponse extends Response
         parent::finalize($headers, $body);
 
         $status = $this->status->code;
-        $expires = $this->expires;
+        $expires = $this->headers->expires;
 
         $headers->expires = $expires;
         $headers->cache_control->cacheable = 'public';
@@ -317,6 +317,7 @@ class FileResponse extends Response
      */
     public Headers\Date|null $expires {
         get {
+            // @phpstan-ignore-next-line // false positive, this is a valid way to call a parent getter
             $expires = parent::$expires::get();
 
             if (!$expires->is_empty) {

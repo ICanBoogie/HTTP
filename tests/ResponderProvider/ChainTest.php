@@ -6,10 +6,12 @@ use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Responder;
 use ICanBoogie\HTTP\ResponderProvider;
 use ICanBoogie\HTTP\ResponderProvider\Chain;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 
 final class ChainTest extends TestCase
 {
+    #[AllowMockObjectsWithoutExpectations]
     public function test_chain(): void
     {
         $responder = $this->createMock(Responder::class);

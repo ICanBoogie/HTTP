@@ -31,6 +31,7 @@ final class DelegateToProviderTest extends TestCase
         $request = Request::from();
 
         $this->responders
+            ->expects($this->once())
             ->method('responder_for_request')
             ->with($request)
             ->willReturn(null);
@@ -50,11 +51,13 @@ final class DelegateToProviderTest extends TestCase
 
         $responder = $this->createMock(Responder::class);
         $responder
+            ->expects($this->once())
             ->method('respond')
             ->with($request)
             ->willReturn($response);
 
         $this->responders
+            ->expects($this->once())
             ->method('responder_for_request')
             ->with($request)
             ->willReturn($responder);

@@ -14,7 +14,7 @@ test-dependencies: vendor test-cleanup
 
 .PHONY: test
 test: test-dependencies
-	@$(PHPUNIT) $(ARGS)
+	@$(PHPUNIT) --display-skipped $(ARGS)
 
 .PHONY: test-coverage
 test-coverage: test-dependencies
@@ -40,5 +40,5 @@ test-container-84:
 
 .PHONY: lint
 lint:
-	@XDEBUG_MODE=off phpcs -s
+	#@XDEBUG_MODE=off phpcs -s # phpcs doesn't support hook properties
 	@XDEBUG_MODE=off vendor/bin/phpstan

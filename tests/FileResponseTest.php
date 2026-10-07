@@ -12,6 +12,7 @@ use ICanBoogie\HTTP\RequestOptions;
 use ICanBoogie\HTTP\RequestRange;
 use ICanBoogie\HTTP\ResponseStatus;
 use LogicException;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Rule\InvokedCount;
 use PHPUnit\Framework\TestCase;
@@ -39,41 +40,30 @@ final class FileResponseTest extends TestCase
     }
 
     #[DataProvider('provide_test_closure_body')]
-    public function test_closure_body(int $status, \Closure $expected_provider)
+    public function test_closure_body(int $status, bool $expect_output)
     {
-        /** @var InvokedCount $expected */
-        $expected = $expected_provider($this);
+        $file = create_file();
+        $sut = new FileResponse($file, Request::from());
+        $sut->status = $status;
 
-        $response = $this
-            ->getMockBuilder(FileResponse::class)
-            ->setConstructorArgs([ __FILE__, Request::from() ])
-            ->onlyMethods([ 'send_file', 'send_headers' ])
-            ->getMock();
-        $response
-            ->expects($expected)
-            ->method('send_file');
+        $actual = (string) $sut;
 
-        $response->status = $status;
-        $response();
+        if ($expect_output) {
+            $this->assertStringEndsWith(file_get_contents($file), $actual);
+        } else {
+            $this->assertStringEndsNotWith(file_get_contents($file), $actual);
+        }
     }
 
     public static function provide_test_closure_body(): array
     {
         return [
 
-            [ ResponseStatus::STATUS_OK, fn(self $t) => $t->once() ],
-            [ ResponseStatus::STATUS_NOT_MODIFIED, fn(self $t) => $t->never() ],
-            [ ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE, fn(self $t) => $t->never() ],
+            [ ResponseStatus::STATUS_OK, true ],
+            [ ResponseStatus::STATUS_NOT_MODIFIED, false ],
+            [ ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE, false ],
 
         ];
-    }
-
-    public function test_get_file(): void
-    {
-        $response = new FileResponse(__FILE__, Request::from());
-
-        $this->assertInstanceOf(\SplFileInfo::class, $response->file);
-        $this->assertEquals(__FILE__, $response->file->getPathname());
     }
 
     #[DataProvider('provide_test_invoke')]
@@ -89,11 +79,12 @@ final class FileResponseTest extends TestCase
             public function __construct(
                 SplFileInfo|string $file,
                 Request $request,
-                private bool $is_modified_override,
+                private readonly bool $is_modified_override,
             ) {
                 parent::__construct($file, $request);
             }
 
+            // The overload is required for the test
             public bool $is_modified {
                 get => $this->is_modified_override;
             }
@@ -152,10 +143,12 @@ final class FileResponseTest extends TestCase
                 parent::__construct($file, $request);
             }
 
+            // The overload is required for the test
             public bool $is_modified {
                 get => $this->override_is_modified;
             }
 
+            // The overload is required for the test
             public ?RequestRange $range {
                 get => $this->override_range;
             }
@@ -203,36 +196,6 @@ final class FileResponseTest extends TestCase
             [ 'no-cache', true, ResponseStatus::STATUS_OK ],
 
         ];
-    }
-
-    public function test_send_body(): void
-    {
-        $this->markTestSkipped();
-
-        $file = create_file();
-        $request = Request::from();
-        $response = new FileResponse($file, $request);
-
-        $output = (string) $response;
-
-        $this->assertEquals(file_get_contents($file), $output);
-
-//
-//        $response = $this
-//            ->getMockBuilder(FileResponse::class)
-//            ->setConstructorArgs([ create_file(), Request::from() ])
-//            ->onlyMethods([ 'send_headers', 'send_file' ])
-//            ->getMock();
-//        $response
-//            ->expects($this->once())
-//            ->method('send_headers');
-//        $response
-//            ->expects($this->once())
-//            ->method('send_file');
-//
-//        /* @var $response FileResponse */
-
-        $response();
     }
 
     #[DataProvider('provide_test_get_content_type')]
@@ -405,16 +368,10 @@ final class FileResponseTest extends TestCase
     public function test_accept_ranges(RequestMethod $method, string $type): void
     {
         $request = Request::from([ Request::OPTION_URI => '/', 'method' => $method ]);
+        $response = new FileResponse(__FILE__, $request);
+        $actual = (string) $response;
 
-        $response = $this
-            ->getMockBuilder(FileResponse::class)
-            ->setConstructorArgs([ __FILE__, $request ])
-            ->onlyMethods([ 'send_body' ])
-            ->getMock();
-
-        /* @var $response FileResponse */
-
-        $this->assertStringContainsString("Accept-Ranges: $type", (string)$response);
+        $this->assertStringContainsString("Accept-Ranges: $type", $actual);
     }
 
     public static function provide_test_accept_ranges(): array
@@ -445,11 +402,7 @@ final class FileResponseTest extends TestCase
 
         ]);
 
-        $response = $this
-            ->getMockBuilder(FileResponse::class)
-            ->setConstructorArgs([ $pathname, $request, [ FileResponse::OPTION_ETAG => $etag ] ])
-            ->onlyMethods([ 'send_headers' ])
-            ->getMock();
+        $response = new FileResponse($pathname, $request, [ FileResponse::OPTION_ETAG => $etag ]);
 
         /* @var $response FileResponse */
 

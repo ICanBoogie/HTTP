@@ -42,6 +42,7 @@ final class WithRescueTest extends TestCase
     public function test_nothing_to_rescue(): void
     {
         $this->responder
+            ->expects($this->once())
             ->method('respond')
             ->with($this->request)
             ->willReturn($this->response);
@@ -58,6 +59,7 @@ final class WithRescueTest extends TestCase
     public function test_rescue_failed(): void
     {
         $this->responder
+            ->expects($this->once())
             ->method('respond')
             ->with($this->request)
             ->willThrowException($this->exception);
@@ -78,6 +80,7 @@ final class WithRescueTest extends TestCase
         $new_exception = new Exception();
 
         $this->responder
+            ->expects($this->once())
             ->method('respond')
             ->with($this->request)
             ->willThrowException($this->exception);
@@ -102,6 +105,7 @@ final class WithRescueTest extends TestCase
         $new_response = new Response();
 
         $this->responder
+            ->expects($this->once())
             ->method('respond')
             ->with($this->request)
             ->willThrowException($this->exception);

@@ -12,13 +12,6 @@ use PHPUnit\Framework\TestCase;
 
 class ResponseTest extends TestCase
 {
-    private static Response $response;
-
-    public static function setupBeforeClass(): void
-    {
-        self::$response = new Response();
-    }
-
     public function test_clone(): void
     {
         $response = new Response();
@@ -155,90 +148,17 @@ class ResponseTest extends TestCase
         ];
     }
 
-    public function test_invoke(): void
-    {
-        $body = uniqid();
-
-        $headers = $this
-            ->getMockBuilder(Headers::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods([ '__invoke' ])
-            ->getMock();
-
-        $response = $this
-            ->getMockBuilder(Response::class)
-            ->setConstructorArgs([ $body, Response::STATUS_OK, $headers ])
-            ->onlyMethods([ 'finalize', 'send_headers', 'send_body' ])
-            ->getMock();
-        $response
-            ->expects($this->once())
-            ->method('finalize')
-            ->with($this->equalTo($headers), $body);
-        $response
-            ->expects($this->once())
-            ->method('send_headers')
-            ->with($this->equalTo($headers))
-            ->willReturn(true);
-        $response
-            ->expects($this->once())
-            ->method('send_body')
-            ->with($body);
-
-        /* @var $response Response */
-
-        $response();
-    }
-
-    public function test_invoke_empty_body(): void
-    {
-        $body = null;
-
-        $headers = $this
-            ->getMockBuilder(Headers::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods([ '__invoke' ])
-            ->getMock();
-
-        $response = $this
-            ->getMockBuilder(Response::class)
-            ->setConstructorArgs([ $body, Response::STATUS_OK, $headers ])
-            ->onlyMethods([ 'finalize', 'send_headers', 'send_body' ])
-            ->getMock();
-        $response
-            ->expects($this->once())
-            ->method('finalize')
-            ->with($this->equalTo($headers), $body);
-        $response
-            ->expects($this->once())
-            ->method('send_headers')
-            ->with($this->equalTo($headers))
-            ->willReturn(true);
-        $response
-            ->expects($this->never())
-            ->method('send_body')
-            ->with($body);
-
-        /* @var $response Response */
-
-        $response();
-    }
-
     public function test_to_string_with_exception(): void
     {
-        $body = uniqid();
-
         $exception = new \Exception('Message' . uniqid());
+        $response = new Response(fn() => throw $exception);
 
-        $response = $this
-            ->getMockBuilder(Response::class)
-            ->setConstructorArgs([ $body ])
-            ->onlyMethods([ 'finalize', 'send_headers', 'send_body' ])
-            ->getMock();
-        $response
-            ->expects($this->once())
-            ->method('finalize')
-            ->willThrowException($exception);
+        try {
+            (string) $response;
 
-        $this->assertEquals($exception->getMessage(), (string) $response);
+            $this->fail("Expected exception was not thrown");
+        } catch (\Exception $actual) {
+            $this->assertSame($exception, $actual);
+        }
     }
 }

@@ -36,6 +36,7 @@ final class WithEventTest extends TestCase
     public function test_no_changes(): void
     {
         $this->responder
+            ->expects($this->once())
             ->method('respond')
             ->with($this->request)
             ->willReturn($this->response);
@@ -54,7 +55,7 @@ final class WithEventTest extends TestCase
 
         $response = new Response();
 
-        $this->events->attach(function (BeforeRespondEvent $event) use ($response) {
+        $this->events->attach(function (BeforeRespondEvent $event) use ($response): void {
             $event->response = $response;
         });
 
@@ -66,6 +67,7 @@ final class WithEventTest extends TestCase
     public function test_response_provided_after(): void
     {
         $this->responder
+            ->expects($this->once())
             ->method('respond')
             ->with($this->request)
             ->willReturn($this->response);

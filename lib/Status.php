@@ -12,7 +12,7 @@ use function preg_match;
 /**
  * Representation of a response status.
  */
-final class Status
+class Status
 {
     /**
      * @deprecated

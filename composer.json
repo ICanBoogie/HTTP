@@ -31,15 +31,15 @@
   "require": {
     "php": ">=8.4",
     "ext-mbstring": "*",
-    "icanboogie/accessor": "^6.0",
+    "icanboogie/common": "^6.0",
     "icanboogie/event": "^7.0"
   },
   "require-dev": {
     "ext-fileinfo": "*",
     "ext-gd": "*",
     "icanboogie/datetime": "^3.0",
-    "phpstan/phpstan": "^2.1",
-    "phpunit/phpunit": "11.4.4"
+    "phpstan/phpstan": "^2.3",
+    "phpunit/phpunit": "13.4"
   },
   "autoload": {
     "psr-4": {

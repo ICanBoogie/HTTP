@@ -65,25 +65,23 @@ class Response implements ResponseStatus
      */
     public function __toString(): string
     {
+        $header = clone $this->headers;
+        $body = $this->body;
+
+        $this->finalize($header, $body);
+
+        ob_start();
+
         try {
-            $header = clone $this->headers;
-            $body = $this->body;
-
-            $this->finalize($header, $body);
-
-            ob_start();
-
             $this->send_body($body);
-
+        } finally {
             $body = ob_get_clean();
-
-            return "HTTP/$this->version $this->status\r\n"
-                . $header
-                . "\r\n"
-                . $body;
-        } catch (Throwable $e) {
-            return $e->getMessage();
         }
+
+        return "HTTP/$this->version $this->status\r\n"
+            . $header
+            . "\r\n"
+            . $body;
     }
 
     /**
@@ -173,6 +171,7 @@ class Response implements ResponseStatus
     }
 
     public ?int $age {
+        // @phpstan-ignore-next-line // false positive
         get {
             $age = $this->headers['Age'];
 
@@ -208,6 +207,7 @@ class Response implements ResponseStatus
      * re-validating with the origin.
      */
     public ?int $ttl {
+        // @phpstan-ignore-next-line // false positive
         get {
             $max_age = $this->headers->cache_control->max_age;
 

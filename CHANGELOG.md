@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v7.0
+## v7.0.0
 
 ### New Requirements
 
@@ -16,7 +16,7 @@ None
 
 ### Backward Incompatible Changes
 
-None
+- Exception thrown during Response streaming is no longer captured.
 
 ### Other changes
 
