@@ -2,23 +2,36 @@
 
 namespace ICanBoogie\HTTP;
 
+use DateTimeImmutable;
+use DateTimeZone;
+
+use function max;
+use function min;
 use function preg_match;
 use function sprintf;
 
 /**
  * Representation of a request range.
  *
- * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Range
+ * Only single ranges are supported. A request with multiple ranges, such as `bytes=0-99,200-299`,
+ * is treated as a request without range, and the whole file is served.
+ *
+ * @link https://www.rfc-editor.org/rfc/rfc9110#name-range-requests
  */
 readonly class RequestRange
 {
     /**
      * Creates a new instance.
      *
-     * @return RequestRange|null A new instance, or `null` if the range is not defined or deprecated
-     * (because `If-Range` doesn't match `$etag`).
+     * @param int $total The size of the representation.
+     * @param string $etag The entity tag of the representation, compared to `If-Range`.
+     * @param int|null $last_modified The modification time of the representation, compared to
+     *     `If-Range` when it is a date.
+     *
+     * @return RequestRange|null A new instance, or `null` if the range is not defined, invalid,
+     * or deprecated (because `If-Range` doesn't match).
      */
-    public static function from(Headers $headers, int $total, string $etag): ?self
+    public static function from(Headers $headers, int $total, string $etag, ?int $last_modified = null): ?self
     {
         $range = (string) $headers[Headers::HEADER_RANGE];
 
@@ -26,9 +39,7 @@ readonly class RequestRange
             return null;
         }
 
-        $if_range = (string) $headers[Headers::HEADER_IF_RANGE];
-
-        if ($if_range && $if_range !== $etag) {
+        if (!self::if_range_matches((string) $headers[Headers::HEADER_IF_RANGE], $etag, $last_modified)) {
             return null;
         }
 
@@ -42,9 +53,37 @@ readonly class RequestRange
     }
 
     /**
+     * Whether `If-Range` matches the representation.
+     *
+     * An entity tag must match exactly, a date must be equal to the modification time.
+     *
+     * @link https://www.rfc-editor.org/rfc/rfc9110#name-if-range
+     */
+    private static function if_range_matches(string $if_range, string $etag, ?int $last_modified): bool
+    {
+        if ($if_range === '' || $if_range === $etag) {
+            return true;
+        }
+
+        if ($last_modified === null) {
+            return false;
+        }
+
+        $date = DateTimeImmutable::createFromFormat('D, d M Y H:i:s \G\M\T', $if_range, new DateTimeZone('UTC'));
+
+        return $date !== false && $date->getTimestamp() === $last_modified;
+    }
+
+    /**
      * Resolves the range.
      *
+     * A last position beyond the end of the representation is clamped, and so is a suffix longer
+     * than the representation. A range that starts beyond the end is returned as is, it is not
+     * satisfiable.
+     *
      * @return array{ 0: int, 1: int }|null An array with `[ $start, $end ]`, or `null` if the range is invalid.
+     *
+     * @link https://www.rfc-editor.org/rfc/rfc9110#name-byte-ranges
      */
     private static function resolve_range(string $range, int $total): ?array
     {
@@ -52,22 +91,30 @@ readonly class RequestRange
             return null;
         }
 
-        [ , $start, $end ] = $matches;
+        [ , $first, $last ] = $matches;
 
-        if ($start === '' && $end === '') {
+        if ($first === '' && $last === '') {
             return null;
         }
 
-        $end = $end === '' ? $total - 1 : (int) $end;
-
-        if ($start === '') {
-            $start = $total - $end;
-            $end = $total - 1;
-        } else {
-            $start = (int) $start;
+        if ($first === '') {
+            // A suffix of 0 starts at $total, which makes the range unsatisfiable.
+            return [ max(0, $total - (int) $last), $total - 1 ];
         }
 
-        return [ $start, $end ];
+        $start = (int) $first;
+
+        if ($last === '') {
+            return [ $start, $total - 1 ];
+        }
+
+        $end = (int) $last;
+
+        if ($end < $start) {
+            return null;
+        }
+
+        return [ $start, min($end, $total - 1) ];
     }
 
     /**
@@ -101,9 +148,8 @@ readonly class RequestRange
         private int $total
     ) {
         $this->offset = $start;
-        $this->length = $length = $this->end - $this->start + 1;
-        $this->max_length = $end < $total ? $length : -1;
-        $this->is_satisfiable = !($start < 0 || $start >= $end || $end > $total - 1);
+        $this->length = $this->max_length = max(0, $end - $start + 1);
+        $this->is_satisfiable = $start < $total && $end >= $start;
         $this->is_total = $start === 0 && $end === $total - 1;
     }
 

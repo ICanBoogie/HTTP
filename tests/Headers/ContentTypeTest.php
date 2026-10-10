@@ -66,4 +66,27 @@ class ContentTypeTest extends TestCase
         $content_type->type = null;
         $this->assertEquals('', (string) $content_type);
     }
+
+    #[DataProvider('provide_test_from_malformed')]
+    public function test_from_malformed(string $source, string $type, ?string $charset): void
+    {
+        $h = ContentType::from($source);
+
+        $this->assertEquals($type, $h->type);
+        $this->assertSame($charset, $h->charset);
+    }
+
+    public static function provide_test_from_malformed(): array
+    {
+        return [
+
+            [ 'text/html; charset', 'text/html', null ],
+            [ 'text/html; =utf-8', 'text/html', null ],
+            [ 'text/html; charset=', 'text/html', '' ],
+            [ 'text/html; charset="utf-8', 'text/html', '"utf-8' ],
+            [ 'text/html;', 'text/html', null ],
+            [ '', '', null ],
+
+        ];
+    }
 }

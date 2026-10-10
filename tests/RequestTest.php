@@ -2,6 +2,7 @@
 
 namespace Test\ICanBoogie\HTTP;
 
+use ICanBoogie\HTTP\ClientError;
 use ICanBoogie\HTTP\File;
 use ICanBoogie\HTTP\FileList;
 use ICanBoogie\HTTP\Headers;
@@ -589,5 +590,51 @@ class RequestTest extends TestCase
 
         // @phpstan-ignore-next-line
         $request->with([ 'unsupported_property' => uniqid() ]);
+    }
+
+    #[DataProvider('provide_test_decode_json_body')]
+    public function test_decode_json_body(string $json, array $expected): void
+    {
+        $this->assertSame($expected, self::decode_json_body($json));
+    }
+
+    public static function provide_test_decode_json_body(): array
+    {
+        return [
+
+            'empty body' => [ '', [] ],
+            'blank body' => [ " \n", [] ],
+            'object' => [ '{"name":"Madonna"}', [ 'name' => 'Madonna' ] ],
+            'array' => [ '[1,2]', [ 1, 2 ] ],
+
+        ];
+    }
+
+    #[DataProvider('provide_test_decode_json_body_with_invalid_json')]
+    public function test_decode_json_body_with_invalid_json(string $json): void
+    {
+        try {
+            self::decode_json_body($json);
+            $this->fail("Expected ClientError");
+        } catch (ClientError $e) {
+            $this->assertEquals(400, $e->getCode());
+        }
+    }
+
+    public static function provide_test_decode_json_body_with_invalid_json(): array
+    {
+        return [
+
+            'malformed' => [ '{"name":' ],
+            'scalar' => [ '42' ],
+            'string' => [ '"Madonna"' ],
+            'null' => [ 'null' ],
+
+        ];
+    }
+
+    private static function decode_json_body(string $json): array
+    {
+        return new \ReflectionMethod(Request::class, 'decode_json_body')->invoke(null, $json);
     }
 }

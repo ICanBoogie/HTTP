@@ -8,10 +8,8 @@ use ICanBoogie\PropertyNotDefined;
 use InvalidArgumentException;
 
 use function array_intersect_key;
-use function array_map;
-use function explode;
-use function strpos;
-use function substr;
+use function array_shift;
+use function preg_match_all;
 use function trim;
 
 /**
@@ -93,9 +91,9 @@ abstract class Header implements ArrayAccess
      * @param string|Header|null $source The source to create the instance from. If the source is
      * an instance of {@see Header} it is returned as is.
      */
-    public static function from(string|self|null $source): Header
+    public static function from(string|self|null $source): static
     {
-        if ($source instanceof self) {
+        if ($source instanceof static) {
             return $source;
         }
 
@@ -116,24 +114,28 @@ abstract class Header implements ArrayAccess
      */
     protected static function parse(string $source): array
     {
-        $value_end = strpos($source, ';');
+        // Splits on `;`, except within quoted strings, such as `filename="a;b.txt"`.
+        preg_match_all('/(?:[^;"]++|"(?:[^"\\\\]++|\\\\.)*+"?)++/s', $source, $matches);
+
+        $segments = $matches[0];
+        $value = $source === '' || $source[0] === ';' ? '' : array_shift($segments);
         $parameters = [];
 
-        if ($value_end !== false) {
-            $value = substr($source, 0, $value_end);
-            $attributes = trim(substr($source, $value_end + 1));
+        foreach ($segments as $segment) {
+            $segment = trim($segment);
 
-            if ($attributes) {
-                $attributes = explode(';', $attributes);
-                $attributes = array_map('trim', $attributes);
-
-                foreach ($attributes as $attribute) {
-                    $parameter = HeaderParameter::from($attribute);
-                    $parameters[$parameter->attribute] = $parameter;
-                }
+            if ($segment === '') {
+                continue;
             }
-        } else {
-            $value = $source;
+
+            try {
+                $parameter = HeaderParameter::from($segment);
+            } catch (InvalidArgumentException) {
+                // Malformed parameters are ignored, they usually come from the client.
+                continue;
+            }
+
+            $parameters[$parameter->attribute] = $parameter;
         }
 
         return [ $value, $parameters ];

@@ -450,6 +450,7 @@ class FileResponse extends Response
                 $this->request->headers,
                 $this->file->getSize(),
                 $this->headers->etag,
+                $this->modified_time,
             );
         }
     }

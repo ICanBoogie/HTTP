@@ -123,7 +123,7 @@ final class FileResponseTest extends TestCase
         if ($is_satisfiable) {
             $headers['Range'] = $is_total ? "bytes=0-399" : "bytes=10-200";
         } else {
-            $headers['Range'] = "bytes=20-10";
+            $headers['Range'] = "bytes=500-";
         }
 
         $range = RequestRange::from($headers, 400, $etag);
@@ -439,6 +439,9 @@ final class FileResponseTest extends TestCase
             [ '-500', $pathname, substr($data, -500) ],
             [ '9500-', $pathname, substr($data, -500) ],
             [ 'bytes=0-9999', $pathname, $data ],
+            [ '0-0', $pathname, $data[0] ],
+            [ '9000-99999', $pathname, substr($data, 9000) ],
+            [ '-99999', $pathname, $data ],
 
         ];
     }
@@ -526,7 +529,7 @@ final class FileResponseTest extends TestCase
     {
         $file = create_file();
         $size = filesize($file);
-        $request = Request::from([ Request::OPTION_HEADERS => [ 'Range' => 'bytes=20-10' ] ]);
+        $request = Request::from([ Request::OPTION_HEADERS => [ 'Range' => "bytes=$size-" ] ]);
         $response = new FileResponse($file, $request);
 
         ob_start();
@@ -540,5 +543,27 @@ final class FileResponseTest extends TestCase
 
         $this->assertStringContainsString("Content-Range: bytes */$size\r\n", $actual);
         $this->assertStringContainsString("Content-Length: 0\r\n", $actual);
+    }
+
+    public function test_range_with_if_range_date(): void
+    {
+        $file = create_file();
+        $data = file_get_contents($file);
+        $last_modified = (string) \ICanBoogie\HTTP\Headers\Date::from(filemtime($file));
+        $request = Request::from([ Request::OPTION_HEADERS => [
+
+            'Range' => 'bytes=0-99',
+            'If-Range' => $last_modified,
+
+        ] ]);
+
+        $response = new FileResponse($file, $request);
+
+        ob_start();
+        $response();
+        $content = ob_get_clean();
+
+        $this->assertEquals(ResponseStatus::STATUS_PARTIAL_CONTENT, $response->status->code);
+        $this->assertSame(substr($data, 0, 100), $content);
     }
 }

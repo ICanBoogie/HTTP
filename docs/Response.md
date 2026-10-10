@@ -187,6 +187,10 @@ using the request header fields `If-None-Match` and `If-Modified-Since`, and the
 `modified_time` and `etag`. When `If-None-Match` is present, `If-Modified-Since` is ignored.
 A `304 Not Modified` is only returned for `GET` and `HEAD` requests.
 
+- `range`: The requested range, as a `RequestRange` instance, or `null`. Only single ranges are
+supported; a request with multiple ranges (`bytes=0-99,200-299`) gets the whole file. `If-Range`
+may be an entity tag or a date.
+
 ### Caching files
 
 If `Cache-Control` is not defined, the response is cacheable by the client only:

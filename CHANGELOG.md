@@ -30,6 +30,14 @@ None
   file, and is quoted. It used to be an unquoted SHA-384 of the content, computed for every
   response.
 - `FileResponse` returns `304 Not Modified` only for `GET` and `HEAD` requests.
+- A malformed JSON request body, or one that is not a JSON object or array, throws a `ClientError`
+  (400) instead of a `JsonException`. An empty JSON body results in no request parameters.
+- `RequestRange` follows RFC 9110: a last position beyond the end is clamped instead of making the
+  range unsatisfiable, a suffix larger than the file selects the whole file, and a range whose last
+  position is before its first (`bytes=999-500`) is ignored instead of resulting in a 416.
+  `RequestRange::$max_length` is no longer `-1`.
+- `HeaderParameter::from()` throws `InvalidArgumentException` on a malformed parameter. Extended
+  values (`filename*=`) are decoded with `rawurldecode()`, so `+` is no longer turned into a space.
 
 ### Other changes
 
@@ -42,6 +50,10 @@ None
   `If-Modified-Since`. `If-None-Match` supports lists, weak tags, and `*`.
 - A `416 Range Not Satisfiable` response from `FileResponse` has `Content-Range: bytes */<size>`
   and `Content-Length: 0`.
+- `bytes=0-0` is a satisfiable range.
+- `If-Range` supports dates, compared to the modification time of the file.
+- `Header::parse()` no longer splits quoted strings on `;`, such as `filename="a;b.txt"`, and
+  ignores malformed parameters instead of failing.
 
 
 

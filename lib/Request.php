@@ -4,15 +4,18 @@ namespace ICanBoogie\HTTP;
 
 use ICanBoogie\HTTP\Headers\ContentType;
 use InvalidArgumentException;
+use JsonException;
 
 use function array_reverse;
 use function ctype_digit;
 use function explode;
 use function file_get_contents;
 use function filter_var;
+use function get_debug_type;
 use function ICanBoogie\normalize_url_path;
 use function inet_pton;
 use function intdiv;
+use function is_array;
 use function json_decode;
 use function ord;
 use function strlen;
@@ -158,8 +161,7 @@ final class Request implements RequestOptions
         $content_type = $content_type ? new ContentType($content_type) : null;
 
         if ($content_type?->type === 'application/json') {
-            $json = file_get_contents('php://input');
-            $request_params = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
+            $request_params = self::decode_json_body((string) file_get_contents('php://input'));
         } else {
             $request_params = &$_POST;
         }
@@ -173,6 +175,34 @@ final class Request implements RequestOptions
             self::OPTION_FILES => &$_FILES, // @codeCoverageIgnore
 
         ], $_SERVER);
+    }
+
+    /**
+     * Decodes a JSON request body into request parameters.
+     *
+     * An empty body results in no parameters.
+     *
+     * @return array<string, mixed>
+     *
+     * @throws ClientError if the body is not valid JSON, or is not a JSON object or array.
+     */
+    private static function decode_json_body(string $json): array
+    {
+        if (trim($json) === '') {
+            return [];
+        }
+
+        try {
+            $params = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new ClientError("Malformed JSON in request body: {$e->getMessage()}.", previous: $e);
+        }
+
+        if (!is_array($params)) {
+            throw new ClientError("Expected a JSON object or array in request body, got: " . get_debug_type($params) . ".");
+        }
+
+        return $params;
     }
 
     /**

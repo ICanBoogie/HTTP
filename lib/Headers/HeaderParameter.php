@@ -2,16 +2,22 @@
 
 namespace ICanBoogie\HTTP\Headers;
 
+use InvalidArgumentException;
+use ValueError;
+
 use function ICanBoogie\remove_accents;
 use function mb_convert_encoding;
 use function mb_detect_encoding;
 use function preg_match;
 use function preg_replace;
+use function rawurldecode;
 use function rawurlencode;
+use function str_ends_with;
 use function str_replace;
+use function strlen;
 use function strpos;
 use function substr;
-use function urldecode;
+use function trim;
 
 /**
  * Representation of a header parameter.
@@ -31,6 +37,8 @@ class HeaderParameter
 
     /**
      * Creates a {@see HeaderParameter} instance from the provided source.
+     *
+     * @throws InvalidArgumentException if the source is not a valid parameter.
      */
     public static function from(mixed $source): self
     {
@@ -38,33 +46,60 @@ class HeaderParameter
             return $source;
         }
 
+        $source = (string) $source;
         $equal_pos = strpos($source, '=');
+
+        if (!$equal_pos) {
+            throw new InvalidArgumentException("Expected `attribute=value`, got: $source");
+        }
+
+        $attribute = trim(substr($source, 0, $equal_pos));
+        $value = trim(substr($source, $equal_pos + 1));
         $language = null;
 
-        if ($source[$equal_pos - 1] === '*') {
-            $attribute = substr($source, 0, $equal_pos - 1);
-            $value = substr($source, $equal_pos + 1);
+        if (str_ends_with($attribute, '*')) {
+            $attribute = substr($attribute, 0, -1);
+            [ $value, $language ] = self::decode_ext_value($value);
+        } elseif (strlen($value) >= 2 && $value[0] === '"' && $value[-1] === '"') {
+            $value = preg_replace('/\\\\(.)/s', '$1', substr($value, 1, -1));
+        }
 
-            preg_match('#^([a-zA-Z0-9\-]+)?(\'([a-z\-]+)?\')?(")?([^"]+)(")?$#', $value, $matches);
-
-            if ($matches[3]) {
-                $language = $matches[3];
-            }
-
-            $value = urldecode($matches[5]);
-            $value = mb_convert_encoding($value, 'UTF-8', $matches[1]);
-        } else {
-            $attribute = substr($source, 0, $equal_pos);
-            $value = substr($source, $equal_pos + 1);
-
-            if ($value[0] === '"') {
-                $value = substr($value, 1, -1);
-            }
+        if ($attribute === '') {
+            throw new InvalidArgumentException("Expected `attribute=value`, got: $source");
         }
 
         $value = mb_convert_encoding($value, 'UTF-8');
 
         return new self($attribute, $value, $language);
+    }
+
+    /**
+     * Decodes an extended value, such as `UTF-8'en'%C2%A3%20rates`.
+     *
+     * Quotes around the value are tolerated, although RFC 8187 doesn't allow them.
+     *
+     * @return array{ 0: string, 1: string|null } The value and its language.
+     *
+     * @throws InvalidArgumentException if the value is malformed or its charset is not supported.
+     *
+     * @link https://www.rfc-editor.org/rfc/rfc8187#section-3.2
+     */
+    private static function decode_ext_value(string $value): array
+    {
+        if (!preg_match('#^([a-zA-Z0-9\-]+)?(\'([a-zA-Z\-]+)?\')?(")?([^"]+)(")?$#', $value, $matches)) {
+            throw new InvalidArgumentException("Malformed extended value: $value");
+        }
+
+        $charset = $matches[1] ?: 'UTF-8';
+        $language = $matches[3] ?: null;
+
+        try {
+            $value = mb_convert_encoding(rawurldecode($matches[5]), 'UTF-8', $charset);
+        } catch (ValueError $e) {
+            throw new InvalidArgumentException("Unsupported charset: $charset", previous: $e);
+        }
+
+        return [ $value, $language ];
     }
 
     /**

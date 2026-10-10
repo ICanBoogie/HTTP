@@ -157,6 +157,16 @@ $info = $request->params['info'];
 
 
 
+## JSON request bodies
+
+When the initial request is created from `$_SERVER` and its content type is `application/json`,
+the body is decoded into `request_params`. A malformed body, or one that is not a JSON object or
+array, throws a `ClientError` (400). An empty body results in no parameters.
+
+
+
+
+
 ## Request files
 
 Files associated with a request are collected in a [FileList][] instance. The initial request

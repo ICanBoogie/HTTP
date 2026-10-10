@@ -18,7 +18,7 @@ namespace ICanBoogie\HTTP\Headers;
  * </pre>
  *
  * @property string $type The `disposition-type` part of the content disposition. Alias to {@see $value}.
- * @property string $filename The `filename-parm` part of the content disposition.
+ * @property string|null $filename The `filename-parm` part of the content disposition.
  *
  * @link https://tools.ietf.org/html/rfc2616#section-19.5.1
  * @link https://tools.ietf.org/html/rfc6266

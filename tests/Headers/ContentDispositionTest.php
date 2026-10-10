@@ -114,4 +114,32 @@ class ContentDispositionTest extends TestCase
         $this->assertInstanceOf(HeaderParameter::class, $cd['filename']);
         $this->assertEquals('inline', (string) $cd);
     }
+
+    #[DataProvider('provide_test_from_malformed')]
+    public function test_from_malformed(string $source, string $type, ?string $filename): void
+    {
+        $h = ContentDisposition::from($source);
+
+        $this->assertEquals($type, $h->type);
+        $this->assertSame($filename, $h->filename);
+    }
+
+    public static function provide_test_from_malformed(): array
+    {
+        return [
+
+            'semicolon in quoted string' => [ 'attachment; filename="a;b.txt"', 'attachment', 'a;b.txt' ],
+            'escaped quote' => [ 'attachment; filename="a\\"b.txt"', 'attachment', 'a"b.txt' ],
+            'parameter without value' => [ 'attachment; filename', 'attachment', null ],
+            'parameter without attribute' => [ 'attachment; =a.txt', 'attachment', null ],
+            'empty value' => [ 'attachment; filename=', 'attachment', '' ],
+            'unterminated quote' => [ 'attachment; filename="a.txt', 'attachment', '"a.txt' ],
+            'empty extended value' => [ 'attachment; filename*=', 'attachment', null ],
+            'unsupported charset' => [ "attachment; filename*=bogus''a.txt", 'attachment', null ],
+            'extended value without charset' => [ "attachment; filename*=''a%20b.txt", 'attachment', 'a b.txt' ],
+            'trailing semicolons' => [ 'attachment;;', 'attachment', null ],
+            'leading semicolon' => [ '; filename=a.txt', '', 'a.txt' ],
+
+        ];
+    }
 }
