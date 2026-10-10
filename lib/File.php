@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ICanBoogie\HTTP;
 
 use ICanBoogie\FormattedString;
@@ -44,7 +46,7 @@ class File implements ToArray, FileOptions
     /**
      * Creates a {@see File} instance.
      *
-     * @param array|string $properties_or_name An array of properties or a file identifier.
+     * @param array<string, mixed>|string $properties_or_name An array of properties or a file identifier.
      */
     public static function from(array|string $properties_or_name): File
     {
@@ -65,9 +67,9 @@ class File implements ToArray, FileOptions
     /**
      * Keeps only initial properties.
      *
-     * @param array $properties
+     * @param array<string, mixed> $properties
      *
-     * @return array
+     * @return array<string, mixed>
      */
     private static function filter_initial_properties(array $properties): array
     {
@@ -78,7 +80,7 @@ class File implements ToArray, FileOptions
      * Format a string.
      *
      * @param string $format The format of the string.
-     * @param array $args The arguments.
+     * @param array<string, mixed> $args The arguments.
      *
      * @return FormattedString|string
      */
@@ -149,7 +151,7 @@ class File implements ToArray, FileOptions
         }
     }
 
-    private $tmp_name;
+    private ?string $tmp_name = null;
 
     /**
      * Error code, one of `UPLOAD_ERR_*`.
@@ -214,6 +216,9 @@ class File implements ToArray, FileOptions
         get => $this->pathname ?? $this->tmp_name;
     }
 
+    /**
+     * @param array<string, mixed> $properties
+     */
     private function __construct(array $properties)
     {
         foreach ($properties as $property => $value) {
@@ -319,6 +324,8 @@ class File implements ToArray, FileOptions
      * check if a file matches multiple type e.g. `[ "image", ".mp3" ]`, which matches any type
      * of image or files with the ".mp3" extension.
      *
+     * @param string|string[]|null $type
+     *
      * @return bool `true` if the file matches (or `$type` is empty), `false` otherwise.
      */
     public function match(array|string|null $type): bool
@@ -345,7 +352,7 @@ class File implements ToArray, FileOptions
     /**
      * Checks if the file matches one of the types in the list.
      *
-     * @param array $type_list
+     * @param string[] $type_list
      *
      * @return bool `true` if the file matches, `false` otherwise.
      */

@@ -106,7 +106,8 @@ final class FileResponseTest extends TestCase
 
         $this->assertEquals($expected, $response->status->code);
         $this->assertEquals(1, $response->send_headers_calls);
-        $this->assertEquals(1, $response->send_body_calls);
+        // A 304 has no body.
+        $this->assertEquals($expected === 304 ? 0 : 1, $response->send_body_calls);
     }
 
     #[DataProvider('provide_test_invoke_with_range')]
@@ -170,7 +171,8 @@ final class FileResponseTest extends TestCase
 
         $this->assertEquals($expected, $response->status->code);
         $this->assertEquals(1, $response->send_headers_calls);
-        $this->assertEquals(1, $response->send_body_calls);
+        // A 304 has no body.
+        $this->assertEquals($expected === 304 ? 0 : 1, $response->send_body_calls);
     }
 
     public static function provide_test_invoke_with_range(): array

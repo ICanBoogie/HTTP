@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ICanBoogie\HTTP\Headers;
 
 use InvalidArgumentException;
@@ -53,6 +55,7 @@ final class CacheControl
         'only-if-cached',
         'must-revalidate',
         'proxy-revalidate',
+        'immutable',
 
     ];
 
@@ -80,6 +83,9 @@ final class CacheControl
             'only_if_cached' => false,
             'must_revalidate' => false,
             'proxy_revalidate' => false,
+            'immutable' => false,
+            'stale_while_revalidate' => null,
+            'stale_if_error' => null,
             'extensions' => [],
 
         ];
@@ -117,7 +123,7 @@ final class CacheControl
                 }
 
                 if (!array_key_exists($property, $properties)) {
-                    $extensions[$property] = $value;
+                    $extensions[$directive] = $value;
 
                     continue;
                 }
@@ -206,7 +212,7 @@ final class CacheControl
      *
      * @link https://www.rfc-editor.org/rfc/rfc9111#section-5.2.1.2
      */
-    public ?string $max_stale = null;
+    public ?int $max_stale = null;
 
     /**
      * Indicates that the client is willing to accept a response whose freshness lifetime is no
@@ -248,6 +254,39 @@ final class CacheControl
     public bool $proxy_revalidate = false;
 
     /**
+     * Indicates that the response will not change while it is fresh, so that it doesn't need to be
+     * revalidated when the user reloads the page.
+     *
+     * Scope: response.
+     *
+     * @link https://www.rfc-editor.org/rfc/rfc8246
+     */
+    public bool $immutable = false;
+
+    /**
+     * The number of seconds a stale response may be served while it is revalidated in the
+     * background.
+     *
+     * Scope: response.
+     *
+     * @link https://www.rfc-editor.org/rfc/rfc5861#section-3
+     */
+    public ?int $stale_while_revalidate = null;
+
+    /**
+     * The number of seconds a stale response may be served when an error is encountered while
+     * revalidating it.
+     *
+     * Scope: request, response.
+     *
+     * @link https://www.rfc-editor.org/rfc/rfc5861#section-4
+     */
+    public ?int $stale_if_error = null;
+
+    /**
+     * Directives that are not supported by the class, indexed by their name. They are rendered
+     * as `name=value`.
+     *
      * Scope: request, response.
      *
      * @link https://www.rfc-editor.org/rfc/rfc9111#section-5.2.3
@@ -289,12 +328,14 @@ final class CacheControl
 
                 $cache_directive .= ', ' . $value;
             } elseif (is_array($value)) {
-                // TODO: 20120831: extentions
-
                 continue;
             } elseif ($value !== null && $value !== false) {
                 $cache_directive .= ", $directive=$value";
             }
+        }
+
+        foreach ($this->extensions as $directive => $value) {
+            $cache_directive .= ", $directive=$value";
         }
 
         return $cache_directive ? substr($cache_directive, 2) : '';

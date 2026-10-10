@@ -114,9 +114,9 @@ $headers->location = null; // Removes the `Location` header
 
 The `Cache-Control` header is represented by a [CacheControl][] instance. Directives can be set at
 once using a plain string, or individually using the properties of the [CacheControl][] instance.
-The directives of [RFC 9111](https://www.rfc-editor.org/rfc/rfc9111#section-5.2) are supported, except the extensions
-`immutable`, `stale-while-revalidate` and `stale-if-error` (RFC 5861 and RFC 8246): they are not rendered back, and
-`immutable` is dropped when parsing.
+The directives of [RFC 9111](https://www.rfc-editor.org/rfc/rfc9111#section-5.2) are supported, as well as `immutable`
+(RFC 8246), `stale-while-revalidate` and `stale-if-error` (RFC 5861). Other `name=value` directives are available
+through the `extensions` property and are rendered back.
 
 ```php
 <?php

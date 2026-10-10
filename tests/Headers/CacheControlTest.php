@@ -96,4 +96,26 @@ class CacheControlTest extends TestCase
         $cache_control = new CacheControl("public, ext1=one, ext2=two");
         $this->assertEquals([ 'ext1' => "one", 'ext2' => "two" ], $cache_control->extensions);
     }
+
+    public function test_immutable_and_stale_directives(): void
+    {
+        $cc = CacheControl::from('public, max-age=60, immutable, stale-while-revalidate=30, stale-if-error=600');
+
+        $this->assertTrue($cc->immutable);
+        $this->assertSame(30, $cc->stale_while_revalidate);
+        $this->assertSame(600, $cc->stale_if_error);
+        $this->assertSame([], $cc->extensions);
+        $this->assertSame(
+            'public, max-age=60, immutable, stale-while-revalidate=30, stale-if-error=600',
+            (string) $cc
+        );
+    }
+
+    public function test_extensions_are_rendered(): void
+    {
+        $cc = CacheControl::from('public, community=UCI');
+
+        $this->assertSame([ 'community' => 'UCI' ], $cc->extensions);
+        $this->assertSame('public, community=UCI', (string) $cc);
+    }
 }

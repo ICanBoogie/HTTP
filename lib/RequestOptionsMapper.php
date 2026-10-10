@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ICanBoogie\HTTP;
 
 use InvalidArgumentException;
@@ -20,9 +22,9 @@ final class RequestOptionsMapper
      * @throws InvalidArgumentException on invalid option.
      *
      * @return array{
-     *     path_params?: array,
-     *     query_params?: array,
-     *     request_params?: array,
+     *     path_params?: array<int|string, mixed>,
+     *     query_params?: array<string, mixed>,
+     *     request_params?: array<string, mixed>,
      *     cookie?: array<string, string>,
      *     files?: FileList,
      *     headers?: Headers

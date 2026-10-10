@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ICanBoogie\HTTP\Headers;
 
 use DateTimeImmutable;
@@ -19,12 +21,14 @@ use DateTimeZone;
 readonly class Date
 {
     public static function from(
-        DateTimeInterface|int|string|null $source
+        self|DateTimeInterface|int|string|null $source
     ): self {
         $timezone = null;
 
         if ($source === null) {
             return new self();
+        } elseif ($source instanceof self) {
+            return $source;
         } elseif ($source instanceof DateTimeInterface) {
             $timezone = $source->getTimezone();
             $source = $source->format('Y-m-d\TH:i:s.u');
@@ -62,7 +66,7 @@ readonly class Date
      */
     private const int EMPTY_TIMESTAMP = -62169984000;
 
-    public function __get($property)
+    public function __get(string $property): mixed
     {
         return match ($property) {
             'is_empty' => $this->delegate === null || $this->timestamp == self::EMPTY_TIMESTAMP,

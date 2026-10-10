@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ICanBoogie\HTTP;
 
 use ICanBoogie\HTTP\Headers\ContentType;
@@ -13,6 +15,7 @@ use function file_get_contents;
 use function filter_var;
 use function get_debug_type;
 use function ICanBoogie\normalize_url_path;
+use function in_array;
 use function inet_pton;
 use function intdiv;
 use function is_array;
@@ -54,6 +57,17 @@ use const JSON_THROW_ON_ERROR;
  */
 final class Request implements RequestOptions
 {
+    /**
+     * Methods a `POST` request may emulate with the `_method` request parameter.
+     */
+    private const array OVERRIDABLE_METHODS = [
+
+        RequestMethod::METHOD_PUT,
+        RequestMethod::METHOD_PATCH,
+        RequestMethod::METHOD_DELETE,
+
+    ];
+
     /**
      * Parameters extracted from the request path.
      *
@@ -306,10 +320,10 @@ final class Request implements RequestOptions
     /**
      * The script name.
      *
-     * The value is returned from the ENV key `SCRIPT_NAME`.
+     * The value is returned from the ENV key `SCRIPT_NAME`, or an empty string if it's not defined.
      */
     public string $script_name {
-        get => $this->env['SCRIPT_NAME'];
+        get => $this->env['SCRIPT_NAME'] ?? '';
     }
 
     /**
@@ -318,7 +332,10 @@ final class Request implements RequestOptions
      * This is the getter for the `method` magic property.
      *
      * The method is retrieved from {@see $env}, if the key `REQUEST_METHOD` is not defined,
-     * the method defaults to {@see METHOD_GET}.
+     * the method defaults to {@see RequestMethod::METHOD_GET}.
+     *
+     * A `POST` request can emulate `PUT`, `PATCH` or `DELETE` with a `_method` request
+     * parameter. Other values are ignored.
      */
     public RequestMethod $method
         {
@@ -326,7 +343,11 @@ final class Request implements RequestOptions
                 $method = RequestMethod::from_mixed($this->env['REQUEST_METHOD'] ?? 'GET');
 
                 if ($method === RequestMethod::METHOD_POST && !empty($this->request_params['_method'])) {
-                    $method = RequestMethod::from_mixed($this->request_params['_method']);
+                    $override = RequestMethod::from_mixed($this->request_params['_method']);
+
+                    if (in_array($override, self::OVERRIDABLE_METHODS, true)) {
+                        $method = $override;
+                    }
                 }
 
                 return $method;
@@ -348,7 +369,7 @@ final class Request implements RequestOptions
      * The value is obtained from the `CONTENT_LENGTH` key of the {@see $env} array.
      */
     public ?int $content_length {
-        get => $this->env['CONTENT_LENGTH'] ?? null;
+        get => isset($this->env['CONTENT_LENGTH']) ? (int) $this->env['CONTENT_LENGTH'] : null;
     }
 
     /**
@@ -514,6 +535,11 @@ final class Request implements RequestOptions
 
     /**
      * Authorization of the request.
+     *
+     * Apache drops the `Authorization` header unless it's passed along by a rewrite rule, which
+     * defines `HTTP_AUTHORIZATION`, or one of the variants checked here, depending on the
+     * configuration (`X-HTTP_AUTHORIZATION`, `X_HTTP_AUTHORIZATION`, or the `REDIRECT_` prefixed
+     * one when the request went through an internal redirect).
      */
     public ?string $authorization {
         get {
@@ -532,28 +558,29 @@ final class Request implements RequestOptions
     }
 
     /**
-     * Returns the `REQUEST_URI` environment key.
-     *
-     * If the `REQUEST_URI` key is not defined by the environment, the value is fetched from
-     * the `$_SERVER` array. If the key is not defined in the `$_SERVER` array `null` is returned.
+     * Returns the `REQUEST_URI` environment key, or `null` if it's not defined.
      */
     public ?string $uri {
-        get => $this->env['REQUEST_URI'] ?? ($_SERVER['REQUEST_URI'] ?? null);
+        get => $this->env['REQUEST_URI'] ?? null;
     }
 
     /**
      * The port of the request.
+     *
+     * The value is obtained from the `SERVER_PORT` key of the {@see $env} array, or `REQUEST_PORT`
+     * (the key used by previous versions). Defaults to 80.
      */
     public int $port {
-        get => $this->env['REQUEST_PORT'];
+        get => (int) ($this->env['SERVER_PORT'] ?? $this->env['REQUEST_PORT'] ?? 80);
     }
 
     /**
-     * Returns the path of the request, that is the `REQUEST_URI` without the query string.
+     * Returns the path of the request, that is the `REQUEST_URI` without the query string, or an
+     * empty string if the request has no URI.
      */
     public string $path {
         get {
-            $uri = $this->uri;
+            $uri = $this->uri ?? '';
             $qs_pos = strpos($uri, '?');
 
             return ($qs_pos === false) ? $uri : substr($uri, 0, $qs_pos);

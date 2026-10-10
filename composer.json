@@ -34,6 +34,9 @@
     "icanboogie/common": "^6.0",
     "icanboogie/event": "^7.0"
   },
+  "suggest": {
+    "ext-fileinfo": "Required by FileResponse to guess the MIME type of files"
+  },
   "require-dev": {
     "ext-fileinfo": "*",
     "ext-gd": "*",

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ICanBoogie\HTTP;
 
 use ArrayAccess;
@@ -251,6 +253,11 @@ class Headers implements ArrayAccess, IteratorAggregate
 
     /**
      * Returns a header.
+     *
+     * **Note**: Header fields handled by a {@see Header} class (`Cache-Control`, `Content-Type`,
+     * `Date`...) are created empty on first read, and stored, so that
+     * `$headers->cache_control->max_age = 60` modifies the headers. Empty fields are not
+     * rendered, but {@see offsetExists()} returns `true` once they have been read.
      */
     public function offsetGet(mixed $offset): mixed
     {
@@ -327,7 +334,7 @@ class Headers implements ArrayAccess, IteratorAggregate
 
             # https://www.rfc-editor.org/rfc/rfc9110#section-10.2.3
             case self::HEADER_RETRY_AFTER:
-                $value = is_numeric($value) ? $value : Headers\Date::from($value);
+                $value = is_numeric($value) ? (int) $value : Headers\Date::from($value);
                 break;
         }
 
@@ -380,7 +387,7 @@ class Headers implements ArrayAccess, IteratorAggregate
      * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Length
      */
     public ?int $content_length {
-        get => $this->offsetGet(self::HEADER_CONTENT_LENGTH);
+        get => ($value = $this->offsetGet(self::HEADER_CONTENT_LENGTH)) === null ? null : (int) $value;
         set {
             $this->offsetSet(self::HEADER_CONTENT_LENGTH, $value);
         }
@@ -428,7 +435,7 @@ class Headers implements ArrayAccess, IteratorAggregate
      * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag
      */
     public ?string $etag {
-        get => $this->offsetGet(self::HEADER_ETAG);
+        get => ($value = $this->offsetGet(self::HEADER_ETAG)) === null ? null : (string) $value;
         set {
             $this->offsetSet(self::HEADER_ETAG, $value);
         }
@@ -488,7 +495,7 @@ class Headers implements ArrayAccess, IteratorAggregate
      * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Location
      */
     public ?string $location {
-        get => $this->offsetGet(self::HEADER_LOCATION);
+        get => ($value = $this->offsetGet(self::HEADER_LOCATION)) === null ? null : (string) $value;
         set {
             $this->offsetSet(self::HEADER_LOCATION, $value);
         }
@@ -500,7 +507,11 @@ class Headers implements ArrayAccess, IteratorAggregate
      * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After
      */
     public Headers\Date|int|null $retry_after {
-        get => $this->offsetGet(self::HEADER_RETRY_AFTER);
+        get {
+            $value = $this->offsetGet(self::HEADER_RETRY_AFTER);
+
+            return is_numeric($value) ? (int) $value : $value;
+        }
         set(Headers\Date|DateTimeInterface|int|string|null $value) {
             $this->offsetSet(self::HEADER_RETRY_AFTER, $value);
         }

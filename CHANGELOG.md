@@ -18,7 +18,9 @@ None
 
 ### Backward Incompatible Changes
 
-- Exception thrown during Response streaming is no longer captured.
+- Exception thrown during Response streaming is no longer captured: it propagates to the caller of
+  `$response()`. The headers have already been sent at that point, so a recovery decorator cannot
+  replace the response. Handle errors inside the streaming closure.
 - `Request::$ip` no longer reads `X-Forwarded-For`, and neither does `Request::$is_local`. Any
   client could spoof them, for example to make `is_local` return `true`. Use
   `Request::client_ip()` with a list of trusted proxies instead.
@@ -58,6 +60,20 @@ None
 
 ### Other changes
 
+- `Response` discards the body for the statuses that cannot have one (`1xx`, `204`, `304`).
+  `Response::$ttl` reads `s-maxage` before `max-age`, so that setting then reading it round-trips,
+  and `Response::$version` only accepts `1.0` and `1.1`.
+- `FileResponse` throws `InvalidArgumentException` for an unsupported option, and a
+  `RuntimeException` if the file cannot be opened. `FileResponse::$modified_time` is an `int`.
+  `ext-fileinfo` is suggested.
+- `Request::$uri` no longer falls back to `$_SERVER['REQUEST_URI']`; `Request::$port` reads
+  `SERVER_PORT` before `REQUEST_PORT` and defaults to 80; `Request::$script_name` and
+  `Request::$path` no longer fail when the environment lacks the key. A `POST` request can only
+  emulate `PUT`, `PATCH` and `DELETE` with `_method`.
+- `CacheControl` supports `immutable`, `stale-while-revalidate` and `stale-if-error`, renders
+  its `extensions`, and keys them by their original name. `CacheControl::$max_stale` is `?int`.
+- `Headers::$content_length`, `$etag`, `$location` and `$retry_after` return the type they declare.
+- `declare(strict_types=1)` is enabled in `lib/`, and PHPStan runs at level 6.
 - Documentation links point to RFC 9110, 9111, 8187 and 6266 instead of RFC 2616.
 - Documented that `Headers` is single-valued and that cookies are not implemented.
 - Moved README doc to docs/

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ICanBoogie\HTTP\Responder;
 
 use ICanBoogie\HTTP\RecoverEvent;
@@ -37,6 +39,8 @@ final readonly class WithRecovery implements Responder
      */
     private function rescue(Throwable $exception, Request $request): Response
     {
+        // `$response` is an out parameter: `emit()` passes the event arguments by reference, and a
+        // listener may assign a response to the event, which defines `$response` here.
         emit(new RecoverEvent($exception, $request, $response));
 
         return $response ?? throw $exception;

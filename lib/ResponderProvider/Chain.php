@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ICanBoogie\HTTP\ResponderProvider;
 
 use ICanBoogie\HTTP\Request;

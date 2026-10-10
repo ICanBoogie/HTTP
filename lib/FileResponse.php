@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ICanBoogie\HTTP;
 
 use InvalidArgumentException;
+use RuntimeException;
 use LogicException;
 use SplFileInfo;
 
-use function array_filter;
 use function base64_encode;
 use function fclose;
 use function finfo_file;
@@ -126,7 +128,11 @@ class FileResponse extends Response
      */
     private function apply_options(array $options, Headers $headers): void
     {
-        foreach (array_filter($options) as $option => $value) {
+        foreach ($options as $option => $value) {
+            if ($value === null || $value === false) {
+                continue;
+            }
+
             switch ($option) {
                 case self::OPTION_ETAG:
                     if ($headers->etag) {
@@ -150,6 +156,9 @@ class FileResponse extends Response
                 case self::OPTION_MIME:
                     $headers->content_type = $value;
                     break;
+
+                default:
+                    throw new InvalidArgumentException("Unsupported option: $option.");
             }
         }
 
@@ -169,10 +178,11 @@ class FileResponse extends Response
         $mime = null;
 
         if (function_exists('finfo_file') && function_exists('finfo_open')) {
-            $mime = finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file);
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime = $finfo ? finfo_file($finfo, $file->getPathname()) : null;
         }
 
-        $headers->content_type = $mime ?? self::DEFAULT_MIME;
+        $headers->content_type = $mime ?: self::DEFAULT_MIME;
     }
 
     /**
@@ -200,7 +210,7 @@ class FileResponse extends Response
 
         if (
             ($method->is_get() || $method->is_head())
-            && $this->request->headers->cache_control->cacheable != 'no-cache'
+            && $this->request->headers->cache_control->cacheable !== 'no-cache'
             && !$this->is_modified
         ) {
             $this->status = ResponseStatus::STATUS_NOT_MODIFIED;
@@ -321,8 +331,13 @@ class FileResponse extends Response
     {
         [ $max_length, $offset ] = $this->resolve_max_length_and_offset();
 
-        $out = fopen('php://output', 'wb');
         $source = fopen($file->getPathname(), 'rb');
+
+        if ($source === false) {
+            throw new RuntimeException("Unable to open file: {$file->getPathname()}");
+        }
+
+        $out = fopen('php://output', 'wb');
 
         stream_copy_to_stream($source, $out, $max_length, $offset);
 
@@ -410,7 +425,7 @@ class FileResponse extends Response
     /**
      * The timestamp at which the file was last modified.
      */
-    public false|int $modified_time
+    public int $modified_time
         {
             get => $this->file->getMTime();
         }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ICanBoogie\HTTP;
 
 use ArrayAccess;
@@ -20,7 +22,7 @@ class FileList implements ArrayAccess, IteratorAggregate, Countable
     /**
      * Creates a {@see FileList} instance.
      *
-     * @param array|FileList|null $files
+     * @param array<int|string, mixed>|FileList|null $files
      *
      * @return FileList
      */
@@ -47,7 +49,7 @@ class FileList implements ArrayAccess, IteratorAggregate, Countable
     private array $list = [];
 
     /**
-     * @param array $files
+     * @param array<int|string, mixed> $files
      */
     public function __construct(array $files = [])
     {

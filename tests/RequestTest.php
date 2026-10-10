@@ -635,4 +635,61 @@ class RequestTest extends TestCase
     {
         return new \ReflectionMethod(Request::class, 'decode_json_body')->invoke(null, $json);
     }
+
+    public function test_getters_do_not_fail_on_empty_env(): void
+    {
+        $request = Request::from([], []);
+
+        $this->assertSame('', $request->script_name);
+        $this->assertSame(80, $request->port);
+        $this->assertNull($request->uri);
+        $this->assertSame('', $request->path);
+        $this->assertNull($request->content_length);
+    }
+
+    public function test_port_uses_server_port(): void
+    {
+        $this->assertSame(8080, Request::from([], [ 'SERVER_PORT' => '8080' ])->port);
+    }
+
+    public function test_content_length_is_an_int(): void
+    {
+        $this->assertSame(123, Request::from([], [ 'CONTENT_LENGTH' => '123' ])->content_length);
+    }
+
+    public function test_uri_ignores_the_super_global(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/from-super-global';
+
+        try {
+            $this->assertNull(Request::from([], [])->uri);
+        } finally {
+            unset($_SERVER['REQUEST_URI']);
+        }
+    }
+
+    #[DataProvider('provide_method_override')]
+    public function test_method_override(string $override, RequestMethod $expected): void
+    {
+        $request = Request::from(
+            [ RequestOptions::OPTION_REQUEST_PARAMS => [ '_method' => $override ] ],
+            [ 'REQUEST_METHOD' => 'POST' ]
+        );
+
+        $this->assertSame($expected, $request->method);
+    }
+
+    /**
+     * @return array<string, array{ string, RequestMethod }>
+     */
+    public static function provide_method_override(): array
+    {
+        return [
+            'PUT' => [ 'PUT', RequestMethod::METHOD_PUT ],
+            'PATCH' => [ 'PATCH', RequestMethod::METHOD_PATCH ],
+            'DELETE' => [ 'DELETE', RequestMethod::METHOD_DELETE ],
+            'GET is ignored' => [ 'GET', RequestMethod::METHOD_POST ],
+            'CONNECT is ignored' => [ 'CONNECT', RequestMethod::METHOD_POST ],
+        ];
+    }
 }

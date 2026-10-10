@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ICanBoogie\HTTP\Responder;
 
 use ICanBoogie\HTTP\Request;
@@ -22,6 +24,8 @@ final readonly class WithEvent implements Responder
 
     public function respond(Request $request): Response
     {
+        // `$response` is an out parameter: a listener of `BeforeRespondEvent` may provide a response
+        // through the event, in which case the wrapped responder is not invoked.
         emit(new BeforeRespondEvent($request, $response));
 
         $response ??= $this->responder->respond($request);

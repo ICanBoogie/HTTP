@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ICanBoogie\HTTP;
 
 use InvalidArgumentException;
@@ -294,6 +296,7 @@ class Status
 
         if (is_array($status)) {
             [ $code, $message ] = $status;
+            $code = (int) $code;
         } elseif (is_numeric($status)) {
             $code = (int)$status;
         } else {
@@ -302,6 +305,7 @@ class Status
             }
 
             [ , $code, $message ] = $matches;
+            $code = (int) $code;
         }
 
         return new self($code, $message);

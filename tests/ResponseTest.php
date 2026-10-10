@@ -161,4 +161,68 @@ class ResponseTest extends TestCase
             $this->assertSame($exception, $actual);
         }
     }
+
+    #[DataProvider('provide_statuses_without_body')]
+    public function test_body_is_discarded_for_statuses_without_body(int $status): void
+    {
+        $response = new Response('body', $status);
+        $this->assertStringEndsWith("\r\n\r\n", (string) $response);
+
+        $response = new Response(fn() => print('body'), $status);
+        $this->assertStringEndsWith("\r\n\r\n", (string) $response);
+    }
+
+    /**
+     * @return array<string, array{ int }>
+     */
+    public static function provide_statuses_without_body(): array
+    {
+        return [ '100' => [ 100 ], '204' => [ 204 ], '304' => [ 304 ] ];
+    }
+
+    public function test_body_is_kept_for_other_statuses(): void
+    {
+        $this->assertStringEndsWith("\r\n\r\nbody", (string) new Response('body', 201));
+    }
+
+    public function test_ttl_round_trips(): void
+    {
+        $response = new Response();
+        $response->headers->date = '-10 second';
+        $this->assertNull($response->ttl);
+
+        $response->ttl = 60;
+        $this->assertSame(70, $response->headers->cache_control->s_maxage);
+        $this->assertSame(60, $response->ttl);
+
+        $response->ttl = 0;
+        $this->assertSame(0, $response->ttl);
+        $this->assertFalse($response->is_fresh);
+
+        $response->ttl = null;
+        $this->assertNull($response->ttl);
+    }
+
+    public function test_ttl_falls_back_to_max_age(): void
+    {
+        $response = new Response();
+        $response->headers->date = '-10 second';
+        $response->headers->cache_control->max_age = 100;
+
+        $this->assertSame(90, $response->ttl);
+        $this->assertTrue($response->is_fresh);
+
+        $response->headers->cache_control->s_maxage = 40;
+        $this->assertSame(30, $response->ttl);
+    }
+
+    public function test_version(): void
+    {
+        $response = new Response();
+        $response->version = '1.0';
+        $this->assertSame('1.0', $response->version);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $response->version = '2';
+    }
 }
