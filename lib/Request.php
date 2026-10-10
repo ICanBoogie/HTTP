@@ -38,7 +38,7 @@ use const JSON_THROW_ON_ERROR;
  *
  * # Creating the main request
  *
- * $request = Request::from($_SERVER);
+ * $request = Request::from_server();
  *
  * # Creating a request from scratch, with the current environment.
  *
@@ -131,8 +131,8 @@ final class Request implements RequestOptions
     public ?array $cookie;
 
     /**
-     * A request may be created from the `$_SERVER` super global array. In that case `$_SERVER` is
-     * used as environment, the request is created with the following properties:
+     * {@see from_server()} creates a request from the `$_SERVER` super global array (passing `$_SERVER` to this method throws a
+     * `BadMethodCallException`). `$_SERVER` is used as environment, and the request is created with the following properties:
      *
      * - {@see $cookie}: a reference to the `$_COOKIE` super global.
      * - {@see $path_params}: initialized to an empty array.
@@ -165,7 +165,7 @@ final class Request implements RequestOptions
         }
 
         if ($properties === $_SERVER) {
-            return self::from_server();
+            throw new \BadMethodCallException("Use Request::from_server() to create a request from \$_SERVER");
         }
 
         if (is_string($properties)) {
@@ -177,11 +177,15 @@ final class Request implements RequestOptions
 
     /**
      * Creates an instance from the `$_SERVER` array.
+     *
+     * @param array<string, mixed>|null $server
      */
-    private static function from_server(): self
+    public static function from_server(?array $server = null): self
     {
+        $server ??= $_SERVER;
+
         // CGI exposes `CONTENT_TYPE` without the `HTTP_` prefix.
-        $content_type = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? null;
+        $content_type = $server['CONTENT_TYPE'] ?? $server['HTTP_CONTENT_TYPE'] ?? null;
         $content_type = $content_type ? new ContentType($content_type) : null;
 
         if ($content_type?->type === 'application/json') {
@@ -198,7 +202,7 @@ final class Request implements RequestOptions
             self::OPTION_REQUEST_PARAMS => $request_params,
             self::OPTION_FILES => &$_FILES, // @codeCoverageIgnore
 
-        ], $_SERVER);
+        ], $server);
     }
 
     /**

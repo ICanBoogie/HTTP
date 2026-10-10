@@ -9,6 +9,7 @@ PHP 8.4+
 ### New features
 
 - Added `AuthenticationFailed` exception.
+- Added `Request::from_server()` to create the initial request from `$_SERVER` or a copy of it.
 - Added `ResponseSender` and `SimpleResponseSender`. A response no longer sends itself, a sender
   does. `SimpleResponseSender` uses `header()` and the output. The sender only sends a `FinalResponse`:
   `$sender->send($response->finalize($request))`. `finalize()` omits the body of responses to
@@ -24,6 +25,7 @@ None
 
 ### Backward Incompatible Changes
 
+- `Request::from($_SERVER)` throws a `BadMethodCallException`, use `Request::from_server()`, which also accepts an explicit server array.
 - `Response::finalize(Headers &$headers, &$body)`, `Response::send_headers()`, and
   `Response::send_body()` are replaced by `Response::finalize(?Request): FinalResponse` and the
   `ResponseSender` implementations. Subclasses overriding them must be updated.

@@ -16,16 +16,9 @@ use PHPUnit\Framework\TestCase;
 
 class RequestTest extends TestCase
 {
-    private static Request $request;
-
-    public static function setupBeforeClass(): void
-    {
-        self::$request = Request::from($_SERVER);
-    }
-
     public function test_clone(): void
     {
-        $request = Request::from($_SERVER);
+        $request = Request::from_server();
         $clone = clone $request;
 
         $this->assertNotSame($request->headers, $clone->headers);
@@ -342,16 +335,15 @@ class RequestTest extends TestCase
         $post = $_POST;
 
         try {
-            $_SERVER['REQUEST_URI'] = '/';
-            $_SERVER['CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
+            $server['REQUEST_URI'] = '/';
+            $server['CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
             $_POST = [ 'name' => 'Madonna' ];
 
-            $request = Request::from($_SERVER);
+            $request = Request::from_server($server);
 
             $this->assertEquals('application/x-www-form-urlencoded', $request->headers->content_type->type);
             $this->assertEquals([ 'name' => 'Madonna' ], $request->request_params);
         } finally {
-            $_SERVER = $server;
             $_POST = $post;
         }
     }

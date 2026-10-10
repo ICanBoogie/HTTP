@@ -15,7 +15,7 @@ The following example is an overview of request processing:
 namespace ICanBoogie\HTTP;
 
 // The request is usually created from the $_SERVER super global.
-$request = Request::from($_SERVER);
+$request = Request::from_server();
 
 /* @var ResponderProvider $responder_provider */
 

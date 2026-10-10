@@ -1,14 +1,14 @@
 # Request
 
 A request is represented by a [Request][] instance. The initial request is usually created from
-the `$_SERVER` array, while sub requests are created from arrays of `Request::OPTION_*` options (see [RequestOptions][]).
+the `$_SERVER` array (`Request::from_server()`), while sub requests are created from arrays of `Request::OPTION_*` options (see [RequestOptions][]).
 
 ```php
 <?php
 
 namespace ICanBoogie\HTTP;
 
-$initial_request = Request::from($_SERVER);
+$initial_request = Request::from_server();
 
 # a custom request in the same environment
 
@@ -107,7 +107,7 @@ properties.
 
 namespace ICanBoogie\HTTP;
 
-$request = Request::from($_SERVER)->with([
+$request = Request::from_server()->with([
 
     Request::OPTION_METHOD => RequestMethod::METHOD_HEAD,
     Request::OPTION_IS_XHR => true
@@ -179,7 +179,7 @@ using `OPTION_FILES`.
 
 namespace ICanBoogie\HTTP;
 
-$request = Request::from($_SERVER);
+$request = Request::from_server();
 
 # or
 
