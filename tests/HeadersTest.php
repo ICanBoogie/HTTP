@@ -271,34 +271,12 @@ final class HeadersTest extends TestCase
         $this->assertEquals([ 'Cache-Control', 'Date', 'Expires' ], $names);
     }
 
-    public function test_should_send_headers(): void
+    public function test_fields(): void
     {
         $now = new DateTime('now', 'utc');
         $in_one_month = new DateTime('+1 month', 'utc');
 
-        $headers = $this
-            ->getMockBuilder(Headers::class)
-            ->onlyMethods([ 'send_header' ])
-            ->getMock();
-
-        $headers->expects($invocation = $this->exactly(4))
-            ->method('send_header')
-            ->willReturnCallback(
-                function ($a, $b) use ($now, $in_one_month, $invocation) {
-                    $i = $invocation->numberOfInvocations() - 1;
-                    $expected = [
-                        [ "Cache-Control", "public" ],
-                        [ "X-Empty-3", "0" ],
-                        [ "Date", $now->as_rfc1123 ],
-                        [ "Expires", $in_one_month->as_rfc1123 ],
-                    ][$i];
-
-                    $this->assertEquals($expected, [ $a, $b ]);
-                }
-            );
-
-        /* @var $headers Headers */
-
+        $headers = new Headers();
         $headers['Cache-Control'] = 'public';
         $headers['X-Empty-1'] = null;
         $headers['X-Empty-2'] = '';
@@ -306,7 +284,12 @@ final class HeadersTest extends TestCase
         $headers['Date'] = $now;
         $headers['Expires'] = $in_one_month;
 
-        $headers();
+        $this->assertSame([
+            'Cache-Control' => 'public',
+            'X-Empty-3' => '0',
+            'Date' => $now->as_rfc1123,
+            'Expires' => $in_one_month->as_rfc1123,
+        ], iterator_to_array($headers->fields()));
     }
 
     public function test_field_names_are_case_insensitive(): void
@@ -319,8 +302,8 @@ final class HeadersTest extends TestCase
         $this->assertTrue(isset($headers['CONTENT-TYPE']));
         $this->assertSame('b', $headers['X-Custom']);
         $this->assertEquals('text/plain', (string)$headers->content_type);
-        $this->assertSame([ 'Content-Type', 'X-CUSTOM' ], array_keys(iterator_to_array($headers)));
-        $this->assertSame("Content-Type: text/plain\r\nX-CUSTOM: b\r\n", (string)$headers);
+        $this->assertSame([ 'Content-Type', 'x-custom' ], array_keys(iterator_to_array($headers)));
+        $this->assertSame("Content-Type: text/plain\r\nx-custom: b\r\n", (string)$headers);
 
         unset($headers['CONTENT-type']);
         $this->assertFalse(isset($headers['Content-Type']));
@@ -386,14 +369,65 @@ final class HeadersTest extends TestCase
         $headers['Location'] = "/a\r\nSet-Cookie: x=1";
     }
 
-    public function test_unsafe_value_in_header_object_is_rejected_on_output(): void
+    public function test_unsafe_value_in_header_object_is_rejected_when_assigned(): void
     {
         $headers = new Headers();
         $headers['Content-Disposition'] = Headers\ContentDisposition::from('attachment');
-        $headers->content_disposition->filename = "a\r\nSet-Cookie: x=1.txt";
 
         $this->expectException(InvalidArgumentException::class);
 
-        (string)$headers;
+        $headers->content_disposition->filename = "a\r\nSet-Cookie: x=1.txt";
+    }
+
+    #[DataProvider('provide_object_fields')]
+    public function test_unsafe_string_for_object_field_is_rejected_when_set(string $field): void
+    {
+        $headers = new Headers();
+
+        $this->expectException(InvalidArgumentException::class);
+
+        $headers[$field] = "value;\r\nSet-Cookie: x=1";
+    }
+
+    /**
+     * @return array<string, array{ string }>
+     */
+    public static function provide_object_fields(): array
+    {
+        return [
+            'Content-Type' => [ 'Content-Type' ],
+            'Content-Disposition' => [ 'Content-Disposition' ],
+            'Cache-Control' => [ 'Cache-Control' ],
+        ];
+    }
+
+    public function test_unsafe_value_that_bypasses_the_setters_is_rejected_on_output(): void
+    {
+        $headers = new Headers();
+        // The extensions are a public array, which cannot validate its values.
+        $headers->cache_control->extensions['foo'] = "a\r\nSet-Cookie: x=1";
+
+        $this->expectException(InvalidArgumentException::class);
+
+        iterator_to_array($headers->fields());
+    }
+
+    public function test_iterator_and_fields_use_the_same_names(): void
+    {
+        $headers = new Headers();
+        $headers['x-custom'] = 'a';
+        $headers['X-CUSTOM'] = 'b';
+        $headers['etag'] = '"abc"';
+        $headers['content-type'] = 'text/plain';
+        $headers['X-Empty'] = '';
+
+        $raw = iterator_to_array($headers);
+        $ready = iterator_to_array($headers->fields());
+
+        // `fields()` skips the empty fields, and yields strings instead of the raw values.
+        $this->assertSame([ 'x-custom', 'ETag', 'Content-Type', 'X-Empty' ], array_keys($raw));
+        $this->assertSame([ 'x-custom', 'ETag', 'Content-Type' ], array_keys($ready));
+        $this->assertSame([ 'x-custom' => 'b', 'ETag' => '"abc"', 'Content-Type' => 'text/plain' ], $ready);
+        $this->assertInstanceOf(Headers\ContentType::class, $raw['Content-Type']);
     }
 }

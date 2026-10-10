@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ICanBoogie\HTTP\Headers;
 
+use ICanBoogie\HTTP\Headers;
 use InvalidArgumentException;
 use ValueError;
 
@@ -148,9 +149,30 @@ class HeaderParameter
      */
     public function __construct(
         public readonly string $attribute,
-        public ?string $value = null,
-        public ?string $language = null
+        public ?string $value = null {
+            set {
+                $this->assert_is_safe($value);
+                $this->value = $value;
+            }
+        },
+        public ?string $language = null {
+            set {
+                $this->assert_is_safe($value);
+                $this->language = $value;
+            }
+        },
     ) {
+    }
+
+    /**
+     * @throws InvalidArgumentException if the value contains NUL, CR or LF characters, which would
+     * allow header injection.
+     */
+    private function assert_is_safe(?string $value): void
+    {
+        if ($value !== null) {
+            Headers::assert_value_is_safe($this->attribute, $value);
+        }
     }
 
     /**

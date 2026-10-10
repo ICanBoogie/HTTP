@@ -9,6 +9,12 @@ PHP 8.4+
 ### New features
 
 - Added `AuthenticationFailed` exception.
+- Added `ResponseSender` and `SimpleResponseSender`. A response no longer sends itself, a sender
+  does. `SimpleResponseSender` uses `header()` and the output. The sender only sends a `FinalResponse`:
+  `$sender->send($response->finalize($request))`. `finalize()` omits the body of responses to
+  `HEAD` requests.
+- Added `FinalResponse`, and `Response::finalize(?Request)`, which resolves the status, headers
+  and body as they are sent, without modifying the response.
 - Added `Request::client_ip()`, which returns the client IP from `X-Forwarded-For` when the request
   comes from a trusted proxy.
 
@@ -17,6 +23,19 @@ PHP 8.4+
 None
 
 ### Backward Incompatible Changes
+
+- `Response::finalize(Headers &$headers, &$body)`, `Response::send_headers()`, and
+  `Response::send_body()` are replaced by `Response::finalize(?Request): FinalResponse` and the
+  `ResponseSender` implementations. Subclasses overriding them must be updated.
+  `Response::__invoke()` still sends the response using a `SimpleResponseSender`, but it is
+  deprecated.
+- `FileResponse` no longer takes a `Request`: the constructor is
+  `new FileResponse($file, $options, $headers)`. Its status and headers are resolved by
+  `finalize($request)`, which doesn't modify the response any more. `FileResponse::$is_modified`
+  and `FileResponse::$range` are replaced by `is_modified_for($request)` and `range_for($request)`,
+  and `send_file()` takes the length and offset to send.
+- A closure used as response body receives the `FinalResponse` instead of the `Response`.
+- `Headers::__invoke()` and `Headers::send_header()` are removed. Use `Headers::fields()`.
 
 - Exception thrown during Response streaming is no longer captured: it propagates to the caller of
   `$response()`. The headers have already been sent at that point, so a recovery decorator cannot
@@ -45,7 +64,7 @@ None
   values (`filename*=`) are decoded with `rawurldecode()`, so `+` is no longer turned into a space.
 - `Headers` field names are case-insensitive: `content-type` and `Content-Type` are the same field.
   Names defined by the `Headers::HEADER_*` constants are stored and sent with the spelling of the
-  constant, other names keep the spelling of the last assignment.
+  constant, other names keep the spelling they were first given.
 - `Header` no longer uses `__get()`, `__set()` and `__unset()`, nor the `VALUE_ALIAS` constant.
   `ContentType` and `ContentDisposition` declare typed properties (`type`, `charset`, `filename`)
   instead, and child classes declare their parameters with the `PARAMETERS` constant instead of
@@ -58,8 +77,10 @@ None
 - `Headers::getIterator()` returns a `Generator`. `Headers::$content_type` is always a
   `ContentType`.
 - `Headers` throws `InvalidArgumentException` for a field name that is not a valid HTTP token, and
-  for a value containing NUL, CR or LF, which prevents header injection. Values of `Header`
-  objects are checked when the headers are serialized or sent.
+  for a value containing NUL, CR or LF, which prevents header injection. The check happens when
+  the field is set, including for `Content-Type`, `Content-Disposition` and `Cache-Control`, and when a
+  value is assigned to a `Header` or a `HeaderParameter`. `Headers::fields()` checks again as a
+  last resort, since `CacheControl::$extensions` is a public array.
 
 ### Other changes
 

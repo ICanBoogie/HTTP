@@ -3,7 +3,8 @@
 The response to a request is represented by a [Response][] instance. The response body can
 either be `null`, a string (or `Stringable`), or a `Closure`.
 
-> **Note:** Contrary to [Request][] instances, [Response][] instances are completely mutable.
+> [!NOTE]
+> Contrary to [Request][] instances, [Response][] instances are completely mutable.
 
 ```php
 <?php
@@ -18,7 +19,9 @@ $response = new Response('<!DOCTYPE html><html><body><h1>Hello world!</h1></body
 ]);
 ```
 
-The header and body are sent by invoking the response:
+A response describes what is sent: a status, headers and a body. It doesn't send itself. A
+[ResponseSender][] does, and [SimpleResponseSender][] is the default implementation, which uses
+PHP's `header()` function and the output:
 
 ```php
 <?php
@@ -26,9 +29,21 @@ The header and body are sent by invoking the response:
 namespace ICanBoogie\HTTP;
 
 /* @var $response Response */
+/* @var $request Request */
 
-$response();
+new SimpleResponseSender()->send($response->finalize($request));
 ```
+
+A sender only sends a [FinalResponse][], which is what `Response::finalize()` resolves. The request is
+optional. It is used to omit the body of a response to a `HEAD` request, and by the responses that resolve themselves
+according to the request, such as [FileResponse][]. `finalize()` doesn't modify the response, discards the body for the
+statuses that cannot have one (`1xx`, `204`, and `304`), and subclasses override it to resolve the response according to
+the request. Write your own implementation of [ResponseSender][] to send responses with something other than `header()`,
+or to capture them in tests.
+
+> [!NOTE]
+> Invoking the response, `$response()`, still works, and uses a [SimpleResponseSender][].
+> It is deprecated.
 
 
 
@@ -92,6 +107,8 @@ $output = function() use ($records) {
 $response = new Response($output, Response::STATUS_OK, [ 'Content-Type' => 'text/csv' ]);
 ```
 
+The closure is invoked with the [FinalResponse][] being sent, and writes the body to the output.
+
 
 
 
@@ -140,8 +157,9 @@ namespace ICanBoogie\HTTP;
 
 /* @var $request Request */
 
-$response = new FileResponse("/absolute/path/to/my/file", $request);
-$response();
+$response = new FileResponse("/absolute/path/to/my/file");
+
+new SimpleResponseSender()->send($response->finalize($request));
 ```
 
 The `OPTION_FILENAME` option may be used to force downloading. Of course, utf-8 strings are
@@ -154,13 +172,13 @@ namespace ICanBoogie\HTTP;
 
 /* @var $request Request */
 
-$response = new FileResponse("/absolute/path/to/my/file", $request, [
+$response = new FileResponse("/absolute/path/to/my/file", [
 
     FileResponse::OPTION_FILENAME => "Vidéo d'un été à la mer.mp4"
 
 ]);
 
-$response();
+new SimpleResponseSender()->send($response->finalize($request));
 ```
 
 The following options are also available:
@@ -180,17 +198,20 @@ its `max-age` directive is computed from the current time. If it is not defined
 - `OPTION_MIME`: Specifies the MIME of the file, which maps to the `Content-Type` header field.
 If it is not defined the MIME is guessed using `finfo::file()`.
 
-The following properties are available:
+The status and headers depend on the request. They are resolved by `finalize($request)`, which a sender calls with the
+request. Without a request, the response is resolved as for a plain `GET`.
+
+The following are available:
 
 - `modified_time`: Returns the last modified timestamp of the file.
 
-- `is_modified`: Whether the file has been modified since the last response. The value is computed
-using the request header fields `If-None-Match` and `If-Modified-Since`, and the properties
+- `is_modified_for($request)`: Whether the file has been modified since the last response to the request. The value is
+computed using the request header fields `If-None-Match` and `If-Modified-Since`, and the properties
 `modified_time` and `etag`. When `If-None-Match` is present, `If-Modified-Since` is ignored.
 A `304 Not Modified` is only returned for `GET` and `HEAD` requests. For any other method, a
 matching `If-None-Match` results in a `412 Precondition Failed`, without a body.
 
-- `range`: The requested range, as a `RequestRange` instance, or `null`. Only single ranges are
+- `range_for($request)`: The range requested by the request, as a `RequestRange` instance, or `null`. Only single ranges are
 supported; a request with multiple ranges (`bytes=0-99,200-299`) gets the whole file. `If-Range`
 may be an entity tag or a date.
 
@@ -208,7 +229,7 @@ namespace ICanBoogie\HTTP;
 
 /* @var $request Request */
 
-$response = new FileResponse("/absolute/path/to/my/asset.css", $request, headers: [
+$response = new FileResponse("/absolute/path/to/my/asset.css", headers: [
 
     'Cache-Control' => 'public, max-age=31536000'
 
@@ -218,8 +239,11 @@ $response = new FileResponse("/absolute/path/to/my/asset.css", $request, headers
 
 
 [FileResponse]:                  ../lib/FileResponse.php
+[FinalResponse]:                 ../lib/FinalResponse.php
 [RedirectResponse]:              ../lib/RedirectResponse.php
 [Request]:                       ../lib/Request.php
 [Response]:                      ../lib/Response.php
+[ResponseSender]:                ../lib/ResponseSender.php
+[SimpleResponseSender]:          ../lib/SimpleResponseSender.php
 [Status]:                        ../lib/Status.php
 [SHA-384]:                       https://en.wikipedia.org/wiki/SHA-2

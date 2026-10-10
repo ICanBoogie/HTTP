@@ -7,6 +7,7 @@ namespace ICanBoogie\HTTP;
 use InvalidArgumentException;
 use RuntimeException;
 use LogicException;
+use Override;
 use SplFileInfo;
 
 use function base64_encode;
@@ -85,12 +86,14 @@ class FileResponse extends Response
     public readonly SplFileInfo $file;
 
     /**
+     * The response resolves its status and headers according to the request when it is finalized,
+     * see {@see finalize()}.
+     *
      * @param array<string, mixed> $options
      * @param Headers|array<string, mixed> $headers
      */
     public function __construct(
         string|SplFileInfo $file,
-        private readonly Request $request,
         array $options = [],
         Headers|array $headers = [],
     ) {
@@ -102,13 +105,11 @@ class FileResponse extends Response
         $this->apply_options($options, $headers);
         $this->ensure_content_type($this->file, $headers);
 
-        parent::__construct(function () {
-            if (!$this->status->is_successful) {
-                return;
-            }
-
-            $this->send_file($this->file);
-        }, ResponseStatus::STATUS_OK, $headers);
+        parent::__construct(
+            fn() => $this->send_file($this->file),
+            ResponseStatus::STATUS_OK,
+            $headers
+        );
     }
 
     /**
@@ -194,42 +195,20 @@ class FileResponse extends Response
     }
 
     /**
-     * Changes the status according to the request:
+     * Resolves the status and the headers according to the request:
      *
      * - {@see ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE} if the range cannot be
      *   satisfied.
      * - {@see ResponseStatus::STATUS_PARTIAL_CONTENT} if the range is a part of the file.
      * - {@see ResponseStatus::STATUS_NOT_MODIFIED} if the method is `GET` or `HEAD`, the request's
-     *   `Cache-Control` doesn't have `no-cache`, and {@see $is_modified} is `false`.
+     *   `Cache-Control` doesn't have `no-cache`, and the file is not modified, see
+     *   {@see is_modified_for()}.
      * - {@see ResponseStatus::STATUS_PRECONDITION_FAILED} if the method is not `GET` or `HEAD`,
      *   and `If-None-Match` matches `ETag`.
-     */
-    public function __invoke(): void
-    {
-        $range = $this->range;
-
-        if ($range) {
-            if (!$range->is_satisfiable) {
-                $this->status = ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE;
-            } elseif (!$range->is_total) {
-                $this->status = ResponseStatus::STATUS_PARTIAL_CONTENT;
-            }
-        }
-
-        $method = $this->request->method;
-
-        if ($method->is_get() || $method->is_head()) {
-            if ($this->request->headers->cache_control->cacheable !== 'no-cache' && !$this->is_modified) {
-                $this->status = ResponseStatus::STATUS_NOT_MODIFIED;
-            }
-        } elseif ($this->if_none_match_matches_etag) {
-            $this->status = ResponseStatus::STATUS_PRECONDITION_FAILED;
-        }
-
-        parent::__invoke();
-    }
-
-    /**
+     *
+     * The body is omitted for a `HEAD` request. Without a request, the response is resolved as for
+     * a `GET` request with no header field.
+     *
      * If `Cache-Control` is not defined, the response is made cacheable by the client only:
      *
      * - `Cache-Control`: is set to `private` with `max-age` computed from {@see $expires}.
@@ -239,7 +218,7 @@ class FileResponse extends Response
      * files that may be stored by shared caches.
      *
      * If the status code is {@see ResponseStatus::STATUS_NOT_MODIFIED}, `Content-Length` is
-     * unset.
+     * unset and there is no body.
      *
      * If the status code is {@see ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE},
      * `Content-Range` is set to the size of the file and `Content-Length` to 0, since no body is
@@ -250,22 +229,69 @@ class FileResponse extends Response
      *
      * Otherwise, `Last-Modified` and `Content-Length` are set, and `Content-Range` if the status
      * code is {@see ResponseStatus::STATUS_PARTIAL_CONTENT}.
-     *
-     * @inheritdoc
      */
-    protected function finalize(Headers &$headers, &$body): void
+    #[Override]
+    public function finalize(?Request $request = null): FinalResponse
     {
-        parent::finalize($headers, $body);
+        $request ??= Request::from([]);
+        $headers = clone $this->headers;
+        $range = $this->range_for($request);
+        $code = ResponseStatus::STATUS_OK;
+        $method = $request->method;
+
+        if ($range) {
+            if (!$range->is_satisfiable) {
+                $code = ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE;
+            } elseif (!$range->is_total) {
+                $code = ResponseStatus::STATUS_PARTIAL_CONTENT;
+            }
+        }
+
+        if ($method->is_get() || $method->is_head()) {
+            if ($request->headers->cache_control->cacheable !== 'no-cache' && !$this->is_modified_for($request)) {
+                $code = ResponseStatus::STATUS_NOT_MODIFIED;
+            }
+        } elseif ($this->if_none_match_matches_etag($request)) {
+            $code = ResponseStatus::STATUS_PRECONDITION_FAILED;
+        }
 
         $this->finalize_cache_control($headers);
 
-        match ($this->status->code) {
-            ResponseStatus::STATUS_NOT_MODIFIED => $this->finalize_for_not_modified($headers),
-            ResponseStatus::STATUS_PARTIAL_CONTENT => $this->finalize_for_partial_content($headers),
-            ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE => $this->finalize_for_range_not_satisfiable($headers),
-            ResponseStatus::STATUS_PRECONDITION_FAILED => $headers->content_length = 0,
-            default => $this->finalize_for_other($headers),
-        };
+        $body = null;
+
+        switch ($code) {
+            case ResponseStatus::STATUS_NOT_MODIFIED:
+                $headers->content_length = null;
+                break;
+
+            case ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE:
+                $headers['Content-Range'] = 'bytes */' . $this->file->getSize();
+                $headers->content_length = 0;
+                break;
+
+            case ResponseStatus::STATUS_PRECONDITION_FAILED:
+                $headers->content_length = 0;
+                break;
+
+            case ResponseStatus::STATUS_PARTIAL_CONTENT:
+                $headers->last_modified = $this->modified_time;
+                $headers['Content-Range'] = (string) $range;
+                $headers->content_length = $range->length;
+                $body = fn() => $this->send_file($this->file, $range->max_length, $range->offset);
+                break;
+
+            default:
+                $headers->last_modified = $this->modified_time;
+                $headers[Headers::HEADER_ACCEPT_RANGES] ??= $method->is_get() || $method->is_head() ? 'bytes' : 'none';
+                $headers->content_length = $this->file->getSize();
+                $body = fn() => $this->send_file($this->file);
+        }
+
+        if ($method->is_head()) {
+            $body = null;
+        }
+
+        return new FinalResponse($this->version, new Status($code), $headers, $body);
     }
 
     /**
@@ -288,63 +314,15 @@ class FileResponse extends Response
     }
 
     /**
-     * Finalizes the response for {@see Status::NOT_MODIFIED}.
-     */
-    private function finalize_for_not_modified(Headers &$headers): void
-    {
-        $headers->content_length = null;
-    }
-
-    /**
-     * Finalizes the response for {@see Status::REQUESTED_RANGE_NOT_SATISFIABLE}.
+     * Sends the file, or a part of it.
      *
-     * @link https://www.rfc-editor.org/rfc/rfc9110#name-416-range-not-satisfiable
-     */
-    private function finalize_for_range_not_satisfiable(Headers $headers): void
-    {
-        $headers['Content-Range'] = 'bytes */' . $this->file->getSize();
-        $headers->content_length = 0;
-    }
-
-    /**
-     * Finalizes the response for {@see Status::PARTIAL_CONTENT}.
-     */
-    private function finalize_for_partial_content(Headers &$headers): void
-    {
-        $range = $this->range;
-
-        $headers->last_modified = $this->modified_time;
-        $headers['Content-Range'] = (string)$range;
-        $headers->content_length = $range->length;
-    }
-
-    /**
-     * Finalizes the response for status other than {@see Status::NOT_MODIFIED},
-     * {@see Status::PARTIAL_CONTENT}, or {@see Status::REQUESTED_RANGE_NOT_SATISFIABLE}.
-     */
-    private function finalize_for_other(Headers &$headers): void
-    {
-        $headers->last_modified = $this->modified_time;
-
-        if (!$headers[Headers::HEADER_ACCEPT_RANGES]) {
-            $request = $this->request;
-
-            $headers[Headers::HEADER_ACCEPT_RANGES] = $request->method->is_get()
-            || $request->method->is_head() ? 'bytes' : 'none';
-        }
-
-        $headers->content_length = $this->file->getSize();
-    }
-
-    /**
-     * Sends the file.
+     * @param int $max_length The maximum number of bytes to send, `-1` for all the remaining bytes.
+     * @param int $offset The position of the first byte to send.
      *
      * @codeCoverageIgnore
      */
-    protected function send_file(SplFileInfo $file): void
+    protected function send_file(SplFileInfo $file, int $max_length = -1, int $offset = 0): void
     {
-        [ $max_length, $offset ] = $this->resolve_max_length_and_offset();
-
         $source = fopen($file->getPathname(), 'rb');
 
         if ($source === false) {
@@ -357,22 +335,6 @@ class FileResponse extends Response
 
         fclose($out);
         fclose($source);
-    }
-
-    /**
-     * Resolves `max_length` and `offset` parameters for stream copy.
-     *
-     * @return array{ 0: int, 1: int }
-     */
-    private function resolve_max_length_and_offset(): array
-    {
-        $range = $this->range;
-
-        if ($range && $range->max_length) {
-            return [ $range->max_length, $range->offset ];
-        }
-
-        return [ -1, 0 ];
     }
 
     /**
@@ -463,7 +425,7 @@ class FileResponse extends Response
         }
 
     /**
-     * Whether the file has been modified since the last response.
+     * Whether the file has been modified since the last response to the request.
      *
      * If the `If-None-Match` request header is defined, the file is considered modified if none of
      * its entity tags match `ETag`; `If-Modified-Since` is then ignored.
@@ -475,42 +437,44 @@ class FileResponse extends Response
      *
      * @link https://www.rfc-editor.org/rfc/rfc9110#name-evaluation
      */
-    public bool $is_modified
-        {
-            get {
-                $headers = $this->request->headers;
-                $if_none_match = (string) $headers[Headers::HEADER_IF_NONE_MATCH];
+    public function is_modified_for(Request $request): bool
+    {
+        $headers = $request->headers;
 
-                if ($if_none_match !== '') {
-                    return !self::if_none_match_matches($if_none_match, (string) $this->headers->etag);
-                }
-
-                $if_modified_since = $headers->if_modified_since;
-
-                return $if_modified_since->is_empty || $if_modified_since->timestamp < $this->modified_time;
-            }
+        if ($this->if_none_match_matches_etag($request)) {
+            return false;
         }
+
+        if ((string) $headers[Headers::HEADER_IF_NONE_MATCH] !== '') {
+            return true;
+        }
+
+        $if_modified_since = $headers->if_modified_since;
+
+        return $if_modified_since->is_empty || $if_modified_since->timestamp < $this->modified_time;
+    }
 
     /**
      * Whether the request defines `If-None-Match`, and it matches `ETag`.
      */
-    private bool $if_none_match_matches_etag {
-        get {
-            $if_none_match = (string) $this->request->headers[Headers::HEADER_IF_NONE_MATCH];
+    private function if_none_match_matches_etag(Request $request): bool
+    {
+        $if_none_match = (string) $request->headers[Headers::HEADER_IF_NONE_MATCH];
 
-            return $if_none_match !== ''
-                && self::if_none_match_matches($if_none_match, (string) $this->headers->etag);
-        }
+        return $if_none_match !== ''
+            && self::if_none_match_matches($if_none_match, (string) $this->headers->etag);
     }
 
-    public ?RequestRange $range {
-        get {
-            return $this->range ??= RequestRange::from(
-                $this->request->headers,
-                $this->file->getSize(),
-                $this->headers->etag,
-                $this->modified_time,
-            );
-        }
+    /**
+     * The range requested by the request, or `null`.
+     */
+    public function range_for(Request $request): ?RequestRange
+    {
+        return RequestRange::from(
+            $request->headers,
+            $this->file->getSize(),
+            $this->headers->etag,
+            $this->modified_time,
+        );
     }
 }

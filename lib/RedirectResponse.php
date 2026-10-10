@@ -24,7 +24,7 @@ class RedirectResponse extends Response
     public function __construct(string $url, int $status = ResponseStatus::STATUS_FOUND, array $headers = [])
     {
         parent::__construct(
-            function (Response $response) {
+            function (FinalResponse $response) {
 
                 $location = $response->headers->location;
                 $title = escape($location);

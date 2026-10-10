@@ -11,7 +11,6 @@ use ICanBoogie\HTTP\Headers\Header;
 use InvalidArgumentException;
 use IteratorAggregate;
 
-use function header;
 use function is_numeric;
 use function is_object;
 use function is_string;
@@ -108,28 +107,18 @@ class Headers implements ArrayAccess, IteratorAggregate
     ];
 
     /**
-     * Returns the canonical spelling of a header field name.
-     *
-     * Names defined by the `HEADER_*` constants use the spelling of the constant, others are
-     * returned as is.
-     *
-     * @throws InvalidArgumentException if the name is not a valid HTTP field name.
-     */
-    private static function canonical_name(string $name): string
-    {
-        if (!preg_match('/^[!#$%&\'*+\-.^_`|~0-9A-Za-z]+$/', $name)) {
-            throw new InvalidArgumentException("Invalid header field name: '$name'.");
-        }
-
-        return self::KNOWN_NAMES[strtolower($name)] ?? $name;
-    }
-
-    /**
      * Rejects values that would allow header injection.
+     *
+     * Values are checked as early as possible, when a field is set, and when the value of a
+     * {@see Header} or a {@see Headers\HeaderParameter} is assigned, so that the error points to
+     * the code that provided the value. {@see fields()} checks them again as a last resort, since
+     * a {@see Header} can be modified after it was set.
+     *
+     * @internal
      *
      * @throws InvalidArgumentException
      */
-    private static function assert_value_is_safe(string $field, string $value): void
+    public static function assert_value_is_safe(string $field, string $value): void
     {
         if (preg_match('/[\x00\r\n]/', $value)) {
             throw new InvalidArgumentException("Invalid value for header field '$field': control characters are not allowed.");
@@ -137,12 +126,54 @@ class Headers implements ArrayAccess, IteratorAggregate
     }
 
     /**
-     * Header fields indexed by their lowercase name, the field names being case-insensitive.
-     * Each entry holds the canonical name of the field, and its value.
+     * Returns the key for that name, a lower version.
+     */
+    private static function key_of(string $name): string
+    {
+        return strtolower($name);
+    }
+
+    /**
+     * Returns the lowercase name used to index a header field.
      *
-     * @var array<string, array{ string, Header|mixed }>
+     * @throws InvalidArgumentException if the name is not a valid HTTP field name.
+     *
+     * @return non-empty-string
+     */
+    private static function valid_key_of(string $name): string
+    {
+        if (strlen($name) === 0 || !preg_match('/^[!#$%&\'*+\-.^_`|~0-9A-Za-z]+$/', $name)) {
+            throw new InvalidArgumentException("Invalid header field name: '$name'.");
+        }
+
+        return self::key_of($name);
+    }
+
+    /**
+     * Header fields indexed by their lowercase name, since field names are case-insensitive.
+     *
+     * @var array<string, Header|mixed>
      */
     private array $fields = [];
+
+    /**
+     * The spelling of the field names, indexed by their lowercase form. It is used when the fields
+     * are iterated, see {@see name_of()}.
+     *
+     * @var array<string, string>
+     */
+    private array $names = [];
+
+    /**
+     * Returns the spelling of a field name, as it is output.
+     *
+     * Names defined by the `HEADER_*` constants use the spelling of the constant (`ETag`), others
+     * keep the spelling they were first given.
+     */
+    private function name_of(string $key): string
+    {
+        return self::KNOWN_NAMES[$key] ?? $this->names[$key] ?? $key;
+    }
 
     /**
      * If the `REQUEST_URI` key is found in the header fields they are considered coming from the
@@ -177,12 +208,12 @@ class Headers implements ArrayAccess, IteratorAggregate
 
     public function __clone()
     {
-        foreach ($this->fields as &$entry) {
-            if (!is_object($entry[1])) {
+        foreach ($this->fields as &$field) {
+            if (!is_object($field)) {
                 continue;
             }
 
-            $entry[1] = clone $entry[1];
+            $field = clone $field;
         }
     }
 
@@ -195,15 +226,7 @@ class Headers implements ArrayAccess, IteratorAggregate
     {
         $header = '';
 
-        foreach ($this->fields as [ $field, $value ]) {
-            $value = (string)$value;
-
-            if ($value === '') {
-                continue;
-            }
-
-            self::assert_value_is_safe($field, $value);
-
+        foreach ($this->fields() as $field => $value) {
             $header .= "$field: $value\r\n";
         }
 
@@ -211,14 +234,21 @@ class Headers implements ArrayAccess, IteratorAggregate
     }
 
     /**
-     * Sends header fields using the {@see header()} function.
+     * Yields the header fields ready to be sent, the name of the field as key and its value as
+     * string.
      *
      * Header fields with empty string values are discarded.
+     *
+     * @return Generator<string, string>
+     *
+     * @throws InvalidArgumentException if a value contains NUL, CR or LF, which could happen with
+     * the parameters of a {@see Header}, since they can change after being set.
      */
-    public function __invoke(): void
+    public function fields(): Generator
     {
-        foreach ($this->fields as [ $field, $value ]) {
-            $value = (string)$value;
+        foreach ($this->fields as $key => $value) {
+            $field = $this->name_of($key);
+            $value = (string) $value;
 
             if ($value === '') {
                 continue;
@@ -226,29 +256,16 @@ class Headers implements ArrayAccess, IteratorAggregate
 
             self::assert_value_is_safe($field, $value);
 
-            $this->send_header($field, $value);
+            yield $field => $value;
         }
     }
-
-    /**
-     * Send header field.
-     *
-     * Note: The only reason for this method is testing.
-     *
-     * @param string $field
-     * @param string $value
-     */
-    protected function send_header(string $field, string $value): void // @codeCoverageIgnoreStart
-    {
-        header("$field: $value");
-    }// @codeCoverageIgnoreEnd
 
     /**
      * Checks if a header field exists. Field names are case-insensitive.
      */
     public function offsetExists(mixed $offset): bool
     {
-        return isset($this->fields[strtolower((string)$offset)]);
+        return isset($this->fields[$this->key_of((string) $offset)]);
     }
 
     /**
@@ -261,20 +278,18 @@ class Headers implements ArrayAccess, IteratorAggregate
      */
     public function offsetGet(mixed $offset): mixed
     {
-        $key = strtolower((string)$offset);
-        $name = self::KNOWN_NAMES[$key] ?? (string)$offset;
+        $key = $this->key_of((string) $offset);
+        $name = self::KNOWN_NAMES[$key] ?? null;
 
-        if (isset(self::MAPPING[$name])) {
-            if (empty($this->fields[$key][1])) {
+        if ($name !== null && isset(self::MAPPING[$name])) {
+            if (empty($this->fields[$key])) {
                 /* @var $class class-string<Headers\Header> */
                 $class = self::MAPPING[$name];
-                $this->fields[$key] = [ $name, $class::from(null) ];
+                $this->fields[$key] = $class::from(null);
             }
-
-            return $this->fields[$key][1];
         }
 
-        return $this->fields[$key][1] ?? null;
+        return $this->fields[$key] ?? null;
     }
 
     /**
@@ -282,11 +297,11 @@ class Headers implements ArrayAccess, IteratorAggregate
      *
      * > **Note**: Setting a header field to `null` removes it, just like unset() would.
      *
-     * Field names are case-insensitive. Names defined by the `HEADER_*` constants are stored with
+     * Field names are case-insensitive. Names defined by the `HEADER_*` constants are output with
      * the spelling of the constant, other names keep the spelling they were first given.
      *
      * @throws InvalidArgumentException if the field name is not a valid HTTP token, or if the
-     * value contains NUL, CR or LF characters.
+     * value contains NUL, CR or LF characters, including when it is rendered by a {@see Header}.
      *
      * **Date, Expires, Last-Modified**
      *
@@ -307,7 +322,12 @@ class Headers implements ArrayAccess, IteratorAggregate
             return;
         }
 
-        $offset = self::canonical_name((string)$offset);
+        $key = self::valid_key_of((string) $offset);
+        $offset = self::KNOWN_NAMES[$key] ?? (string) $offset;
+
+        if (is_string($value)) {
+            self::assert_value_is_safe($offset, $value);
+        }
 
         switch ($offset) {
             # https://www.rfc-editor.org/rfc/rfc9110#section-13.1.3
@@ -344,11 +364,12 @@ class Headers implements ArrayAccess, IteratorAggregate
             $value = $class::from($value);
         }
 
-        if (is_string($value)) {
-            self::assert_value_is_safe($offset, $value);
+        if ($value instanceof Header) {
+            self::assert_value_is_safe($offset, (string) $value);
         }
 
-        $this->fields[strtolower($offset)] = [ $offset, $value ];
+        $this->names[$key] ??= $offset;
+        $this->fields[$key] = $value;
     }
 
     /**
@@ -356,16 +377,18 @@ class Headers implements ArrayAccess, IteratorAggregate
      */
     public function offsetUnset(mixed $offset): void
     {
-        unset($this->fields[strtolower((string)$offset)]);
+        $key = $this->key_of((string) $offset);
+
+        unset($this->fields[$key], $this->names[$key]);
     }
 
     /**
-     * Returns an iterator for the header fields.
+     * Returns an iterator for the "raw" header fields.
      */
     public function getIterator(): Generator
     {
-        foreach ($this->fields as [ $field, $value ]) {
-            yield $field => $value;
+        foreach ($this->fields as $key => $value) {
+            yield $this->name_of($key) => $value;
         }
     }
 

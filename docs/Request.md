@@ -328,7 +328,7 @@ $responder = $responder_provider->responder_for_request($request);
 $response = $responder->respond($request);
 
 // The response is sent to the client.
-$response();
+(new SimpleResponseSender())->send($response->finalize($request));
 ```
 
 

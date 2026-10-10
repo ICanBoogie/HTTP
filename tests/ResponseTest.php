@@ -5,6 +5,8 @@ namespace Test\ICanBoogie\HTTP;
 use ICanBoogie\DateTime;
 use ICanBoogie\HTTP\Headers;
 use ICanBoogie\HTTP\Headers\Date;
+use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\RequestMethod;
 use ICanBoogie\HTTP\Response;
 use ICanBoogie\PropertyNotWritable;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -224,5 +226,45 @@ class ResponseTest extends TestCase
 
         $this->expectException(\InvalidArgumentException::class);
         $response->version = '2';
+    }
+
+    public function test_finalize_does_not_modify_the_response(): void
+    {
+        $response = new Response(new class implements \Stringable {
+            public function __toString(): string
+            {
+                return 'body';
+            }
+        }, 204, [ 'X-Foo' => 'bar' ]);
+
+        $final = $response->finalize();
+
+        $this->assertNull($final->body);
+        $this->assertNotSame($response->headers, $final->headers);
+        $this->assertNotSame($response->status, $final->status);
+        $this->assertSame('bar', $final->headers['X-Foo']);
+        $this->assertInstanceOf(\Stringable::class, $response->body);
+    }
+
+    public function test_finalize_converts_stringable_body(): void
+    {
+        $body = new class implements \Stringable {
+            public function __toString(): string
+            {
+                return 'body';
+            }
+        };
+
+        $this->assertSame('body', (new Response($body))->finalize()->body);
+    }
+
+    public function test_finalize_omits_the_body_for_head(): void
+    {
+        $head = Request::from([ Request::OPTION_METHOD => RequestMethod::METHOD_HEAD ]);
+        $response = new Response('body', 200, [ 'Content-Length' => 4 ]);
+
+        $this->assertNull($response->finalize($head)->body);
+        $this->assertSame(4, $response->finalize($head)->headers->content_length);
+        $this->assertSame('body', $response->finalize()->body);
     }
 }

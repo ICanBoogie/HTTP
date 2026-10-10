@@ -2,9 +2,11 @@
 
 namespace Test\ICanBoogie\HTTP;
 
+use Closure;
 use DateTimeInterface;
 use ICanBoogie\DateTime;
 use ICanBoogie\HTTP\FileResponse;
+use ICanBoogie\HTTP\FinalResponse;
 use ICanBoogie\HTTP\Headers;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\RequestMethod;
@@ -26,7 +28,7 @@ final class FileResponseTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessageMatches("/Expected file, got directory\:/");
 
-        new FileResponse(__DIR__, Request::from());
+        new FileResponse(__DIR__);
     }
 
     public function test_should_throw_exception_on_invalid_file(): void
@@ -34,146 +36,107 @@ final class FileResponseTest extends TestCase
         $this->expectException(\LogicException::class);
         $this->expectExceptionMessageMatches("/File does not exist\:/");
 
-        new FileResponse(uniqid(), Request::from());
+        new FileResponse(uniqid());
     }
 
+    /**
+     * @param array<string, string> $request_headers
+     */
     #[DataProvider('provide_test_closure_body')]
-    public function test_closure_body(int $status, bool $expect_output): void
+    public function test_closure_body(array $request_headers, bool $expect_output): void
     {
         $file = create_file();
-        $sut = new FileResponse($file, Request::from());
-        $sut->status = $status;
+        $size = filesize($file);
+        $request_headers = str_replace('{size}', (string) $size, json_encode($request_headers));
+        $request = Request::from([ Request::OPTION_HEADERS => json_decode($request_headers, true) ]);
+        $sut = new FileResponse($file);
 
-        $actual = (string) $sut;
+        $actual = $sut->__toString();
 
-        if ($expect_output) {
-            $this->assertStringEndsWith(file_get_contents($file), $actual);
-        } else {
-            $this->assertStringEndsNotWith(file_get_contents($file), $actual);
-        }
+        // Serialization doesn't use the request.
+        $this->assertStringEndsWith(file_get_contents($file), $actual);
+
+        $final = $sut->finalize($request);
+
+        $this->assertSame($expect_output, $final->body !== null);
     }
 
+    // @phpstan-ignore-next-line
     public static function provide_test_closure_body(): array
     {
         return [
 
-            [ ResponseStatus::STATUS_OK, true ],
-            [ ResponseStatus::STATUS_NOT_MODIFIED, false ],
-            [ ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE, false ],
+            'ok' => [ [], true ],
+            'not modified' => [ [ 'If-None-Match' => '*' ], false ],
+            'range not satisfiable' => [ [ 'Range' => 'bytes={size}-' ], false ],
 
         ];
     }
 
-    #[DataProvider('provide_test_invoke')]
-    public function test_invoke(string $cache_control, bool $is_modified, int $expected): void
+    #[DataProvider('provide_test_finalize')]
+    public function test_finalize(string $cache_control, bool $is_modified, int $expected): void
     {
-        $request = Request::from([ Request::OPTION_HEADERS => [ 'Cache-Control' => $cache_control ] ]);
-        $file = create_file();
-        $response = new class($file, $request, $is_modified) extends FileResponse
-        {
-            public int $send_headers_calls = 0;
-            public int $send_body_calls = 0;
+        $headers = [ 'Cache-Control' => $cache_control ];
 
-            public function __construct(
-                SplFileInfo|string $file,
-                Request $request,
-                private readonly bool $is_modified_override,
-            ) {
-                parent::__construct($file, $request);
-            }
+        if (!$is_modified) {
+            $headers['If-None-Match'] = '*';
+        }
 
-            // The overload is required for the test; disregard IntelliJ
-            public bool $is_modified {
-                get => $this->is_modified_override;
-            }
+        $request = Request::from([ Request::OPTION_HEADERS => $headers ]);
+        $response = new FileResponse(create_file());
 
-            protected function send_headers(Headers $headers): bool
-            {
-                $this->send_headers_calls++;
+        $final = $response->finalize($request);
 
-                return true;
-            }
-
-            protected function send_body(mixed $body): void
-            {
-                $this->send_body_calls++;
-            }
-        };
-
-        $response();
-
-        $this->assertEquals($expected, $response->status->code);
-        $this->assertEquals(1, $response->send_headers_calls);
+        $this->assertSame($expected, $final->status->code);
         // A 304 has no body.
-        $this->assertEquals($expected === 304 ? 0 : 1, $response->send_body_calls);
+        $this->assertSame($expected !== 304, $final->body !== null);
+        // Finalizing doesn't change the response.
+        $this->assertSame(200, $response->status->code);
     }
 
-    #[DataProvider('provide_test_invoke_with_range')]
-    public function test_invoke_with_range(
+    public static function provide_test_finalize(): array
+    {
+        return [
+
+            [ '', false, ResponseStatus::STATUS_NOT_MODIFIED ],
+            [ 'no-cache', false, ResponseStatus::STATUS_OK ],
+            [ '', true, ResponseStatus::STATUS_OK ],
+            [ 'no-cache', true, ResponseStatus::STATUS_OK ],
+
+        ];
+    }
+
+    #[DataProvider('provide_test_finalize_with_range')]
+    public function test_finalize_with_range(
         string $cache_control,
         bool $is_modified,
         bool $is_satisfiable,
         bool $is_total,
         int $expected,
     ): void {
-        $headers = new Headers();
-        $headers['If-Range'] = $etag = "123";
+        $file = create_file();
+        $size = filesize($file);
+        $headers = [ 'Cache-Control' => $cache_control ];
 
         if ($is_satisfiable) {
-            $headers['Range'] = $is_total ? "bytes=0-399" : "bytes=10-200";
+            $headers['Range'] = $is_total ? "bytes=0-" . ($size - 1) : "bytes=10-200";
         } else {
-            $headers['Range'] = "bytes=500-";
+            $headers['Range'] = "bytes=$size-";
         }
 
-        $range = RequestRange::from($headers, 400, $etag);
-        $file = create_file();
-        $request = Request::from([ Request::OPTION_HEADERS => [ 'Cache-Control' => $cache_control ] ]);
-        $response = new class($file, $request, $is_modified, $range) extends FileResponse
-        {
-            public int $send_headers_calls = 0;
-            public int $send_body_calls = 0;
+        if (!$is_modified) {
+            $headers['If-None-Match'] = '*';
+        }
 
-            public function __construct(
-                SplFileInfo|string $file,
-                Request $request,
-                private bool $override_is_modified,
-                private RequestRange $override_range,
-            ) {
-                parent::__construct($file, $request);
-            }
+        $request = Request::from([ Request::OPTION_HEADERS => $headers ]);
 
-            // The overload is required for the test; disregard IntelliJ
-            public bool $is_modified {
-                get => $this->override_is_modified;
-            }
+        $final = (new FileResponse($file))->finalize($request);
 
-            // The overload is required for the test; disregard IntelliJ
-            public ?RequestRange $range {
-                get => $this->override_range;
-            }
-
-            protected function send_headers(Headers $headers): bool
-            {
-                $this->send_headers_calls++;
-
-                return true;
-            }
-
-            protected function send_body(mixed $body): void
-            {
-                $this->send_body_calls++;
-            }
-        };
-
-        $response();
-
-        $this->assertEquals($expected, $response->status->code);
-        $this->assertEquals(1, $response->send_headers_calls);
-        // A 304 has no body.
-        $this->assertEquals($expected === 304 ? 0 : 1, $response->send_body_calls);
+        $this->assertSame($expected, $final->status->code);
+        $this->assertSame($expected === 304 || $expected === 416, $final->body === null);
     }
 
-    public static function provide_test_invoke_with_range(): array
+    public static function provide_test_finalize_with_range(): array
     {
         return [
 
@@ -186,18 +149,6 @@ final class FileResponseTest extends TestCase
         ];
     }
 
-    public static function provide_test_invoke(): array
-    {
-        return [
-
-            [ '', false, ResponseStatus::STATUS_NOT_MODIFIED ],
-            [ 'no-cache', false, ResponseStatus::STATUS_OK ],
-            [ '', true, ResponseStatus::STATUS_OK ],
-            [ 'no-cache', true, ResponseStatus::STATUS_OK ],
-
-        ];
-    }
-
     #[DataProvider('provide_test_get_content_type')]
     public function test_get_content_type(
         string $expected,
@@ -205,7 +156,7 @@ final class FileResponseTest extends TestCase
         array $options = [],
         array $headers = [],
     ): void {
-        $response = new FileResponse($file, Request::from(), $options, $headers);
+        $response = new FileResponse($file, $options, $headers);
         $this->assertEquals($expected, (string)$response->headers->content_type);
     }
 
@@ -226,7 +177,7 @@ final class FileResponseTest extends TestCase
     #[DataProvider('provide_test_get_etag')]
     public function test_get_etag(string $expected, string $file, array $options = [], array $headers = []): void
     {
-        $response = new FileResponse($file, Request::from(), $options, $headers);
+        $response = new FileResponse($file, $options, $headers);
         $this->assertEquals($expected, $response->headers->etag);
     }
 
@@ -252,7 +203,7 @@ final class FileResponseTest extends TestCase
         array $options = [],
         array $headers = [],
     ): void {
-        $response = new FileResponse($file, Request::from(), $options, $headers);
+        $response = new FileResponse($file, $options, $headers);
         $actual = $response->expires->delegate;
 
         $this->assertGreaterThanOrEqual($expected, $actual);
@@ -279,7 +230,7 @@ final class FileResponseTest extends TestCase
     public function test_get_modified_time(): void
     {
         $file = create_file();
-        $response = new FileResponse($file, Request::from());
+        $response = new FileResponse($file);
         $this->assertEquals(filemtime($file), $response->modified_time);
     }
 
@@ -295,11 +246,12 @@ final class FileResponseTest extends TestCase
             touch($file, $modified_time);
         }
 
-        $response = new FileResponse($file, Request::from([ RequestOptions::OPTION_HEADERS => $request_headers ]), [
+        $response = new FileResponse($file, [
             FileResponse::OPTION_ETAG => $etag,
         ]);
+        $request = Request::from([ RequestOptions::OPTION_HEADERS => $request_headers ]);
 
-        $this->assertSame($expected, $response->is_modified);
+        $this->assertSame($expected, $response->is_modified_for($request));
     }
 
     public static function provide_test_get_is_modified(): array
@@ -354,7 +306,7 @@ final class FileResponseTest extends TestCase
     #[DataProvider('provide_test_filename')]
     public function test_filename(string $file, string|bool $filename, string $expected): void
     {
-        $response = new FileResponse($file, Request::from(), [ FileResponse::OPTION_FILENAME => $filename ]);
+        $response = new FileResponse($file, [ FileResponse::OPTION_FILENAME => $filename ]);
 
         $this->assertEquals('binary', (string)$response->headers['Content-Transfer-Encoding']);
         $this->assertEquals('File Transfer', (string)$response->headers['Content-Description']);
@@ -379,10 +331,10 @@ final class FileResponseTest extends TestCase
     public function test_accept_ranges(RequestMethod $method, string $type): void
     {
         $request = Request::from([ Request::OPTION_URI => '/', 'method' => $method ]);
-        $response = new FileResponse(__FILE__, $request);
-        $actual = (string) $response;
+        $response = new FileResponse(__FILE__);
+        [ $final ] = self::resolve($response, $request);
 
-        $this->assertStringContainsString("Accept-Ranges: $type", $actual);
+        $this->assertStringContainsString("Accept-Ranges: $type", (string) $final->headers);
     }
 
     public static function provide_test_accept_ranges(): array
@@ -413,15 +365,9 @@ final class FileResponseTest extends TestCase
 
         ]);
 
-        $response = new FileResponse($pathname, $request, [ FileResponse::OPTION_ETAG => $etag ]);
+        $response = new FileResponse($pathname, [ FileResponse::OPTION_ETAG => $etag ]);
 
-        /* @var $response FileResponse */
-
-        ob_start();
-
-        $response();
-
-        $content = ob_get_clean();
+        [ , $content ] = self::resolve($response, $request);
 
         $this->assertSame($expected, $content);
     }
@@ -448,7 +394,7 @@ final class FileResponseTest extends TestCase
 
     public function test_cache_control_defaults_to_private(): void
     {
-        $response = new FileResponse(create_file(), Request::from());
+        $response = new FileResponse(create_file());
         $actual = (string) $response;
 
         $this->assertMatchesRegularExpression('/^Cache-Control: private, max-age=\d+\r$/m', $actual);
@@ -459,7 +405,7 @@ final class FileResponseTest extends TestCase
     #[DataProvider('provide_test_cache_control_is_respected')]
     public function test_cache_control_is_respected(string $cache_control): void
     {
-        $response = new FileResponse(create_file(), Request::from(), headers: [ 'Cache-Control' => $cache_control ]);
+        $response = new FileResponse(create_file(), headers: [ 'Cache-Control' => $cache_control ]);
         $actual = (string) $response;
 
         $this->assertStringContainsString("Cache-Control: $cache_control\r\n", $actual);
@@ -479,7 +425,7 @@ final class FileResponseTest extends TestCase
 
     public function test_cache_control_with_expires(): void
     {
-        $response = new FileResponse(create_file(), Request::from(), [
+        $response = new FileResponse(create_file(), [
 
             FileResponse::OPTION_EXPIRES => '+1 hour',
 
@@ -503,13 +449,11 @@ final class FileResponseTest extends TestCase
 
         ]);
 
-        $response = new FileResponse($file, $request, [ FileResponse::OPTION_ETAG => $etag ]);
+        $response = new FileResponse($file, [ FileResponse::OPTION_ETAG => $etag ]);
 
-        ob_start();
-        $response();
-        $content = ob_get_clean();
+        [ $final, $content ] = self::resolve($response, $request);
 
-        $this->assertEquals($expected, $response->status->code);
+        $this->assertEquals($expected, $final->status->code);
         $this->assertSame('', $content);
     }
 
@@ -530,16 +474,14 @@ final class FileResponseTest extends TestCase
         $file = create_file();
         $size = filesize($file);
         $request = Request::from([ Request::OPTION_HEADERS => [ 'Range' => "bytes=$size-" ] ]);
-        $response = new FileResponse($file, $request);
+        $response = new FileResponse($file);
 
-        ob_start();
-        $response();
-        $content = ob_get_clean();
+        [ $final, $content ] = self::resolve($response, $request);
 
-        $this->assertEquals(ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE, $response->status->code);
+        $this->assertEquals(ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE, $final->status->code);
         $this->assertSame('', $content);
 
-        $actual = (string) $response;
+        $actual = (string) $final->headers;
 
         $this->assertStringContainsString("Content-Range: bytes */$size\r\n", $actual);
         $this->assertStringContainsString("Content-Length: 0\r\n", $actual);
@@ -557,13 +499,11 @@ final class FileResponseTest extends TestCase
 
         ] ]);
 
-        $response = new FileResponse($file, $request);
+        $response = new FileResponse($file);
 
-        ob_start();
-        $response();
-        $content = ob_get_clean();
+        [ $final, $content ] = self::resolve($response, $request);
 
-        $this->assertEquals(ResponseStatus::STATUS_PARTIAL_CONTENT, $response->status->code);
+        $this->assertEquals(ResponseStatus::STATUS_PARTIAL_CONTENT, $final->status->code);
         $this->assertSame(substr($data, 0, 100), $content);
     }
 
@@ -577,17 +517,12 @@ final class FileResponseTest extends TestCase
 
         ]);
 
-        $response = new FileResponse($file, $request);
+        $response = new FileResponse($file);
 
-        // The status is resolved when the response is sent.
-        ob_start();
-        $response();
-        ob_end_clean();
+        [ $final ] = self::resolve($response, $request);
 
-        $string = (string) $response;
-
-        $this->assertStringStartsWith("HTTP/1.1 412 ", $string);
-        $this->assertStringContainsString("Content-Length: 0\r\n", $string);
+        $this->assertSame(412, $final->status->code);
+        $this->assertStringContainsString("Content-Length: 0\r\n", (string) $final->headers);
     }
 
     public function test_non_matching_if_none_match_does_not_fail_precondition(): void
@@ -599,19 +534,17 @@ final class FileResponseTest extends TestCase
 
         ]);
 
-        $response = new FileResponse(create_file(), $request, [ FileResponse::OPTION_ETAG => '"abc"' ]);
+        $response = new FileResponse(create_file(), [ FileResponse::OPTION_ETAG => '"abc"' ]);
 
-        ob_start();
-        $response();
-        ob_end_clean();
+        [ $final ] = self::resolve($response, $request);
 
-        $this->assertSame(200, $response->status->code);
+        $this->assertSame(200, $final->status->code);
     }
 
     #[DataProvider('provide_test_option_etag')]
     public function test_option_etag_is_quoted(string $given, string $expected): void
     {
-        $response = new FileResponse(create_file(), Request::from([]), [ FileResponse::OPTION_ETAG => $given ]);
+        $response = new FileResponse(create_file(), [ FileResponse::OPTION_ETAG => $given ]);
 
         $this->assertSame($expected, $response->headers->etag);
     }
@@ -632,6 +565,29 @@ final class FileResponseTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        new FileResponse(create_file(), Request::from([]), [ FileResponse::OPTION_ETAG => 'a"b' ]);
+        new FileResponse(create_file(), [ FileResponse::OPTION_ETAG => 'a"b' ]);
+    }
+
+    /**
+     * Finalizes the response for a request, and captures the body.
+     *
+     * @return array{ 0: FinalResponse, 1: string }
+     */
+    private static function resolve(FileResponse $response, Request $request): array
+    {
+        $final = $response->finalize($request);
+        $body = '';
+
+        if ($final->body instanceof Closure) {
+            ob_start();
+
+            try {
+                ($final->body)($final);
+            } finally {
+                $body = ob_get_clean();
+            }
+        }
+
+        return [ $final, $body ];
     }
 }

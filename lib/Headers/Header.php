@@ -6,6 +6,7 @@ namespace ICanBoogie\HTTP\Headers;
 
 use ArrayAccess;
 use ICanBoogie\OffsetNotDefined;
+use ICanBoogie\HTTP\Headers;
 use InvalidArgumentException;
 
 use function array_intersect_key;
@@ -67,7 +68,15 @@ abstract class Header implements ArrayAccess
     /**
      * The value of the header.
      */
-    public ?string $value;
+    public ?string $value {
+        set {
+            if ($value !== null) {
+                Headers::assert_value_is_safe('value', $value);
+            }
+
+            $this->value = $value;
+        }
+    }
 
     /**
      * The parameters supported by the header.

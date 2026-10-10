@@ -8,15 +8,9 @@ use Closure;
 use Stringable;
 use Throwable;
 
-use function header;
-use function header_remove;
-use function headers_sent;
-use function ob_get_clean;
 use function is_numeric;
 use function max;
-use function ob_start;
 use function time;
-use function trigger_error;
 
 /**
  * A response to an HTTP request.
@@ -76,117 +70,61 @@ class Response implements ResponseStatus
     }
 
     /**
+     * Resolves the status, headers and body as they are sent to the client, without modifying the
+     * response.
+     *
+     * The headers are cloned, a {@see Stringable} body is converted to a string, and the body is
+     * discarded for the statuses that cannot have one (`1xx`, `204`, and `304`), see RFC 9110
+     * section 6.4.1, and for a `HEAD` request.
+     *
+     * Subclasses override the method to resolve the response according to the request, which is
+     * `null` when the response is serialized, or sent, without one. In that case they must resolve
+     * to what the response would be for a plain `GET` request. They must not modify the response.
+     */
+    public function finalize(?Request $request = null): FinalResponse
+    {
+        $body = $this->body;
+        $code = $this->status->code;
+
+        if (
+            $code < 200
+            || $code === self::STATUS_NO_CONTENT
+            || $code === self::STATUS_NOT_MODIFIED
+            || $request?->method->is_head()
+        ) {
+            $body = null;
+        } elseif ($body instanceof Stringable) {
+            $body = (string) $body;
+        }
+
+        return new FinalResponse($this->version, clone $this->status, clone $this->headers, $body);
+    }
+
+    /**
      * Renders the response as an HTTP string.
+     *
+     * The response is finalized without a request, see {@see finalize()}.
      */
     public function __toString(): string
     {
-        $header = clone $this->headers;
-        $body = $this->body;
-
-        $this->finalize($header, $body);
-
-        ob_start();
-
-        try {
-            $this->send_body($body);
-        } finally {
-            $body = ob_get_clean();
-        }
-
-        return "HTTP/$this->version $this->status\r\n"
-            . $header
-            . "\r\n"
-            . $body;
+        return (string) $this->finalize();
     }
 
     /**
-     * Issues the HTTP response.
+     * Sends the response using a {@see SimpleResponseSender}.
      *
-     * {@see finalize()} is invoked to finalize the headers (a clone) and the body.
-     * {@see send_headers} is invoked to send the headers,
-     * and {@see send_body()} is invoked to send the body, if the body is not `null`.
+     * The body is not sent when the finalized body is `null`, which is the case for the statuses
+     * that cannot have a body (`1xx`, `204`, and `304`), and when the request is a `HEAD`
+     * request, see {@see finalize()}.
      *
-     * The body is not sent in the following instances:
+     * @param Request|null $request The request is used by responses that finalize themselves
+     * according to it, such as {@see FileResponse}.
      *
-     * - The finalized body is `null`, which is the case for the statuses that cannot have a
-     *   body: `1xx`, `204` and `304`.
-     *
-     * The response doesn't know the request, which is why the body is not suppressed for `HEAD`
-     * requests: the responder, or the web server, is responsible for that.
+     * @deprecated Use a {@see ResponseSender}.
      */
-    public function __invoke(): void
+    public function __invoke(?Request $request = null): void
     {
-        $headers = clone $this->headers;
-        $body = $this->body;
-
-        $this->finalize($headers, $body);
-        $this->send_headers($headers);
-
-        if ($body === null) {
-            return;
-        }
-
-        $this->send_body($body);
-    }
-
-    /**
-     * Finalize the body.
-     *
-     * The body is discarded for the statuses that cannot have one (`1xx`, `204`, and `304`),
-     * see RFC 9110 section 6.4.1.
-     *
-     * Subclasses might want to override this method if they wish to alter the header or the body
-     * before the response is sent or transformed into a string.
-     *
-     * @param Headers $headers Reference to the final header.
-     * @param mixed $body Reference to the final body.
-     */
-    protected function finalize(Headers &$headers, mixed &$body): void
-    {
-        $code = $this->status->code;
-
-        if ($code < 200 || $code === self::STATUS_NO_CONTENT || $code === self::STATUS_NOT_MODIFIED) {
-            $body = null;
-
-            return;
-        }
-
-        if ($body instanceof Closure || !$body instanceof Stringable) {
-            return;
-        }
-
-        $body = (string)$body;
-    }
-
-    protected function send_headers(Headers $headers): bool // @codeCoverageIgnoreStart
-    {
-        if (headers_sent($file, $line)) {
-            trigger_error(
-                "Cannot modify header information because it was already sent. Output started at $file:$line",
-            );
-
-            return false;
-        }
-
-        header_remove('Pragma');
-        header_remove('X-Powered-By');
-
-        header("HTTP/$this->version $this->status");
-
-        $headers();
-
-        return true;
-    } // @codeCoverageIgnoreEnd
-
-    protected function send_body(mixed $body): void
-    {
-        if ($body instanceof Closure) {
-            $body($this);
-
-            return;
-        }
-
-        echo $body;
+        (new SimpleResponseSender())->send($this->finalize($request));
     }
 
     /**
