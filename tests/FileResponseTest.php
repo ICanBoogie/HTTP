@@ -7,17 +7,14 @@ use DateTimeInterface;
 use ICanBoogie\DateTime;
 use ICanBoogie\HTTP\FileResponse;
 use ICanBoogie\HTTP\FinalResponse;
-use ICanBoogie\HTTP\Headers;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\RequestMethod;
 use ICanBoogie\HTTP\RequestOptions;
-use ICanBoogie\HTTP\RequestRange;
 use ICanBoogie\HTTP\ResponseStatus;
 use InvalidArgumentException;
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use SplFileInfo;
 
 use function filemtime;
 
@@ -130,7 +127,7 @@ final class FileResponseTest extends TestCase
 
         $request = Request::from([ Request::OPTION_HEADERS => $headers ]);
 
-        $final = (new FileResponse($file))->finalize($request);
+        $final = new FileResponse($file)->finalize($request);
 
         $this->assertSame($expected, $final->status->code);
         $this->assertSame($expected === 304 || $expected === 416, $final->body === null);
@@ -156,7 +153,7 @@ final class FileResponseTest extends TestCase
         array $options = [],
         array $headers = [],
     ): void {
-        $response = new FileResponse($file, $options, $headers);
+        $response = new FileResponse($file, ...$options, headers: $headers);
         $this->assertEquals($expected, (string)$response->headers->content_type);
     }
 
@@ -165,10 +162,10 @@ final class FileResponseTest extends TestCase
         return [
 
             [ 'application/octet-stream', create_file() ],
-            [ 'text/plain', create_file(), [ FileResponse::OPTION_MIME => 'text/plain' ] ],
+            [ 'text/plain', create_file(), [ 'mime' => 'text/plain' ] ],
             [ 'text/plain', create_file(), [], [ 'Content-Type' => 'text/plain' ] ],
             [ 'image/png', create_image('.png') ],
-            [ 'text/plain', create_image('.png'), [ FileResponse::OPTION_MIME => 'text/plain' ] ],
+            [ 'text/plain', create_image('.png'), [ 'mime' => 'text/plain' ] ],
             [ 'text/plain', create_image('.png'), [], [ 'Content-Type' => 'text/plain' ] ],
 
         ];
@@ -177,7 +174,7 @@ final class FileResponseTest extends TestCase
     #[DataProvider('provide_test_get_etag')]
     public function test_get_etag(string $expected, string $file, array $options = [], array $headers = []): void
     {
-        $response = new FileResponse($file, $options, $headers);
+        $response = new FileResponse($file, ...$options, headers: $headers);
         $this->assertEquals($expected, $response->headers->etag);
     }
 
@@ -190,7 +187,7 @@ final class FileResponseTest extends TestCase
         return [
 
             [ $file_etag, $file ],
-            [ $file_hash_custom, $file, [ FileResponse::OPTION_ETAG => $file_hash_custom ] ],
+            [ $file_hash_custom, $file, [ 'etag' => $file_hash_custom ] ],
             [ $file_hash_custom, $file, [], [ 'ETag' => $file_hash_custom ] ],
 
         ];
@@ -203,7 +200,7 @@ final class FileResponseTest extends TestCase
         array $options = [],
         array $headers = [],
     ): void {
-        $response = new FileResponse($file, $options, $headers);
+        $response = new FileResponse($file, ...$options, headers: $headers);
         $actual = $response->expires->delegate;
 
         $this->assertGreaterThanOrEqual($expected, $actual);
@@ -219,8 +216,8 @@ final class FileResponseTest extends TestCase
         return [
 
             [ $expires_default, $file ],
-            [ $expires2, $file, [ FileResponse::OPTION_EXPIRES => $expires2_str ] ],
-            [ $expires2, $file, [ FileResponse::OPTION_EXPIRES => $expires2 ] ],
+            [ $expires2, $file, [ 'expires' => $expires2_str ] ],
+            [ $expires2, $file, [ 'expires' => $expires2 ] ],
             [ $expires2, $file, [], [ 'Expires' => $expires2_str ] ],
             [ $expires2, $file, [], [ 'Expires' => $expires2 ] ],
 
@@ -246,9 +243,7 @@ final class FileResponseTest extends TestCase
             touch($file, $modified_time);
         }
 
-        $response = new FileResponse($file, [
-            FileResponse::OPTION_ETAG => $etag,
-        ]);
+        $response = new FileResponse($file, etag: $etag);
         $request = Request::from([ RequestOptions::OPTION_HEADERS => $request_headers ]);
 
         $this->assertSame($expected, $response->is_modified_for($request));
@@ -306,7 +301,7 @@ final class FileResponseTest extends TestCase
     #[DataProvider('provide_test_filename')]
     public function test_filename(string $file, string|bool $filename, string $expected): void
     {
-        $response = new FileResponse($file, [ FileResponse::OPTION_FILENAME => $filename ]);
+        $response = new FileResponse($file, filename: $filename);
 
         $this->assertEquals('binary', (string)$response->headers['Content-Transfer-Encoding']);
         $this->assertEquals('File Transfer', (string)$response->headers['Content-Description']);
@@ -365,7 +360,7 @@ final class FileResponseTest extends TestCase
 
         ]);
 
-        $response = new FileResponse($pathname, [ FileResponse::OPTION_ETAG => $etag ]);
+        $response = new FileResponse($pathname, etag: $etag);
 
         [ , $content ] = self::resolve($response, $request);
 
@@ -423,13 +418,20 @@ final class FileResponseTest extends TestCase
         ];
     }
 
+    public function test_etag_parameter_conflicts_with_etag_header(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        new FileResponse(create_file(), etag: '"a"', headers: [ 'ETag' => '"b"' ]);
+    }
+
     public function test_cache_control_with_expires(): void
     {
-        $response = new FileResponse(create_file(), [
-
-            FileResponse::OPTION_EXPIRES => '+1 hour',
-
-        ], [ 'Cache-Control' => 'public' ]);
+        $response = new FileResponse(
+            create_file(),
+            expires: '+1 hour',
+            headers: [ 'Cache-Control' => 'public' ],
+        );
 
         $actual = (string) $response;
 
@@ -449,7 +451,7 @@ final class FileResponseTest extends TestCase
 
         ]);
 
-        $response = new FileResponse($file, [ FileResponse::OPTION_ETAG => $etag ]);
+        $response = new FileResponse($file, etag: $etag);
 
         [ $final, $content ] = self::resolve($response, $request);
 
@@ -534,7 +536,7 @@ final class FileResponseTest extends TestCase
 
         ]);
 
-        $response = new FileResponse(create_file(), [ FileResponse::OPTION_ETAG => '"abc"' ]);
+        $response = new FileResponse(create_file(), etag: '"abc"');
 
         [ $final ] = self::resolve($response, $request);
 
@@ -544,7 +546,7 @@ final class FileResponseTest extends TestCase
     #[DataProvider('provide_test_option_etag')]
     public function test_option_etag_is_quoted(string $given, string $expected): void
     {
-        $response = new FileResponse(create_file(), [ FileResponse::OPTION_ETAG => $given ]);
+        $response = new FileResponse(create_file(), etag: $given);
 
         $this->assertSame($expected, $response->headers->etag);
     }
@@ -565,7 +567,7 @@ final class FileResponseTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        new FileResponse(create_file(), [ FileResponse::OPTION_ETAG => 'a"b' ]);
+        new FileResponse(create_file(), etag: 'a"b');
     }
 
     /**

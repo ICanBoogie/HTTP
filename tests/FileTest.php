@@ -4,7 +4,6 @@ namespace Test\ICanBoogie\HTTP;
 
 use ICanBoogie\FormattedString;
 use ICanBoogie\HTTP\File;
-use ICanBoogie\PropertyNotWritable;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -14,6 +13,15 @@ use const UPLOAD_ERR_CANT_WRITE;
 
 class FileTest extends TestCase
 {
+    public function test_constructor_with_named_parameters(): void
+    {
+        $file = new File(type: 'text/x-php', pathname: __FILE__);
+
+        $this->assertSame(basename(__FILE__), $file->name);
+        $this->assertSame('text/x-php', $file->type);
+        $this->assertSame(__FILE__, $file->pathname);
+    }
+
     #[DataProvider('provide_test_get_extension')]
     public function test_get_extension($expected, $pathname): void
     {

@@ -25,6 +25,8 @@ None
 
 ### Backward Incompatible Changes
 
+- `File` has a public constructor with named parameters (`new File(pathname: ...)`). `File::from()` still accepts
+  an array of properties keyed by the `FileOptions` constants, such as an entry of `$_FILES`.
 - `Request::from($_SERVER)` throws a `BadMethodCallException`, use `Request::from_server()`, which also accepts an explicit server array.
 - `Response::finalize(Headers &$headers, &$body)`, `Response::send_headers()`, and
   `Response::send_body()` are replaced by `Response::finalize(?Request): FinalResponse` and the
@@ -32,7 +34,9 @@ None
   `Response::__invoke()` still sends the response using a `SimpleResponseSender`, but it is
   deprecated.
 - `FileResponse` no longer takes a `Request`: the constructor is
-  `new FileResponse($file, $options, $headers)`. Its status and headers are resolved by
+  `new FileResponse($file, etag:, expires:, filename:, mime:, headers:)`. The `OPTION_ETAG`,
+  `OPTION_EXPIRES`, `OPTION_FILENAME` and `OPTION_MIME` constants and the options array are replaced
+  by these named parameters, and `filename: true` uses the name of the file. Its status and headers are resolved by
   `finalize($request)`, which doesn't modify the response any more. `FileResponse::$is_modified`
   and `FileResponse::$range` are replaced by `is_modified_for($request)` and `range_for($request)`,
   and `send_file()` takes the length and offset to send.
@@ -54,7 +58,7 @@ None
   response.
 - `FileResponse` returns `304 Not Modified` only for `GET` and `HEAD` requests. For other methods,
   a matching `If-None-Match` results in `412 Precondition Failed`, which used to be `200`.
-- `FileResponse` quotes the value of `OPTION_ETAG` when it isn't quoted already, and throws
+- `FileResponse` quotes the value of `etag` when it isn't quoted already, and throws
   `InvalidArgumentException` for an unquoted value containing a double quote.
 - A malformed JSON request body, or one that is not a JSON object or array, throws a `ClientError`
   (400) instead of a `JsonException`. An empty JSON body results in no request parameters.

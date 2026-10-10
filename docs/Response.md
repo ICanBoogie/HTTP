@@ -162,7 +162,7 @@ $response = new FileResponse("/absolute/path/to/my/file");
 new SimpleResponseSender()->send($response->finalize($request));
 ```
 
-The `OPTION_FILENAME` option may be used to force downloading. Of course, utf-8 strings are
+The `filename` parameter may be used to force downloading. Of course, utf-8 strings are
 supported:
 
 ```php
@@ -172,30 +172,26 @@ namespace ICanBoogie\HTTP;
 
 /* @var $request Request */
 
-$response = new FileResponse("/absolute/path/to/my/file", [
-
-    FileResponse::OPTION_FILENAME => "Vidéo d'un été à la mer.mp4"
-
-]);
+$response = new FileResponse("/absolute/path/to/my/file", filename: "Vidéo d'un été à la mer.mp4");
 
 new SimpleResponseSender()->send($response->finalize($request));
 ```
 
-The following options are also available:
+The following parameters are also available:
 
-- `OPTION_ETAG`: Specifies the `ETag` header field of the response. If it is not defined, a
+- `etag`: Specifies the `ETag` header field of the response. If it is not defined, a
 validator derived from the modification time and the size of the file is used instead, such as
 `"6aca50ed-2710"`. A value that is not quoted is quoted for you, and a weak tag (`W/"abc"`) is kept
 as is. The default validator can miss two edits of the same size made within the same second: use
 `FileResponse::hash_file()` if you prefer a [SHA-384][] of the content, but note that the file is
 then read entirely for every response.
 
-- `OPTION_EXPIRES`: Specifies the expiration date as a `DateTime` instance or a relative date
+- `expires`: Specifies the expiration date as a `DateTime` instance or a relative date
 such as `+3 month`, which maps to the `Expires` header field. Unless `Cache-Control` is defined,
 its `max-age` directive is computed from the current time. If it is not defined
-`DEFAULT_EXPIRES` is used instead ("+1 month").
+`FileResponse::DEFAULT_EXPIRES` is used instead ("+1 month").
 
-- `OPTION_MIME`: Specifies the MIME of the file, which maps to the `Content-Type` header field.
+- `mime`: Specifies the MIME of the file, which maps to the `Content-Type` header field.
 If it is not defined the MIME is guessed using `finfo::file()`.
 
 The status and headers depend on the request. They are resolved by `finalize($request)`, which a sender calls with the
@@ -218,7 +214,7 @@ may be an entity tag or a date.
 ### Caching files
 
 If `Cache-Control` is not defined, the response is cacheable by the client only:
-`Cache-Control: private, max-age=…` and `Expires` are derived from `OPTION_EXPIRES`. Shared
+`Cache-Control: private, max-age=…` and `Expires` are derived from `expires`. Shared
 caches and CDNs must not store a file that could have been served after an authorization check, so
 `public` must be opted into. A defined `Cache-Control` is left untouched, and so is `Expires`.
 

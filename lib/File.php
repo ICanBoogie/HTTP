@@ -46,7 +46,9 @@ class File implements ToArray, FileOptions
     /**
      * Creates a {@see File} instance.
      *
-     * @param array<string, mixed>|string $properties_or_name An array of properties or a file identifier.
+     * @param array<string, mixed>|string $properties_or_name An array of properties, such as an entry of
+     * the `$_FILES` super global (unknown keys are ignored), keyed by the {@see FileOptions} constants, or a file identifier.
+     * Use the constructor for named parameters.
      */
     public static function from(array|string $properties_or_name): File
     {
@@ -61,7 +63,7 @@ class File implements ToArray, FileOptions
 
         $properties = self::filter_initial_properties($properties);
 
-        return new self($properties);
+        return new self(...$properties);
     }
 
     /**
@@ -217,34 +219,27 @@ class File implements ToArray, FileOptions
     }
 
     /**
-     * @param array<string, mixed> $properties
+     * @param string|null $name Name of the file. Defaults to the basename of `$pathname`.
+     * @param string|null $type MIME type of the file. Guessed from the file if not defined.
+     * @param int|null $size Size of the file. Guessed from the pathname if not defined.
+     * @param string|null $tmp_name Temporary filename of an uploaded file.
+     * @param int|null $error Error code, one of `UPLOAD_ERR_*`.
+     * @param string|null $pathname Pathname of the file.
      */
-    private function __construct(array $properties)
-    {
-        foreach ($properties as $property => $value) {
-            switch ($property) {
-                case self::OPTION_NAME:
-                    $this->name = $value;
-                    break;
-                case self::OPTION_TYPE:
-                    $this->type = $value;
-                    break;
-                case self::OPTION_SIZE:
-                    $this->size = $value;
-                    break;
-                case self::OPTION_TMP_NAME:
-                    $this->tmp_name = $value;
-                    break;
-                case self::OPTION_ERROR:
-                    $this->error = $value;
-                    break;
-                case self::OPTION_PATHNAME:
-                    $this->pathname = $value;
-                    break;
-                default:
-                    throw new \InvalidArgumentException("Unknown property: $property");
-            }
-        }
+    public function __construct(
+        ?string $name = null,
+        ?string $type = null,
+        ?int $size = null,
+        ?string $tmp_name = null,
+        ?int $error = null,
+        ?string $pathname = null,
+    ) {
+        $this->name = $name;
+        $this->type = $type;
+        $this->size = $size;
+        $this->tmp_name = $tmp_name;
+        $this->error = $error;
+        $this->pathname = $pathname;
 
         if (!$this->name && $this->pathname) {
             $this->name = basename($this->pathname);
@@ -358,13 +353,7 @@ class File implements ToArray, FileOptions
      */
     private function match_multiple(array $type_list): bool
     {
-        foreach ($type_list as $type) {
-            if ($this->match($type)) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($type_list, fn($type) => $this->match($type));
     }
 
     /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ICanBoogie\HTTP;
 
+use DateTimeInterface;
 use InvalidArgumentException;
 use RuntimeException;
 use LogicException;
@@ -33,47 +34,13 @@ use const FILEINFO_MIME_TYPE;
  */
 class FileResponse extends Response
 {
-    /**
-     * Specifies the `ETag` header field of the response.
-     * If it is not defined, a validator derived from the modification time and the size of the
-     * file is used instead, see {@see make_etag()}.
-     *
-     * The value is quoted if it isn't already, so that `abc` and `"abc"` give the same entity tag,
-     * and `W/"abc"` is kept as a weak tag. A value that contains a double quote and isn't quoted
-     * is rejected.
-     *
-     * The default validator misses two edits of the same size made within the same second. Use
-     * {@see hash_file()} to derive the tag from the content when that matters.
-     */
-    public const string OPTION_ETAG = 'etag';
-
-    /**
-     * Specifies the expiration date as a {@see \DateTimeInterface} instance or a relative date
-     * such as "+3 month", which maps to the `Expires` header field. Unless `Cache-Control` is
-     * defined, its `max-age` directive is computed from the current time. If it is not
-     * defined {@see DEFAULT_EXPIRES} is used instead.
-     */
-    public const string OPTION_EXPIRES = 'expires';
-
-    /**
-     * Specifies the filename of the file and forces download. The following headers are updated:
-     * `Content-Transfer-Encoding`, `Content-Description`, and `Content-Disposition`.
-     */
-    public const string OPTION_FILENAME = 'filename';
-
-    /**
-     * Specifies the MIME of the file, which maps to the `Content-Type` header field.
-     * If it is not defined, the MIME is guessed using `finfo::file()`.
-     */
-    public const string OPTION_MIME = 'mime';
-
     public const string DEFAULT_EXPIRES = '+1 month';
     public const string DEFAULT_MIME = 'application/octet-stream';
 
     /**
      * Hashes a file using SHA-384.
      *
-     * The hash can be used with {@see OPTION_ETAG} when a validator derived from the content is
+     * The hash can be used with the `$etag` parameter when a validator derived from the content is
      * preferred to the default one. Note that the file is read entirely.
      *
      * @return string A base64 string
@@ -89,12 +56,33 @@ class FileResponse extends Response
      * The response resolves its status and headers according to the request when it is finalized,
      * see {@see finalize()}.
      *
-     * @param array<string, mixed> $options
+     * @param string|SplFileInfo $file The file to deliver.
+     * @param string|null $etag The `ETag` header field of the response. If it is not defined, a
+     * validator derived from the modification time and the size of the file is used instead, see
+     * {@see make_etag()}. The value is quoted if it isn't already, so that `abc` and `"abc"` give
+     * the same entity tag, and `W/"abc"` is kept as a weak tag. A value that contains a double
+     * quote and isn't quoted is rejected. The default validator misses two edits of the same size
+     * made within the same second, use {@see hash_file()} to derive the tag from the content when
+     * that matters.
+     * @param DateTimeInterface|string|null $expires The expiration date as a
+     * {@see DateTimeInterface} instance or a relative date such as "+3 month", which maps to the
+     * `Expires` header field. Unless `Cache-Control` is defined, its `max-age` directive is
+     * computed from the current time. If it is not defined {@see DEFAULT_EXPIRES} is used instead.
+     * @param string|true|null $filename The filename of the file, `true` for the name of the file
+     * itself. It forces download. The following headers are updated: `Content-Transfer-Encoding`,
+     * `Content-Description`, and `Content-Disposition`.
+     * @param string|null $mime The MIME of the file, which maps to the `Content-Type` header field.
+     * If it is not defined, the MIME is guessed using `finfo::file()`.
      * @param Headers|array<string, mixed> $headers
+     *
+     * @throws InvalidArgumentException if `$etag` is used along with an `ETag` header field.
      */
     public function __construct(
         string|SplFileInfo $file,
-        array $options = [],
+        ?string $etag = null,
+        DateTimeInterface|string|null $expires = null,
+        string|true|null $filename = null,
+        ?string $mime = null,
         Headers|array $headers = [],
     ) {
         if (!$headers instanceof Headers) {
@@ -102,7 +90,31 @@ class FileResponse extends Response
         }
 
         $this->file = $this->ensure_file_info($file);
-        $this->apply_options($options, $headers);
+
+        if ($etag !== null) {
+            if ($headers->etag) {
+                throw new InvalidArgumentException("Can only use one of \$etag, HEADER_ETAG.");
+            }
+
+            $headers->etag = self::quote_etag($etag);
+        }
+
+        if ($expires !== null) {
+            $headers->expires = $expires;
+        }
+
+        if ($filename !== null) {
+            $headers['Content-Transfer-Encoding'] = 'binary';
+            $headers['Content-Description'] = 'File Transfer';
+            $headers->content_disposition->type = 'attachment';
+            $headers->content_disposition->filename = $filename === true ? $this->file->getFilename() : $filename;
+        }
+
+        if ($mime !== null) {
+            $headers->content_type = $mime;
+        }
+
+        $headers->etag ??= $this->make_etag();
         $this->ensure_content_type($this->file, $headers);
 
         parent::__construct(
@@ -130,48 +142,6 @@ class FileResponse extends Response
         }
 
         return $file;
-    }
-
-    /**
-     * @param array<string, mixed> $options
-     */
-    private function apply_options(array $options, Headers $headers): void
-    {
-        foreach ($options as $option => $value) {
-            if ($value === null || $value === false) {
-                continue;
-            }
-
-            switch ($option) {
-                case self::OPTION_ETAG:
-                    if ($headers->etag) {
-                        throw new InvalidArgumentException("Can only use one of OPTION_ETAG, HEADER_ETAG.");
-                    }
-
-                    $headers->etag = self::quote_etag((string) $value);
-                    break;
-
-                case self::OPTION_EXPIRES:
-                    $headers->expires = $value;
-                    break;
-
-                case self::OPTION_FILENAME:
-                    $headers['Content-Transfer-Encoding'] = 'binary';
-                    $headers['Content-Description'] = 'File Transfer';
-                    $headers->content_disposition->type = 'attachment';
-                    $headers->content_disposition->filename = $value === true ? $this->file->getFilename() : $value;
-                    break;
-
-                case self::OPTION_MIME:
-                    $headers->content_type = $value;
-                    break;
-
-                default:
-                    throw new InvalidArgumentException("Unsupported option: $option.");
-            }
-        }
-
-        $headers->etag ??= $this->make_etag();
     }
 
     /**
