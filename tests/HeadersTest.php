@@ -308,4 +308,92 @@ final class HeadersTest extends TestCase
 
         $headers();
     }
+
+    public function test_field_names_are_case_insensitive(): void
+    {
+        $headers = new Headers();
+        $headers['content-type'] = 'text/plain';
+        $headers['x-custom'] = 'a';
+        $headers['X-CUSTOM'] = 'b';
+
+        $this->assertTrue(isset($headers['CONTENT-TYPE']));
+        $this->assertSame('b', $headers['X-Custom']);
+        $this->assertEquals('text/plain', (string)$headers->content_type);
+        $this->assertSame([ 'Content-Type', 'X-CUSTOM' ], array_keys(iterator_to_array($headers)));
+        $this->assertSame("Content-Type: text/plain\r\nX-CUSTOM: b\r\n", (string)$headers);
+
+        unset($headers['CONTENT-type']);
+        $this->assertFalse(isset($headers['Content-Type']));
+    }
+
+    public function test_known_names_use_canonical_spelling(): void
+    {
+        $headers = new Headers([ 'HTTP_ETAG' => '"abc"', 'HTTP_IF_NONE_MATCH' => '*' ]);
+
+        $this->assertSame('"abc"', $headers[Headers::HEADER_ETAG]);
+        $this->assertSame('"abc"', $headers->etag);
+        $this->assertSame([ 'ETag', 'If-None-Match' ], array_keys(iterator_to_array($headers)));
+    }
+
+    #[DataProvider('provide_invalid_names')]
+    public function test_invalid_name(string $name): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $headers = new Headers();
+        $headers[$name] = 'value';
+    }
+
+    /**
+     * @return array<string, array{ string }>
+     */
+    public static function provide_invalid_names(): array
+    {
+        return [
+            'empty' => [ '' ],
+            'space' => [ 'X Foo' ],
+            'colon' => [ 'X-Foo:' ],
+            'newline' => [ "X-Foo\r\nX-Bar" ],
+        ];
+    }
+
+    #[DataProvider('provide_unsafe_values')]
+    public function test_unsafe_value(string $value): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $headers = new Headers();
+        $headers['X-Foo'] = $value;
+    }
+
+    /**
+     * @return array<string, array{ string }>
+     */
+    public static function provide_unsafe_values(): array
+    {
+        return [
+            'crlf' => [ "a\r\nSet-Cookie: x=1" ],
+            'lf' => [ "a\nb" ],
+            'nul' => [ "a\0b" ],
+        ];
+    }
+
+    public function test_unsafe_location_is_rejected(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $headers = new Headers();
+        $headers['Location'] = "/a\r\nSet-Cookie: x=1";
+    }
+
+    public function test_unsafe_value_in_header_object_is_rejected_on_output(): void
+    {
+        $headers = new Headers();
+        $headers['Content-Disposition'] = Headers\ContentDisposition::from('attachment');
+        $headers->content_disposition->filename = "a\r\nSet-Cookie: x=1.txt";
+
+        $this->expectException(InvalidArgumentException::class);
+
+        (string)$headers;
+    }
 }

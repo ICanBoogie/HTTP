@@ -38,6 +38,12 @@ None
   `RequestRange::$max_length` is no longer `-1`.
 - `HeaderParameter::from()` throws `InvalidArgumentException` on a malformed parameter. Extended
   values (`filename*=`) are decoded with `rawurldecode()`, so `+` is no longer turned into a space.
+- `Headers` field names are case-insensitive: `content-type` and `Content-Type` are the same field.
+  Names defined by the `Headers::HEADER_*` constants are stored and sent with the spelling of the
+  constant, other names keep the spelling of the last assignment.
+- `Headers` throws `InvalidArgumentException` for a field name that is not a valid HTTP token, and
+  for a value containing NUL, CR or LF, which prevents header injection. Values of `Header`
+  objects are checked when the headers are serialized or sent.
 
 ### Other changes
 

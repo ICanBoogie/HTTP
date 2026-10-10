@@ -17,6 +17,14 @@ $headers->cache_control = 'public, max-age=3600, no-transform';
 echo $headers->cache_control->max_age;
 ```
 
+Field names are case-insensitive: `$headers['content-type']` and `$headers['Content-Type']` are the same field.
+Names defined by the `Headers::HEADER_*` constants are sent with the spelling of the constant (`ETag`, `Content-Type`),
+other names keep the spelling of the last assignment.
+
+Names must be valid HTTP tokens, and values must not contain NUL, CR or LF characters, otherwise an
+`InvalidArgumentException` is thrown. This prevents header injection, for instance when redirecting to a user
+provided URL.
+
 Here is an overview of header usage:
 
 ```php
