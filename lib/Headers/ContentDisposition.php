@@ -16,8 +16,7 @@ namespace ICanBoogie\HTTP\Headers;
  *
  * echo $cd; // attachment; filename*=UTF-8''R%C3%A9sum%C3%A9%20en%20%E2%82%AC.csv
  * </pre>
- * @link https://tools.ietf.org/html/rfc2616#section-19.5.1
- * @link https://tools.ietf.org/html/rfc6266
+ * @link https://www.rfc-editor.org/rfc/rfc6266
  */
 class ContentDisposition extends Header
 {

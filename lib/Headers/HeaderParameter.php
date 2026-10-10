@@ -22,8 +22,8 @@ use function trim;
 /**
  * Representation of a header parameter.
  *
- * @see https://tools.ietf.org/html/rfc2231
- * @see https://tools.ietf.org/html/rfc5987
+ * @see https://www.rfc-editor.org/rfc/rfc8187
+ * @see https://www.rfc-editor.org/rfc/rfc9110#section-5.6.6
  * @see https://greenbytes.de/tech/tc2231/#attwithfn2231utf8
  */
 class HeaderParameter

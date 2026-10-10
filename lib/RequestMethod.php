@@ -8,7 +8,7 @@ use function strtoupper;
 /**
  * HTTP request methods.
  *
- * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html
+ * @link https://www.rfc-editor.org/rfc/rfc9110#section-9
  */
 enum RequestMethod: string
 {

@@ -1,11 +1,11 @@
 # HTTP
 
 [![Release](https://img.shields.io/packagist/v/icanboogie/http.svg)](https://packagist.org/packages/icanboogie/http)
-[![Code Coverage](https://coveralls.io/repos/github/ICanBoogie/HTTP/badge.svg?branch6.0)](https://coveralls.io/r/ICanBoogie/HTTP?branch=7.0)
+[![Code Coverage](https://coveralls.io/repos/github/ICanBoogie/HTTP/badge.svg?branch=7.0)](https://coveralls.io/r/ICanBoogie/HTTP?branch=7.0)
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/http.svg)](https://packagist.org/packages/icanboogie/http)
 
 The **icanboogie/http** package provides a foundation to handle HTTP requests, with representations
-for requests, request files, responses, and headers. The package also lay the foundation of
+for requests, request files, responses, and headers.
 
 The following example is an overview of request processing:
 

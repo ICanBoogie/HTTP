@@ -19,7 +19,7 @@ namespace ICanBoogie\HTTP\Headers;
  * echo $ct->type;           // text/plain
  * echo $ct->charset;        // iso-8859-1
  * </pre>
- * @link https://tools.ietf.org/html/rfc2616#section-14.17
+ * @link https://www.rfc-editor.org/rfc/rfc9110#section-8.3
  */
 class ContentType extends Header
 {

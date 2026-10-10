@@ -58,6 +58,7 @@ None
 
 ### Other changes
 
+- Documentation links point to RFC 9110, 9111, 8187 and 6266 instead of RFC 2616.
 - Documented that `Headers` is single-valued and that cookies are not implemented.
 - Moved README doc to docs/
 - Request headers created from `$_SERVER` now include `Content-Type` and `Content-Length`, which CGI

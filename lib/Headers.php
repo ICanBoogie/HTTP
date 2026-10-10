@@ -29,7 +29,7 @@ use function substr;
  * `Content-Type` and `Cache-Control`. For instance a {@see Headers\CacheControl} instance
  * is used to handle the directives of the `Cache-Control` header field.
  *
- * @link https://tools.ietf.org/html/rfc2616#section-14
+ * @link https://www.rfc-editor.org/rfc/rfc9110#section-5
  *
  * @implements ArrayAccess<string, mixed>
  * @implements IteratorAggregate<string, mixed>
@@ -303,7 +303,7 @@ class Headers implements ArrayAccess, IteratorAggregate
         $offset = self::canonical_name((string)$offset);
 
         switch ($offset) {
-            # http://tools.ietf.org/html/rfc2616#section-14.25
+            # https://www.rfc-editor.org/rfc/rfc9110#section-13.1.3
             case self::HEADER_IF_MODIFIED_SINCE:
                 #
                 # Removes the ";length=xxx" string added by Internet Explorer.
@@ -325,7 +325,7 @@ class Headers implements ArrayAccess, IteratorAggregate
                 }
                 break;
 
-            # http://tools.ietf.org/html/rfc2616#section-14.37
+            # https://www.rfc-editor.org/rfc/rfc9110#section-10.2.3
             case self::HEADER_RETRY_AFTER:
                 $value = is_numeric($value) ? $value : Headers\Date::from($value);
                 break;

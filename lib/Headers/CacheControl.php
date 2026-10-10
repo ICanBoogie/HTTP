@@ -24,7 +24,7 @@ use function substr;
  * use ICanBoogie\HTTP\Headers\CacheControl;
  *
  * $cc = CacheControl::from('public, max-age=3600');
- * echo $cc->cacheable;           // true
+ * echo $cc->cacheable;           // public
  * echo $cc->max_age;             // 3600
  *
  * $cc->cacheable = 'no-cache';
@@ -34,7 +34,7 @@ use function substr;
  * echo $cc;                      // no-cache, no-store, must-revalidate
  * </pre>
  *
- * @link https://tools.ietf.org/html/rfc2616#section-14.9
+ * @link https://www.rfc-editor.org/rfc/rfc9111#section-5.2
  */
 final class CacheControl
 {
@@ -148,7 +148,9 @@ final class CacheControl
      *
      * Scope: request, response.
      *
-     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.1
+     * @link https://www.rfc-editor.org/rfc/rfc9111#section-5.2.2.4
+     * @link https://www.rfc-editor.org/rfc/rfc9111#section-5.2.2.7
+     * @link https://www.rfc-editor.org/rfc/rfc9111#section-5.2.2.9
      */
     public ?string $cacheable {
         get => $this->cacheable ?? null;
@@ -172,7 +174,7 @@ final class CacheControl
      *
      * Scope: request, response.
      *
-     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.2
+     * @link https://www.rfc-editor.org/rfc/rfc9111#section-5.2.2.5
      */
     public bool $no_store = false;
 
@@ -183,13 +185,13 @@ final class CacheControl
      *
      * Scope: request.
      *
-     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3
-     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.4
+     * @link https://www.rfc-editor.org/rfc/rfc9111#section-5.2.1.1
+     * @link https://www.rfc-editor.org/rfc/rfc9111#section-5.2.2.1
      */
     public ?int $max_age = null;
 
     /**
-     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3
+     * @link https://www.rfc-editor.org/rfc/rfc9111#section-5.2.2.10
      */
     public ?int $s_maxage = null;
 
@@ -202,7 +204,7 @@ final class CacheControl
      *
      * Scope: request.
      *
-     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3
+     * @link https://www.rfc-editor.org/rfc/rfc9111#section-5.2.1.2
      */
     public ?string $max_stale = null;
 
@@ -213,42 +215,42 @@ final class CacheControl
      *
      * Scope: request.
      *
-     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3
+     * @link https://www.rfc-editor.org/rfc/rfc9111#section-5.2.1.3
      */
     public ?int $min_fresh = null;
 
     /**
-     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.5
-     *
      * Scope: request, response.
+     *
+     * @link https://www.rfc-editor.org/rfc/rfc9111#section-5.2.2.6
      */
     public bool $no_transform = false;
 
     /**
      * Scope: request.
      *
-     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.4
+     * @link https://www.rfc-editor.org/rfc/rfc9111#section-5.2.1.7
      */
     public bool $only_if_cached = false;
 
     /**
      * Scope: response.
      *
-     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.4
+     * @link https://www.rfc-editor.org/rfc/rfc9111#section-5.2.2.2
      */
     public bool $must_revalidate = false;
 
     /**
      * Scope: response.
      *
-     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.4
+     * @link https://www.rfc-editor.org/rfc/rfc9111#section-5.2.2.8
      */
     public bool $proxy_revalidate = false;
 
     /**
      * Scope: request, response.
      *
-     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.6
+     * @link https://www.rfc-editor.org/rfc/rfc9111#section-5.2.3
      *
      * @var array<string, string>
      */

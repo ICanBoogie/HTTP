@@ -14,7 +14,7 @@ use DateTimeZone;
  * @property-read int|null $timestamp
  *     The Unix timestamp in seconds, or null if {@see Date} is empty.
  *
- * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3.1
+ * @link https://www.rfc-editor.org/rfc/rfc9110#section-5.6.7
  */
 readonly class Date
 {

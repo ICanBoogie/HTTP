@@ -16,7 +16,7 @@ use function trigger_error;
 /**
  * A response to an HTTP request.
  *
- * @link https://tools.ietf.org/html/rfc2616
+ * @link https://www.rfc-editor.org/rfc/rfc9110
  */
 class Response implements ResponseStatus
 {
