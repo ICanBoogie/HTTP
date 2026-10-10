@@ -20,7 +20,7 @@ None
 
 ### Other changes
 
-None
+- Moved README doc to docs/
 
 
 

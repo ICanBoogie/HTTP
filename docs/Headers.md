@@ -17,6 +17,50 @@ $headers->cache_control = 'public, max-age=3600, no-transform';
 echo $headers->cache_control->max_age;
 ```
 
+Here is an overview of header usage:
+
+```php
+<?php
+
+namespace ICanBoogie\HTTP;
+
+$headers = new Headers();
+
+$headers->cache_control = 'public, max-age=3600, no-transform';
+$headers->cache_control->no_transform = false;
+$headers->cache_control->max_age = 7200;
+
+echo $headers->cache_control; // public, max-age=7200
+
+$headers->content_type = 'text/plain';
+$headers->content_type->type = 'application/xml';
+$headers->content_type->charset = 'utf-8';
+
+echo $headers->content_type; // application/xml; charset=utf-8
+
+$headers->content_length = 123;
+
+$headers->content_disposition->type = 'attachment';
+$headers->content_disposition->filename = 'été.jpg';
+
+echo $headers->content_disposition; // attachment; filename="ete.jpg"; filename*=UTF-8''%C3%A9t%C3%A9.jpg
+
+$headers->etag = "ABC123";
+
+$headers->date = 'now';
+$headers->expires = '+1 hour';
+$headers->if_modified_since = '-1 hour';
+$headers->if_unmodified_since = '-1 hour';
+$headers->last_modified = '2022-01-01';
+$headers->retry_after = '+1 hour';
+$headers->retry_after = 123;
+
+$headers->location = 'to/the/moon';
+
+$headers['X-My-Header'] = 'Some value';
+echo $headers['X-My-Header']; // 'Some value';
+```
+
 Some headers have extended implementation to help to manipulate their data:
 
 ```php

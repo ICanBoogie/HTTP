@@ -9,7 +9,7 @@ of which this package only provides the foundation.
 
 namespace ICanBoogie\HTTP;
 
-/* @var ResponderProvider $responders */
+/* @var ResponderProvider $provider */
 /* @var Request $request */
 
 $responder = new Responder\DelegateToProvider($provider);
@@ -132,6 +132,6 @@ $events->attach(function (RespondEvent $event) {
 [WithRecovery]: ../lib/Responder/WithRecovery.php
 [RecoverEvent]: ../lib/RecoverEvent.php
 [NotFound]: ../lib/NotFound.php
-[WithEvent]: ../lib/Responder/WithEvent
+[WithEvent]: ../lib/Responder/WithEvent.php
 [BeforeRespondEvent]: ../lib/Responder/WithEvent/BeforeRespondEvent.php
 [RespondEvent]: ../lib/Responder/WithEvent/RespondEvent.php
