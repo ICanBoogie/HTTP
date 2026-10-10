@@ -469,15 +469,13 @@ class RequestTest extends TestCase
 
         $request->request_params['p5'] = 5;
 
+        // `params` reflects changes made to the arrays it is made of.
+        $expected = [ 'p1' => 1, 'p2' => 2, 'p3' => 3, 'p5' => 5, 'p4' => 4 ];
+        $this->assertSame($expected, $request->params);
+
+        unset($request->request_params['p5']);
         $expected = [ 'p1' => 1, 'p2' => 2, 'p3' => 3, 'p4' => 4 ];
         $this->assertSame($expected, $request->params);
-        $request->params['p5'] = 5;
-        $expected = [ 'p1' => 1, 'p2' => 2, 'p3' => 3, 'p4' => 4, 'p5' => 5 ];
-        $this->assertEquals($expected, $request->params);
-
-        unset($request->params['p5']);
-        $expected = [ 'p1' => 1, 'p2' => 2, 'p3' => 3, 'p4' => 4 ];
-        $this->assertEquals($expected, $request->params);
     }
 
     /**

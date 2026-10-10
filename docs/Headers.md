@@ -69,6 +69,23 @@ $headers['X-My-Header'] = 'Some value';
 echo $headers['X-My-Header']; // 'Some value';
 ```
 
+## Limitations
+
+A header field holds a single value. There is no support for fields that appear more than once in a message, such as
+`Set-Cookie`, nor for list-based fields that are kept as separate lines, such as `Link`. A list-based field that can be
+sent as a comma-separated list, such as `Vary`, can be set as a single string:
+
+```php
+<?php
+
+$headers['Vary'] = 'Accept-Encoding, Accept-Language';
+```
+
+Cookies are not implemented either. The request only exposes the `$_COOKIE` super global through `Request::$cookie`.
+To set cookies on a response, use PHP's `setcookie()`, which adds its own `Set-Cookie` fields, and those are sent with
+the response. Do not define `Set-Cookie` in a [Headers][] instance, because header fields are sent with `header()`,
+which replaces the fields already defined with the same name, including those added by `setcookie()`.
+
 Some headers have extended implementation to help to manipulate their data:
 
 ```php

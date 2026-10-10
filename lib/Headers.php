@@ -393,7 +393,7 @@ class Headers implements ArrayAccess, IteratorAggregate
      */
     public Headers\ContentDisposition $content_disposition {
         get => $this->offsetGet(self::HEADER_CONTENT_DISPOSITION);
-        set {
+        set(Headers\ContentDisposition|string|null $value) {
             $this->offsetSet(self::HEADER_CONTENT_DISPOSITION, $value);
         }
     }
@@ -403,9 +403,9 @@ class Headers implements ArrayAccess, IteratorAggregate
      *
      * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
      */
-    public Headers\ContentType|string|null $content_type {
+    public Headers\ContentType $content_type {
         get => $this->offsetGet(self::HEADER_CONTENT_TYPE);
-        set {
+        set(Headers\ContentType|string|null $value) {
             $this->offsetSet(self::HEADER_CONTENT_TYPE, $value);
         }
     }

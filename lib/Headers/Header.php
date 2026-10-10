@@ -4,7 +4,6 @@ namespace ICanBoogie\HTTP\Headers;
 
 use ArrayAccess;
 use ICanBoogie\OffsetNotDefined;
-use ICanBoogie\PropertyNotDefined;
 use InvalidArgumentException;
 
 use function array_intersect_key;
@@ -13,9 +12,10 @@ use function preg_match_all;
 use function trim;
 
 /**
- * Base class for header fields.
+ * Base class for header fields made of a value and parameters.
  *
- * Classes that extend the class and support attributes must defined them during construct:
+ * Child classes declare the parameters they support with the `PARAMETERS` constant, and expose
+ * them as typed properties:
  *
  * <pre>
  * <?php
@@ -24,28 +24,22 @@ use function trim;
  *
  * class ContentDisposition extends Header
  * {
- *     public function __construct($value=null, array $attributes=[])
- *     {
- *         $this->parameters['filename'] = new HeaderParameter('filename');
+ *     protected const array PARAMETERS = [ 'filename' ];
  *
- *         parent::__construct($value, $attributes);
+ *     public ?string $type {
+ *         get => $this->value;
+ *         set { $this->value = $value; }
+ *     }
+ *
+ *     public ?string $filename {
+ *         get => $this->parameters['filename']->value;
+ *         set { $this->set_parameter('filename', $value); }
  *     }
  * }
  * </pre>
  *
- * Magic properties are automatically mapped to parameters. The value of a parameter is accessed
- * through its corresponding property:
- *
- * <pre>
- * <?php
- *
- * $cd = new ContentDisposition;
- * $cd->filename = "Statistics.csv";
- * echo $cd->filename;
- * // "Statistics.csv"
- * </pre>
- *
- * The instance of the parameter itself is accessed using the header as an array:
+ * The instance of a parameter itself, with its language and charset, is accessed using the header
+ * as an array:
  *
  * <pre>
  * <?php
@@ -55,28 +49,23 @@ use function trim;
  * $cd['filename']->language = "en";
  * </pre>
  *
- * An alias to the {@see $value} property can be defined by using the `VALUE_ALIAS` constant. The
- * following code defines `type` as an alias:
+ * Unrecognized parameters are ignored, to enable future extensions.
  *
- * <pre>
- * <?php
- *
- * class ContentDisposition extends Header
- * {
- *     const VALUE_ALIAS = 'type';
- * }
- * </pre>
- *
- * @implements ArrayAccess<string, mixed>
+ * @implements ArrayAccess<string, HeaderParameter>
  */
 abstract class Header implements ArrayAccess
 {
-    public const VALUE_ALIAS = null;
+    /**
+     * The names of the parameters supported by the header.
+     *
+     * @var string[]
+     */
+    protected const array PARAMETERS = [];
 
     /**
      * The value of the header.
      */
-    public mixed $value;
+    public ?string $value;
 
     /**
      * The parameters supported by the header.
@@ -205,82 +194,28 @@ abstract class Header implements ArrayAccess
     }
 
     /**
-     * Initializes the {@see $name}, {@see $value} and {@see $parameters} properties.
-     *
-     * To enable future extensions, unrecognized parameters are ignored. Supported parameters must
-     * be defined by a child class before it calls its parent.
-     *
-     * @param array<string, mixed> $attributes
+     * @param array<string, string|null> $attributes The values of the parameters. Unsupported
+     * parameters are ignored.
      */
-    public function __construct(mixed $value = null, array $attributes = [])
+    public function __construct(?string $value = null, array $attributes = [])
     {
         $this->value = $value;
 
-        $attributes = array_intersect_key($attributes, $this->parameters);
+        foreach (static::PARAMETERS as $attribute) {
+            $this->parameters[$attribute] = new HeaderParameter($attribute);
+        }
 
-        foreach ($attributes as $attribute => $value) {
+        foreach (array_intersect_key($attributes, $this->parameters) as $attribute => $value) {
             $this[$attribute] = $value;
         }
     }
 
     /**
-     * Returns the value of a defined parameter.
-     *
-     * The method also handles the alias of the {@see $value} property.
-     *
-     * @param string $property
-     *
-     * @return mixed
-     *
-     * @throws PropertyNotDefined in an attempt to access a parameter that is not defined.
+     * Sets the value of a parameter, and resets its language.
      */
-    public function __get(string $property)
+    protected function set_parameter(string $attribute, ?string $value): void
     {
-        if ($property === static::VALUE_ALIAS) {
-            return $this->value;
-        }
-
-        if ($this->offsetExists($property)) {
-            return $this[$property]->value;
-        }
-
-        throw new PropertyNotDefined($property, $this);
-    }
-
-    /**
-     * Sets the value of a supported parameter.
-     *
-     * The method also handles the alias of the {@see $value} property.
-     *
-     * @throws PropertyNotDefined in an attempt to access a parameter that is not defined.
-     */
-    public function __set(string $property, mixed $value): void
-    {
-        if ($property === static::VALUE_ALIAS) {
-            $this->value = $value;
-
-            return;
-        }
-
-        if ($this->offsetExists($property)) {
-            $this[$property]->value = $value;
-
-            return;
-        }
-
-        throw new PropertyNotDefined($property, $this);
-    }
-
-    /**
-     * Unsets the matching parameter.
-     */
-    public function __unset(string $property): void
-    {
-        if (!isset($this->parameters[$property])) {
-            return;
-        }
-
-        unset($this[$property]);
+        $this[$attribute] = $value;
     }
 
     /**
@@ -290,7 +225,7 @@ abstract class Header implements ArrayAccess
     {
         $value = $this->value;
 
-        if (!$value && $value !== 0) {
+        if ($value === null || $value === '') {
             return '';
         }
 

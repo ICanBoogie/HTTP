@@ -110,7 +110,7 @@ class ContentDispositionTest extends TestCase
 
         $cd->filename = 'madonna.mp3';
         $this->assertEquals('inline; filename=madonna.mp3', (string) $cd);
-        unset($cd->filename);
+        $cd->filename = null;
         $this->assertInstanceOf(HeaderParameter::class, $cd['filename']);
         $this->assertEquals('inline', (string) $cd);
     }

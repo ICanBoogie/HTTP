@@ -6,7 +6,6 @@ use ICanBoogie\FormattedString;
 use ICanBoogie\HTTP\Headers\Header;
 use ICanBoogie\HTTP\Headers\HeaderParameter;
 use ICanBoogie\OffsetNotDefined;
-use ICanBoogie\PropertyNotDefined;
 use PHPUnit\Framework\TestCase;
 
 final class HeaderTest extends TestCase
@@ -58,7 +57,7 @@ final class HeaderTest extends TestCase
         $this->assertEquals('inline; p=madonna.mp3', (string) $a);
         $a['p'] = 'madonna.ogg';
         $this->assertEquals('inline; p=madonna.ogg', (string) $a);
-        unset($a->p);
+        $a->p = null;
         $this->assertNull($a->p);
         $this->assertInstanceOf(HeaderParameter::class, $a['p']);
         $this->assertNotInstanceOf(HeaderParameter::class, $a->p);
@@ -73,12 +72,10 @@ final class HeaderTest extends TestCase
         $this->assertEquals($expected, $a->p);
         $this->assertEquals($expected, $a['p']->value);
 
-        unset($a->p);
+        $a->p = null;
         $this->assertNull($a->p);
         $this->assertTrue(isset($a['p']));
         $this->assertNull($a['p']->value);
-
-        unset($a->undefined);
     }
 
     public function test_ignore_unrecognized_parameter()
@@ -90,25 +87,11 @@ final class HeaderTest extends TestCase
         $this->assertEquals('123; p=test.txt', (string) $a);
     }
 
-    public function test_setting_unsupported_attribute_using_a_property_should_throw_an_exception()
-    {
-        $a = new A();
-        $this->expectException(PropertyNotDefined::class);
-        $a->b = true;
-    }
-
     public function test_setting_unsupported_attribute_using_an_offset_should_throw_an_exception()
     {
         $a = new A();
         $this->expectException(OffsetNotDefined::class);
         $a['b'] = true;
-    }
-
-    public function test_getting_unsupported_attribute_using_a_property_should_throw_an_exception()
-    {
-        $a = new A();
-        $this->expectException(PropertyNotDefined::class);
-        $b = $a->b;
     }
 
     public function test_getting_unsupported_attribute_using_an_offset_should_throw_an_exception()
@@ -134,19 +117,21 @@ final class HeaderTest extends TestCase
     }
 }
 
-namespace Test\ICanBoogie\HTTP\Headers;
-
-use ICanBoogie\HTTP\Headers\Header;
-use ICanBoogie\HTTP\Headers\HeaderParameter;
-
 class A extends Header
 {
-    public const VALUE_ALIAS = 'type';
+    protected const array PARAMETERS = [ 'p' ];
 
-    public function __construct(mixed $value = null, array $attributes = [])
-    {
-        $this->parameters['p'] = new HeaderParameter('p');
+    public ?string $type {
+        get => $this->value;
+        set {
+            $this->value = $value;
+        }
+    }
 
-        parent::__construct($value, $attributes);
+    public ?string $p {
+        get => $this->parameters['p']->value;
+        set {
+            $this->set_parameter('p', $value);
+        }
     }
 }

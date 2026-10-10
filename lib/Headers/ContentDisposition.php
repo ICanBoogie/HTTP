@@ -16,26 +16,27 @@ namespace ICanBoogie\HTTP\Headers;
  *
  * echo $cd; // attachment; filename*=UTF-8''R%C3%A9sum%C3%A9%20en%20%E2%82%AC.csv
  * </pre>
- *
- * @property string $type The `disposition-type` part of the content disposition. Alias to {@see $value}.
- * @property string|null $filename The `filename-parm` part of the content disposition.
- *
  * @link https://tools.ietf.org/html/rfc2616#section-19.5.1
  * @link https://tools.ietf.org/html/rfc6266
  */
 class ContentDisposition extends Header
 {
-    public const string VALUE_ALIAS = 'type';
+    protected const array PARAMETERS = [ 'filename' ];
 
     /**
-     * Defines the `filename` parameter.
-     *
-     * @inheritdoc
+     * Alias to {@see $value}.
      */
-    public function __construct(?string $value = null, array $attributes = [])
-    {
-        $this->parameters['filename'] = new HeaderParameter('filename');
+    public ?string $type {
+        get => $this->value;
+        set {
+            $this->value = $value;
+        }
+    }
 
-        parent::__construct($value, $attributes);
+    public ?string $filename {
+        get => $this->parameters['filename']->value;
+        set {
+            $this->set_parameter('filename', $value);
+        }
     }
 }

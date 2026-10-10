@@ -73,18 +73,20 @@ final class Request implements RequestOptions
      *
      * @var array<string, mixed>
      */
-    public mixed $request_params = [];
+    public array $request_params = [];
 
     /**
      * Union of {@see $path_params}, {@see $request_params} and {@see $query_params}.
      *
-     * **Note**: The property is created during construct and is not updated after. If you modify one of
-     * {@see $path_params}, {@see $request_params} and {@see $query_params}, remember to modify {@see $params} as
-     * well.
+     * The union is computed on read, so it always reflects the three arrays. On a key conflict,
+     * the path parameters win over the request body, which wins over the query string. Note that
+     * this differs from the default order of `$_REQUEST`.
      *
      * @var array<string, mixed>
      */
-    public array $params;
+    public array $params {
+        get => $this->path_params + $this->request_params + $this->query_params;
+    }
 
     public readonly Request\Context $context;
 
@@ -104,7 +106,15 @@ final class Request implements RequestOptions
     // The field is not readonly because it can be overwritten by `with()`.
     private(set) FileList $files;
 
-    public $cookie;
+    /**
+     * The cookies of the request, usually a reference to the `$_COOKIE` super global.
+     *
+     * Cookies are not otherwise implemented: there is no parsing of the `Cookie` header field, and
+     * no API to set cookies on a response.
+     *
+     * @var array<string, string>|null
+     */
+    public ?array $cookie;
 
     /**
      * A request may be created from the `$_SERVER` super global array. In that case `$_SERVER` is
@@ -239,9 +249,6 @@ final class Request implements RequestOptions
     /**
      * Initialize the properties {@see $env}, {@see $headers} and {@see $context}.
      *
-     * If the {@see $params} property is `null` it is set with a union of {@see $path_params},
-     * {@see $request_params} and {@see $query_params}.
-     *
      * @phpstan-param array<string, mixed> $options Initial properties.
      *
      * @param array<string, mixed> $env Environment of the request, usually the `$_SERVER` super global.
@@ -257,26 +264,16 @@ final class Request implements RequestOptions
         $this->path_params = $options[self::OPTION_PATH_PARAMS] ?? [];
         $this->query_params = $options[self::OPTION_QUERY_PARAMS] ?? [];
         $this->request_params = $options[self::OPTION_REQUEST_PARAMS] ?? [];
-        $this->params = $this->path_params + $this->request_params + $this->query_params;
         $this->cookie = $options[self::OPTION_COOKIE] ?? null;
-
-        $this->assert_method($this->method);
     }
 
     /**
-     * Clone {@see $headers} and {@see $context}, and unset {@see $params}.
+     * Clone {@see $headers} and {@see $context}.
      */
     public function __clone()
     {
         $this->headers = clone $this->headers;
         $this->context = clone $this->context;
-    }
-
-    /**
-     * Asserts that a method is supported.
-     */
-    private function assert_method(RequestMethod $method): void
-    {
     }
 
     /**
@@ -302,8 +299,6 @@ final class Request implements RequestOptions
                 };
             }
         }
-
-        $changed->params = $changed->path_params + $changed->request_params + $changed->query_params;
 
         return $changed;
     }

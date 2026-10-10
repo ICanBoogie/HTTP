@@ -23,7 +23,7 @@ final class RequestOptionsMapper
      *     path_params?: array,
      *     query_params?: array,
      *     request_params?: array,
-     *     cookie?: string,
+     *     cookie?: array<string, string>,
      *     files?: FileList,
      *     headers?: Headers
      * }

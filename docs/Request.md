@@ -138,8 +138,9 @@ $method = $request->request_params['method'];
 $info = $request->path_params['info'];
 ```
 
-All the request parameters are also available through the `params` property, which merges the
-_query_, _request_ and _path_ parameters:
+All the request parameters are also available through the read-only `params` property, which merges the
+_path_, _request_ and _query_ parameters. It is computed on read, so it always reflects the three arrays. When the same
+key is found more than once, the path parameter wins over the request body, which wins over the query string:
 
 ```php
 <?php

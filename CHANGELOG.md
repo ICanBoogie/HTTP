@@ -41,12 +41,24 @@ None
 - `Headers` field names are case-insensitive: `content-type` and `Content-Type` are the same field.
   Names defined by the `Headers::HEADER_*` constants are stored and sent with the spelling of the
   constant, other names keep the spelling of the last assignment.
+- `Header` no longer uses `__get()`, `__set()` and `__unset()`, nor the `VALUE_ALIAS` constant.
+  `ContentType` and `ContentDisposition` declare typed properties (`type`, `charset`, `filename`)
+  instead, and child classes declare their parameters with the `PARAMETERS` constant instead of
+  populating `$parameters` before calling the parent constructor. Parameters can no longer be
+  `unset()` through their property, set them to `null`. `HeaderParameter` instances are still
+  available through array access. `Header::$value` is now `?string`.
+- `Request::$params` is a read-only property computed on read, instead of a snapshot taken when the
+  request was created. `Request::$request_params` is now typed `array`.
+- `Request::$cookie` is typed `?array`.
+- `Headers::getIterator()` returns a `Generator`. `Headers::$content_type` is always a
+  `ContentType`.
 - `Headers` throws `InvalidArgumentException` for a field name that is not a valid HTTP token, and
   for a value containing NUL, CR or LF, which prevents header injection. Values of `Header`
   objects are checked when the headers are serialized or sent.
 
 ### Other changes
 
+- Documented that `Headers` is single-valued and that cookies are not implemented.
 - Moved README doc to docs/
 - Request headers created from `$_SERVER` now include `Content-Type` and `Content-Length`, which CGI
   exposes as `CONTENT_TYPE` and `CONTENT_LENGTH`. As a consequence, JSON request bodies are now
