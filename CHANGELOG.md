@@ -31,7 +31,10 @@ None
 - The default `ETag` of `FileResponse` is derived from the modification time and the size of the
   file, and is quoted. It used to be an unquoted SHA-384 of the content, computed for every
   response.
-- `FileResponse` returns `304 Not Modified` only for `GET` and `HEAD` requests.
+- `FileResponse` returns `304 Not Modified` only for `GET` and `HEAD` requests. For other methods,
+  a matching `If-None-Match` results in `412 Precondition Failed`, which used to be `200`.
+- `FileResponse` quotes the value of `OPTION_ETAG` when it isn't quoted already, and throws
+  `InvalidArgumentException` for an unquoted value containing a double quote.
 - A malformed JSON request body, or one that is not a JSON object or array, throws a `ClientError`
   (400) instead of a `JsonException`. An empty JSON body results in no request parameters.
 - `RequestRange` follows RFC 9110: a last position beyond the end is clamped instead of making the

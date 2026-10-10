@@ -11,19 +11,17 @@ use ICanBoogie\HTTP\RequestMethod;
 use ICanBoogie\HTTP\RequestOptions;
 use ICanBoogie\HTTP\RequestRange;
 use ICanBoogie\HTTP\ResponseStatus;
+use InvalidArgumentException;
 use LogicException;
-use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\Rule\InvokedCount;
 use PHPUnit\Framework\TestCase;
-
 use SplFileInfo;
 
 use function filemtime;
 
 final class FileResponseTest extends TestCase
 {
-    public function test_should_throw_exception_on_directory()
+    public function test_should_throw_exception_on_directory(): void
     {
         $this->expectException(LogicException::class);
         $this->expectExceptionMessageMatches("/Expected file, got directory\:/");
@@ -31,7 +29,7 @@ final class FileResponseTest extends TestCase
         new FileResponse(__DIR__, Request::from());
     }
 
-    public function test_should_throw_exception_on_invalid_file()
+    public function test_should_throw_exception_on_invalid_file(): void
     {
         $this->expectException(\LogicException::class);
         $this->expectExceptionMessageMatches("/File does not exist\:/");
@@ -40,7 +38,7 @@ final class FileResponseTest extends TestCase
     }
 
     #[DataProvider('provide_test_closure_body')]
-    public function test_closure_body(int $status, bool $expect_output)
+    public function test_closure_body(int $status, bool $expect_output): void
     {
         $file = create_file();
         $sut = new FileResponse($file, Request::from());
@@ -84,7 +82,7 @@ final class FileResponseTest extends TestCase
                 parent::__construct($file, $request);
             }
 
-            // The overload is required for the test
+            // The overload is required for the test; disregard IntelliJ
             public bool $is_modified {
                 get => $this->is_modified_override;
             }
@@ -144,12 +142,12 @@ final class FileResponseTest extends TestCase
                 parent::__construct($file, $request);
             }
 
-            // The overload is required for the test
+            // The overload is required for the test; disregard IntelliJ
             public bool $is_modified {
                 get => $this->override_is_modified;
             }
 
-            // The overload is required for the test
+            // The overload is required for the test; disregard IntelliJ
             public ?RequestRange $range {
                 get => $this->override_range;
             }
@@ -402,7 +400,7 @@ final class FileResponseTest extends TestCase
     #[DataProvider('provide_test_range_response')]
     public function test_range_response(string $bytes, string $pathname, string $expected): void
     {
-        $etag = sha1_file($pathname);
+        $etag = '"' . sha1_file($pathname) . '"';
 
         $request = Request::from([
 
@@ -512,7 +510,7 @@ final class FileResponseTest extends TestCase
         $content = ob_get_clean();
 
         $this->assertEquals($expected, $response->status->code);
-        $this->assertSame($expected === ResponseStatus::STATUS_OK ? file_get_contents($file) : '', $content);
+        $this->assertSame('', $content);
     }
 
     public static function provide_test_not_modified_only_for_get_and_head(): array
@@ -521,8 +519,8 @@ final class FileResponseTest extends TestCase
 
             [ RequestMethod::METHOD_GET, ResponseStatus::STATUS_NOT_MODIFIED ],
             [ RequestMethod::METHOD_HEAD, ResponseStatus::STATUS_NOT_MODIFIED ],
-            [ RequestMethod::METHOD_POST, ResponseStatus::STATUS_OK ],
-            [ RequestMethod::METHOD_PUT, ResponseStatus::STATUS_OK ],
+            [ RequestMethod::METHOD_POST, ResponseStatus::STATUS_PRECONDITION_FAILED ],
+            [ RequestMethod::METHOD_PUT, ResponseStatus::STATUS_PRECONDITION_FAILED ],
 
         ];
     }
@@ -567,5 +565,73 @@ final class FileResponseTest extends TestCase
 
         $this->assertEquals(ResponseStatus::STATUS_PARTIAL_CONTENT, $response->status->code);
         $this->assertSame(substr($data, 0, 100), $content);
+    }
+
+    public function test_precondition_failed_headers(): void
+    {
+        $file = create_file();
+        $request = Request::from([
+
+            Request::OPTION_METHOD => RequestMethod::METHOD_PUT,
+            Request::OPTION_HEADERS => [ 'If-None-Match' => '*' ],
+
+        ]);
+
+        $response = new FileResponse($file, $request);
+
+        // The status is resolved when the response is sent.
+        ob_start();
+        $response();
+        ob_end_clean();
+
+        $string = (string) $response;
+
+        $this->assertStringStartsWith("HTTP/1.1 412 ", $string);
+        $this->assertStringContainsString("Content-Length: 0\r\n", $string);
+    }
+
+    public function test_non_matching_if_none_match_does_not_fail_precondition(): void
+    {
+        $request = Request::from([
+
+            Request::OPTION_METHOD => RequestMethod::METHOD_PUT,
+            Request::OPTION_HEADERS => [ 'If-None-Match' => '"other"' ],
+
+        ]);
+
+        $response = new FileResponse(create_file(), $request, [ FileResponse::OPTION_ETAG => '"abc"' ]);
+
+        ob_start();
+        $response();
+        ob_end_clean();
+
+        $this->assertSame(200, $response->status->code);
+    }
+
+    #[DataProvider('provide_test_option_etag')]
+    public function test_option_etag_is_quoted(string $given, string $expected): void
+    {
+        $response = new FileResponse(create_file(), Request::from([]), [ FileResponse::OPTION_ETAG => $given ]);
+
+        $this->assertSame($expected, $response->headers->etag);
+    }
+
+    public static function provide_test_option_etag(): array
+    {
+        return [
+
+            'unquoted' => [ 'abc', '"abc"' ],
+            'quoted' => [ '"abc"', '"abc"' ],
+            'weak' => [ 'W/"abc"', 'W/"abc"' ],
+            'base64' => [ 'a+b/c==', '"a+b/c=="' ],
+
+        ];
+    }
+
+    public function test_option_etag_with_a_quote_is_rejected(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        new FileResponse(create_file(), Request::from([]), [ FileResponse::OPTION_ETAG => 'a"b' ]);
     }
 }

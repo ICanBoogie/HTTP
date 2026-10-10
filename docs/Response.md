@@ -167,8 +167,10 @@ The following options are also available:
 
 - `OPTION_ETAG`: Specifies the `ETag` header field of the response. If it is not defined, a
 validator derived from the modification time and the size of the file is used instead, such as
-`"6aca50ed-2710"`. Use `FileResponse::hash_file()` if you prefer a [SHA-384][] of the content, but
-note that the file is then read entirely for every response.
+`"6aca50ed-2710"`. A value that is not quoted is quoted for you, and a weak tag (`W/"abc"`) is kept
+as is. The default validator can miss two edits of the same size made within the same second: use
+`FileResponse::hash_file()` if you prefer a [SHA-384][] of the content, but note that the file is
+then read entirely for every response.
 
 - `OPTION_EXPIRES`: Specifies the expiration date as a `DateTime` instance or a relative date
 such as `+3 month`, which maps to the `Expires` header field. Unless `Cache-Control` is defined,
@@ -185,7 +187,8 @@ The following properties are available:
 - `is_modified`: Whether the file has been modified since the last response. The value is computed
 using the request header fields `If-None-Match` and `If-Modified-Since`, and the properties
 `modified_time` and `etag`. When `If-None-Match` is present, `If-Modified-Since` is ignored.
-A `304 Not Modified` is only returned for `GET` and `HEAD` requests.
+A `304 Not Modified` is only returned for `GET` and `HEAD` requests. For any other method, a
+matching `If-None-Match` results in a `412 Precondition Failed`, without a body.
 
 - `range`: The requested range, as a `RequestRange` instance, or `null`. Only single ranges are
 supported; a request with multiple ranges (`bytes=0-99,200-299`) gets the whole file. `If-Range`
