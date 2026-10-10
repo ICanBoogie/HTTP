@@ -165,12 +165,14 @@ $response();
 
 The following options are also available:
 
-- `OPTION_ETAG`: Specifies the `ETag` header field of the response. If it is not defined, the
-[SHA-384][] of the file is used instead.
+- `OPTION_ETAG`: Specifies the `ETag` header field of the response. If it is not defined, a
+validator derived from the modification time and the size of the file is used instead, such as
+`"6aca50ed-2710"`. Use `FileResponse::hash_file()` if you prefer a [SHA-384][] of the content, but
+note that the file is then read entirely for every response.
 
 - `OPTION_EXPIRES`: Specifies the expiration date as a `DateTime` instance or a relative date
-such as `+3 month`, which maps to the `Expires` header field. The `max-age` directive of the
-`Cache-Control` header field is computed from the current time. If it is not defined
+such as `+3 month`, which maps to the `Expires` header field. Unless `Cache-Control` is defined,
+its `max-age` directive is computed from the current time. If it is not defined
 `DEFAULT_EXPIRES` is used instead ("+1 month").
 
 - `OPTION_MIME`: Specifies the MIME of the file, which maps to the `Content-Type` header field.
@@ -182,7 +184,29 @@ The following properties are available:
 
 - `is_modified`: Whether the file has been modified since the last response. The value is computed
 using the request header fields `If-None-Match` and `If-Modified-Since`, and the properties
-`modified_time` and `etag`.
+`modified_time` and `etag`. When `If-None-Match` is present, `If-Modified-Since` is ignored.
+A `304 Not Modified` is only returned for `GET` and `HEAD` requests.
+
+### Caching files
+
+If `Cache-Control` is not defined, the response is cacheable by the client only:
+`Cache-Control: private, max-age=…` and `Expires` are derived from `OPTION_EXPIRES`. Shared
+caches and CDNs must not store a file that could have been served after an authorization check, so
+`public` must be opted into. A defined `Cache-Control` is left untouched, and so is `Expires`.
+
+```php
+<?php
+
+namespace ICanBoogie\HTTP;
+
+/* @var $request Request */
+
+$response = new FileResponse("/absolute/path/to/my/asset.css", $request, headers: [
+
+    'Cache-Control' => 'public, max-age=31536000'
+
+]);
+```
 
 
 

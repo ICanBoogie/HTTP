@@ -9,6 +9,8 @@ PHP 8.4+
 ### New features
 
 - Added `AuthenticationFailed` exception.
+- Added `Request::client_ip()`, which returns the client IP from `X-Forwarded-For` when the request
+  comes from a trusted proxy.
 
 ### Deprecated Features
 
@@ -17,10 +19,29 @@ None
 ### Backward Incompatible Changes
 
 - Exception thrown during Response streaming is no longer captured.
+- `Request::$ip` no longer reads `X-Forwarded-For`, and neither does `Request::$is_local`. Any
+  client could spoof them, for example to make `is_local` return `true`. Use
+  `Request::client_ip()` with a list of trusted proxies instead.
+- `Request::$headers` is now `private(set)` instead of `readonly`, so that `with()` can replace it.
+- `FileResponse` defaults to `Cache-Control: private` instead of `public`, and no longer overwrites
+  a `Cache-Control` defined by the caller. Define `Cache-Control: public` explicitly for files that
+  may be stored by shared caches.
+- The default `ETag` of `FileResponse` is derived from the modification time and the size of the
+  file, and is quoted. It used to be an unquoted SHA-384 of the content, computed for every
+  response.
+- `FileResponse` returns `304 Not Modified` only for `GET` and `HEAD` requests.
 
 ### Other changes
 
 - Moved README doc to docs/
+- Request headers created from `$_SERVER` now include `Content-Type` and `Content-Length`, which CGI
+  exposes as `CONTENT_TYPE` and `CONTENT_LENGTH`. As a consequence, JSON request bodies are now
+  decoded.
+- `Request::with()` supports `OPTION_HEADERS`; it used to throw an error.
+- `FileResponse` answers with `304 Not Modified` when `If-None-Match` matches, even without
+  `If-Modified-Since`. `If-None-Match` supports lists, weak tags, and `*`.
+- A `416 Range Not Satisfiable` response from `FileResponse` has `Content-Range: bytes */<size>`
+  and `Content-Length: 0`.
 
 
 

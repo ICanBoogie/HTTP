@@ -233,12 +233,12 @@ final class FileResponseTest extends TestCase
     public static function provide_test_get_etag(): array
     {
         $file = create_file();
-        $file_hash = FileResponse::hash_file($file);
-        $file_hash_custom = $file_hash . '#' . uniqid();
+        $file_etag = sprintf('"%x-%x"', filemtime($file), filesize($file));
+        $file_hash_custom = '"' . FileResponse::hash_file($file) . '"';
 
         return [
 
-            [ $file_hash, $file ],
+            [ $file_etag, $file ],
             [ $file_hash_custom, $file, [ FileResponse::OPTION_ETAG => $file_hash_custom ] ],
             [ $file_hash_custom, $file, [], [ 'ETag' => $file_hash_custom ] ],
 
@@ -313,7 +313,8 @@ final class FileResponseTest extends TestCase
 
             [ true, [] ],
             [ true, [ 'If-Modified-Since' => (string)$modified_since ] ],
-            [ true, [ 'If-Modified-Since' => (string)$modified_since ], $modified_time_older ],
+            [ false, [ 'If-Modified-Since' => (string)$modified_since ], $modified_time_older ],
+            [ true, [ 'If-Modified-Since' => (string)$modified_since ], $modified_time_newer ],
             [
                 true,
                 [ 'If-Modified-Since' => (string)$modified_since, 'If-None-Match' => uniqid() ],
@@ -324,12 +325,22 @@ final class FileResponseTest extends TestCase
                 [ 'If-Modified-Since' => (string)$modified_since, 'If-None-Match' => uniqid() ],
                 $modified_time_older,
             ],
+            // If-None-Match takes precedence over If-Modified-Since
             [
-                true,
+                false,
                 [ 'If-Modified-Since' => (string)$modified_since, 'If-None-Match' => $etag ],
                 $modified_time_newer,
                 $etag,
             ],
+            [ false, [ 'If-None-Match' => $etag ], false, $etag ],
+            [ true, [ 'If-None-Match' => uniqid() ], false, $etag ],
+            [ false, [ 'If-None-Match' => '*' ], false, $etag ],
+            [ false, [ 'If-None-Match' => '"abc"' ], false, '"abc"' ],
+            [ false, [ 'If-None-Match' => 'W/"abc"' ], false, '"abc"' ],
+            [ false, [ 'If-None-Match' => '"abc"' ], false, 'W/"abc"' ],
+            [ false, [ 'If-None-Match' => '"xyz", "abc"' ], false, '"abc"' ],
+            [ false, [ 'If-None-Match' => '"x,y",W/"abc"' ], false, '"abc"' ],
+            [ true, [ 'If-None-Match' => '"xyz", "abcd"' ], false, '"abc"' ],
             [
                 false,
                 [ 'If-Modified-Since' => (string)$modified_since, 'If-None-Match' => $etag ],
@@ -430,5 +441,104 @@ final class FileResponseTest extends TestCase
             [ 'bytes=0-9999', $pathname, $data ],
 
         ];
+    }
+
+    public function test_cache_control_defaults_to_private(): void
+    {
+        $response = new FileResponse(create_file(), Request::from());
+        $actual = (string) $response;
+
+        $this->assertMatchesRegularExpression('/^Cache-Control: private, max-age=\d+\r$/m', $actual);
+        $this->assertStringContainsString('Expires: ', $actual);
+        $this->assertStringNotContainsString('public', $actual);
+    }
+
+    #[DataProvider('provide_test_cache_control_is_respected')]
+    public function test_cache_control_is_respected(string $cache_control): void
+    {
+        $response = new FileResponse(create_file(), Request::from(), headers: [ 'Cache-Control' => $cache_control ]);
+        $actual = (string) $response;
+
+        $this->assertStringContainsString("Cache-Control: $cache_control\r\n", $actual);
+        $this->assertStringNotContainsString('Expires: ', $actual);
+    }
+
+    public static function provide_test_cache_control_is_respected(): array
+    {
+        return [
+
+            [ 'no-store' ],
+            [ 'private, max-age=60' ],
+            [ 'public, max-age=31536000' ],
+
+        ];
+    }
+
+    public function test_cache_control_with_expires(): void
+    {
+        $response = new FileResponse(create_file(), Request::from(), [
+
+            FileResponse::OPTION_EXPIRES => '+1 hour',
+
+        ], [ 'Cache-Control' => 'public' ]);
+
+        $actual = (string) $response;
+
+        $this->assertStringContainsString("Cache-Control: public\r\n", $actual);
+        $this->assertStringContainsString('Expires: ', $actual);
+    }
+
+    #[DataProvider('provide_test_not_modified_only_for_get_and_head')]
+    public function test_not_modified_only_for_get_and_head(RequestMethod $method, int $expected): void
+    {
+        $file = create_file();
+        $etag = '"abc"';
+        $request = Request::from([
+
+            Request::OPTION_METHOD => $method,
+            Request::OPTION_HEADERS => [ 'If-None-Match' => $etag ],
+
+        ]);
+
+        $response = new FileResponse($file, $request, [ FileResponse::OPTION_ETAG => $etag ]);
+
+        ob_start();
+        $response();
+        $content = ob_get_clean();
+
+        $this->assertEquals($expected, $response->status->code);
+        $this->assertSame($expected === ResponseStatus::STATUS_OK ? file_get_contents($file) : '', $content);
+    }
+
+    public static function provide_test_not_modified_only_for_get_and_head(): array
+    {
+        return [
+
+            [ RequestMethod::METHOD_GET, ResponseStatus::STATUS_NOT_MODIFIED ],
+            [ RequestMethod::METHOD_HEAD, ResponseStatus::STATUS_NOT_MODIFIED ],
+            [ RequestMethod::METHOD_POST, ResponseStatus::STATUS_OK ],
+            [ RequestMethod::METHOD_PUT, ResponseStatus::STATUS_OK ],
+
+        ];
+    }
+
+    public function test_range_not_satisfiable(): void
+    {
+        $file = create_file();
+        $size = filesize($file);
+        $request = Request::from([ Request::OPTION_HEADERS => [ 'Range' => 'bytes=20-10' ] ]);
+        $response = new FileResponse($file, $request);
+
+        ob_start();
+        $response();
+        $content = ob_get_clean();
+
+        $this->assertEquals(ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE, $response->status->code);
+        $this->assertSame('', $content);
+
+        $actual = (string) $response;
+
+        $this->assertStringContainsString("Content-Range: bytes */$size\r\n", $actual);
+        $this->assertStringContainsString("Content-Length: 0\r\n", $actual);
     }
 }

@@ -5,10 +5,21 @@ namespace ICanBoogie\HTTP;
 use ICanBoogie\HTTP\Headers\ContentType;
 use InvalidArgumentException;
 
+use function array_reverse;
+use function ctype_digit;
+use function explode;
 use function file_get_contents;
+use function filter_var;
 use function ICanBoogie\normalize_url_path;
+use function inet_pton;
+use function intdiv;
 use function json_decode;
+use function ord;
+use function strlen;
+use function strncmp;
+use function trim;
 
+use const FILTER_VALIDATE_IP;
 use const JSON_THROW_ON_ERROR;
 
 /**
@@ -73,7 +84,9 @@ final class Request implements RequestOptions
     public array $params;
 
     public readonly Request\Context $context;
-    public readonly Headers $headers;
+
+    // The field is not readonly because it can be overwritten by `with()`.
+    private(set) Headers $headers;
 
     /**
      * Request environment.
@@ -140,9 +153,9 @@ final class Request implements RequestOptions
      */
     private static function from_server(): self
     {
-        $content_type = isset($_SERVER['HTTP_CONTENT_TYPE'])
-            ? new ContentType($_SERVER['HTTP_CONTENT_TYPE'])
-            : null;
+        // CGI exposes `CONTENT_TYPE` without the `HTTP_` prefix.
+        $content_type = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? null;
+        $content_type = $content_type ? new ContentType($content_type) : null;
 
         if ($content_type?->type === 'application/json') {
             $json = file_get_contents('php://input');
@@ -248,8 +261,15 @@ final class Request implements RequestOptions
         if ($options) {
             $options = RequestOptionsMapper::map($options, $changed->env);
 
-            foreach ($options as $option => &$value) {
-                $changed->$option = $value;
+            foreach ($options as $option => $value) {
+                match ($option) {
+                    self::OPTION_PATH_PARAMS => $changed->path_params = $value,
+                    self::OPTION_QUERY_PARAMS => $changed->query_params = $value,
+                    self::OPTION_REQUEST_PARAMS => $changed->request_params = $value,
+                    self::OPTION_COOKIE => $changed->cookie = $value,
+                    self::OPTION_FILES => $changed->files = $value,
+                    self::OPTION_HEADERS => $changed->headers = $value,
+                };
             }
         }
 
@@ -336,40 +356,135 @@ final class Request implements RequestOptions
 
     /**
      * Checks if the request is local.
+     *
+     * The check uses {@see $ip}, that is the address of the peer, never a forwarding header.
      */
     public bool $is_local {
         get {
             $ip = $this->ip;
 
-            if ($ip == '::1' || preg_match('/^127\.0\.0\.\d{1,3}$/', $ip)) {
-                return true;
-            }
-
-            return preg_match('/^0:0:0:0:0:0:0:1(%.*)?$/', $ip);
+            return $ip === '::1'
+                || preg_match('/^127\.0\.0\.\d{1,3}$/', $ip) === 1
+                || preg_match('/^0:0:0:0:0:0:0:1(%.*)?$/', $ip) === 1;
         }
     }
 
     /**
-     * The remote IP of the request.
+     * The IP of the peer that connected to the server, obtained from the `REMOTE_ADDR` key of the
+     * {@see $env} array.
      *
-     * If defined, the `HTTP_X_FORWARDED_FOR` header is used to retrieve the original IP.
+     * Forwarding headers such as `X-Forwarded-For` are ignored because any client can send them.
+     * Use {@see client_ip()} when the application runs behind trusted proxies.
      *
-     * If the `REMOTE_ADDR` header is empty, the request is considered local; thus `::1` is returned.
-     *
-     * @link https://en.wikipedia.org/wiki/X-Forwarded-For
+     * If `REMOTE_ADDR` is not defined, the request is considered local; thus `::1` is returned.
      */
     public string $ip {
-        get {
-            $forwarded_for = $this->headers['X-Forwarded-For'];
+        get => $this->env['REMOTE_ADDR'] ?? '::1';
+    }
 
-            if ($forwarded_for) {
-                [ $ip ] = explode(',', $forwarded_for);
+    /**
+     * Returns the IP of the client, taking `X-Forwarded-For` into account when the request comes
+     * from a trusted proxy.
+     *
+     * If {@see $ip} is not a trusted proxy, it is returned as is. Otherwise, `X-Forwarded-For` is
+     * read from right to left, skipping trusted proxies, and the first address that isn't one is
+     * returned. The leftmost entries are set by the client and cannot be trusted, which is why the
+     * list is not read from the left. Reading stops at the first invalid entry.
+     *
+     * @param string[] $trusted_proxies IP addresses or CIDR ranges, such as `10.0.0.0/8` or `fd00::/8`.
+     *
+     * @throws InvalidArgumentException if a trusted proxy is not a valid IP address or CIDR range.
+     *
+     * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Forwarded-For
+     */
+    public function client_ip(array $trusted_proxies): string
+    {
+        $ip = $this->ip;
 
-                return $ip;
+        if (!self::ip_in_ranges($ip, $trusted_proxies)) {
+            return $ip;
+        }
+
+        $forwarded_for = (string) $this->headers['X-Forwarded-For'];
+
+        if ($forwarded_for === '') {
+            return $ip;
+        }
+
+        foreach (array_reverse(explode(',', $forwarded_for)) as $hop) {
+            $hop = trim($hop);
+
+            if (filter_var($hop, FILTER_VALIDATE_IP) === false) {
+                break;
             }
 
-            return $this->env['REMOTE_ADDR'] ?? '::1';
+            $ip = $hop;
+
+            if (!self::ip_in_ranges($hop, $trusted_proxies)) {
+                break;
+            }
         }
+
+        return $ip;
+    }
+
+    /**
+     * Whether an IP matches one of the IP addresses or CIDR ranges.
+     *
+     * @param string[] $ranges
+     *
+     * @throws InvalidArgumentException if a range is not a valid IP address or CIDR range.
+     */
+    private static function ip_in_ranges(string $ip, array $ranges): bool
+    {
+        if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
+            return false;
+        }
+
+        $address = inet_pton($ip);
+
+        foreach ($ranges as $range) {
+            [ $subnet, $bits ] = explode('/', $range, 2) + [ 1 => null ];
+
+            if (filter_var($subnet, FILTER_VALIDATE_IP) === false) {
+                throw new InvalidArgumentException("Not a valid IP address or CIDR range: $range");
+            }
+
+            $subnet = inet_pton($subnet);
+            $max_bits = strlen($subnet) * 8;
+
+            if ($bits === null) {
+                $bits = $max_bits;
+            } elseif (!ctype_digit($bits) || $bits > $max_bits) {
+                throw new InvalidArgumentException("Not a valid IP address or CIDR range: $range");
+            } else {
+                $bits = (int) $bits;
+            }
+
+            if (strlen($address) !== strlen($subnet)) {
+                continue;
+            }
+
+            $bytes = intdiv($bits, 8);
+
+            if (strncmp($address, $subnet, $bytes) !== 0) {
+                continue;
+            }
+
+            $remaining_bits = $bits % 8;
+
+            if ($remaining_bits === 0) {
+                return true;
+            }
+
+            $mask = (0xff << (8 - $remaining_bits)) & 0xff;
+
+            if ((ord($address[$bytes]) & $mask) === (ord($subnet[$bytes]) & $mask)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

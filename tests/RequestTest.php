@@ -54,16 +54,77 @@ class RequestTest extends TestCase
         $this->assertEquals($value, $request->ip);
     }
 
-    public function test_from_with_forwarded_ip(): void
+    public function test_ip_ignores_forwarded_for(): void
     {
-        $value = '192.168.13.69';
-        $request = Request::from([ RequestOptions::OPTION_HEADERS => [
+        $request = Request::from([], [
 
-            'X-Forwarded-For' => "$value,::1"
+            'REQUEST_URI' => '/',
+            'REMOTE_ADDR' => '203.0.113.7',
+            'HTTP_X_FORWARDED_FOR' => '127.0.0.1',
 
-        ] ]);
+        ]);
 
-        $this->assertEquals($value, $request->ip);
+        $this->assertEquals('203.0.113.7', $request->ip);
+        $this->assertFalse($request->is_local);
+    }
+
+    /**
+     * @param string[] $trusted_proxies
+     */
+    #[DataProvider('provide_test_client_ip')]
+    public function test_client_ip(string $remote_addr, ?string $forwarded_for, array $trusted_proxies, string $expected): void
+    {
+        $env = [ 'REQUEST_URI' => '/', 'REMOTE_ADDR' => $remote_addr ];
+
+        if ($forwarded_for !== null) {
+            $env['HTTP_X_FORWARDED_FOR'] = $forwarded_for;
+        }
+
+        $request = Request::from([], $env);
+
+        $this->assertEquals($expected, $request->client_ip($trusted_proxies));
+    }
+
+    public static function provide_test_client_ip(): array
+    {
+        return [
+
+            'no trusted proxies' => [ '10.0.0.1', '198.51.100.1', [], '10.0.0.1' ],
+            'peer is not trusted' => [ '203.0.113.7', '127.0.0.1', [ '10.0.0.0/8' ], '203.0.113.7' ],
+            'no header' => [ '10.0.0.1', null, [ '10.0.0.0/8' ], '10.0.0.1' ],
+            'one proxy' => [ '10.0.0.1', '198.51.100.1', [ '10.0.0.1' ], '198.51.100.1' ],
+            'spoofed leftmost entry' => [ '10.0.0.1', '127.0.0.1, 198.51.100.1', [ '10.0.0.0/8' ], '198.51.100.1' ],
+            'chained proxies' => [ '10.0.0.1', '198.51.100.1, 10.1.2.3', [ '10.0.0.0/8' ], '198.51.100.1' ],
+            'all trusted' => [ '10.0.0.1', '10.0.0.2, 10.0.0.3', [ '10.0.0.0/8' ], '10.0.0.2' ],
+            'invalid entry' => [ '10.0.0.1', 'garbage, 10.0.0.2', [ '10.0.0.0/8' ], '10.0.0.2' ],
+            'partial byte mask' => [ '172.16.0.1', '198.51.100.1', [ '172.16.0.0/12' ], '198.51.100.1' ],
+            'outside partial byte mask' => [ '172.32.0.1', '198.51.100.1', [ '172.16.0.0/12' ], '172.32.0.1' ],
+            'IPv6 range' => [ 'fd00::1', '2001:db8::1', [ 'fd00::/8' ], '2001:db8::1' ],
+            'IPv4 peer, IPv6 range' => [ '10.0.0.1', '198.51.100.1', [ 'fd00::/8' ], '10.0.0.1' ],
+
+        ];
+    }
+
+    #[DataProvider('provide_test_client_ip_with_invalid_proxy')]
+    public function test_client_ip_with_invalid_proxy(string $proxy): void
+    {
+        $request = Request::from([], [ 'REQUEST_URI' => '/', 'REMOTE_ADDR' => '10.0.0.1' ]);
+
+        $this->expectException(InvalidArgumentException::class);
+
+        $request->client_ip([ $proxy ]);
+    }
+
+    public static function provide_test_client_ip_with_invalid_proxy(): array
+    {
+        return [
+
+            [ 'localhost' ],
+            [ '10.0.0.0/33' ],
+            [ '10.0.0.0/abc' ],
+            [ 'fd00::/129' ],
+
+        ];
     }
 
     public function test_from_with_is_local(): void
@@ -238,6 +299,60 @@ class RequestTest extends TestCase
             [ '0:0:0:0:0:0:0:2', false ]
 
         ];
+    }
+
+    public function test_headers_from_realistic_server(): void
+    {
+        $request = Request::from([], [
+
+            'REQUEST_URI' => '/api',
+            'REQUEST_METHOD' => 'POST',
+            'CONTENT_TYPE' => 'application/json; charset=utf-8',
+            'CONTENT_LENGTH' => '42',
+            'HTTP_ACCEPT' => 'application/json',
+            'SERVER_NAME' => 'example.org',
+
+        ]);
+
+        $this->assertEquals('application/json', $request->headers->content_type->type);
+        $this->assertEquals('42', $request->headers['Content-Length']);
+        $this->assertEquals('application/json', $request->headers['Accept']);
+        $this->assertNull($request->headers['Server-Name']);
+        $this->assertNull($request->headers['SERVER_NAME']);
+    }
+
+    public function test_headers_from_realistic_server_without_body(): void
+    {
+        $request = Request::from([], [
+
+            'REQUEST_URI' => '/',
+            'CONTENT_TYPE' => '',
+            'CONTENT_LENGTH' => '',
+
+        ]);
+
+        $this->assertFalse(isset($request->headers['Content-Type']));
+        $this->assertFalse(isset($request->headers['Content-Length']));
+    }
+
+    public function test_from_server_reads_cgi_content_type(): void
+    {
+        $server = $_SERVER;
+        $post = $_POST;
+
+        try {
+            $_SERVER['REQUEST_URI'] = '/';
+            $_SERVER['CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
+            $_POST = [ 'name' => 'Madonna' ];
+
+            $request = Request::from($_SERVER);
+
+            $this->assertEquals('application/x-www-form-urlencoded', $request->headers->content_type->type);
+            $this->assertEquals([ 'name' => 'Madonna' ], $request->request_params);
+        } finally {
+            $_SERVER = $server;
+            $_POST = $post;
+        }
     }
 
     public function test_get_script_name(): void
@@ -432,6 +547,38 @@ class RequestTest extends TestCase
         $this->assertSame([ ], $request3->query_params);
         $this->assertSame([ ], $request3->path_params);
         $this->assertSame([ ], $request3->params);
+    }
+
+    public function test_change_headers(): void
+    {
+        $request = Request::from([ RequestOptions::OPTION_HEADERS => [ 'Accept' => 'text/html' ] ]);
+        $headers = new Headers([ 'Accept' => 'application/json' ]);
+
+        $changed = $request->with([ RequestOptions::OPTION_HEADERS => $headers ]);
+
+        $this->assertSame($headers, $changed->headers);
+        $this->assertEquals('text/html', (string) $request->headers['Accept']);
+
+        $changed = $request->with([ RequestOptions::OPTION_HEADERS => [ 'Accept' => 'text/plain' ] ]);
+
+        $this->assertEquals('text/plain', (string) $changed->headers['Accept']);
+    }
+
+    public function test_change_files_and_cookie(): void
+    {
+        $request = Request::from();
+
+        $changed = $request->with([
+
+            RequestOptions::OPTION_FILES => [ 'one' => [ 'pathname' => __FILE__ ] ],
+            RequestOptions::OPTION_COOKIE => [ 'session' => 'abc' ],
+
+        ]);
+
+        $this->assertEquals(1, $changed->files->count());
+        $this->assertEquals([ 'session' => 'abc' ], $changed->cookie);
+        $this->assertEquals(0, $request->files->count());
+        $this->assertNull($request->cookie);
     }
 
     public function test_should_throw_exception_when_changing_with_unsupported_property(): void

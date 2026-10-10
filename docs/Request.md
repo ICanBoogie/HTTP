@@ -34,6 +34,30 @@ $request = Request::from([
 
 
 
+## Client IP
+
+The `ip` property returns the address of the peer that connected to the server (`REMOTE_ADDR`),
+and `is_local` is derived from it. Forwarding headers are ignored because any client can send them.
+
+When the application runs behind proxies, use `client_ip()` with the addresses or CIDR ranges of
+the proxies you trust. `X-Forwarded-For` is only considered if the peer is a trusted proxy, and it
+is read from right to left until an address that isn't a trusted proxy is found.
+
+```php
+<?php
+
+namespace ICanBoogie\HTTP;
+
+/* @var $request Request */
+
+$request->ip; // 10.0.0.1, the load balancer
+$request->client_ip([ '10.0.0.0/8' ]); // 198.51.100.1, the client
+```
+
+
+
+
+
 ## Safe and idempotent requests
 
 Safe methods are HTTP methods that don't modify resources.

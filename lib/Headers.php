@@ -63,6 +63,16 @@ class Headers implements ArrayAccess, IteratorAggregate
 
     ];
 
+    /**
+     * CGI exposes these request header fields without the `HTTP_` prefix.
+     */
+    private const array CGI_CONTENT_FIELDS = [
+
+        'CONTENT_LENGTH' => self::HEADER_CONTENT_LENGTH,
+        'CONTENT_TYPE' => self::HEADER_CONTENT_TYPE,
+
+    ];
+
     private static function normalize_field_name(string $name): string
     {
         return mb_convert_case(strtr(substr($name, 5), '_', '-'), MB_CASE_TITLE);
@@ -76,31 +86,31 @@ class Headers implements ArrayAccess, IteratorAggregate
     /**
      * If the `REQUEST_URI` key is found in the header fields they are considered coming from the
      * super global `$_SERVER` array in which case they are filtered to keep only keys
-     * starting with the `HTTP_` prefix. Also, header field names are normalized. For instance,
-     * `HTTP_CONTENT_TYPE` becomes `Content-Type`.
+     * starting with the `HTTP_` prefix, plus `CONTENT_TYPE` and `CONTENT_LENGTH`, which CGI exposes
+     * without the prefix. Also, header field names are normalized. For instance,
+     * `HTTP_USER_AGENT` becomes `User-Agent` and `CONTENT_TYPE` becomes `Content-Type`.
      *
      * @param array<string, mixed> $fields The initial headers.
      */
     public function __construct(array $fields = [])
     {
-        if (isset($fields['REQUEST_URI'])) {
-            foreach ($fields as $field => $value) {
-                if (!str_starts_with($field, 'HTTP_')) {
+        $from_server = isset($fields['REQUEST_URI']);
+
+        foreach ($fields as $field => $value) {
+            if (str_starts_with($field, 'HTTP_')) {
+                $field = self::normalize_field_name($field);
+            } elseif (isset(self::CGI_CONTENT_FIELDS[$field])) {
+                // CGI defines these keys even when the request has no body.
+                if ($value === '') {
                     continue;
                 }
 
-                $field = self::normalize_field_name($field);
-
-                $this[$field] = $value;
+                $field = self::CGI_CONTENT_FIELDS[$field];
+            } elseif ($from_server) {
+                continue;
             }
-        } else {
-            foreach ($fields as $field => $value) {
-                if (str_starts_with($field, 'HTTP_')) {
-                    $field = self::normalize_field_name($field);
-                }
 
-                $this[$field] = $value;
-            }
+            $this[$field] = $value;
         }
     }
 
