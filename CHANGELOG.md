@@ -25,6 +25,8 @@ None
 
 ### Backward Incompatible Changes
 
+- `Headers` no longer strips the `;length=xxx` suffix that Internet Explorer 9 appended to
+  `If-Modified-Since`.
 - `File` has a public constructor with named parameters (`new File(pathname: ...)`). `File::from()` still accepts
   an array of properties keyed by the `FileOptions` constants, such as an entry of `$_FILES`.
 - `Request::from($_SERVER)` throws a `BadMethodCallException`, use `Request::from_server()`, which also accepts an explicit server array.

@@ -165,7 +165,6 @@ final class HeadersTest extends TestCase
             [ 'If-Modified-Since', $value1, $expected ],
             [ 'If-Modified-Since', $value2, $expected ],
             [ 'If-Modified-Since', $value3, $expected ],
-            [ 'If-Modified-Since', $value3 . ";length=xxxx", $expected ],
 
             [ 'If-Unmodified-Since', $value1, $expected ],
             [ 'If-Unmodified-Since', $value2, $expected ],

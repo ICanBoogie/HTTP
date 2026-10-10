@@ -330,22 +330,6 @@ class Headers implements ArrayAccess, IteratorAggregate
         }
 
         switch ($offset) {
-            # https://www.rfc-editor.org/rfc/rfc9110#section-13.1.3
-            case self::HEADER_IF_MODIFIED_SINCE:
-                #
-                # Removes the ";length=xxx" string added by Internet Explorer.
-                # http://stackoverflow.com/questions/12626699/if-modified-since-http-header-passed-by-ie9-includes-length
-                #
-
-                if (is_string($value)) {
-                    $pos = strpos($value, ';');
-
-                    if ($pos) {
-                        $value = substr($value, 0, $pos);
-                    }
-                }
-                break;
-
             case self::HEADER_LOCATION:
                 if ($value === '') {
                     throw new InvalidArgumentException('Cannot redirect to a blank URL.');
