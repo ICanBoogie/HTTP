@@ -252,7 +252,7 @@ final class HeadersTest extends TestCase
 
     public function test_should_iterate(): void
     {
-        $headers = new Headers([
+        $headers = Headers::from_server([
 
             'REQUEST_URI' => '/',
             'HTTP_CACHE_CONTROL' => 'public',
@@ -310,11 +310,32 @@ final class HeadersTest extends TestCase
 
     public function test_known_names_use_canonical_spelling(): void
     {
-        $headers = new Headers([ 'HTTP_ETAG' => '"abc"', 'HTTP_IF_NONE_MATCH' => '*' ]);
+        $headers = Headers::from_server([ 'HTTP_ETAG' => '"abc"', 'HTTP_IF_NONE_MATCH' => '*' ]);
 
         $this->assertSame('"abc"', $headers[Headers::HEADER_ETAG]);
         $this->assertSame('"abc"', $headers->etag);
         $this->assertSame([ 'ETag', 'If-None-Match' ], array_keys(iterator_to_array($headers)));
+    }
+
+    public function test_from_server(): void
+    {
+        $headers = Headers::from_server([
+            'REQUEST_URI' => '/',
+            'HTTP_USER_AGENT' => 'Agent',
+            'CONTENT_TYPE' => 'text/plain',
+            'CONTENT_LENGTH' => '',
+        ]);
+
+        $this->assertSame([ 'User-Agent', 'Content-Type' ], array_keys(iterator_to_array($headers)));
+        $this->assertSame('Agent', $headers['User-Agent']);
+        $this->assertEquals('text/plain', (string) $headers->content_type);
+    }
+
+    public function test_constructor_does_not_filter_fields(): void
+    {
+        $headers = new Headers([ 'REQUEST_URI' => '/', 'HTTP_X_A' => 'a' ]);
+
+        $this->assertSame([ 'REQUEST_URI', 'HTTP_X_A' ], array_keys(iterator_to_array($headers)));
     }
 
     #[DataProvider('provide_invalid_names')]

@@ -17,6 +17,10 @@ $headers->cache_control = 'public, max-age=3600, no-transform';
 echo $headers->cache_control->max_age;
 ```
 
+Headers of the current request are created from `$_SERVER` with `Headers::from_server($_SERVER)`, which keeps the
+`HTTP_*` keys, plus `CONTENT_TYPE` and `CONTENT_LENGTH`, and normalizes their names (`HTTP_USER_AGENT` becomes
+`User-Agent`). The constructor takes header fields as they are.
+
 Field names are case-insensitive: `$headers['content-type']` and `$headers['Content-Type']` are the same field.
 Names defined by the `Headers::HEADER_*` constants are sent with the spelling of the constant (`ETag`, `Content-Type`),
 other names keep the spelling they were first given.

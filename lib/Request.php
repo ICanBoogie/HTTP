@@ -277,7 +277,7 @@ final class Request implements RequestOptions
     {
         $this->context = new Request\Context($this);
         $this->env = $env;
-        $this->headers = $options[self::OPTION_HEADERS] ?? new Headers($env);
+        $this->headers = $options[self::OPTION_HEADERS] ?? Headers::from_server($env);
         $this->files = $options[self::OPTION_FILES] ?? new FileList();
         $this->path_params = $options[self::OPTION_PATH_PARAMS] ?? [];
         $this->query_params = $options[self::OPTION_QUERY_PARAMS] ?? [];

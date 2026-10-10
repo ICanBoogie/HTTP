@@ -16,6 +16,7 @@ PHP 8.4+
   `HEAD` requests.
 - Added `FinalResponse`, and `Response::finalize(?Request)`, which resolves the status, headers
   and body as they are sent, without modifying the response.
+- Added `Headers::from_server()` to create headers from `$_SERVER` or a copy of it.
 - Added `Request::client_ip()`, which returns the client IP from `X-Forwarded-For` when the request
   comes from a trusted proxy.
 
@@ -25,6 +26,8 @@ None
 
 ### Backward Incompatible Changes
 
+- The `Headers` constructor no longer detects `$_SERVER` arrays by their `REQUEST_URI` key, nor
+  filters and normalizes `HTTP_*` keys. Use `Headers::from_server()`.
 - `Headers` no longer strips the `;length=xxx` suffix that Internet Explorer 9 appended to
   `If-Modified-Since`.
 - `File` has a public constructor with named parameters (`new File(pathname: ...)`). `File::from()` still accepts

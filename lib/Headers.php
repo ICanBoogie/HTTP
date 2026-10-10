@@ -176,32 +176,39 @@ class Headers implements ArrayAccess, IteratorAggregate
     }
 
     /**
-     * If the `REQUEST_URI` key is found in the header fields they are considered coming from the
-     * super global `$_SERVER` array in which case they are filtered to keep only keys
-     * starting with the `HTTP_` prefix, plus `CONTENT_TYPE` and `CONTENT_LENGTH`, which CGI exposes
-     * without the prefix. Also, header field names are normalized. For instance,
-     * `HTTP_USER_AGENT` becomes `User-Agent` and `CONTENT_TYPE` becomes `Content-Type`.
+     * Creates an instance from the `$_SERVER` array, or a copy of it.
      *
-     * @param array<string, mixed> $fields The initial headers.
+     * Only the keys starting with the `HTTP_` prefix are kept, plus `CONTENT_TYPE` and
+     * `CONTENT_LENGTH`, which CGI exposes without the prefix. Header field names are normalized.
+     * For instance, `HTTP_USER_AGENT` becomes `User-Agent` and `CONTENT_TYPE` becomes
+     * `Content-Type`.
+     *
+     * @param array<string, mixed> $server
+     */
+    public static function from_server(array $server): self
+    {
+        $fields = [];
+
+        foreach ($server as $key => $value) {
+            if (str_starts_with($key, 'HTTP_')) {
+                $fields[self::normalize_field_name($key)] = $value;
+            } elseif (isset(self::CGI_CONTENT_FIELDS[$key]) && $value !== '') {
+                // CGI defines these keys even when the request has no body.
+                $fields[self::CGI_CONTENT_FIELDS[$key]] = $value;
+            }
+        }
+
+        return new self($fields);
+    }
+
+    /**
+     * @param array<string, mixed> $fields The initial header fields, indexed by name.
+     *
+     * @see from_server()
      */
     public function __construct(array $fields = [])
     {
-        $from_server = isset($fields['REQUEST_URI']);
-
         foreach ($fields as $field => $value) {
-            if (str_starts_with($field, 'HTTP_')) {
-                $field = self::normalize_field_name($field);
-            } elseif (isset(self::CGI_CONTENT_FIELDS[$field])) {
-                // CGI defines these keys even when the request has no body.
-                if ($value === '') {
-                    continue;
-                }
-
-                $field = self::CGI_CONTENT_FIELDS[$field];
-            } elseif ($from_server) {
-                continue;
-            }
-
             $this[$field] = $value;
         }
     }
