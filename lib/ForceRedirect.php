@@ -15,7 +15,7 @@ class ForceRedirect extends \Exception implements Exception
 {
     public function __construct(
         public readonly string $location,
-        int $code = ResponseStatus::STATUS_FOUND,
+        int $code = Status::FOUND,
         ?Throwable $previous = null
     ) {
         parent::__construct($this->format_message($location), $code, $previous);

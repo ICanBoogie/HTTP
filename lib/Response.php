@@ -17,7 +17,7 @@ use function time;
  *
  * @link https://www.rfc-editor.org/rfc/rfc9110
  */
-class Response implements ResponseStatus
+class Response
 {
     public Headers $headers;
 
@@ -44,7 +44,7 @@ class Response implements ResponseStatus
      */
     public function __construct(
         public string|Stringable|Closure|null $body = null,
-        int|Status $status = ResponseStatus::STATUS_OK,
+        int|Status $status = Status::OK,
         Headers|array $headers = [],
     ) {
         if (!$headers instanceof Headers) {
@@ -61,12 +61,11 @@ class Response implements ResponseStatus
     }
 
     /**
-     * Clones the `$headers` and `$status` properties.
+     * Clones the `$headers` property.
      */
     public function __clone()
     {
         $this->headers = clone $this->headers;
-        $this->status = clone $this->status;
     }
 
     /**
@@ -84,20 +83,14 @@ class Response implements ResponseStatus
     public function finalize(?Request $request = null): FinalResponse
     {
         $body = $this->body;
-        $code = $this->status->code;
 
-        if (
-            $code < 200
-            || $code === self::STATUS_NO_CONTENT
-            || $code === self::STATUS_NOT_MODIFIED
-            || $request?->method->is_head()
-        ) {
+        if ($this->status->has_no_body || $request?->method->is_head()) {
             $body = null;
         } elseif ($body instanceof Stringable) {
             $body = (string) $body;
         }
 
-        return new FinalResponse($this->version, clone $this->status, clone $this->headers, $body);
+        return new FinalResponse($this->version, $this->status, clone $this->headers, $body);
     }
 
     /**
@@ -133,7 +126,7 @@ class Response implements ResponseStatus
     public Status $status {
         get => $this->status;
         set(Status|int $value) {
-            $this->status = $value instanceof Status ? $value : new Status($value);
+            $this->status = Status::from($value);
         }
     }
 
@@ -214,7 +207,7 @@ class Response implements ResponseStatus
         {
             get {
                 if (
-                    !$this->status->is_cacheable
+                    !$this->status->is_heuristically_cacheable
                     || $this->headers->cache_control->no_store
                     || $this->headers->cache_control->cacheable === 'private'
                 ) {

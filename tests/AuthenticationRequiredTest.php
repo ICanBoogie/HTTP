@@ -3,7 +3,7 @@
 namespace Test\ICanBoogie\HTTP;
 
 use ICanBoogie\HTTP\AuthenticationRequired;
-use ICanBoogie\HTTP\ResponseStatus;
+use ICanBoogie\HTTP\Status;
 use PHPUnit\Framework\TestCase;
 
 final class AuthenticationRequiredTest extends TestCase
@@ -13,6 +13,6 @@ final class AuthenticationRequiredTest extends TestCase
         $exception = new AuthenticationRequired();
 
         $this->assertEquals("The requested URL requires authentication.", $exception->getMessage());
-        $this->assertEquals(ResponseStatus::STATUS_UNAUTHORIZED, $exception->getCode());
+        $this->assertEquals(Status::UNAUTHORIZED, $exception->getCode());
     }
 }

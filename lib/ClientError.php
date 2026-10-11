@@ -13,7 +13,7 @@ class ClientError extends \Exception implements Exception
 {
     public function __construct(
         ?string $message = null,
-        int $code = ResponseStatus::STATUS_BAD_REQUEST,
+        int $code = Status::BAD_REQUEST,
         ?Throwable $previous = null
     ) {
         parent::__construct($message, $code, $previous);

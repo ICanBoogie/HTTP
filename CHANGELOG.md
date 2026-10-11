@@ -19,6 +19,12 @@ PHP 8.4+
 - Added `Headers::from_server()` to create headers from `$_SERVER` or a copy of it.
 - Added `Request::client_ip()`, which returns the client IP from `X-Forwarded-For` when the request
   comes from a trusted proxy.
+- Added `Status::from(int|Status, ?string $reason = null)`, which returns shared instances, and the
+  `Status::of_*()` helpers for the statuses used in everyday application logic (`of_ok()`,
+  `of_created()`, `of_not_found()`, …).
+- Added `Status::$is_error`, `Status::$has_no_body`, and `Status::$is_heuristically_cacheable`.
+- `Status` has a constant and a reason phrase for every standard status code, including `308`, `422`,
+  and `429`, for which instantiating a status used to trigger an undefined array key warning.
 
 ### Deprecated Features
 
@@ -47,6 +53,23 @@ None
   and `send_file()` takes the length and offset to send.
 - A closure used as response body receives the `FinalResponse` instead of the `Response`.
 - `Headers::__invoke()` and `Headers::send_header()` are removed. Use `Headers::fields()`.
+- `ResponseStatus` is removed, and `Response` no longer implements it. Use the `Status` constants:
+  `ResponseStatus::STATUS_NOT_FOUND` and `Response::STATUS_NOT_FOUND` become `Status::NOT_FOUND`.
+  `STATUS_I_M_A_TEAPOT` is `Status::IM_A_TEAPOT`, `STATUS_RECONDITION_REQUIRED` is
+  `Status::PRECONDITION_REQUIRED`, and `STATUS_UPDATE_REQUIRED` is `Status::UPGRADE_REQUIRED`.
+  `Status::CONTINUE_` is `Status::CONTINUE`, and `Status::USE_PROXY` is removed.
+- `Status` is final and immutable, and its constructor is private. Use `Status::from()`:
+  `new Status(404)` becomes `Status::from(404)`, and `new Status(499, "Reason")` becomes
+  `Status::from(499, "Reason")`. `Status::from()` no longer accepts arrays and strings such as
+  `"200 OK"`. The `code` and `message` properties can no longer be set, and a `Response` no longer
+  clones its status.
+- `Status::$message` is renamed `Status::$reason`, and `Status::$is_valid` is removed, a status is always valid.
+- `Status::$is_empty` is replaced by `Status::$has_no_body`, which is true for `1xx`, `204`, and
+  `304`, but no longer for `201`. `Response::finalize()` uses it.
+- `Status::$is_cacheable` is replaced by `Status::$is_heuristically_cacheable`, which follows RFC 9110
+  section 15.1: `204`, `206`, `308`, `405`, `414`, and `501` are now cacheable. `Response::$is_cacheable`
+  is affected.
+- Statuses are compared by value (`==`), the reason included.
 
 - Exception thrown during Response streaming is no longer captured: it propagates to the caller of
   `$response()`. The headers have already been sent at that point, so a recovery decorator cannot
@@ -229,26 +252,6 @@ $response->headers->last_modified;
 $response->headers->location;
 $headers['Cache-Control']; $headers->cache_control;
 $headers['Content-Disposition']; $headers->content_disposition;
-```
-
-`Status` constants are deprecated in favor of `ResponseStatus` equivalent:
-
-```php
-<?php
-
-namespace ICanBoogie\HTTP;
-
-Status::OK;
-```
-
-```php
-<?php
-
-namespace ICanBoogie\HTTP;
-
-ResponseStatus::STATUS_OK;
-# or
-Response::STATUS_OK;
 ```
 
 Dropped everything related to Dispatchers in favor of Responder providers and Responders.

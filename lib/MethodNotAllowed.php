@@ -17,7 +17,7 @@ class MethodNotAllowed extends ClientError implements Exception
     ) {
         parent::__construct(
             "Method not allowed: $method.",
-            ResponseStatus::STATUS_METHOD_NOT_ALLOWED,
+            Status::METHOD_NOT_ALLOWED,
             $previous
         );
     }

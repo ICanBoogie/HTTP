@@ -15,7 +15,7 @@ class StatusCodeNotValid extends InvalidArgumentException implements Exception
     public function __construct(
         public readonly int $status_code,
         ?string $message = null,
-        int $code = ResponseStatus::STATUS_INTERNAL_SERVER_ERROR,
+        int $code = Status::INTERNAL_SERVER_ERROR,
         ?Throwable $previous = null
     ) {
         parent::__construct($message ?: $this->format_message($status_code), $code, $previous);

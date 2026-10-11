@@ -11,7 +11,7 @@ either be `null`, a string (or `Stringable`), or a `Closure`.
 
 namespace ICanBoogie\HTTP;
 
-$response = new Response('<!DOCTYPE html><html><body><h1>Hello world!</h1></body></html>', Response::STATUS_OK, [
+$response = new Response('<!DOCTYPE html><html><body><h1>Hello world!</h1></body></html>', Status::OK, [
 
     Headers::HEADER_CONTENT_TYPE => 'text/html',
     Headers::HEADER_CACHE_CONTROL => 'public, max-age=3600',
@@ -51,9 +51,20 @@ or to capture them in tests.
 
 ## Response status
 
-The response status is represented by a [Status][] instance. It may be assigned as an HTTP response
-code such as `200`, or as a [Status][] instance. [Status::from()][Status] creates an instance from
-a code, an array such as `[ 200, "OK" ]`, or a string such as `"200 OK"`.
+The response status is represented by an immutable [Status][] instance. It may be assigned as an HTTP response
+code such as `200`, or as a [Status][] instance. [Status::from()][Status] returns the instance for a code, and
+accepts a reason to replace the standard one, for non-standard codes such as `499`. The constructor is private.
+
+The `Status` constants hold the standard codes (`Status::NOT_FOUND`). Helpers return the statuses used in everyday
+application logic: `Status::of_ok()`, `Status::of_created()`, `Status::of_no_content()`,
+`Status::of_moved_permanently()`, `Status::of_found()`, `Status::of_see_other()`, `Status::of_not_modified()`,
+`Status::of_temporary_redirect()`, `Status::of_permanent_redirect()`, `Status::of_bad_request()`,
+`Status::of_unauthorized()`, `Status::of_forbidden()`, `Status::of_not_found()`, `Status::of_method_not_allowed()`,
+`Status::of_conflict()`, `Status::of_unprocessable_entity()`, `Status::of_too_many_requests()`,
+`Status::of_internal_server_error()`, `Status::of_bad_gateway()`, `Status::of_service_unavailable()`,
+`Status::of_gateway_timeout()` and `Status::of_accepted()`. For other codes, use `Status::from(Status::GONE)`.
+
+Statuses are compared by value (`==`), the reason included. Compare `code` to ignore the reason.
 
 ```php
 <?php
@@ -64,15 +75,21 @@ $response = new Response;
 
 echo $response->status;               // 200 OK
 echo $response->status->code;         // 200
-echo $response->status->message;      // OK
-$response->status->is_valid;          // true
+echo $response->status->reason;       // OK
 
-$response->status = Response::STATUS_NOT_FOUND;
+$response->status = Status::NOT_FOUND;
 echo $response->status->code;         // 404
-echo $response->status->message;      // Not Found
-$response->status->is_valid;          // true
+echo $response->status->reason;       // Not Found
 $response->status->is_client_error;   // true
 $response->status->is_not_found;      // true
+$response->status->has_no_body;       // false
+
+$response->status = Status::from(499, "Client Closed Request");
+echo $response->status;               // 499 Client Closed Request
+$response->status->is_client_error;   // true
+
+$response->status = Status::of_created();
+$response->status == Status::from(Status::CREATED); // true
 ```
 
 
@@ -104,7 +121,7 @@ $output = function() use ($records) {
 
 };
 
-$response = new Response($output, Response::STATUS_OK, [ 'Content-Type' => 'text/csv' ]);
+$response = new Response($output, Status::OK, [ 'Content-Type' => 'text/csv' ]);
 ```
 
 The closure is invoked with the [FinalResponse][] being sent, and writes the body to the output.

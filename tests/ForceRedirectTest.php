@@ -3,7 +3,7 @@
 namespace Test\ICanBoogie\HTTP;
 
 use ICanBoogie\HTTP\ForceRedirect;
-use ICanBoogie\HTTP\ResponseStatus;
+use ICanBoogie\HTTP\Status;
 use PHPUnit\Framework\TestCase;
 
 final class ForceRedirectTest extends TestCase
@@ -12,7 +12,7 @@ final class ForceRedirectTest extends TestCase
     {
         $location = '/to/location.html';
         $exception = new ForceRedirect($location);
-        $this->assertEquals(ResponseStatus::STATUS_FOUND, $exception->getCode());
+        $this->assertEquals(Status::FOUND, $exception->getCode());
         $this->assertEquals($location, $exception->location);
     }
 }

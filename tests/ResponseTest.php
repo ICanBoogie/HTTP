@@ -8,6 +8,7 @@ use ICanBoogie\HTTP\Headers\Date;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\RequestMethod;
 use ICanBoogie\HTTP\Response;
+use ICanBoogie\HTTP\Status;
 use ICanBoogie\PropertyNotWritable;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -20,7 +21,6 @@ class ResponseTest extends TestCase
         $clone = clone $response;
 
         $this->assertNotSame($clone->headers, $response->headers);
-        $this->assertNotSame($clone->status, $response->status);
     }
 
     public function test_should_set_content_type(): void
@@ -104,7 +104,7 @@ class ResponseTest extends TestCase
 
     public function test_preserve_content_length(): void
     {
-        $response = new Response(null, Response::STATUS_OK, [
+        $response = new Response(null, Status::OK, [
 
             'Content-Length' => 123
 
@@ -137,15 +137,15 @@ class ResponseTest extends TestCase
     {
         return [
 
-            [ new Response('A', Response::STATUS_OK), false ],
-            [ new Response('A', Response::STATUS_OK, [ 'Cache-Control' => "public" ]), false ],
-            [ new Response('A', Response::STATUS_OK, [ 'Cache-Control' => "private" ]), false ],
-            [ new Response('A', 405), false ],
+            [ new Response('A', Status::OK), false ],
+            [ new Response('A', Status::OK, [ 'Cache-Control' => "public" ]), false ],
+            [ new Response('A', Status::OK, [ 'Cache-Control' => "private" ]), false ],
+            [ new Response('A', Status::CREATED), false ],
 
-            [ new Response('A', Response::STATUS_OK, [ 'Last-Modified' => 'yesterday' ]), true ],
-            [ new Response('A', Response::STATUS_OK, [ 'Last-Modified' => 'yesterday', 'Cache-Control' => "public" ]), true ],
-            [ new Response('A', Response::STATUS_OK, [ 'Last-Modified' => 'yesterday', 'Cache-Control' => "private" ]), false ],
-            [ new Response('A', 405, [ 'Last-Modified' => 'yesterday' ]), false ]
+            [ new Response('A', Status::OK, [ 'Last-Modified' => 'yesterday' ]), true ],
+            [ new Response('A', Status::OK, [ 'Last-Modified' => 'yesterday', 'Cache-Control' => "public" ]), true ],
+            [ new Response('A', Status::OK, [ 'Last-Modified' => 'yesterday', 'Cache-Control' => "private" ]), false ],
+            [ new Response('A', Status::CREATED, [ 'Last-Modified' => 'yesterday' ]), false ]
 
         ];
     }
@@ -241,7 +241,6 @@ class ResponseTest extends TestCase
 
         $this->assertNull($final->body);
         $this->assertNotSame($response->headers, $final->headers);
-        $this->assertNotSame($response->status, $final->status);
         $this->assertSame('bar', $final->headers['X-Foo']);
         $this->assertInstanceOf(\Stringable::class, $response->body);
     }

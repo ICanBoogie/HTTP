@@ -18,7 +18,7 @@ class AuthenticationFailed extends ClientError implements SecurityError
      */
     public function __construct(
         string $message = self::DEFAULT_MESSAGE,
-        int $code = ResponseStatus::STATUS_UNAUTHORIZED,
+        int $code = Status::UNAUTHORIZED,
         ?Throwable $previous = null
     ) {
         parent::__construct($message, $code, $previous);

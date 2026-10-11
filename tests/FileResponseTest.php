@@ -10,7 +10,7 @@ use ICanBoogie\HTTP\FinalResponse;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\RequestMethod;
 use ICanBoogie\HTTP\RequestOptions;
-use ICanBoogie\HTTP\ResponseStatus;
+use ICanBoogie\HTTP\Status;
 use InvalidArgumentException;
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -95,10 +95,10 @@ final class FileResponseTest extends TestCase
     {
         return [
 
-            [ '', false, ResponseStatus::STATUS_NOT_MODIFIED ],
-            [ 'no-cache', false, ResponseStatus::STATUS_OK ],
-            [ '', true, ResponseStatus::STATUS_OK ],
-            [ 'no-cache', true, ResponseStatus::STATUS_OK ],
+            [ '', false, Status::NOT_MODIFIED ],
+            [ 'no-cache', false, Status::OK ],
+            [ '', true, Status::OK ],
+            [ 'no-cache', true, Status::OK ],
 
         ];
     }
@@ -137,11 +137,11 @@ final class FileResponseTest extends TestCase
     {
         return [
 
-            [ 'no-cache', false, false, true, ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE ],
-            [ 'no-cache', false, true, false, ResponseStatus::STATUS_PARTIAL_CONTENT ],
-            [ 'no-cache', false, true, true, ResponseStatus::STATUS_OK ],
-            [ '', false, true, true, ResponseStatus::STATUS_NOT_MODIFIED ],
-            [ '', true, true, true, ResponseStatus::STATUS_OK ],
+            [ 'no-cache', false, false, true, Status::REQUESTED_RANGE_NOT_SATISFIABLE ],
+            [ 'no-cache', false, true, false, Status::PARTIAL_CONTENT ],
+            [ 'no-cache', false, true, true, Status::OK ],
+            [ '', false, true, true, Status::NOT_MODIFIED ],
+            [ '', true, true, true, Status::OK ],
 
         ];
     }
@@ -463,10 +463,10 @@ final class FileResponseTest extends TestCase
     {
         return [
 
-            [ RequestMethod::METHOD_GET, ResponseStatus::STATUS_NOT_MODIFIED ],
-            [ RequestMethod::METHOD_HEAD, ResponseStatus::STATUS_NOT_MODIFIED ],
-            [ RequestMethod::METHOD_POST, ResponseStatus::STATUS_PRECONDITION_FAILED ],
-            [ RequestMethod::METHOD_PUT, ResponseStatus::STATUS_PRECONDITION_FAILED ],
+            [ RequestMethod::METHOD_GET, Status::NOT_MODIFIED ],
+            [ RequestMethod::METHOD_HEAD, Status::NOT_MODIFIED ],
+            [ RequestMethod::METHOD_POST, Status::PRECONDITION_FAILED ],
+            [ RequestMethod::METHOD_PUT, Status::PRECONDITION_FAILED ],
 
         ];
     }
@@ -480,7 +480,7 @@ final class FileResponseTest extends TestCase
 
         [ $final, $content ] = self::resolve($response, $request);
 
-        $this->assertEquals(ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE, $final->status->code);
+        $this->assertEquals(Status::REQUESTED_RANGE_NOT_SATISFIABLE, $final->status->code);
         $this->assertSame('', $content);
 
         $actual = (string) $final->headers;
@@ -505,7 +505,7 @@ final class FileResponseTest extends TestCase
 
         [ $final, $content ] = self::resolve($response, $request);
 
-        $this->assertEquals(ResponseStatus::STATUS_PARTIAL_CONTENT, $final->status->code);
+        $this->assertEquals(Status::PARTIAL_CONTENT, $final->status->code);
         $this->assertSame(substr($data, 0, 100), $content);
     }
 

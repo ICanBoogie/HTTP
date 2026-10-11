@@ -119,7 +119,7 @@ class FileResponse extends Response
 
         parent::__construct(
             fn() => $this->send_file($this->file),
-            ResponseStatus::STATUS_OK,
+            Status::OK,
             $headers
         );
     }
@@ -167,13 +167,13 @@ class FileResponse extends Response
     /**
      * Resolves the status and the headers according to the request:
      *
-     * - {@see ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE} if the range cannot be
+     * - {@see Status::REQUESTED_RANGE_NOT_SATISFIABLE} if the range cannot be
      *   satisfied.
-     * - {@see ResponseStatus::STATUS_PARTIAL_CONTENT} if the range is a part of the file.
-     * - {@see ResponseStatus::STATUS_NOT_MODIFIED} if the method is `GET` or `HEAD`, the request's
+     * - {@see Status::PARTIAL_CONTENT} if the range is a part of the file.
+     * - {@see Status::NOT_MODIFIED} if the method is `GET` or `HEAD`, the request's
      *   `Cache-Control` doesn't have `no-cache`, and the file is not modified, see
      *   {@see is_modified_for()}.
-     * - {@see ResponseStatus::STATUS_PRECONDITION_FAILED} if the method is not `GET` or `HEAD`,
+     * - {@see Status::PRECONDITION_FAILED} if the method is not `GET` or `HEAD`,
      *   and `If-None-Match` matches `ETag`.
      *
      * The body is omitted for a `HEAD` request. Without a request, the response is resolved as for
@@ -187,18 +187,18 @@ class FileResponse extends Response
      * A defined `Cache-Control` is left untouched, so is `Expires`. Use `public` explicitly for
      * files that may be stored by shared caches.
      *
-     * If the status code is {@see ResponseStatus::STATUS_NOT_MODIFIED}, `Content-Length` is
+     * If the status code is {@see Status::NOT_MODIFIED}, `Content-Length` is
      * unset and there is no body.
      *
-     * If the status code is {@see ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE},
+     * If the status code is {@see Status::REQUESTED_RANGE_NOT_SATISFIABLE},
      * `Content-Range` is set to the size of the file and `Content-Length` to 0, since no body is
      * sent.
      *
-     * If the status code is {@see ResponseStatus::STATUS_PRECONDITION_FAILED}, `Content-Length` is
+     * If the status code is {@see Status::PRECONDITION_FAILED}, `Content-Length` is
      * set to 0, since no body is sent.
      *
      * Otherwise, `Last-Modified` and `Content-Length` are set, and `Content-Range` if the status
-     * code is {@see ResponseStatus::STATUS_PARTIAL_CONTENT}.
+     * code is {@see Status::PARTIAL_CONTENT}.
      */
     #[Override]
     public function finalize(?Request $request = null): FinalResponse
@@ -206,23 +206,23 @@ class FileResponse extends Response
         $request ??= Request::from([]);
         $headers = clone $this->headers;
         $range = $this->range_for($request);
-        $code = ResponseStatus::STATUS_OK;
+        $code = Status::OK;
         $method = $request->method;
 
         if ($range) {
             if (!$range->is_satisfiable) {
-                $code = ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE;
+                $code = Status::REQUESTED_RANGE_NOT_SATISFIABLE;
             } elseif (!$range->is_total) {
-                $code = ResponseStatus::STATUS_PARTIAL_CONTENT;
+                $code = Status::PARTIAL_CONTENT;
             }
         }
 
         if ($method->is_get() || $method->is_head()) {
             if ($request->headers->cache_control->cacheable !== 'no-cache' && !$this->is_modified_for($request)) {
-                $code = ResponseStatus::STATUS_NOT_MODIFIED;
+                $code = Status::NOT_MODIFIED;
             }
         } elseif ($this->if_none_match_matches_etag($request)) {
-            $code = ResponseStatus::STATUS_PRECONDITION_FAILED;
+            $code = Status::PRECONDITION_FAILED;
         }
 
         $this->finalize_cache_control($headers);
@@ -230,20 +230,20 @@ class FileResponse extends Response
         $body = null;
 
         switch ($code) {
-            case ResponseStatus::STATUS_NOT_MODIFIED:
+            case Status::NOT_MODIFIED:
                 $headers->content_length = null;
                 break;
 
-            case ResponseStatus::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE:
+            case Status::REQUESTED_RANGE_NOT_SATISFIABLE:
                 $headers['Content-Range'] = 'bytes */' . $this->file->getSize();
                 $headers->content_length = 0;
                 break;
 
-            case ResponseStatus::STATUS_PRECONDITION_FAILED:
+            case Status::PRECONDITION_FAILED:
                 $headers->content_length = 0;
                 break;
 
-            case ResponseStatus::STATUS_PARTIAL_CONTENT:
+            case Status::PARTIAL_CONTENT:
                 $headers->last_modified = $this->modified_time;
                 $headers['Content-Range'] = (string) $range;
                 $headers->content_length = $range->length;
@@ -261,7 +261,7 @@ class FileResponse extends Response
             $body = null;
         }
 
-        return new FinalResponse($this->version, new Status($code), $headers, $body);
+        return new FinalResponse($this->version, Status::from($code), $headers, $body);
     }
 
     /**

@@ -55,7 +55,7 @@ $events->attach(function (RecoverEvent $event, NotFound $target) {
 
     $event->response = new Response(
         "These aren't the droids you're looking for.",
-        ResponseStatus::STATUS_NOT_FOUND
+        Status::NOT_FOUND
     );
 
 });

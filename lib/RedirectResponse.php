@@ -21,7 +21,7 @@ class RedirectResponse extends Response
      *
      * @throws InvalidArgumentException if the provided status code is not a redirect.
      */
-    public function __construct(string $url, int $status = ResponseStatus::STATUS_FOUND, array $headers = [])
+    public function __construct(string $url, int $status = Status::FOUND, array $headers = [])
     {
         parent::__construct(
             function (FinalResponse $response) {
