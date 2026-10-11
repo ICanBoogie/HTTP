@@ -8,17 +8,28 @@ PHP 8.4+
 
 ### New features
 
-- Added `AuthenticationFailed` exception.
+#### Request
+
 - Added `Request::from_server()` to create the initial request from `$_SERVER` or a copy of it.
+- Added `Request::client_ip()`, which returns the client IP from `X-Forwarded-For` when the request
+  comes from a trusted proxy.
+
+#### Response
+
 - Added `ResponseSender` and `SimpleResponseSender`. A response no longer sends itself, a sender
   does. `SimpleResponseSender` uses `header()` and the output. The sender only sends a `FinalResponse`:
   `$sender->send($response->finalize($request))`. `finalize()` omits the body of responses to
   `HEAD` requests.
 - Added `FinalResponse`, and `Response::finalize(?Request)`, which resolves the status, headers
   and body as they are sent, without modifying the response.
+
+#### Headers
+
 - Added `Headers::from_server()` to create headers from `$_SERVER` or a copy of it.
-- Added `Request::client_ip()`, which returns the client IP from `X-Forwarded-For` when the request
-  comes from a trusted proxy.
+- Added `AuthenticationFailed` exception.
+
+#### Status
+
 - Added `Status::from(int|Status, ?string $reason = null)`, which returns shared instances, and the
   `Status::of_*()` helpers for the statuses used in everyday application logic (`of_ok()`,
   `of_created()`, `of_not_found()`, …).
@@ -32,18 +43,35 @@ None
 
 ### Backward Incompatible Changes
 
-- The `Headers` constructor no longer detects `$_SERVER` arrays by their `REQUEST_URI` key, nor
-  filters and normalizes `HTTP_*` keys. Use `Headers::from_server()`.
-- `Headers` no longer strips the `;length=xxx` suffix that Internet Explorer 9 appended to
-  `If-Modified-Since`.
+#### Request
+
+- `Request::from($_SERVER)` throws a `BadMethodCallException`, use `Request::from_server()`, which also accepts an explicit server array.
+- `Request::$ip` no longer reads `X-Forwarded-For`, and neither does `Request::$is_local`. Any
+  client could spoof them, for example to make `is_local` return `true`. Use
+  `Request::client_ip()` with a list of trusted proxies instead.
+- `Request::$headers` is now `private(set)` instead of `readonly`, so that `with()` can replace it.
+- `Request::$params` is a read-only property computed on read, instead of a snapshot taken when the
+  request was created. `Request::$request_params` is now typed `array`.
+- `Request::$cookie` is typed `?array`.
+- A malformed JSON request body, or one that is not a JSON object or array, throws a `ClientError`
+  (400) instead of a `JsonException`. An empty JSON body results in no request parameters.
 - `File` has a public constructor with named parameters (`new File(pathname: ...)`). `File::from()` still accepts
   an array of properties keyed by the `FileOptions` constants, such as an entry of `$_FILES`.
-- `Request::from($_SERVER)` throws a `BadMethodCallException`, use `Request::from_server()`, which also accepts an explicit server array.
+
+#### Response
+
 - `Response::finalize(Headers &$headers, &$body)`, `Response::send_headers()`, and
   `Response::send_body()` are replaced by `Response::finalize(?Request): FinalResponse` and the
   `ResponseSender` implementations. Subclasses overriding them must be updated.
   `Response::__invoke()` still sends the response using a `SimpleResponseSender`, but it is
   deprecated.
+- A closure used as response body receives the `FinalResponse` instead of the `Response`.
+- Exception thrown during Response streaming is no longer captured: it propagates to the caller of
+  `$response()`. The headers have already been sent at that point, so a recovery decorator cannot
+  replace the response. Handle errors inside the streaming closure.
+
+#### FileResponse
+
 - `FileResponse` no longer takes a `Request`: the constructor is
   `new FileResponse($file, etag:, expires:, filename:, mime:, headers:)`. The `OPTION_ETAG`,
   `OPTION_EXPIRES`, `OPTION_FILENAME` and `OPTION_MIME` constants and the options array are replaced
@@ -51,8 +79,23 @@ None
   `finalize($request)`, which doesn't modify the response any more. `FileResponse::$is_modified`
   and `FileResponse::$range` are replaced by `is_modified_for($request)` and `range_for($request)`,
   and `send_file()` takes the length and offset to send.
-- A closure used as response body receives the `FinalResponse` instead of the `Response`.
-- `Headers::__invoke()` and `Headers::send_header()` are removed. Use `Headers::fields()`.
+- `FileResponse` defaults to `Cache-Control: private` instead of `public`, and no longer overwrites
+  a `Cache-Control` defined by the caller. Define `Cache-Control: public` explicitly for files that
+  may be stored by shared caches.
+- The default `ETag` of `FileResponse` is derived from the modification time and the size of the
+  file, and is quoted. It used to be an unquoted SHA-384 of the content, computed for every
+  response.
+- `FileResponse` returns `304 Not Modified` only for `GET` and `HEAD` requests. For other methods,
+  a matching `If-None-Match` results in `412 Precondition Failed`, which used to be `200`.
+- `FileResponse` quotes the value of `etag` when it isn't quoted already, and throws
+  `InvalidArgumentException` for an unquoted value containing a double quote.
+- `RequestRange` follows RFC 9110: a last position beyond the end is clamped instead of making the
+  range unsatisfiable, a suffix larger than the file selects the whole file, and a range whose last
+  position is before its first (`bytes=999-500`) is ignored instead of resulting in a 416.
+  `RequestRange::$max_length` is no longer `-1`.
+
+#### Status
+
 - `ResponseStatus` is removed, and `Response` no longer implements it. Use the `Status` constants:
   `ResponseStatus::STATUS_NOT_FOUND` and `Response::STATUS_NOT_FOUND` become `Status::NOT_FOUND`.
   `STATUS_I_M_A_TEAPOT` is `Status::IM_A_TEAPOT`, `STATUS_RECONDITION_REQUIRED` is
@@ -71,82 +114,77 @@ None
   is affected.
 - Statuses are compared by value (`==`), the reason included.
 
-- Exception thrown during Response streaming is no longer captured: it propagates to the caller of
-  `$response()`. The headers have already been sent at that point, so a recovery decorator cannot
-  replace the response. Handle errors inside the streaming closure.
-- `Request::$ip` no longer reads `X-Forwarded-For`, and neither does `Request::$is_local`. Any
-  client could spoof them, for example to make `is_local` return `true`. Use
-  `Request::client_ip()` with a list of trusted proxies instead.
-- `Request::$headers` is now `private(set)` instead of `readonly`, so that `with()` can replace it.
-- `FileResponse` defaults to `Cache-Control: private` instead of `public`, and no longer overwrites
-  a `Cache-Control` defined by the caller. Define `Cache-Control: public` explicitly for files that
-  may be stored by shared caches.
-- The default `ETag` of `FileResponse` is derived from the modification time and the size of the
-  file, and is quoted. It used to be an unquoted SHA-384 of the content, computed for every
-  response.
-- `FileResponse` returns `304 Not Modified` only for `GET` and `HEAD` requests. For other methods,
-  a matching `If-None-Match` results in `412 Precondition Failed`, which used to be `200`.
-- `FileResponse` quotes the value of `etag` when it isn't quoted already, and throws
-  `InvalidArgumentException` for an unquoted value containing a double quote.
-- A malformed JSON request body, or one that is not a JSON object or array, throws a `ClientError`
-  (400) instead of a `JsonException`. An empty JSON body results in no request parameters.
-- `RequestRange` follows RFC 9110: a last position beyond the end is clamped instead of making the
-  range unsatisfiable, a suffix larger than the file selects the whole file, and a range whose last
-  position is before its first (`bytes=999-500`) is ignored instead of resulting in a 416.
-  `RequestRange::$max_length` is no longer `-1`.
-- `HeaderParameter::from()` throws `InvalidArgumentException` on a malformed parameter. Extended
-  values (`filename*=`) are decoded with `rawurldecode()`, so `+` is no longer turned into a space.
+#### Headers
+
+- The `Headers` constructor no longer detects `$_SERVER` arrays by their `REQUEST_URI` key, nor
+  filters and normalizes `HTTP_*` keys. Use `Headers::from_server()`.
+- `Headers` no longer strips the `;length=xxx` suffix that Internet Explorer 9 appended to
+  `If-Modified-Since`.
+- `Headers::__invoke()` and `Headers::send_header()` are removed. Use `Headers::fields()`.
+- `Headers::getIterator()` returns a `Generator`. `Headers::$content_type` is always a
+  `ContentType`.
 - `Headers` field names are case-insensitive: `content-type` and `Content-Type` are the same field.
   Names defined by the `Headers::HEADER_*` constants are stored and sent with the spelling of the
   constant, other names keep the spelling they were first given.
+- `Headers` throws `InvalidArgumentException` for a field name that is not a valid HTTP token, and
+  for a value containing NUL, CR or LF, which prevents header injection. The check happens when
+  the field is set, including for `Content-Type`, `Content-Disposition` and `Cache-Control`, and when a
+  value is assigned to a `Header` or a `HeaderParameter`. `Headers::fields()` checks again as a
+  last resort, since `CacheControl::$extensions` is a public array.
 - `Header` no longer uses `__get()`, `__set()` and `__unset()`, nor the `VALUE_ALIAS` constant.
   `ContentType` and `ContentDisposition` declare typed properties (`type`, `charset`, `filename`)
   instead, and child classes declare their parameters with the `PARAMETERS` constant instead of
   populating `$parameters` before calling the parent constructor. Parameters can no longer be
   `unset()` through their property, set them to `null`. `HeaderParameter` instances are still
   available through array access. `Header::$value` is now `?string`.
-- `Request::$params` is a read-only property computed on read, instead of a snapshot taken when the
-  request was created. `Request::$request_params` is now typed `array`.
-- `Request::$cookie` is typed `?array`.
-- `Headers::getIterator()` returns a `Generator`. `Headers::$content_type` is always a
-  `ContentType`.
-- `Headers` throws `InvalidArgumentException` for a field name that is not a valid HTTP token, and
-  for a value containing NUL, CR or LF, which prevents header injection. The check happens when
-  the field is set, including for `Content-Type`, `Content-Disposition` and `Cache-Control`, and when a
-  value is assigned to a `Header` or a `HeaderParameter`. `Headers::fields()` checks again as a
-  last resort, since `CacheControl::$extensions` is a public array.
+- `HeaderParameter::from()` throws `InvalidArgumentException` on a malformed parameter. Extended
+  values (`filename*=`) are decoded with `rawurldecode()`, so `+` is no longer turned into a space.
 
 ### Other changes
 
-- `Response` discards the body for the statuses that cannot have one (`1xx`, `204`, `304`).
-  `Response::$ttl` reads `s-maxage` before `max-age`, so that setting then reading it round-trips,
-  and `Response::$version` only accepts `1.0` and `1.1`.
-- `FileResponse` throws `InvalidArgumentException` for an unsupported option, and a
-  `RuntimeException` if the file cannot be opened. `FileResponse::$modified_time` is an `int`.
-  `ext-fileinfo` is suggested.
+#### Request
+
 - `Request::$uri` no longer falls back to `$_SERVER['REQUEST_URI']`; `Request::$port` reads
   `SERVER_PORT` before `REQUEST_PORT` and defaults to 80; `Request::$script_name` and
   `Request::$path` no longer fail when the environment lacks the key. A `POST` request can only
   emulate `PUT`, `PATCH` and `DELETE` with `_method`.
-- `CacheControl` supports `immutable`, `stale-while-revalidate` and `stale-if-error`, renders
-  its `extensions`, and keys them by their original name. `CacheControl::$max_stale` is `?int`.
-- `Headers::$content_length`, `$etag`, `$location` and `$retry_after` return the type they declare.
-- `declare(strict_types=1)` is enabled in `lib/`, and PHPStan runs at level 6.
-- Documentation links point to RFC 9110, 9111, 8187 and 6266 instead of RFC 2616.
-- Documented that `Headers` is single-valued and that cookies are not implemented.
-- Moved README doc to docs/
+- `Request::with()` supports `OPTION_HEADERS`; it used to throw an error.
 - Request headers created from `$_SERVER` now include `Content-Type` and `Content-Length`, which CGI
   exposes as `CONTENT_TYPE` and `CONTENT_LENGTH`. As a consequence, JSON request bodies are now
   decoded.
-- `Request::with()` supports `OPTION_HEADERS`; it used to throw an error.
+
+#### Response
+
+- `Response` discards the body for the statuses that cannot have one (`1xx`, `204`, `304`).
+  `Response::$ttl` reads `s-maxage` before `max-age`, so that setting then reading it round-trips,
+  and `Response::$version` only accepts `1.0` and `1.1`.
+
+#### FileResponse
+
+- `FileResponse` throws `InvalidArgumentException` for an unsupported option, and a
+  `RuntimeException` if the file cannot be opened. `FileResponse::$modified_time` is an `int`.
+  `ext-fileinfo` is suggested.
 - `FileResponse` answers with `304 Not Modified` when `If-None-Match` matches, even without
   `If-Modified-Since`. `If-None-Match` supports lists, weak tags, and `*`.
 - A `416 Range Not Satisfiable` response from `FileResponse` has `Content-Range: bytes */<size>`
   and `Content-Length: 0`.
 - `bytes=0-0` is a satisfiable range.
 - `If-Range` supports dates, compared to the modification time of the file.
+
+#### Headers
+
+- `CacheControl` supports `immutable`, `stale-while-revalidate` and `stale-if-error`, renders
+  its `extensions`, and keys them by their original name. `CacheControl::$max_stale` is `?int`.
+- `Headers::$content_length`, `$etag`, `$location` and `$retry_after` return the type they declare.
 - `Header::parse()` no longer splits quoted strings on `;`, such as `filename="a;b.txt"`, and
   ignores malformed parameters instead of failing.
+
+#### Project
+
+- `declare(strict_types=1)` is enabled in `lib/`, and PHPStan runs at level 6.
+- Documentation links point to RFC 9110, 9111, 8187 and 6266 instead of RFC 2616.
+- Documented that `Headers` is single-valued and that cookies are not implemented.
+- Moved README doc to docs/
 
 
 
