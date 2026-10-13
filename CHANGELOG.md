@@ -11,6 +11,11 @@ PHP 8.4+
 #### Request
 
 - Added `Request::from_server()` to create the initial request from `$_SERVER` or a copy of it.
+- Added `Request::$body_stream`, a `SplFileObject` of the request body, to read JSON, XML, or any
+  other payload. `Request::from_server()` sets it to `php://input`, other requests have none unless
+  they are created with `Request::OPTION_BODY_STREAM`, which tests can use to provide their own stream.
+  `Request::from_server()` does not decode the body, whatever its content type; that's up to the
+  application.
 - Added `Request::client_ip()`, which returns the client IP from `X-Forwarded-For` when the request
   comes from a trusted proxy.
 
@@ -53,8 +58,6 @@ None
 - `Request::$params` is a read-only property computed on read, instead of a snapshot taken when the
   request was created. `Request::$request_params` is now typed `array`.
 - `Request::$cookie` is typed `?array`.
-- A malformed JSON request body, or one that is not a JSON object or array, throws a `ClientError`
-  (400) instead of a `JsonException`. An empty JSON body results in no request parameters.
 - `File` has a public constructor with named parameters (`new File(pathname: ...)`). `File::from()` still accepts
   an array of properties keyed by the `FileOptions` constants, such as an entry of `$_FILES`.
 
@@ -150,8 +153,7 @@ None
   emulate `PUT`, `PATCH` and `DELETE` with `_method`.
 - `Request::with()` supports `OPTION_HEADERS`; it used to throw an error.
 - Request headers created from `$_SERVER` now include `Content-Type` and `Content-Length`, which CGI
-  exposes as `CONTENT_TYPE` and `CONTENT_LENGTH`. As a consequence, JSON request bodies are now
-  decoded.
+  exposes as `CONTENT_TYPE` and `CONTENT_LENGTH`.
 
 #### Response
 

@@ -13,6 +13,7 @@ use ICanBoogie\PropertyNotWritable;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use SplFileObject;
 
 class RequestTest extends TestCase
 {
@@ -582,50 +583,54 @@ class RequestTest extends TestCase
         $request->with([ 'unsupported_property' => uniqid() ]);
     }
 
-    #[DataProvider('provide_test_decode_json_body')]
-    public function test_decode_json_body(string $json, array $expected): void
+    public function test_body_stream_is_null_by_default(): void
     {
-        $this->assertSame($expected, self::decode_json_body($json));
+        $this->assertNull(Request::from()->body_stream);
+        $this->assertNull(Request::from('/')->body_stream);
     }
 
-    public static function provide_test_decode_json_body(): array
+    public function test_body_stream_option(): void
     {
-        return [
+        $stream = new SplFileObject('php://memory', 'w+');
+        $stream->fwrite('{"name":"Madonna"}');
+        $stream->rewind();
 
-            'empty body' => [ '', [] ],
-            'blank body' => [ " \n", [] ],
-            'object' => [ '{"name":"Madonna"}', [ 'name' => 'Madonna' ] ],
-            'array' => [ '[1,2]', [ 1, 2 ] ],
+        $request = Request::from([ Request::OPTION_BODY_STREAM => $stream ]);
 
-        ];
+        $this->assertSame($stream, $request->body_stream);
+        $this->assertSame('{"name":"Madonna"}', $request->body_stream->fgets());
+
+        $other = new SplFileObject('php://memory', 'w+');
+
+        $this->assertSame($other, $request->with([ Request::OPTION_BODY_STREAM => $other ])->body_stream);
+        $this->assertSame($stream, $request->body_stream);
     }
 
-    #[DataProvider('provide_test_decode_json_body_with_invalid_json')]
-    public function test_decode_json_body_with_invalid_json(string $json): void
+    public function test_from_server_provides_body_stream(): void
     {
+        $server = $_SERVER;
+        $server['REQUEST_URI'] = '/';
+
+        $request = Request::from_server($server);
+
+        $this->assertInstanceOf(SplFileObject::class, $request->body_stream);
+        $this->assertSame('php://input', $request->body_stream->getPathname());
+    }
+
+    public function test_from_server_does_not_decode_json_body(): void
+    {
+        $server = $_SERVER;
+        $post = $_POST;
+
         try {
-            self::decode_json_body($json);
-            $this->fail("Expected ClientError");
-        } catch (ClientError $e) {
-            $this->assertEquals(400, $e->getCode());
+            $server['REQUEST_URI'] = '/';
+            $server['CONTENT_TYPE'] = 'application/json';
+            $_POST = [];
+
+            $this->assertSame([], Request::from_server($server)->request_params);
+        } finally {
+            $_POST = $post;
         }
-    }
-
-    public static function provide_test_decode_json_body_with_invalid_json(): array
-    {
-        return [
-
-            'malformed' => [ '{"name":' ],
-            'scalar' => [ '42' ],
-            'string' => [ '"Madonna"' ],
-            'null' => [ 'null' ],
-
-        ];
-    }
-
-    private static function decode_json_body(string $json): array
-    {
-        return new \ReflectionMethod(Request::class, 'decode_json_body')->invoke(null, $json);
     }
 
     public function test_getters_do_not_fail_on_empty_env(): void

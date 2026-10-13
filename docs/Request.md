@@ -158,11 +158,55 @@ $info = $request->params['info'];
 
 
 
-## JSON request bodies
+## Request body
 
-When the initial request is created from `$_SERVER` and its content type is `application/json`,
-the body is decoded into `request_params`. A malformed body, or one that is not a JSON object or
-array, throws a `ClientError` (400). An empty body results in no parameters.
+The initial request created with `Request::from_server()` exposes its body through `body_stream`, a
+`SplFileObject` of `php://input`. The body is not decoded, whatever its content type, which leaves
+the application free to read JSON, XML, or any other payload, and to stream large ones.
+
+```php
+<?php
+
+namespace ICanBoogie\HTTP;
+
+$request = Request::from_server();
+
+# the whole body, e.g. JSON
+
+$body = '';
+
+while (!$request->body_stream->eof()) {
+    $body .= $request->body_stream->fread(8192);
+}
+
+$data = json_decode($body, true, flags: JSON_THROW_ON_ERROR);
+
+# or line by line, e.g. NDJSON
+
+foreach ($request->body_stream as $line) {
+    $record = json_decode($line, true, flags: JSON_THROW_ON_ERROR);
+}
+```
+
+Other requests have no body stream (`body_stream` is `null`). To provide one, e.g. in tests, use
+`OPTION_BODY_STREAM`:
+
+```php
+<?php
+
+namespace ICanBoogie\HTTP;
+
+use SplFileObject;
+
+$stream = new SplFileObject('php://memory', 'w+');
+$stream->fwrite('{"name":"Madonna"}');
+$stream->rewind();
+
+$request = Request::from([ Request::OPTION_BODY_STREAM => $stream ]);
+```
+
+Note that PHP doesn't populate `php://input` for `multipart/form-data` requests, use `files` and
+`request_params` for those. The stream is shared by the clones created with `with()`.
 
 
 

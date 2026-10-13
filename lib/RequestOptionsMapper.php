@@ -27,7 +27,8 @@ final class RequestOptionsMapper
      *     request_params?: array<string, mixed>,
      *     cookie?: array<string, string>,
      *     files?: FileList,
-     *     headers?: Headers
+     *     headers?: Headers,
+     *     body_stream?: \SplFileObject
      * }
      */
     public static function map(array $options, array &$env): array
@@ -74,6 +75,7 @@ final class RequestOptionsMapper
             RequestOptions::OPTION_COOKIE => fn($value) => $value,
             RequestOptions::OPTION_FILES => fn($value) => ($value instanceof FileList) ? $value : new FileList($value),
             RequestOptions::OPTION_HEADERS => fn($value) => ($value instanceof Headers) ? $value : new Headers($value),
+            RequestOptions::OPTION_BODY_STREAM => fn($value) => $value,
 
         ][$option] ?? null;
     }

@@ -15,6 +15,7 @@ interface RequestOptions
     public const string OPTION_COOKIE = 'cookie';
     public const string OPTION_FILES = 'files';
     public const string OPTION_HEADERS = 'headers';
+    public const string OPTION_BODY_STREAM = 'body_stream';
     public const string OPTION_CACHE_CONTROL = 'cache_control';
     public const string OPTION_CONTENT_LENGTH = 'content_length';
     public const string OPTION_IP = 'ip';

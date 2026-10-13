@@ -4,29 +4,22 @@ declare(strict_types=1);
 
 namespace ICanBoogie\HTTP;
 
-use ICanBoogie\HTTP\Headers\ContentType;
 use InvalidArgumentException;
-use JsonException;
+use SplFileObject;
 
 use function array_reverse;
 use function ctype_digit;
 use function explode;
-use function file_get_contents;
 use function filter_var;
-use function get_debug_type;
 use function ICanBoogie\normalize_url_path;
 use function in_array;
 use function inet_pton;
 use function intdiv;
-use function is_array;
-use function json_decode;
 use function ord;
 use function strlen;
 use function strncmp;
-use function trim;
 
 use const FILTER_VALIDATE_IP;
-use const JSON_THROW_ON_ERROR;
 
 /**
  * An HTTP request.
@@ -121,6 +114,19 @@ final class Request implements RequestOptions
     private(set) FileList $files;
 
     /**
+     * Stream of the request body, usually `php://input`, or `null` if the request has none.
+     *
+     * The property is only initialized by {@see from_server()}, or with the
+     * {@see RequestOptions::OPTION_BODY_STREAM} option, which tests can use to provide their own
+     * stream, e.g. `new SplFileObject('php://memory', 'w+')`. Because the stream is shared, the
+     * clones created by {@see with()} share it too.
+     *
+     * Note that PHP doesn't populate `php://input` for `multipart/form-data` requests.
+     */
+    // The field is not readonly because it can be overwritten by `with()`.
+    private(set) ?SplFileObject $body_stream = null;
+
+    /**
      * The cookies of the request, usually a reference to the `$_COOKIE` super global.
      *
      * Cookies are not otherwise implemented: there is no parsing of the `Cookie` header field, and
@@ -139,6 +145,8 @@ final class Request implements RequestOptions
      * - {@see $query_params}: a reference to the `$_GET` super global.
      * - {@see $request_params}: a reference to the `$_POST` super global.
      * - {@see $files}: a reference to the `$_FILES` super global.
+     * - {@see $body_stream}: a read-only stream of `php://input`. The body is not decoded, whatever
+     *   its content type, it's up to the application to do so.
      *
      * A request may also be created from an array of properties, in which case most of them are
      * mapped to the `$env` constructor param. For instance, `is_xhr` set the
@@ -149,6 +157,7 @@ final class Request implements RequestOptions
      * - Request::OPTION_QUERY_PARAMS
      * - Request::OPTION_REQUEST_PARAMS
      * - Request::OPTION_FILES: The files associated with the request.
+     * - Request::OPTION_BODY_STREAM: The stream of the request body.
      * - Request::OPTION_HEADERS: The header fields of the request. If specified, the headers
      * available in the environment are ignored.
      *
@@ -184,53 +193,16 @@ final class Request implements RequestOptions
     {
         $server ??= $_SERVER;
 
-        // CGI exposes `CONTENT_TYPE` without the `HTTP_` prefix.
-        $content_type = $server['CONTENT_TYPE'] ?? $server['HTTP_CONTENT_TYPE'] ?? null;
-        $content_type = $content_type ? new ContentType($content_type) : null;
-
-        if ($content_type?->type === 'application/json') {
-            $request_params = self::decode_json_body((string) file_get_contents('php://input'));
-        } else {
-            $request_params = &$_POST;
-        }
-
         return self::from([
 
             self::OPTION_COOKIE => &$_COOKIE,
             self::OPTION_PATH_PARAMS => [],
             self::OPTION_QUERY_PARAMS => &$_GET,
-            self::OPTION_REQUEST_PARAMS => $request_params,
+            self::OPTION_REQUEST_PARAMS => &$_POST,
             self::OPTION_FILES => &$_FILES, // @codeCoverageIgnore
+            self::OPTION_BODY_STREAM => new SplFileObject('php://input', 'r'),
 
         ], $server);
-    }
-
-    /**
-     * Decodes a JSON request body into request parameters.
-     *
-     * An empty body results in no parameters.
-     *
-     * @return array<string, mixed>
-     *
-     * @throws ClientError if the body is not valid JSON, or is not a JSON object or array.
-     */
-    private static function decode_json_body(string $json): array
-    {
-        if (trim($json) === '') {
-            return [];
-        }
-
-        try {
-            $params = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
-        } catch (JsonException $e) {
-            throw new ClientError("Malformed JSON in request body: {$e->getMessage()}.", previous: $e);
-        }
-
-        if (!is_array($params)) {
-            throw new ClientError("Expected a JSON object or array in request body, got: " . get_debug_type($params) . ".");
-        }
-
-        return $params;
     }
 
     /**
@@ -283,6 +255,7 @@ final class Request implements RequestOptions
         $this->query_params = $options[self::OPTION_QUERY_PARAMS] ?? [];
         $this->request_params = $options[self::OPTION_REQUEST_PARAMS] ?? [];
         $this->cookie = $options[self::OPTION_COOKIE] ?? null;
+        $this->body_stream = $options[self::OPTION_BODY_STREAM] ?? null;
     }
 
     /**
@@ -314,6 +287,7 @@ final class Request implements RequestOptions
                     self::OPTION_COOKIE => $changed->cookie = $value,
                     self::OPTION_FILES => $changed->files = $value,
                     self::OPTION_HEADERS => $changed->headers = $value,
+                    self::OPTION_BODY_STREAM => $changed->body_stream = $value,
                 };
             }
         }
