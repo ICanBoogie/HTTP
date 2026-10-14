@@ -230,7 +230,7 @@ class ResponseTest extends TestCase
 
     public function test_finalize_does_not_modify_the_response(): void
     {
-        $response = new Response(new class implements \Stringable {
+        $response = new Response(new class () implements \Stringable {
             public function __toString(): string
             {
                 return 'body';
@@ -247,7 +247,7 @@ class ResponseTest extends TestCase
 
     public function test_finalize_converts_stringable_body(): void
     {
-        $body = new class implements \Stringable {
+        $body = new class () implements \Stringable {
             public function __toString(): string
             {
                 return 'body';

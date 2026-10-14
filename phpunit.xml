@@ -1,15 +1,17 @@
 <?xml version="1.0"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/13.4/phpunit.xsd"
-         beStrictAboutCoverageMetadata="true"
          beStrictAboutOutputDuringTests="true"
-         bootstrap="tests/bootstrap.php" colors="true"
+         bootstrap="tests/bootstrap.php"
+         colors="true"
          displayDetailsOnTestsThatTriggerDeprecations="true"
          displayDetailsOnTestsThatTriggerNotices="true"
          displayDetailsOnTestsThatTriggerWarnings="true"
          displayDetailsOnPhpunitDeprecations="true"
          displayDetailsOnPhpunitNotices="true"
-         executionOrder="defects">
+         displayDetailsOnIncompleteTests="true"
+         executionOrder="defects"
+>
     <testsuites>
         <testsuite name="icanboogie/http">
             <directory>tests</directory>

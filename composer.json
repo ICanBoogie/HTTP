@@ -1,7 +1,6 @@
 {
   "name": "icanboogie/http",
   "type": "library",
-  "version": "7.0",
   "description": "Provides an API to handle HTTP requests.",
   "keywords": [
     "http",
@@ -24,6 +23,9 @@
     "source": "https://github.com/ICanBoogie/HTTP"
   },
   "config": {
+    "platform": {
+      "php": "8.4.1"
+    },
     "sort-packages": true
   },
   "minimum-stability": "dev",
@@ -42,7 +44,7 @@
     "ext-gd": "*",
     "icanboogie/datetime": "^3.0",
     "phpstan/phpstan": "^2.3",
-    "phpunit/phpunit": "13.4"
+    "phpunit/phpunit": "^13.4"
   },
   "autoload": {
     "psr-4": {

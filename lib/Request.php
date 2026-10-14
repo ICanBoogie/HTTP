@@ -98,7 +98,7 @@ final class Request implements RequestOptions
     public readonly Request\Context $context;
 
     // The field is not readonly because it can be overwritten by `with()`.
-    private(set) Headers $headers;
+    public private(set) Headers $headers;
 
     /**
      * Request environment.
@@ -111,7 +111,7 @@ final class Request implements RequestOptions
      * Files associated with the request.
      */
     // The field is not readonly because it can be overwritten by `with()`.
-    private(set) FileList $files;
+    public private(set) FileList $files;
 
     /**
      * Stream of the request body, usually `php://input`, or `null` if the request has none.
@@ -124,7 +124,7 @@ final class Request implements RequestOptions
      * Note that PHP doesn't populate `php://input` for `multipart/form-data` requests.
      */
     // The field is not readonly because it can be overwritten by `with()`.
-    private(set) ?SplFileObject $body_stream = null;
+    public private(set) ?SplFileObject $body_stream = null;
 
     /**
      * The cookies of the request, usually a reference to the `$_COOKIE` super global.
@@ -315,22 +315,21 @@ final class Request implements RequestOptions
      * A `POST` request can emulate `PUT`, `PATCH` or `DELETE` with a `_method` request
      * parameter. Other values are ignored.
      */
-    public RequestMethod $method
-        {
-            get {
-                $method = RequestMethod::from_mixed($this->env['REQUEST_METHOD'] ?? 'GET');
+    public RequestMethod $method {
+        get {
+            $method = RequestMethod::from_mixed($this->env['REQUEST_METHOD'] ?? 'GET');
 
-                if ($method === RequestMethod::METHOD_POST && !empty($this->request_params['_method'])) {
-                    $override = RequestMethod::from_mixed($this->request_params['_method']);
+            if ($method === RequestMethod::METHOD_POST && !empty($this->request_params['_method'])) {
+                $override = RequestMethod::from_mixed($this->request_params['_method']);
 
-                    if (in_array($override, self::OVERRIDABLE_METHODS, true)) {
-                        $method = $override;
-                    }
+                if (in_array($override, self::OVERRIDABLE_METHODS, true)) {
+                    $method = $override;
                 }
-
-                return $method;
             }
+
+            return $method;
         }
+    }
 
     /**
      * The query string of the request.

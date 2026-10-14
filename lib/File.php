@@ -106,7 +106,7 @@ class File implements ToArray, FileOptions
      *
      * @var string|null
      */
-    private(set) ?string $name = null;
+    public private(set) ?string $name = null;
 
     public ?string $unsuffixed_name {
         get => $this->name ? basename($this->name, $this->extension) : null;
@@ -118,7 +118,7 @@ class File implements ToArray, FileOptions
      * If the {@see $type} property wasn't defined during construct, the type
      * is guessed from the name or the pathname of the file.
      */
-    private(set) ?string $type {
+    public private(set) ?string $type {
         get {
             if (!empty($this->type)) {
                 return $this->type;
@@ -139,7 +139,7 @@ class File implements ToArray, FileOptions
      * is guessed using the pathname of the file.
      * If the pathname is not available, the method returns `null`.
      */
-    private(set) int|false|null $size {
+    public private(set) int|false|null $size {
         get {
             if (!empty($this->size)) {
                 return $this->size;
@@ -158,7 +158,7 @@ class File implements ToArray, FileOptions
     /**
      * Error code, one of `UPLOAD_ERR_*`.
      */
-    private(set) ?int $error = null;
+    public private(set) ?int $error = null;
 
     /**
      * Returns the message associated with the error.
@@ -306,10 +306,9 @@ class File implements ToArray, FileOptions
     /**
      * Whether the file was uploaded.
      */
-    public bool $is_uploaded
-        {
-            get => $this->tmp_name && is_uploaded_file($this->tmp_name);
-        }
+    public bool $is_uploaded {
+        get => $this->tmp_name && is_uploaded_file($this->tmp_name);
+    }
 
     /**
      * Checks if the file matches a MIME class, a MIME type, or a file extension.

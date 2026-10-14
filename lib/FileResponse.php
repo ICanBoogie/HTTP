@@ -389,10 +389,9 @@ class FileResponse extends Response
     /**
      * The timestamp at which the file was last modified.
      */
-    public int $modified_time
-        {
-            get => $this->file->getMTime();
-        }
+    public int $modified_time {
+        get => $this->file->getMTime();
+    }
 
     /**
      * Whether the file has been modified since the last response to the request.

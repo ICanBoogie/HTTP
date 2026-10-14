@@ -1,6 +1,15 @@
+# $schema: https://phpstan.olvlvl.com/schema.json
+includes:
+  - phpstan-baseline.neon
+
 parameters:
+  # TODO: raise to max, see the lib errors reported at that level
   level: 6
+  phpVersion: 80400
   paths:
     - lib
+    - tests
+  excludePaths:
+    - tests/sandbox/*
   scanFiles:
     - tests/bootstrap.php

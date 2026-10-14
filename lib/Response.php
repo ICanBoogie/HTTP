@@ -192,10 +192,9 @@ class Response
      * Whether the response includes header fields that can be used to validate the response
      * with the origin server using a conditional GET request.
      */
-    public bool $is_validateable
-        {
-            get => !$this->headers->last_modified->is_empty || $this->headers->etag;
-        }
+    public bool $is_validateable {
+        get => !$this->headers->last_modified->is_empty || $this->headers->etag;
+    }
 
     /**
      * Whether the response is worth caching under any circumstance.
@@ -203,27 +202,25 @@ class Response
      * not cacheable. Responses with neither a freshness lifetime (Expires, max-age) nor cache validator
      * (`Last-Modified`, `ETag`) are considered not cacheable.
      */
-    public bool $is_cacheable
-        {
-            get {
-                if (
-                    !$this->status->is_heuristically_cacheable
-                    || $this->headers->cache_control->no_store
-                    || $this->headers->cache_control->cacheable === 'private'
-                ) {
-                    return false;
-                }
-
-                return $this->is_validateable || $this->is_fresh;
+    public bool $is_cacheable {
+        get {
+            if (
+                !$this->status->is_heuristically_cacheable
+                || $this->headers->cache_control->no_store
+                || $this->headers->cache_control->cacheable === 'private'
+            ) {
+                return false;
             }
+
+            return $this->is_validateable || $this->is_fresh;
         }
+    }
 
     /**
      * Whether the response is fresh.
      * A response is considered fresh when its TTL is greater than 0.
      */
-    public bool $is_fresh
-        {
-            get => $this->ttl > 0;
-        }
+    public bool $is_fresh {
+        get => $this->ttl > 0;
+    }
 }

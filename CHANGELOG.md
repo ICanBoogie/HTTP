@@ -190,7 +190,7 @@ None
 
 
 
-## v4.x to v6.0
+## v6.0.0
 
 ### New requirements
 

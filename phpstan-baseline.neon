@@ -1,0 +1,703 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\AuthenticationRequiredTest\:\:test_message\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/AuthenticationRequiredTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\ExceptionTest\:\:provide_test_implements\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/ExceptionTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\ExceptionTest\:\:test_implements\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/ExceptionTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\ExceptionTest\:\:test_implements\(\) has parameter \$args with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/ExceptionTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\ExceptionTest\:\:test_implements\(\) has parameter \$class with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/ExceptionTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileInfoTest\:\:provide_test_resolve_type\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileInfoTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileInfoTest\:\:test_resolve_type\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/FileInfoTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileInfoTest\:\:test_resolve_type\(\) has parameter \$expected with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/FileInfoTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileInfoTest\:\:test_resolve_type\(\) has parameter \$pathname with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/FileInfoTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileResponseTest\:\:provide_test_accept_ranges\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileResponseTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileResponseTest\:\:provide_test_cache_control_is_respected\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileResponseTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileResponseTest\:\:provide_test_filename\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileResponseTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileResponseTest\:\:provide_test_finalize\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileResponseTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileResponseTest\:\:provide_test_finalize_with_range\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileResponseTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileResponseTest\:\:provide_test_get_content_type\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileResponseTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileResponseTest\:\:provide_test_get_etag\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileResponseTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileResponseTest\:\:provide_test_get_expires\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileResponseTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileResponseTest\:\:provide_test_get_is_modified\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileResponseTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileResponseTest\:\:provide_test_not_modified_only_for_get_and_head\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileResponseTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileResponseTest\:\:provide_test_option_etag\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileResponseTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileResponseTest\:\:provide_test_range_response\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileResponseTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileResponseTest\:\:test_get_content_type\(\) has parameter \$headers with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileResponseTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileResponseTest\:\:test_get_content_type\(\) has parameter \$options with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileResponseTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileResponseTest\:\:test_get_etag\(\) has parameter \$headers with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileResponseTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileResponseTest\:\:test_get_etag\(\) has parameter \$options with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileResponseTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileResponseTest\:\:test_get_expires\(\) has parameter \$headers with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileResponseTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileResponseTest\:\:test_get_expires\(\) has parameter \$options with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileResponseTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileResponseTest\:\:test_get_is_modified\(\) has parameter \$request_headers with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileResponseTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileTest\:\:provide_test_error_message\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileTest\:\:provide_test_get_extension\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileTest\:\:provide_test_match\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileTest\:\:provide_test_to_array\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/FileTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileTest\:\:test_error_message\(\) has parameter \$error with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/FileTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileTest\:\:test_error_message\(\) has parameter \$expected with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/FileTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileTest\:\:test_get_extension\(\) has parameter \$expected with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/FileTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileTest\:\:test_get_extension\(\) has parameter \$pathname with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/FileTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileTest\:\:test_match\(\) has parameter \$against with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/FileTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileTest\:\:test_match\(\) has parameter \$expected with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/FileTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileTest\:\:test_to_array\(\) has parameter \$expected with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/FileTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\FileTest\:\:test_to_array\(\) has parameter \$properties with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/FileTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\CacheControlTest\:\:provide_properties\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Headers/CacheControlTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\CacheControlTest\:\:test_from\(\) has parameter \$properties with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Headers/CacheControlTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\CacheControlTest\:\:test_properties\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/Headers/CacheControlTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\CacheControlTest\:\:test_properties\(\) has parameter \$properties with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Headers/CacheControlTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\ContentDispositionTest\:\:provide_from\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Headers/ContentDispositionTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\ContentDispositionTest\:\:provide_test_from_malformed\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Headers/ContentDispositionTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\ContentDispositionTest\:\:test_attributes\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/Headers/ContentDispositionTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\ContentDispositionTest\:\:test_from\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/Headers/ContentDispositionTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\ContentDispositionTest\:\:test_from\(\) has parameter \$source with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/Headers/ContentDispositionTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\ContentDispositionTest\:\:test_from\(\) has parameter \$values with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/Headers/ContentDispositionTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\ContentDispositionTest\:\:test_value\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/Headers/ContentDispositionTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\ContentDispositionTest\:\:test_value_alias\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/Headers/ContentDispositionTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\ContentTypeTest\:\:provide_from\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Headers/ContentTypeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\ContentTypeTest\:\:provide_test_from_malformed\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Headers/ContentTypeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\ContentTypeTest\:\:test_attributes\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/Headers/ContentTypeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\ContentTypeTest\:\:test_from\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/Headers/ContentTypeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\ContentTypeTest\:\:test_from\(\) has parameter \$source with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/Headers/ContentTypeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\ContentTypeTest\:\:test_from\(\) has parameter \$values with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/Headers/ContentTypeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\DateHeaderTest\:\:provide_test_to_string\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Headers/DateHeaderTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\DateHeaderTest\:\:test_to_string\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/Headers/DateHeaderTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\DateHeaderTest\:\:test_to_string\(\) has parameter \$datetime with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/Headers/DateHeaderTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\DateHeaderTest\:\:test_to_string\(\) has parameter \$expected with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/Headers/DateHeaderTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNotInstanceOf\(\) with ''ICanBoogie\\\\HTTP\\\\Headers\\\\HeaderParameter'' and string\|null will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Headers/HeaderTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\HeaderTest\:\:test_attributes\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/Headers/HeaderTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\HeaderTest\:\:test_from\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/Headers/HeaderTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\HeaderTest\:\:test_from_to_string\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/Headers/HeaderTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\HeaderTest\:\:test_getting_unsupported_attribute_using_an_offset_should_throw_an_exception\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/Headers/HeaderTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\HeaderTest\:\:test_ignore_unrecognized_parameter\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/Headers/HeaderTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\HeaderTest\:\:test_setting_unsupported_attribute_using_an_offset_should_throw_an_exception\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/Headers/HeaderTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\HeaderTest\:\:test_unsetting_attribute\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/Headers/HeaderTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\HeaderTest\:\:test_value\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/Headers/HeaderTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\Headers\\HeaderTest\:\:test_value_alias\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/Headers/HeaderTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''ICanBoogie\\\\HTTP\\\\Headers\\\\ContentDisposition'' and ''attachment;…'' will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/HeadersTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''ICanBoogie\\\\HTTP\\\\Headers\\\\ContentType'' and ''text/plain; charset…'' will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/HeadersTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''ICanBoogie\\\\HTTP\\\\Headers\\\\Date'' and ICanBoogie\\HTTP\\Headers\\Date will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/HeadersTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\HeadersTest\:\:provide_getters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/HeadersTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\HeadersTest\:\:provide_test_date_header\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/HeadersTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\HeadersTest\:\:provide_test_empty_date\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/HeadersTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestMethodTest\:\:provide_is\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/RequestMethodTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestRangeTest\:\:provide_invalid_range\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/RequestRangeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestRangeTest\:\:provide_test_if_range_with_date\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/RequestRangeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestRangeTest\:\:provide_test_is_total\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/RequestRangeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestRangeTest\:\:provide_test_length\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/RequestRangeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestRangeTest\:\:provide_test_max_length\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/RequestRangeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestRangeTest\:\:provide_test_offset\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/RequestRangeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestRangeTest\:\:provide_unsatisfiable\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/RequestRangeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestRangeTest\:\:provide_valid_range\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/RequestRangeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestRangeTest\:\:test_is_total\(\) has parameter \$expected with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/RequestRangeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestRangeTest\:\:test_is_total\(\) has parameter \$range with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/RequestRangeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestRangeTest\:\:test_length\(\) has parameter \$expected with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/RequestRangeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestRangeTest\:\:test_length\(\) has parameter \$range with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/RequestRangeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestRangeTest\:\:test_max_length\(\) has parameter \$expected with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/RequestRangeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestRangeTest\:\:test_max_length\(\) has parameter \$range with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/RequestRangeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestRangeTest\:\:test_offset\(\) has parameter \$expected with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/RequestRangeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestRangeTest\:\:test_offset\(\) has parameter \$range with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/RequestRangeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestRangeTest\:\:test_should_return_null_when_undefined_or_modified\(\) has parameter \$etag with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/RequestRangeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestRangeTest\:\:test_should_return_null_when_undefined_or_modified\(\) has parameter \$headers with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/RequestRangeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestRangeTest\:\:test_should_return_null_when_undefined_or_modified\(\) has parameter \$total with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/RequestRangeTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestTest\:\:provide_test_change\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/RequestTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestTest\:\:provide_test_client_ip\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/RequestTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestTest\:\:provide_test_client_ip_with_invalid_proxy\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/RequestTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestTest\:\:provide_test_get_authorization\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/RequestTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestTest\:\:provide_test_get_is_local\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/RequestTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\RequestTest\:\:test_get_authorization\(\) has parameter \$env with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/RequestTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\ResponseTest\:\:provide_statuses_without_body\(\) should return array\<string, array\{int\}\> but returns array\{100\: array\{100\}, 204\: array\{204\}, 304\: array\{304\}\}\.$#'
+			identifier: return.type
+			count: 1
+			path: tests/ResponseTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\ResponseTest\:\:provide_test_is_cacheable\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/ResponseTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\ResponseTest\:\:provide_test_no_content_length\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/ResponseTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\SimpleResponseSenderTest\:\:provide_statuses_without_body\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/SimpleResponseSenderTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\StatusCodeNotValidTest\:\:test_get_status_code\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/StatusCodeNotValidTest.php
+
+		-
+			message: '#^Assign to protected\(set\) property ICanBoogie\\HTTP\\Status\:\:\$code\.$#'
+			identifier: assign.propertyProtectedSet
+			count: 1
+			path: tests/StatusTest.php
+
+		-
+			message: '#^Assign to protected\(set\) property ICanBoogie\\HTTP\\Status\:\:\$reason\.$#'
+			identifier: assign.propertyProtectedSet
+			count: 1
+			path: tests/StatusTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\StatusTest\:\:provide_classes\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/StatusTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\StatusTest\:\:provide_has_no_body\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/StatusTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\StatusTest\:\:provide_helpers\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/StatusTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\StatusTest\:\:provide_invalid_codes\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/StatusTest.php
+
+		-
+			message: '#^Method Test\\ICanBoogie\\HTTP\\StatusTest\:\:provide_is_heuristically_cacheable\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/StatusTest.php
+
+		-
+			message: '#^Function Test\\ICanBoogie\\HTTP\\generate_pathname\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/bootstrap.php

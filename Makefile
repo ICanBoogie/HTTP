@@ -1,6 +1,6 @@
 # customization
 
-PHPUNIT = vendor/bin/phpunit
+PHPUNIT = vendor/bin/phpunit --display-skipped
 
 # do not edit the following lines
 
@@ -14,7 +14,7 @@ test-dependencies: vendor test-cleanup
 
 .PHONY: test
 test: test-dependencies
-	@$(PHPUNIT) --display-skipped $(ARGS)
+	@$(PHPUNIT) $(ARGS)
 
 .PHONY: test-coverage
 test-coverage: test-dependencies
@@ -35,10 +35,15 @@ test-container: test-container-84
 
 .PHONY: test-container-84
 test-container-84:
-	@-docker-compose run --rm app84 bash
-	@docker-compose down -v
+	@-docker compose run --rm app84 bash
+	@docker compose down -v
+
+.PHONY: test-container-85
+test-container-85:
+	@-docker compose run --rm app85 bash
+	@docker compose down -v
 
 .PHONY: lint
 lint:
-	#@XDEBUG_MODE=off phpcs -s # phpcs doesn't support hook properties
+	@XDEBUG_MODE=off php-cs-fixer check --diff
 	@XDEBUG_MODE=off vendor/bin/phpstan

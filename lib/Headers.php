@@ -343,7 +343,7 @@ class Headers implements ArrayAccess, IteratorAggregate
                 }
                 break;
 
-            # https://www.rfc-editor.org/rfc/rfc9110#section-10.2.3
+                # https://www.rfc-editor.org/rfc/rfc9110#section-10.2.3
             case self::HEADER_RETRY_AFTER:
                 $value = is_numeric($value) ? (int) $value : Headers\Date::from($value);
                 break;
@@ -390,7 +390,7 @@ class Headers implements ArrayAccess, IteratorAggregate
      */
     public Headers\CacheControl $cache_control {
         get => $this->offsetGet(self::HEADER_CACHE_CONTROL);
-        set (Headers\CacheControl|string $value) {
+        set(Headers\CacheControl|string $value) {
             $this->offsetSet(self::HEADER_CACHE_CONTROL, $value);
         }
     }
