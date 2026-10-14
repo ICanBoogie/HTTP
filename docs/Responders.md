@@ -83,6 +83,33 @@ $events->attach(function (RecoverEvent $event, NotFound $target) {
 $responder_with_recovery = new Responder\WithRecovery($responder);
 ```
 
+The exception is the event's sender, and listeners are also called for the interfaces the sender
+implements. A listener can thus be attached to an interface such as `Throwable` to recover every
+exception, or `ICanBoogie\HTTP\Exception` for HTTP exceptions:
+
+```php
+<?php
+
+namespace ICanBoogie\HTTP;
+
+use ICanBoogie\EventCollection;
+use Throwable;
+
+/* @var EventCollection $events */
+
+$events->attach(function (RecoverEvent $event, Throwable $target): void {
+
+    $event->response = new Response(
+        "Something went wrong.",
+        Status::INTERNAL_SERVER_ERROR
+    );
+
+});
+```
+
+Listeners attached to the exception class are called before those attached to its parent classes,
+and those attached to interfaces come last.
+
 
 ## Events around respond()
 

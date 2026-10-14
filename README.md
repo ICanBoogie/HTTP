@@ -27,6 +27,8 @@ $response = $responder->respond($request);
 
 // The response is sent to the client.
 (new SimpleResponseSender())->send($response->finalize($request));
+# or
+$response($request); // request is only necessary in file responses
 ```
 
 

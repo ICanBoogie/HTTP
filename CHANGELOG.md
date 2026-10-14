@@ -42,6 +42,12 @@ PHP 8.4+
 - `Status` has a constant and a reason phrase for every standard status code, including `308`, `422`,
   and `429`, for which instantiating a status used to trigger an undefined array key warning.
 
+#### Recovery
+
+- Since `icanboogie/event` supports attaching listeners to interfaces, a `RecoverEvent` listener can
+  be attached to an interface implemented by the exception, such as `Throwable`, to recover every
+  exception.
+
 ### Deprecated Features
 
 None
