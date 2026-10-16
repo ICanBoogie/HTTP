@@ -15,7 +15,8 @@ PHP 8.4+
   other payload. `Request::from_server()` sets it to `php://input`, other requests have none unless
   they are created with `Request::OPTION_BODY_STREAM`, which tests can use to provide their own stream.
   `Request::from_server()` does not decode the body, whatever its content type; that's up to the
-  application.
+  application. In particular, `Request::$request_params` stays empty for an `application/json`
+  request until the application assigns the decoded data.
 - Added `Request::client_ip()`, which returns the client IP from `X-Forwarded-For` when the request
   comes from a trusted proxy.
 

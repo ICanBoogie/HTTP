@@ -208,6 +208,19 @@ $request = Request::from([ Request::OPTION_BODY_STREAM => $stream ]);
 Note that PHP doesn't populate `php://input` for `multipart/form-data` requests, use `files` and
 `request_params` for those. The stream is shared by the clones created with `with()`.
 
+Conversely, `request_params` is a reference to `$_POST`, which PHP only fills for
+`application/x-www-form-urlencoded` and `multipart/form-data`. For an `application/json` request it
+is empty, even though the body is there. Code that reads `request_params`, e.g. `#[Part]` of
+`icanboogie/routing`, finds nothing until the application decodes the body and assigns it:
+
+```php
+<?php
+
+namespace ICanBoogie\HTTP;
+
+$request->request_params = json_decode($body, true, flags: JSON_THROW_ON_ERROR);
+```
+
 
 
 

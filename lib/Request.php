@@ -78,6 +78,9 @@ final class Request implements RequestOptions
     /**
      * Parameters defined by the request body.
      *
+     * {@see from_server()} makes it a reference to `$_POST`, which PHP only fills for form encodings.
+     * A JSON body is not decoded into it, the application may assign the decoded data.
+     *
      * @var array<string, mixed>
      */
     public array $request_params = [];
