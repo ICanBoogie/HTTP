@@ -242,6 +242,33 @@ $headers->retry_after = 123;
 $headers->retry_after = '+1 hour';
 ```
 
+## Server-Timing
+
+The `Server-Timing` header is a list of metrics, represented by a [ServerTiming][] instance. Each
+metric has a name, an optional duration in milliseconds, and an optional description. A metric name
+must be a valid HTTP token, and a duration cannot be negative (the specification doesn't forbid it,
+but it makes no sense), otherwise an `InvalidArgumentException` is thrown. Metrics with the same
+name are kept, as the [specification](https://w3c.github.io/server-timing/) allows it. A duration is
+rendered with up to 2 decimals.
+
+When a string is parsed, the processing rules of the specification apply: unknown or malformed
+parameters are ignored, only the first instance of a parameter is considered, and a `dur` that is
+not a number is ignored.
+
+```php
+<?php
+
+use ICanBoogie\HTTP\Headers;
+
+$headers = new Headers();
+$headers->server_timing->add('db', 53.0);
+$headers->server_timing->add('cache', 23.2, 'Cache Read');
+
+echo $headers->server_timing; // db;dur=53, cache;dur=23.2;desc="Cache Read"
+
+$headers->server_timing = 'app;dur=47.2';
+```
+
 ## Date, Expires, If-Modified-Since, If-Unmodified-Since, and Last-Modified
 
 All date related headers are represented by a [Date][] instance, and can be specified as Unix timestamp, strings
@@ -265,3 +292,4 @@ $headers->last_modified = '2022-01-01';
 [ContentDisposition]: ../lib/Headers/ContentDisposition.php
 [ContentType]:        ../lib/Headers/ContentType.php
 [Date]:               ../lib/Headers/Date.php
+[ServerTiming]:       ../lib/Headers/ServerTiming.php

@@ -199,8 +199,33 @@ final class HeadersTest extends TestCase
             [ 'expires', Headers\Date::class ],
             [ 'if_modified_since', Headers\Date::class ],
             [ 'if_unmodified_since', Headers\Date::class ],
+            [ 'server_timing', Headers\ServerTiming::class ],
 
         ];
+    }
+
+    public function test_server_timing(): void
+    {
+        $headers = new Headers();
+
+        $headers->server_timing->add('db', 53.0);
+        $headers['server-timing']->add('cache', 23.2, 'Cache Read');
+
+        $actual = iterator_to_array($headers->fields());
+
+        $this->assertSame([ 'Server-Timing' => 'db;dur=53, cache;dur=23.2;desc="Cache Read"' ], $actual);
+
+        $headers->server_timing = 'app;dur=47.2';
+
+        $this->assertSame('app;dur=47.2', (string) $headers->server_timing);
+    }
+
+    public function test_empty_server_timing_is_not_rendered(): void
+    {
+        $headers = new Headers();
+
+        $this->assertInstanceOf(Headers\ServerTiming::class, $headers->server_timing);
+        $this->assertSame([], iterator_to_array($headers->fields()));
     }
 
     #[DataProvider('provide_test_empty_date')]

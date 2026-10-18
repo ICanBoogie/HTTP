@@ -33,6 +33,9 @@ PHP 8.4+
 
 - Added `Headers::from_server()` to create headers from `$_SERVER` or a copy of it.
 - Added `AuthenticationFailed` exception.
+- Added support for the `Server-Timing` header: `Headers::HEADER_SERVER_TIMING`, `Headers::$server_timing`, and the
+  `ServerTiming` and `ServerTimingMetric` classes, e.g. `$headers->server_timing->add('db', 53.0)`.
+  Durations are rendered with up to 2 decimals.
 
 #### Status
 

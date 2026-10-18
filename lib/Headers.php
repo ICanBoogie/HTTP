@@ -53,6 +53,7 @@ class Headers implements ArrayAccess, IteratorAggregate
     public const string HEADER_LOCATION = 'Location';
     public const string HEADER_RANGE = 'Range';
     public const string HEADER_RETRY_AFTER = 'Retry-After';
+    public const string HEADER_SERVER_TIMING = 'Server-Timing';
 
     private const array MAPPING = [
 
@@ -64,6 +65,7 @@ class Headers implements ArrayAccess, IteratorAggregate
         self::HEADER_IF_MODIFIED_SINCE => Headers\Date::class,
         self::HEADER_IF_UNMODIFIED_SINCE => Headers\Date::class,
         self::HEADER_LAST_MODIFIED => Headers\Date::class,
+        self::HEADER_SERVER_TIMING => Headers\ServerTiming::class,
 
     ];
 
@@ -103,6 +105,7 @@ class Headers implements ArrayAccess, IteratorAggregate
         'location' => self::HEADER_LOCATION,
         'range' => self::HEADER_RANGE,
         'retry-after' => self::HEADER_RETRY_AFTER,
+        'server-timing' => self::HEADER_SERVER_TIMING,
 
     ];
 
@@ -355,7 +358,7 @@ class Headers implements ArrayAccess, IteratorAggregate
             $value = $class::from($value);
         }
 
-        if ($value instanceof Header) {
+        if ($value instanceof Header || $value instanceof Headers\ServerTiming) {
             self::assert_value_is_safe($offset, (string) $value);
         }
 
@@ -528,6 +531,18 @@ class Headers implements ArrayAccess, IteratorAggregate
         }
         set(Headers\Date|DateTimeInterface|int|string|null $value) {
             $this->offsetSet(self::HEADER_RETRY_AFTER, $value);
+        }
+    }
+
+    /**
+     * Shortcut to the `Server-Timing` header field definition.
+     *
+     * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Server-Timing
+     */
+    public Headers\ServerTiming $server_timing {
+        get => $this->offsetGet(self::HEADER_SERVER_TIMING);
+        set(Headers\ServerTiming|string|null $value) {
+            $this->offsetSet(self::HEADER_SERVER_TIMING, $value);
         }
     }
 }
